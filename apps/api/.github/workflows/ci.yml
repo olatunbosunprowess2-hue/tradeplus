@@ -1,0 +1,51 @@
+# This is the name of our workflow, which will appear on GitHub.
+name: CI
+
+# This workflow runs whenever we push code to any branch
+# or when someone creates a pull request.
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+# These are the jobs that the robot will perform.
+jobs:
+  # We only have one job called "build-and-test".
+  build-and-test:
+    # The robot will run on the latest version of Ubuntu Linux.
+    runs-on: ubuntu-latest
+
+    # These are the steps the robot will take, in order.
+    steps:
+      # Step 1: Check out the code from our repository.
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Node.js on the robot's machine.
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Step 3: Install pnpm, our package manager.
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      # Step 4: Install all the project dependencies.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Step 5: Run the linter to check for code style issues.
+      - name: Run linter
+        run: pnpm lint
+
+      # Step 6: Try to build the project to check for TypeScript errors.
+      - name: Build project
+        run: pnpm build
+
+      # Step 7: Run tests (if they exist).
+      - name: Run tests
+        run: pnpm test --if-present

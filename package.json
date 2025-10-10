@@ -1,0 +1,13 @@
+{
+  "name": "tradeplus",
+  "private": true,
+  "scripts": {
+    "build": "pnpm -r build",
+    "dev": "concurrently \"pnpm --filter web dev\" \"pnpm --filter api dev\" \"pnpm --filter prisma dev\"",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
