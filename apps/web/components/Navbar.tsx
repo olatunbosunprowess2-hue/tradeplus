@@ -32,8 +32,12 @@ export default function Navbar() {
 
   const handleLogout = () => {
     if (confirm('Are you sure you want to log out?')) {
-      logout();
-      router.push('/');
+      try {
+        logout();
+        router.push('/');
+      } catch (error) {
+        console.error('Logout error:', error);
+      }
     }
   };
 
@@ -58,14 +62,43 @@ export default function Navbar() {
       ),
       isImage: false
     },
-    { href: '/listings/create', label: 'Sell', icon: '➕', isImage: false },
-    { href: '/offers', label: 'Offers', icon: '/icons/icon-offers.png', isImage: true },
-    { href: '/messages', label: 'Messages', icon: '/icons/icon-messages.png', isImage: true },
-    { href: '/wants', label: 'Wants', icon: '/icons/icon-wants.png', isImage: true },
+    {
+      href: '/wants',
+      label: 'Wants',
+      icon: '/icons/icon-wants-new.png',
+      isImage: true
+    },
+    {
+      href: '/listings/create',
+      label: 'Sell',
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+        </svg>
+      ),
+      isImage: false
+    },
+    {
+      href: '/offers',
+      label: 'Offers',
+      icon: '/icons/icon-offers.png',
+      isImage: true
+    },
+    {
+      href: '/messages',
+      label: 'Messages',
+      icon: '/icons/icon-messages-new.png',
+      isImage: true
+    },
   ];
 
   if (user?.role === 'admin') {
-    navLinks.push({ href: '/admin', label: 'Admin', icon: '⚙️' });
+    navLinks.push({ href: '/admin', label: 'Admin', icon: '⚙️', isImage: false });
+  }
+
+  // Hide navbar on homepage for all users
+  if (pathname === '/') {
+    return null;
   }
 
   // Hide navbar on specific auth pages
@@ -121,25 +154,7 @@ export default function Navbar() {
             <div className="flex items-center gap-2 shrink-0">
               {/* Desktop Nav Links (Icons only to save space) */}
               <div className="hidden lg:flex items-center gap-1 mr-2">
-                {navLinks.slice(0, 5).map((link) => {
-                  if (link.href === '/listings/create') {
-                    return (
-                      <button
-                        key={link.href}
-                        onClick={() => {
-                          if (user && !user.isVerified) {
-                            setShowVerificationModal(true);
-                          } else {
-                            router.push(link.href);
-                          }
-                        }}
-                        title={link.label}
-                        className={`p-2 rounded-lg transition-all text-gray-600 hover:bg-gray-50 hover:text-blue-600`}
-                      >
-                        <span className="text-xl">{link.icon}</span>
-                      </button>
-                    );
-                  }
+                {navLinks.map((link) => {
                   return (
                     <Link
                       key={link.href}
@@ -151,7 +166,11 @@ export default function Navbar() {
                         }`}
                     >
                       {link.isImage ? (
-                        <img src={link.icon as string} alt={link.label} className="w-6 h-6 object-contain" />
+                        <img
+                          src={link.icon as string}
+                          alt={link.label}
+                          className={`w-6 h-6 object-contain ${pathname === link.href ? '' : 'grayscale opacity-70'}`}
+                        />
                       ) : (
                         typeof link.icon === 'string' ? <span className="text-xl">{link.icon}</span> : link.icon
                       )}
@@ -189,6 +208,13 @@ export default function Navbar() {
 
               {isAuthenticated ? (
                 <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleLogout}
+                    className="p-2 text-gray-600 hover:text-red-600 transition"
+                    title="Log Out"
+                  >
+                    <img src="/icons/icon-logout-new.png" alt="Log Out" className="w-6 h-6 object-contain" />
+                  </button>
                   <Link
                     href="/profile"
                     className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-gray-50 transition"
@@ -197,13 +223,6 @@ export default function Navbar() {
                       {user?.profile?.displayName?.[0]?.toUpperCase() || user?.email[0].toUpperCase()}
                     </div>
                   </Link>
-                  <button
-                    onClick={handleLogout}
-                    className="p-2 text-gray-600 hover:text-red-600 transition"
-                    title="Log Out"
-                  >
-                    <img src="/icons/icon-logout.png" alt="Log Out" className="w-6 h-6 object-contain" />
-                  </button>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
@@ -266,29 +285,7 @@ export default function Navbar() {
           <div className="flex items-center gap-2 shrink-0">
             {/* Desktop Nav Links (Icons only to save space) */}
             <div className="hidden lg:flex items-center gap-1 mr-2">
-              {navLinks.slice(0, 5).map((link) => {
-                if (link.href === '/listings/create') {
-                  return (
-                    <button
-                      key={link.href}
-                      onClick={() => {
-                        if (user && !user.isVerified) {
-                          setShowVerificationModal(true);
-                        } else {
-                          router.push(link.href);
-                        }
-                      }}
-                      title={link.label}
-                      className={`p-2 rounded-lg transition-all text-gray-600 hover:bg-gray-50 hover:text-blue-600`}
-                    >
-                      {link.isImage ? (
-                        <img src={link.icon as string} alt={link.label} className="w-6 h-6 object-contain" />
-                      ) : (
-                        typeof link.icon === 'string' ? <span className="text-xl">{link.icon}</span> : link.icon
-                      )}
-                    </button>
-                  );
-                }
+              {navLinks.map((link) => {
                 return (
                   <Link
                     key={link.href}
@@ -300,7 +297,11 @@ export default function Navbar() {
                       }`}
                   >
                     {link.isImage ? (
-                      <img src={link.icon as string} alt={link.label} className="w-6 h-6 object-contain" />
+                      <img
+                        src={link.icon as string}
+                        alt={link.label}
+                        className={`w-6 h-6 object-contain ${pathname === link.href ? '' : 'grayscale opacity-70'}`}
+                      />
                     ) : (
                       typeof link.icon === 'string' ? <span className="text-xl">{link.icon}</span> : link.icon
                     )}
@@ -338,6 +339,13 @@ export default function Navbar() {
 
             {isAuthenticated ? (
               <div className="flex items-center gap-2">
+                <button
+                  onClick={handleLogout}
+                  className="p-2 text-gray-600 hover:text-red-600 transition"
+                  title="Log Out"
+                >
+                  <img src="/icons/icon-logout-new.png" alt="Log Out" className="w-6 h-6 object-contain" />
+                </button>
                 <Link
                   href="/profile"
                   className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-gray-50 transition"
@@ -346,13 +354,6 @@ export default function Navbar() {
                     {user?.profile?.displayName?.[0]?.toUpperCase() || user?.email[0].toUpperCase()}
                   </div>
                 </Link>
-                <button
-                  onClick={handleLogout}
-                  className="p-2 text-gray-600 hover:text-red-600 transition"
-                  title="Log Out"
-                >
-                  <img src="/icons/icon-logout.png" alt="Log Out" className="w-6 h-6 object-contain" />
-                </button>
               </div>
             ) : (
               <div className="flex items-center gap-2">

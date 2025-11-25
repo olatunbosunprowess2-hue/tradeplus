@@ -1,135 +1,216 @@
-# TradePlus - Hybrid Marketplace MVP
+# TradePlus 🔄
 
-A hybrid marketplace supporting **Cash Purchases**, **Barter**, and **Cash + Barter** deals.
+A modern, revolutionary marketplace platform that enables users to buy, sell, and trade items using cash, barter, or a combination of both. Built with cutting-edge web technologies for a seamless trading experience.
 
-## 🚀 Quick Start
+![TradePlus Banner](https://via.placeholder.com/1200x300/667eea/ffffff?text=TradePlus+Marketplace)
+
+## ✨ Features
+
+### Trading Flexibility
+- **💵 Cash Payments** - Traditional buying and selling with secure payment options
+- **🔄 Barter System** - Exchange items without spending money
+- **💎 Hybrid Deals** - Combine cash and items for maximum flexibility
+
+### User Experience
+- **🎨 Dynamic Animations** - Smooth, engaging UI with modern animations
+- **📱 Responsive Design** - Optimized for desktop, tablet, and mobile devices
+- **🔔 Real-time Notifications** - Stay updated on offers and messages
+- **💬 Integrated Messaging** - Communicate directly with buyers and sellers
+- **⭐ User Verification** - Phone verification for trusted transactions
+- **📊 Admin Dashboard** - Comprehensive platform management
+
+### Platform Features
+- User profile management with verification badges
+- Listing creation with multiple images
+- Offer system for negotiations
+- Wants list to find desired items
+- Report system for safety
+- Advanced search and filtering
+
+## 🛠️ Tech Stack
+
+### Frontend
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **State Management**: Zustand
+- **UI Components**: Custom components with animations
+
+### Backend
+- **Framework**: NestJS
+- **Language**: TypeScript
+- **Database**: PostgreSQL with Prisma ORM
+- **Cache**: Redis
+- **Authentication**: JWT with refresh tokens
+- **File Upload**: Cloudinary integration
+
+### Infrastructure
+- **Containerization**: Docker & Docker Compose
+- **Database Migrations**: Prisma Migrate
+- **Phone Verification**: Twilio (configured for production)
+
+## 🚀 Getting Started
 
 ### Prerequisites
-
 - Node.js 18+ and npm
-- PostgreSQL 14+
-- (Optional) Redis for caching (can skip for MVP)
+- Docker and Docker Compose
+- Git
 
 ### Installation
 
-1. **Clone and install dependencies:**
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/TradePlus.git
+   cd TradePlus
+   ```
 
-```bash
-cd TradePlus
-npm install
-```
+2. **Start Docker services**
+   ```bash
+   docker-compose up -d
+   ```
 
-2. **Set up environment variables:**
+3. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-Create a `.env` file in the root directory:
+4. **Set up environment variables**
+   
+   Create `.env` file in the root:
+   ```env
+   DATABASE_URL=postgresql://user:password@localhost:5432/tradeplus?schema=public
+   JWT_SECRET=super-secret-jwt-key
+   JWT_REFRESH_SECRET=super-secret-refresh-key
+   NEXT_PUBLIC_API_URL=http://localhost:3000/api
+   ```
 
-```env
-# Database
-DATABASE_URL="postgresql://user:password@localhost:5432/tradeplus?schema=public"
+5. **Run database migrations**
+   ```bash
+   npm run db:migrate
+   ```
 
-# JWT
-JWT_SECRET="your-super-secret-jwt-key-change-in-production"
-JWT_EXPIRES_IN="7d"
-JWT_REFRESH_SECRET="your-super-secret-refresh-key-change-in-production"
-JWT_REFRESH_EXPIRES_IN="30d"
+6. **Seed the database (optional)**
+   ```bash
+   npm run db:seed
+   ```
 
-# API
-API_PORT=3001
-API_URL="http://localhost:3001"
+7. **Start the development servers**
+   ```bash
+   npm run dev
+   ```
 
-# Frontend
-NEXT_PUBLIC_API_URL="http://localhost:3001"
-```
+   The application will be available at:
+   - **Frontend**: http://localhost:3001
+   - **Backend API**: http://localhost:3000
+   - **API Docs**: http://localhost:3000/api
 
-3. **Set up the database:**
-
-```bash
-# Generate Prisma Client
-npm run db:generate
-
-# Run migrations
-npm run db:migrate
-
-# (Optional) Seed initial data
-npm run db:seed
-```
-
-4. **Start development servers:**
-
-```bash
-# Start both API and frontend
-npm run dev
-
-# Or start individually:
-npm run dev:api  # Backend on http://localhost:3001
-npm run dev:web  # Frontend on http://localhost:3000
-```
+### Default Admin Account
+- **Email**: admin@tradeplus.com
+- **Password**: password123
 
 ## 📁 Project Structure
 
 ```
 TradePlus/
 ├── apps/
-│   ├── api/          # NestJS backend API
-│   └── web/          # Next.js frontend (to be created)
-├── packages/         # Shared packages
-├── prisma/           # Prisma schema and migrations
-├── scripts/          # Utility scripts
-└── docs/             # Documentation
+│   ├── api/              # NestJS backend
+│   │   ├── src/
+│   │   │   ├── auth/     # Authentication module
+│   │   │   ├── listings/ # Listings management
+│   │   │   ├── offers/   # Offer system
+│   │   │   ├── users/    # User management
+│   │   │   └── ...
+│   │   └── package.json
+│   └── web/              # Next.js frontend
+│       ├── app/          # App router pages
+│       ├── components/   # React components
+│       ├── lib/          # Utilities & stores
+│       └── package.json
+├── prisma/
+│   └── schema.prisma     # Database schema
+├── docker-compose.yml    # Docker services
+├── package.json          # Root package.json
+└── README.md
 ```
 
-## 🛠️ Tech Stack
+## 🎯 Available Scripts
 
-- **Backend**: NestJS, TypeScript, Prisma, PostgreSQL
-- **Frontend**: Next.js, TypeScript, Tailwind CSS (to be set up)
-- **Auth**: JWT with Argon2 password hashing
-- **Validation**: class-validator, class-transformer
+```bash
+# Development
+npm run dev           # Start both frontend and backend
+npm run dev:web       # Start frontend only
+npm run dev:api       # Start backend only
 
-## 📚 API Endpoints
+# Database
+npm run db:generate   # Generate Prisma client
+npm run db:migrate    # Run migrations
+npm run db:seed       # Seed database
 
-### Authentication
-- `POST /auth/register` - Register new user
-- `POST /auth/login` - Login user
-
-### Users
-- `GET /users/me` - Get current user profile (protected)
-
-### Locations
-- `GET /locations/countries` - Get all countries
-- `GET /locations/countries/:id` - Get country by ID
-- `GET /locations/countries/:countryId/regions` - Get regions by country
-
-## 🔐 Authentication
-
-Protected routes require a JWT token in the Authorization header:
-
-```
-Authorization: Bearer <access_token>
+# Build
+npm run build         # Build both apps
+npm run build:web     # Build frontend
+npm run build:api     # Build backend
 ```
 
-## 📝 Development Status
+## 🔐 Environment Variables
 
-### ✅ Completed
-- [x] Monorepo structure
-- [x] Prisma database schema
-- [x] NestJS backend foundation
-- [x] Authentication (JWT, register, login)
-- [x] User profiles
-- [x] Locations (countries, regions)
+### Required Variables
+- `DATABASE_URL` - PostgreSQL connection string
+- `JWT_SECRET` - Secret for access tokens
+- `JWT_REFRESH_SECRET` - Secret for refresh tokens
+- `NEXT_PUBLIC_API_URL` - Backend API URL
 
-### 🚧 In Progress
-- [ ] Categories and listings CRUD
-- [ ] Barter offers system
-- [ ] Cart and checkout
-- [ ] Orders and payments
-- [ ] Notifications
-- [ ] Admin dashboard
-- [ ] Next.js frontend
+### Optional Variables (Production)
+- `CLOUDINARY_CLOUD_NAME` - For image uploads
+- `CLOUDINARY_API_KEY`
+- `CLOUDINARY_API_SECRET`
+- `TWILIO_ACCOUNT_SID` - For phone verification
+- `TWILIO_AUTH_TOKEN`
+- `TWILIO_PHONE_NUMBER`
 
-## 📖 Documentation
+## 🎨 Key Features in Detail
 
-See [docs/CONTEXT.md](./docs/CONTEXT.md) for detailed feature specifications, database schema, and architecture.
+### Dynamic Homepage
+- Animated hero section with eye-catching CTAs
+- Scroll-triggered counting animations for stats
+- Interactive feature cards with hover effects
+- Responsive design optimized for all devices
+
+### User Authentication
+- Secure JWT-based authentication
+- Phone number verification
+- Refresh token rotation
+- Password reset functionality
+
+### Listing Management
+- Multi-image upload support
+- Flexible payment options (cash, barter, hybrid)
+- Category-based organization
+- Advanced search and filtering
+
+### Messaging System
+- Real-time chat between users
+- Offer proposals and negotiations
+- Message notifications
 
 ## 🤝 Contributing
 
-This is an MVP project. Follow the step-by-step development plan in the CONTEXT.md file.
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 👨‍💻 Author
+
+Your Name - [@YourGitHub](https://github.com/YOUR_USERNAME)
+
+## 🙏 Acknowledgments
+
+- Built with ❤️ using Next.js and NestJS
+- Icons and animations powered by Tailwind CSS
+- Database management with Prisma
+
+---
+
+⭐ Star this repo if you find it helpful!

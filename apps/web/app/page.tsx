@@ -1,6 +1,54 @@
+'use client';
+
 import Link from 'next/link';
+import { useState, useEffect, useRef } from 'react';
 
 export default function LandingPage() {
+  const [activeUsers, setActiveUsers] = useState(0);
+  const [itemsListed, setItemsListed] = useState(0);
+  const [satisfaction, setSatisfaction] = useState(0);
+  const [hasAnimated, setHasAnimated] = useState(false);
+  const statsRef = useRef<HTMLElement>(null);
+
+  // Counting animation triggered by scroll
+  useEffect(() => {
+    const currentRef = statsRef.current;
+    if (!currentRef || hasAnimated) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !hasAnimated) {
+          setHasAnimated(true);
+
+          const duration = 3000; // 3 seconds
+          const frameDuration = 1000 / 60;
+          const totalFrames = Math.round(duration / frameDuration);
+
+          let frame = 0;
+          const counter = setInterval(() => {
+            frame++;
+            const progress = frame / totalFrames;
+            const easeOutQuad = progress * (2 - progress);
+
+            setActiveUsers(Math.round(easeOutQuad * 10000));
+            setItemsListed(Math.round(easeOutQuad * 50000));
+            setSatisfaction(Math.round(easeOutQuad * 95));
+
+            if (frame === totalFrames) {
+              clearInterval(counter);
+            }
+          }, frameDuration);
+        }
+      },
+      { threshold: 0.3 }
+    );
+
+    observer.observe(currentRef);
+
+    return () => {
+      observer.unobserve(currentRef);
+    };
+  }, [hasAnimated]);
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
@@ -93,19 +141,25 @@ export default function LandingPage() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-20 bg-gradient-to-br from-gray-50 to-primary-pale">
+      <section ref={statsRef} className="py-20 bg-gradient-to-br from-gray-50 to-primary-pale">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto text-center">
-            <div>
-              <div className="text-5xl font-bold text-blue-600 mb-2">10K+</div>
+            <div className="group hover:scale-110 transition-transform duration-300">
+              <div className="text-5xl font-bold text-blue-600 mb-2 group-hover:animate-pulse">
+                {activeUsers.toLocaleString()}+
+              </div>
               <p className="text-gray-600 text-lg">Active Users</p>
             </div>
-            <div>
-              <div className="text-5xl font-bold text-blue-600 mb-2">50K+</div>
+            <div className="group hover:scale-110 transition-transform duration-300">
+              <div className="text-5xl font-bold text-blue-600 mb-2 group-hover:animate-pulse">
+                {itemsListed.toLocaleString()}+
+              </div>
               <p className="text-gray-600 text-lg">Items Listed</p>
             </div>
-            <div>
-              <div className="text-5xl font-bold text-blue-600 mb-2">95%</div>
+            <div className="group hover:scale-110 transition-transform duration-300">
+              <div className="text-5xl font-bold text-blue-600 mb-2 group-hover:animate-pulse">
+                {satisfaction}%
+              </div>
               <p className="text-gray-600 text-lg">Satisfaction Rate</p>
             </div>
           </div>
@@ -193,11 +247,11 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="bg-gray-900 text-gray-400 py-12">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <h3 className="text-white font-bold text-lg mb-4">TradePlus</h3>
-              <p className="text-sm">The modern marketplace for buying, selling, and trading.</p>
-            </div>
+          <div className="mb-8">
+            <h3 className="text-white font-bold text-lg mb-4">TradePlus</h3>
+            <p className="text-sm max-w-md">The modern marketplace for buying, selling, and trading.</p>
+          </div>
+          <div className="grid grid-cols-3 gap-4 sm:gap-8 mb-8">
             <div>
               <h4 className="text-white font-semibold mb-4">Company</h4>
               <ul className="space-y-2 text-sm">

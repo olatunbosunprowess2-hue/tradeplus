@@ -33,7 +33,7 @@ export default function MobileBottomNav() {
         {
             href: '/wants',
             label: 'Wants',
-            icon: '/icons/icon-wants.png',
+            icon: '/icons/icon-wants-new.png',
             isImage: true,
             primary: false
         },
@@ -58,7 +58,7 @@ export default function MobileBottomNav() {
         {
             href: '/messages',
             label: 'Messages',
-            icon: '/icons/icon-messages.png',
+            icon: '/icons/icon-messages-new.png',
             isImage: true,
             primary: false
         },
