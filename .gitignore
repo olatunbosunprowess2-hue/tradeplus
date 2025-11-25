@@ -1,3 +1,13 @@
+# Railway deployment
+.railway/
+railway.json
+
+# Local env files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
 # Dependencies
 node_modules/
 .pnp
@@ -6,11 +16,11 @@ node_modules/
 # Testing
 coverage/
 
-# Production
-build/
-dist/
+# Next.js
 .next/
 out/
+build/
+dist/
 
 # Misc
 .DS_Store
@@ -20,52 +30,14 @@ out/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.pnpm-debug.log*
 
-# Local env files
-.env
-.env*.local
-
-# Vercel
-.vercel
-
-# TypeScript
-*.tsbuildinfo
-next-env.d.ts
-
-# Prisma
-prisma/migrations/
-
-# IDE
-.vscode/
+# IDEs
 .idea/
+.vscode/
 *.swp
 *.swo
+*~
 
-# Uploads
-uploads/
-
-# Logs
-logs/
-*.log
-
-# Temporary scripts and build outputs
-check-admin-db.ts
-create-admin.ts
-fix-admin.js
-setup-admin.js
-verify_admin.ts
-verify_db.ts
-check-user-role.ts
-update-admin-role.ts
-check-backend.ps1
-test-report-api.ps1
-verify_api.ps1
-build_output*.txt
-build_error*.log
-lint_errors*.log
-startup_log.txt
-backend_error.log
-
-# Expo
-.expo/
-
+# OS
+Thumbs.db

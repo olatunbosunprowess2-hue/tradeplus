@@ -1,0 +1,21 @@
+
+[2025-11-24T15:45:01.197Z] POST /reports
+User: {"id":"1dcafa13-2b47-4479-a495-51dba1f3d7af","email":"tysonfury@gmail.com","passwordHash":"$argon2id$v=19$m=65536,t=3,p=4$hsQfKuMMLHLuHttXpZroXw$HwcveNik9halb7FXSdcfTs5/rKSqFb/YD2wTJewfwZw","role":"admin","status":"active","averageRating":0,"totalReviews":0,"createdAt":"2025-11-22T09:56:10.031Z","updatedAt":"2025-11-22T10:09:09.011Z","onboardingCompleted":false,"isVerified":false,"verificationStatus":"NONE","phoneNumber":null,"idDocumentFrontUrl":null,"idDocumentBackUrl":null,"faceVerificationUrl":null,"rejectionReason":null,"locationLat":null,"locationLng":null,"locationAddress":null,"deletedAt":null,"profile":{"id":"d0fd9049-ca47-49b5-ad30-a91a449f1959","userId":"1dcafa13-2b47-4479-a495-51dba1f3d7af","displayName":"fury","avatarUrl":null,"countryId":null,"regionId":null,"bio":null,"isVerified":false,"lastLoginAt":"2025-11-24T15:44:07.648Z","createdAt":"2025-11-22T09:56:10.031Z","updatedAt":"2025-11-24T15:44:07.649Z"}}
+Body: {"reason":"Fraud","description":"I'm ready to continue. What would you like to work on next? (e.g., Wants list, Listings, or something else?)","listingId":"33333333-3333-3333-3333-333333333333","evidenceImages":[]}
+Exception: {"stack":"PrismaClientKnownRequestError: \nInvalid `this.prisma.report.create()` invocation in\nC:\\Users\\PC\\Desktop\\TradePlus\\TradePlus\\apps\\api\\src\\reports\\reports.service.ts:19:49\n\n  16     throw new BadRequestException('Report must target either a listing or a user');\n  17 }\n  18 \n→ 19 const report = await this.prisma.report.create(\nForeign key constraint violated: `reports_listing_id_fkey (index)`\n    at $n.handleRequestError (C:\\Users\\PC\\Desktop\\TradePlus\\TradePlus\\node_modules\\@prisma\\client\\runtime\\library.js:121:7315)\n    at $n.handleAndLogRequestError (C:\\Users\\PC\\Desktop\\TradePlus\\TradePlus\\node_modules\\@prisma\\client\\runtime\\library.js:121:6623)\n    at $n.request (C:\\Users\\PC\\Desktop\\TradePlus\\TradePlus\\node_modules\\@prisma\\client\\runtime\\library.js:121:6307)\n    at async l (C:\\Users\\PC\\Desktop\\TradePlus\\TradePlus\\node_modules\\@prisma\\client\\runtime\\library.js:130:9633)\n    at async ReportsService.create (C:\\Users\\PC\\Desktop\\TradePlus\\TradePlus\\apps\\api\\src\\reports\\reports.service.ts:19:24)\n    at async C:\\Users\\PC\\Desktop\\TradePlus\\TradePlus\\node_modules\\@nestjs\\core\\router\\router-execution-context.js:46:28\n    at async C:\\Users\\PC\\Desktop\\TradePlus\\TradePlus\\node_modules\\@nestjs\\core\\router\\router-proxy.js:9:17","message":"\nInvalid `this.prisma.report.create()` invocation in\nC:\\Users\\PC\\Desktop\\TradePlus\\TradePlus\\apps\\api\\src\\reports\\reports.service.ts:19:49\n\n  16     throw new BadRequestException('Report must target either a listing or a user');\n  17 }\n  18 \n→ 19 const report = await this.prisma.report.create(\nForeign key constraint violated: `reports_listing_id_fkey (index)`","name":"PrismaClientKnownRequestError","code":"P2003","clientVersion":"5.22.0","meta":{}}
+Stack: PrismaClientKnownRequestError: 
+Invalid `this.prisma.report.create()` invocation in
+C:\Users\PC\Desktop\TradePlus\TradePlus\apps\api\src\reports\reports.service.ts:19:49
+
+  16     throw new BadRequestException('Report must target either a listing or a user');
+  17 }
+  18 
+→ 19 const report = await this.prisma.report.create(
+Foreign key constraint violated: `reports_listing_id_fkey (index)`
+    at $n.handleRequestError (C:\Users\PC\Desktop\TradePlus\TradePlus\node_modules\@prisma\client\runtime\library.js:121:7315)
+    at $n.handleAndLogRequestError (C:\Users\PC\Desktop\TradePlus\TradePlus\node_modules\@prisma\client\runtime\library.js:121:6623)
+    at $n.request (C:\Users\PC\Desktop\TradePlus\TradePlus\node_modules\@prisma\client\runtime\library.js:121:6307)
+    at async l (C:\Users\PC\Desktop\TradePlus\TradePlus\node_modules\@prisma\client\runtime\library.js:130:9633)
+    at async ReportsService.create (C:\Users\PC\Desktop\TradePlus\TradePlus\apps\api\src\reports\reports.service.ts:19:24)
+    at async C:\Users\PC\Desktop\TradePlus\TradePlus\node_modules\@nestjs\core\router\router-execution-context.js:46:28
+    at async C:\Users\PC\Desktop\TradePlus\TradePlus\node_modules\@nestjs\core\router\router-proxy.js:9:17
