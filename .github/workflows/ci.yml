@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lint-and-build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Lint API
+      run: npm run lint --workspace=apps/api
+      continue-on-error: true
+
+    - name: Lint Web
+      run: npm run lint --workspace=apps/web
+      continue-on-error: true
+
+    - name: Build API
+      run: npm run build --workspace=apps/api
+
+    - name: Build Web
+      run: npm run build --workspace=apps/web
+
+    - name: Run Tests (if available)
+      run: npm test --if-present
+      continue-on-error: true

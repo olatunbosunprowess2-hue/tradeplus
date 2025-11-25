@@ -1,0 +1,439 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// USERS & AUTH
+
+model User {
+  id            String    @id @default(uuid()) @db.Uuid
+  email         String    @unique
+  passwordHash  String    @map("password_hash")
+  role          String    @default("user") // 'user', 'admin'
+  status        String    @default("active") // 'active', 'suspended'
+  averageRating Float?    @default(0) @map("average_rating")
+  totalReviews  Int       @default(0) @map("total_reviews")
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Verification & Onboarding Fields
+  onboardingCompleted Boolean @default(false)
+  isVerified          Boolean @default(false) // Helper for quick checks
+  verificationStatus  String  @default("NONE") // PENDING, VERIFIED, REJECTED, NONE
+  phoneNumber         String?
+  
+  // Identity Documents
+  idDocumentFrontUrl  String?
+  idDocumentBackUrl   String?
+  faceVerificationUrl String?
+  rejectionReason     String?
+
+  // Real Location
+  locationLat     Float?
+  locationLng     Float?
+  locationAddress String?
+
+  profile       UserProfile?
+  listings      Listing[]
+  barterOffersMade BarterOffer[] @relation("BuyerOffers")
+  barterOffersReceived BarterOffer[] @relation("SellerOffers")
+  carts         Cart[]
+  ordersBought  Order[] @relation("BuyerOrders")
+  ordersSold    Order[] @relation("SellerOrders")
+  conversationsStarted Conversation[] @relation("BuyerConversations")
+  conversationsReceived Conversation[] @relation("SellerConversations")
+  messages      Message[]
+  notifications Notification[]
+  reportsMade   Report[] @relation("Reporter")
+  reportsAgainst Report[] @relation("ReportedUser")
+  reportsResolved Report[] @relation("AdminResolver")
+  recentlyViewed RecentlyViewed[]
+  wants         Want[]
+  reviewsGiven  Review[] @relation("ReviewsGiven")
+  reviewsReceived Review[] @relation("ReviewsReceived")
+
+  deletedAt     DateTime? @map("deleted_at") @db.Timestamptz
+
+  @@map("users")
+  @@index([deletedAt])
+}
+
+model Want {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  category    String
+  tradeMethod String   @map("trade_method") // 'cash', 'barter', 'both'
+  condition   String   // 'new', 'used', 'any'
+  country     String
+  state       String
+  notes       String?
+  isFulfilled Boolean  @default(false) @map("is_fulfilled")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("wants")
+}
+
+model UserProfile {
+  id            String    @id @default(uuid()) @db.Uuid
+  userId        String    @unique @map("user_id") @db.Uuid
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  displayName   String?   @map("display_name")
+  avatarUrl     String?   @map("avatar_url")
+  countryId     Int?      @map("country_id")
+  country       Country?  @relation(fields: [countryId], references: [id])
+  regionId      Int?      @map("region_id")
+  region        Region?   @relation(fields: [regionId], references: [id])
+  bio           String?
+  isVerified    Boolean   @default(false) @map("is_verified")
+  lastLoginAt   DateTime? @map("last_login_at") @db.Timestamptz
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("user_profiles")
+}
+
+// LOCATION & CATEGORIES
+
+model Country {
+  id        Int      @id @default(autoincrement())
+  code      String   @unique @db.VarChar(2)
+  name      String
+  regions   Region[]
+  listings  Listing[]
+  profiles  UserProfile[]
+
+  @@map("countries")
+}
+
+model Region {
+  id        Int      @id @default(autoincrement())
+  countryId Int      @map("country_id")
+  country   Country  @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  name      String
+  listings  Listing[]
+  profiles  UserProfile[]
+
+  @@map("regions")
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  slug     String    @unique
+  name     String
+  listings Listing[]
+
+  @@map("categories")
+}
+
+// LISTINGS
+
+enum ListingType {
+  PHYSICAL
+  SERVICE
+}
+
+model Listing {
+  id                    String    @id @default(uuid()) @db.Uuid
+  sellerId              String    @map("seller_id") @db.Uuid
+  seller                User      @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  categoryId            Int       @map("category_id")
+  category              Category  @relation(fields: [categoryId], references: [id])
+  title                 String
+  description           String?
+  type                  ListingType @default(PHYSICAL)
+  condition             String?   // 'new', 'used' - Optional for Services
+  priceCents            BigInt?   @map("price_cents")
+  currencyCode          String    @map("currency_code") @db.Char(3)
+  allowCash             Boolean   @default(true) @map("allow_cash")
+  allowBarter           Boolean   @default(false) @map("allow_barter")
+  allowCashPlusBarter   Boolean   @default(false) @map("allow_cash_plus_barter")
+  preferredBarterNotes  String?   @map("preferred_barter_notes")
+  quantity              Int       @default(1)
+  status                String    @default("active") // 'active','paused','sold','removed'
+  shippingMeetInPerson  Boolean   @default(true) @map("shipping_meet_in_person")
+  shippingShipItem      Boolean   @default(false) @map("shipping_ship_item")
+  countryId             Int?      @map("country_id")
+  country               Country?  @relation(fields: [countryId], references: [id])
+  regionId              Int?      @map("region_id")
+  region                Region?   @relation(fields: [regionId], references: [id])
+  createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt             DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  images                ListingImage[]
+  barterOffers          BarterOffer[]
+  barterOfferItems      BarterOfferItem[]
+  cartItems             CartItem[]
+  orderItems            OrderItem[]
+  conversations         Conversation[]
+  reports               Report[]
+  recentlyViewed        RecentlyViewed[]
+  reviews               Review[]
+
+  deletedAt             DateTime? @map("deleted_at") @db.Timestamptz
+
+  @@map("listings")
+  @@index([deletedAt])
+  @@index([categoryId, status])
+  @@index([sellerId, status])
+  @@index([priceCents])
+  @@index([createdAt])
+  @@index([title])
+}
+
+model ListingImage {
+  id        String   @id @default(uuid()) @db.Uuid
+  listingId String   @map("listing_id") @db.Uuid
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  url       String
+  sortOrder Int      @default(0) @map("sort_order")
+
+  @@map("listing_images")
+}
+
+// BARTER OFFERS
+
+model BarterOffer {
+  id                String    @id @default(uuid()) @db.Uuid
+  listingId         String    @map("listing_id") @db.Uuid
+  listing           Listing   @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  buyerId           String    @map("buyer_id") @db.Uuid
+  buyer             User      @relation("BuyerOffers", fields: [buyerId], references: [id], onDelete: Cascade)
+  sellerId          String    @map("seller_id") @db.Uuid
+  seller            User      @relation("SellerOffers", fields: [sellerId], references: [id], onDelete: Cascade)
+  status            String    @default("pending") // 'pending','accepted','rejected','countered','cancelled'
+  offeredCashCents  BigInt?   @default(0) @map("offered_cash_cents")
+  currencyCode      String    @map("currency_code") @db.Char(3)
+  message           String?
+  expiresAt         DateTime? @map("expires_at") @db.Timestamptz
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  items             BarterOfferItem[]
+  cartItems         CartItem[]
+  orders            Order[]
+  orderItems        OrderItem[]
+  conversations     Conversation[]
+
+  @@map("barter_offers")
+}
+
+model BarterOfferItem {
+  id                String      @id @default(uuid()) @db.Uuid
+  barterOfferId     String      @map("barter_offer_id") @db.Uuid
+  barterOffer       BarterOffer @relation(fields: [barterOfferId], references: [id], onDelete: Cascade)
+  offeredListingId  String      @map("offered_listing_id") @db.Uuid
+  offeredListing    Listing     @relation(fields: [offeredListingId], references: [id], onDelete: Restrict)
+  quantity          Int         @default(1)
+
+  @@map("barter_offer_items")
+}
+
+// CART & CHECKOUT
+
+model Cart {
+  id        String     @id @default(uuid()) @db.Uuid
+  userId    String     @map("user_id") @db.Uuid
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status    String     @default("active") // 'active','checked_out','abandoned'
+  createdAt DateTime   @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime   @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  items     CartItem[]
+
+  @@map("carts")
+}
+
+model CartItem {
+  id            String       @id @default(uuid()) @db.Uuid
+  cartId        String       @map("cart_id") @db.Uuid
+  cart          Cart         @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  listingId     String       @map("listing_id") @db.Uuid
+  listing       Listing      @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  quantity      Int          @default(1)
+  dealType      String       @map("deal_type") // 'cash','barter','cash_plus_barter'
+  barterOfferId String?      @map("barter_offer_id") @db.Uuid
+  barterOffer   BarterOffer? @relation(fields: [barterOfferId], references: [id])
+  createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("cart_items")
+}
+
+// ORDERS & PAYMENTS
+
+model Order {
+  id                String       @id @default(uuid()) @db.Uuid
+  buyerId           String       @map("buyer_id") @db.Uuid
+  buyer             User         @relation("BuyerOrders", fields: [buyerId], references: [id], onDelete: Cascade)
+  sellerId          String       @map("seller_id") @db.Uuid
+  seller            User         @relation("SellerOrders", fields: [sellerId], references: [id], onDelete: Cascade)
+  totalPriceCents   BigInt       @default(0) @map("total_price_cents")
+  currencyCode      String       @map("currency_code") @db.Char(3)
+  status            String       @default("pending") // 'pending','paid','cancelled','fulfilled'
+  paymentStatus     String       @default("pending") @map("payment_status") // 'pending','paid','failed','refunded'
+  shippingMethod    String       @map("shipping_method") // 'meet_in_person','ship_item'
+  barterOfferId     String?      @map("barter_offer_id") @db.Uuid
+  barterOffer       BarterOffer? @relation(fields: [barterOfferId], references: [id])
+  createdAt         DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  items             OrderItem[]
+  payments          Payment[]
+  review            Review?
+
+  deletedAt         DateTime? @map("deleted_at") @db.Timestamptz
+
+  @@map("orders")
+  @@index([deletedAt])
+  @@index([buyerId, status])
+  @@index([sellerId, status])
+}
+
+model OrderItem {
+  id            String       @id @default(uuid()) @db.Uuid
+  orderId       String       @map("order_id") @db.Uuid
+  order         Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  listingId     String       @map("listing_id") @db.Uuid
+  listing       Listing      @relation(fields: [listingId], references: [id])
+  quantity      Int          @default(1)
+  priceCents    BigInt       @default(0) @map("price_cents")
+  dealType      String       @map("deal_type") // 'cash','barter','cash_plus_barter'
+  barterOfferId String?      @map("barter_offer_id") @db.Uuid
+  barterOffer   BarterOffer? @relation(fields: [barterOfferId], references: [id])
+
+  @@map("order_items")
+}
+
+model Payment {
+  id            String   @id @default(uuid()) @db.Uuid
+  orderId       String   @map("order_id") @db.Uuid
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  amountCents   BigInt   @map("amount_cents")
+  currencyCode  String   @map("currency_code") @db.Char(3)
+  provider      String   // 'flutterwave','paystack','stripe','mock'
+  providerRef   String?  @map("provider_ref")
+  status        String   @default("pending") // 'pending','success','failed'
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("payments")
+}
+
+// MESSAGING
+
+model Conversation {
+  id            String       @id @default(uuid()) @db.Uuid
+  listingId     String?      @map("listing_id") @db.Uuid
+  listing       Listing?     @relation(fields: [listingId], references: [id])
+  buyerId       String       @map("buyer_id") @db.Uuid
+  buyer         User         @relation("BuyerConversations", fields: [buyerId], references: [id], onDelete: Cascade)
+  sellerId      String       @map("seller_id") @db.Uuid
+  seller        User         @relation("SellerConversations", fields: [sellerId], references: [id], onDelete: Cascade)
+  barterOfferId String?      @map("barter_offer_id") @db.Uuid
+  barterOffer   BarterOffer? @relation(fields: [barterOfferId], references: [id])
+  createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  messages      Message[]
+
+  @@map("conversations")
+}
+
+model Message {
+  id             String       @id @default(uuid()) @db.Uuid
+  conversationId String       @map("conversation_id") @db.Uuid
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String       @map("sender_id") @db.Uuid
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  body           String
+  messageType    String       @default("text") @map("message_type") // 'text','system'
+  isRead         Boolean      @default(false) @map("is_read")
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  reports        Report[]
+
+  @@map("messages")
+}
+
+// NOTIFICATIONS
+
+model Notification {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  data      Json
+  readAt    DateTime? @map("read_at") @db.Timestamptz
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("notifications")
+}
+
+// FRAUD REPORTING
+
+model Report {
+  id                String    @id @default(uuid()) @db.Uuid
+  reporterId        String    @map("reporter_id") @db.Uuid
+  reporter          User      @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  reportedUserId    String?   @map("reported_user_id") @db.Uuid
+  reportedUser      User?     @relation("ReportedUser", fields: [reportedUserId], references: [id])
+  listingId         String?   @map("listing_id") @db.Uuid
+  listing           Listing?  @relation(fields: [listingId], references: [id])
+  messageId         String?   @map("message_id") @db.Uuid
+  message           Message?  @relation(fields: [messageId], references: [id])
+  reason            String
+  status            String    @default("open") // 'open','in_review','resolved','dismissed'
+  evidenceImages    String[]  @default([]) @map("evidence_images")
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  resolvedAt        DateTime? @map("resolved_at") @db.Timestamptz
+  resolvedByAdminId String?   @map("resolved_by_admin_id") @db.Uuid
+  resolvedByAdmin   User?     @relation("AdminResolver", fields: [resolvedByAdminId], references: [id])
+
+  @@map("reports")
+}
+
+// RECENTLY VIEWED
+
+model RecentlyViewed {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listingId String   @map("listing_id") @db.Uuid
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  viewedAt  DateTime @default(now()) @map("viewed_at") @db.Timestamptz
+
+  @@map("recently_viewed")
+}
+
+// REVIEWS & RATINGS
+
+model Review {
+  id            String   @id @default(uuid()) @db.Uuid
+  rating        Int      // 1-5 stars
+  comment       String?  @db.Text
+  orderId       String   @unique @map("order_id") @db.Uuid
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  reviewerId    String   @map("reviewer_id") @db.Uuid
+  reviewer      User     @relation("ReviewsGiven", fields: [reviewerId], references: [id], onDelete: Cascade)
+  revieweeId    String   @map("reviewee_id") @db.Uuid
+  reviewee      User     @relation("ReviewsReceived", fields: [revieweeId], references: [id], onDelete: Cascade)
+  listingId     String   @map("listing_id") @db.Uuid
+  listing       Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  isPublic      Boolean  @default(true) @map("is_public")
+  flagged       Boolean  @default(false)
+  adminResponse String?  @map("admin_response") @db.Text
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@index([revieweeId])
+  @@index([listingId])
+  @@index([orderId])
+  @@map("reviews")
+}
