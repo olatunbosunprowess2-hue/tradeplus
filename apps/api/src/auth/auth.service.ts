@@ -258,9 +258,12 @@ export class AuthService {
                 include: { profile: true },
             });
 
-            if (!user || user.status !== 'active') {
+            if (!user) {
                 throw new UnauthorizedException('Access denied');
             }
+
+            // Note: We allow suspended users to refresh tokens so they can access their account
+            // and submit appeals. Action restrictions are handled by the frontend/guards.
 
             const tokens = await this.generateTokens(user.id, user.email);
 
@@ -271,10 +274,12 @@ export class AuthService {
                     email: user.email,
                     name: user.profile?.displayName || undefined,
                     role: user.role,
+                    status: user.status as 'active' | 'suspended' | 'banned',
                     createdAt: user.createdAt.toISOString(),
                     onboardingCompleted: user.onboardingCompleted,
                     isVerified: user.isVerified,
                     verificationStatus: user.verificationStatus as 'NONE' | 'PENDING' | 'VERIFIED' | 'REJECTED',
+                    rejectionReason: user.rejectionReason || undefined,
                     phoneNumber: user.phoneNumber || undefined,
                     locationLat: user.locationLat || undefined,
                     locationLng: user.locationLng || undefined,
