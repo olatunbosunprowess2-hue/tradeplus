@@ -27,7 +27,7 @@ export class ActivityService {
     };
 
     private recentFeed: ActivityEvent[] = [];
-    private readonly MAX_FEED_LENGTH = 50;
+    private readonly MAX_FEED_LENGTH = 200;
 
     constructor(
         private gateway: ActivityGateway,

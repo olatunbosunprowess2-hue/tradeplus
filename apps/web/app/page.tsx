@@ -347,23 +347,23 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="bg-gray-950 text-gray-400 py-12">
         <div className="container mx-auto px-4">
-          {/* Mobile: horizontal 2x2 grid, Desktop: 4 columns */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-10">
-            {/* Brand - full width on mobile */}
-            <div className="col-span-2 md:col-span-1 mb-4 md:mb-0">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                  </svg>
-                </div>
-                <span className="text-white font-bold text-lg">BarterWave</span>
+          {/* Brand section first, then 3-column grid for links */}
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                </svg>
               </div>
-              <p className="text-xs leading-relaxed text-gray-500">
-                Africa's trusted marketplace for buying, selling, and trading goods.
-              </p>
+              <span className="text-white font-bold text-lg">BarterWave</span>
             </div>
+            <p className="text-xs leading-relaxed text-gray-500 max-w-xs">
+              Africa's trusted marketplace for buying, selling, and trading goods.
+            </p>
+          </div>
 
+          {/* Links grid - 3 columns on all screens */}
+          <div className="grid grid-cols-3 gap-4 md:gap-8 mb-10">
             {/* Company */}
             <div>
               <h4 className="text-white font-semibold text-sm mb-3">Company</h4>

@@ -363,11 +363,12 @@ export default function AdminDashboardPage() {
 
                 {/* Live Activity Feed */}
                 <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-                    <div className="p-4 border-b border-gray-200">
+                    <div className="p-4 border-b border-gray-200 flex items-center justify-between">
                         <h2 className="font-bold text-gray-900">⚡ Live Activity Feed</h2>
+                        <span className="text-xs text-gray-400">{feed.length} activities</span>
                     </div>
                     <div className="max-h-96 overflow-y-auto divide-y divide-gray-100">
-                        {feed.slice(0, 20).map((item, idx) => (
+                        {feed.map((item, idx) => (
                             <div key={idx} className="p-3 hover:bg-gray-50">
                                 <div className="flex items-start gap-3">
                                     <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${ACTION_COLORS[item.type] || 'bg-gray-100'}`}>
@@ -394,6 +395,15 @@ export default function AdminDashboardPage() {
                         {feed.length === 0 && (
                             <div className="p-4 text-center text-gray-400 text-sm">No recent activity</div>
                         )}
+                    </div>
+                    {/* View More button */}
+                    <div className="p-3 border-t border-gray-100">
+                        <button
+                            onClick={() => router.push('/admin/activity')}
+                            className="w-full py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg font-medium transition"
+                        >
+                            View All Activity →
+                        </button>
                     </div>
                 </div>
 
