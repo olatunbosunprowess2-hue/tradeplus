@@ -95,7 +95,7 @@ export default function ReportModal({ isOpen, onClose, listingId, reportedUserId
             const response = await apiClient.post('/reports', payload);
 
             console.log('SUCCESS! Response:', response.data);
-            addToast('success', 'Report submitted successfully. Thank you for helping keep TradePlus safe!');
+            addToast('success', 'Report submitted successfully. Thank you for helping keep BarterWave safe!');
 
             // Reset form
             setReason('Spam');

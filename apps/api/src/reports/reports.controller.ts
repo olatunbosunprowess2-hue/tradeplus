@@ -1,6 +1,7 @@
-import { Controller, Post, Get, Body, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, Get, Body, UseGuards, Request, Patch, Param, Delete, HttpException, HttpStatus } from '@nestjs/common';
 import { ReportsService } from './reports.service';
 import { CreateReportDto } from './dto/create-report.dto';
+import { ResolveReportDto } from './dto/resolve-report.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('reports')
@@ -18,8 +19,34 @@ export class ReportsController {
     findAll(@Request() req) {
         // Only allow admins to view all reports
         if (req.user.role !== 'admin') {
-            throw new Error('Unauthorized: Admin access required');
+            throw new HttpException('Unauthorized: Admin access required', HttpStatus.UNAUTHORIZED);
         }
         return this.reportsService.findAll();
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Patch(':id/resolve')
+    async resolveReport(
+        @Request() req,
+        @Param('id') reportId: string,
+        @Body() resolveReportDto: ResolveReportDto
+    ) {
+        if (req.user.role !== 'admin') {
+            throw new HttpException('Unauthorized: Admin access required', HttpStatus.UNAUTHORIZED);
+        }
+        return this.reportsService.resolveReport(reportId, resolveReportDto.adminMessage);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Delete(':id/delete-listing')
+    async deleteReportedListing(
+        @Request() req,
+        @Param('id') reportId: string,
+        @Body() resolveReportDto: ResolveReportDto
+    ) {
+        if (req.user.role !== 'admin') {
+            throw new HttpException('Unauthorized: Admin access required', HttpStatus.UNAUTHORIZED);
+        }
+        return this.reportsService.deleteReportedListing(reportId, resolveReportDto.adminMessage);
     }
 }

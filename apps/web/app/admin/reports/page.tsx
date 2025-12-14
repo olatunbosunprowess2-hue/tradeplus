@@ -11,6 +11,12 @@ export default function AdminReportsPage() {
     const { addToast } = useToastStore();
 
     const [selectedReport, setSelectedReport] = useState<any>(null);
+    const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+    // Admin message modal state
+    const [showMessageModal, setShowMessageModal] = useState(false);
+    const [adminMessage, setAdminMessage] = useState('');
+    const [pendingAction, setPendingAction] = useState<{ type: 'resolve' | 'delete', reportId: string } | null>(null);
 
     const fetchReports = async () => {
         setIsLoading(true);
@@ -22,6 +28,37 @@ export default function AdminReportsPage() {
             addToast('error', 'Failed to load reports');
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const openMessageModal = (type: 'resolve' | 'delete', reportId: string) => {
+        setPendingAction({ type, reportId });
+        setAdminMessage('');
+        setShowMessageModal(true);
+    };
+
+    const handleSubmitWithMessage = async () => {
+        if (!pendingAction) return;
+
+        setShowMessageModal(false);
+        setActionLoading(pendingAction.reportId);
+
+        try {
+            if (pendingAction.type === 'resolve') {
+                await adminApi.resolveReport(pendingAction.reportId, adminMessage || undefined);
+                addToast('success', 'Report marked as resolved. Reporter has been notified.');
+            } else {
+                await adminApi.deleteReportedListing(pendingAction.reportId, adminMessage || undefined);
+                addToast('success', 'Listing deleted successfully. Reporter has been notified.');
+            }
+            fetchReports();
+        } catch (error) {
+            console.error('Failed to process action:', error);
+            addToast('error', `Failed to ${pendingAction.type === 'resolve' ? 'resolve report' : 'delete listing'}`);
+        } finally {
+            setActionLoading(null);
+            setPendingAction(null);
+            setAdminMessage('');
         }
     };
 
@@ -47,18 +84,19 @@ export default function AdminReportsPage() {
                                 <th className="px-6 py-4 font-medium text-gray-500 text-sm">Evidence</th>
                                 <th className="px-6 py-4 font-medium text-gray-500 text-sm">Status</th>
                                 <th className="px-6 py-4 font-medium text-gray-500 text-sm">Date</th>
+                                <th className="px-6 py-4 font-medium text-gray-500 text-sm">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
                             {isLoading ? (
                                 <tr>
-                                    <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
+                                    <td colSpan={8} className="px-6 py-8 text-center text-gray-500">
                                         Loading reports...
                                     </td>
                                 </tr>
                             ) : reports.length === 0 ? (
                                 <tr>
-                                    <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
+                                    <td colSpan={8} className="px-6 py-8 text-center text-gray-500">
                                         No reports found
                                     </td>
                                 </tr>
@@ -113,6 +151,30 @@ export default function AdminReportsPage() {
                                         <td className="px-6 py-4 text-gray-600 text-sm">
                                             {new Date(report.createdAt).toLocaleDateString()}
                                         </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex gap-2">
+                                                {report.status !== 'resolved' && (
+                                                    <>
+                                                        <button
+                                                            onClick={() => openMessageModal('resolve', report.id)}
+                                                            disabled={actionLoading === report.id}
+                                                            className="px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        >
+                                                            {actionLoading === report.id ? 'Processing...' : 'Resolve'}
+                                                        </button>
+                                                        {report.listingId && (
+                                                            <button
+                                                                onClick={() => openMessageModal('delete', report.id)}
+                                                                disabled={actionLoading === report.id}
+                                                                className="px-3 py-1.5 bg-red-600 text-white text-xs font-medium rounded hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                            >
+                                                                Delete Listing
+                                                            </button>
+                                                        )}
+                                                    </>
+                                                )}
+                                            </div>
+                                        </td>
                                     </tr>
                                 ))
                             )}
@@ -120,6 +182,64 @@ export default function AdminReportsPage() {
                     </table>
                 </div>
             </div>
+
+            {/* Admin Message Modal */}
+            {showMessageModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl p-6 max-w-lg w-full">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-xl font-bold text-gray-900">
+                                {pendingAction?.type === 'delete' ? 'Delete Listing & Send Message' : 'Resolve Report & Send Message'}
+                            </h3>
+                            <button
+                                onClick={() => setShowMessageModal(false)}
+                                className="text-gray-500 hover:text-gray-700"
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Message to Reporter (Optional)
+                            </label>
+                            <p className="text-xs text-gray-500 mb-3">
+                                {pendingAction?.type === 'delete'
+                                    ? 'A default message will be sent if you leave this blank: "Thank you for your report. After reviewing the evidence, we have removed the reported listing. We appreciate your help in keeping our community safe."'
+                                    : 'A default message will be sent if you leave this blank: "Your report has been reviewed and resolved by our team. Thank you for helping us maintain a safe community."'
+                                }
+                            </p>
+                            <textarea
+                                value={adminMessage}
+                                onChange={(e) => setAdminMessage(e.target.value)}
+                                placeholder="Enter a personalized message (optional)..."
+                                className="w-full p-3 border border-gray-300 rounded-lg text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                rows={5}
+                            />
+                        </div>
+
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setShowMessageModal(false)}
+                                className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSubmitWithMessage}
+                                className={`flex-1 px-4 py-2 text-white rounded-lg font-medium ${pendingAction?.type === 'delete'
+                                        ? 'bg-red-600 hover:bg-red-700'
+                                        : 'bg-green-600 hover:bg-green-700'
+                                    }`}
+                            >
+                                {pendingAction?.type === 'delete' ? 'Delete & Notify' : 'Resolve & Notify'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Evidence Modal */}
             {selectedReport && (

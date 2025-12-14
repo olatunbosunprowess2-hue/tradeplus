@@ -2,33 +2,23 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres:15-alpine
-    container_name: tradeplus_postgres
+    image: postgres:15
+    container_name: tradeplus-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: tradeplus
     ports:
       - "5432:5432"
-    environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: tradeplus
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks:
-      - tradeplus_net
-
-  redis:
-    image: redis:7-alpine
-    container_name: tradeplus_redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - tradeplus_net
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
 
 volumes:
   postgres_data:
-  redis_data:
-
-networks:
-  tradeplus_net:
-    driver: bridge
+    driver: local

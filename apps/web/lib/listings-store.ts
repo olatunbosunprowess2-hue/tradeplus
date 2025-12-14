@@ -47,6 +47,7 @@ const initialListings: Listing[] = [
             { id: '1-2', url: 'https://images.unsplash.com/photo-1611472173362-3f53dbd65d80?w=800&h=800&fit=crop', sortOrder: 1 },
             { id: '1-3', url: 'https://images.unsplash.com/photo-1592286927505-2fd0c3a0e3d6?w=800&h=800&fit=crop', sortOrder: 2 }
         ],
+        region: { id: 1, name: 'Lagos', city: 'Lekki' },
         sellerId: USERS.JOHN,
         seller: {
             id: USERS.JOHN,
@@ -84,6 +85,7 @@ const initialListings: Listing[] = [
             { id: '2-1', url: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=800&h=800&fit=crop', sortOrder: 0 },
             { id: '2-2', url: 'https://images.unsplash.com/photo-1593359863503-f598b8f4e3d5?w=800&h=800&fit=crop', sortOrder: 1 }
         ],
+        region: { id: 2, name: 'Abuja', city: 'Garki' },
         sellerId: USERS.SARAH,
         seller: {
             id: USERS.SARAH,
@@ -123,6 +125,7 @@ const initialListings: Listing[] = [
             { id: '3-3', url: 'https://images.unsplash.com/photo-1629131726692-1accd0c53ce0?w=800&h=800&fit=crop', sortOrder: 2 },
             { id: '3-4', url: 'https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=800&h=800&fit=crop', sortOrder: 3 }
         ],
+        region: { id: 1, name: 'Lagos', city: 'Lekki' },
         sellerId: USERS.JOHN,
         seller: {
             id: USERS.JOHN,
@@ -161,6 +164,7 @@ const initialListings: Listing[] = [
             { id: '4-2', url: 'https://images.unsplash.com/photo-1622297845775-5ff3fef71d13?w=800&h=800&fit=crop', sortOrder: 1 },
             { id: '4-3', url: 'https://images.unsplash.com/photo-1607853202273-797f1c22a38e?w=800&h=800&fit=crop', sortOrder: 2 }
         ],
+        region: { id: 3, name: 'Rivers', city: 'Port Harcourt' },
         sellerId: USERS.MIKE,
         seller: {
             id: USERS.MIKE,
@@ -198,6 +202,7 @@ const initialListings: Listing[] = [
             { id: '8-1', url: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&h=800&fit=crop', sortOrder: 0 },
             { id: '8-2', url: 'https://images.unsplash.com/photo-1591561954557-26941169b49e?w=800&h=800&fit=crop', sortOrder: 1 }
         ],
+        region: { id: 2, name: 'Abuja', city: 'Garki' },
         sellerId: USERS.SARAH,
         seller: {
             id: USERS.SARAH,
@@ -235,6 +240,7 @@ const initialListings: Listing[] = [
             { id: '101-1', url: 'https://images.unsplash.com/photo-1581578731117-104f8a3d46a8?w=800&h=800&fit=crop', sortOrder: 0 },
             { id: '101-2', url: 'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=800&h=800&fit=crop', sortOrder: 1 }
         ],
+        region: { id: 1, name: 'Lagos', city: 'Ikeja' },
         sellerId: USERS.FIXIT,
         seller: {
             id: USERS.FIXIT,
@@ -271,6 +277,7 @@ const initialListings: Listing[] = [
             { id: '102-1', url: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&h=800&fit=crop', sortOrder: 0 },
             { id: '102-2', url: 'https://images.unsplash.com/photo-1547658719-da2b51169166?w=800&h=800&fit=crop', sortOrder: 1 }
         ],
+        region: { id: 2, name: 'Abuja', city: 'Wuse' },
         sellerId: USERS.DEV,
         seller: {
             id: USERS.DEV,
@@ -306,6 +313,7 @@ const initialListings: Listing[] = [
             { id: '103-1', url: 'https://images.unsplash.com/photo-1552422535-c45813c61732?w=800&h=800&fit=crop', sortOrder: 0 },
             { id: '103-2', url: 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=800&h=800&fit=crop', sortOrder: 1 }
         ],
+        region: { id: 1, name: 'Lagos', city: 'Victoria Island' },
         sellerId: USERS.MUSIC,
         seller: {
             id: USERS.MUSIC,
@@ -412,7 +420,7 @@ export const useListingsStore = create<ListingsState>()(
             }
         }),
         {
-            name: 'listings-storage-v2',
+            name: 'listings-storage-v3',
         }
     )
 );

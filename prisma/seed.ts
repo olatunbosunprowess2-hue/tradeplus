@@ -134,15 +134,89 @@ async function main() {
         },
     });
 
+    // Create RBAC Roles & Permissions
+    const PERMISSIONS = [
+        // User management
+        { name: 'user.view', group: 'user', description: 'View user profiles and lists' },
+        { name: 'user.create', group: 'user', description: 'Create new users' },
+        { name: 'user.update', group: 'user', description: 'Update user details' },
+        { name: 'user.delete', group: 'user', description: 'Soft delete users' },
+        { name: 'user.ban', group: 'user', description: 'Ban/suspend users' },
+        // Role management
+        { name: 'role.view', group: 'role', description: 'View roles and permissions' },
+        { name: 'role.create', group: 'role', description: 'Create new roles' },
+        { name: 'role.update', group: 'role', description: 'Update role permissions' },
+        { name: 'role.delete', group: 'role', description: 'Delete roles' },
+        { name: 'role.assign', group: 'role', description: 'Assign roles to users' },
+        // Reports
+        { name: 'report.view', group: 'report', description: 'View reports' },
+        { name: 'report.resolve', group: 'report', description: 'Resolve/dismiss reports' },
+        // Listings
+        { name: 'listing.view', group: 'listing', description: 'View all listings' },
+        { name: 'listing.delete', group: 'listing', description: 'Delete/remove listings' },
+        { name: 'listing.promote', group: 'listing', description: 'Promote/feature listings' },
+        // Chat/Messages
+        { name: 'chat.view', group: 'chat', description: 'View user chats (admin oversight)' },
+        { name: 'chat.note', group: 'chat', description: 'Add internal notes to chats' },
+        // Analytics
+        { name: 'analytics.view', group: 'analytics', description: 'View analytics dashboards' },
+        { name: 'analytics.export', group: 'analytics', description: 'Export analytics data' },
+        // Audit
+        { name: 'audit.view', group: 'audit', description: 'View audit logs' },
+        // Security
+        { name: 'security.view', group: 'security', description: 'View security alerts' },
+        { name: 'security.block', group: 'security', description: 'Block IPs' },
+    ];
+
+    for (const perm of PERMISSIONS) {
+        await prisma.permission.upsert({
+            where: { name: perm.name },
+            update: { description: perm.description },
+            create: { name: perm.name, group: perm.group, description: perm.description }
+        });
+    }
+    console.log('✅ Permissions seeded');
+
+    // Roles with hierarchy levels (higher = more power)
+    // super_admin (100): Full access, can create/demote other super_admins
+    // admin (80): Everything except touching super_admin accounts
+    // moderator (60): Approve/reject ads, ban users, handle reports, view chats
+    // support (40): Read-only on tickets and chats, can add internal notes
+    // analytics_viewer (20): Only dashboards and exports
+    const ROLES = [
+        { name: 'super_admin', level: 100, isSystem: true, description: 'Full system access' },
+        { name: 'admin', level: 80, isSystem: true, description: 'Full access except super_admin management' },
+        { name: 'moderator', level: 60, isSystem: false, description: 'Content moderation and user management' },
+        { name: 'support', level: 40, isSystem: false, description: 'Customer support with read access' },
+        { name: 'analytics_viewer', level: 20, isSystem: false, description: 'Analytics and reporting access only' },
+        { name: 'user', level: 0, isSystem: true, description: 'Regular user' },
+    ];
+
+    for (const role of ROLES) {
+        await prisma.role.upsert({
+            where: { name: role.name },
+            update: { level: role.level, isSystem: role.isSystem, description: role.description },
+            create: { name: role.name, level: role.level, isSystem: role.isSystem, description: role.description }
+        });
+    }
+    console.log('✅ Roles seeded');
+
     // Create admin user
+    const adminRole = await prisma.role.findUnique({ where: { name: 'super_admin' } });
+
     const adminUser = await prisma.user.upsert({
-        where: { id: USERS.ADMIN },
-        update: { role: 'admin' },
+        where: { email: 'admin@tradeplus.com' },
+        update: {
+            role: 'admin',
+            passwordHash: hashedPassword,
+            roleId: adminRole?.id
+        },
         create: {
             id: USERS.ADMIN,
             email: 'admin@tradeplus.com',
             passwordHash: hashedPassword,
             role: 'admin',
+            roleId: adminRole?.id,
             profile: {
                 create: {
                     displayName: 'Admin User',
@@ -153,6 +227,32 @@ async function main() {
     });
 
     console.log('✅ Users created (including admin)');
+
+    console.log('✅ Users created (including admin)');
+
+    // Create Countries and Regions
+    const nigeria = await prisma.country.upsert({
+        where: { id: 1 },
+        update: {},
+        create: { id: 1, name: 'Nigeria', code: 'NG' },
+    });
+
+    const regions = [
+        { id: 1, name: 'Lagos', countryId: 1 },
+        { id: 2, name: 'Abuja', countryId: 1 },
+        { id: 3, name: 'Rivers', countryId: 1 },
+        { id: 4, name: 'Ogun', countryId: 1 },
+        { id: 5, name: 'Kano', countryId: 1 },
+    ];
+
+    for (const region of regions) {
+        await prisma.region.upsert({
+            where: { id: region.id },
+            update: {},
+            create: { id: region.id, name: region.name, countryId: region.countryId },
+        });
+    }
+    console.log('✅ Locations created');
 
     // Create categories
     const electronics = await prisma.category.upsert({
@@ -230,7 +330,8 @@ async function main() {
             allowBarter: false,
             sellerId: USERS.JOHN,
             categoryId: mobilePhones.id,
-            imageUrl: 'https://images.unsplash.com/photo-1632661674596-df8be070a5c5?w=500&h=500&fit=crop',
+            imageUrl: '/seed/iphone.png',
+            regionId: 1, // Lagos
         },
         {
             id: LISTINGS.TV,
@@ -243,7 +344,8 @@ async function main() {
             allowBarter: true,
             sellerId: USERS.SARAH,
             categoryId: electronics.id,
-            imageUrl: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=500&h=500&fit=crop',
+            imageUrl: '/seed/tv.png',
+            regionId: 2, // Abuja
         },
         {
             id: LISTINGS.MACBOOK,
@@ -256,7 +358,8 @@ async function main() {
             allowBarter: true,
             sellerId: USERS.JOHN,
             categoryId: electronics.id,
-            imageUrl: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500&h=500&fit=crop',
+            imageUrl: '/seed/macbook.png',
+            regionId: 1, // Lagos
         },
         {
             id: LISTINGS.PS5,
@@ -269,7 +372,8 @@ async function main() {
             allowBarter: true,
             sellerId: USERS.MIKE,
             categoryId: electronics.id,
-            imageUrl: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=500&h=500&fit=crop',
+            imageUrl: '/seed/ps5.png',
+            regionId: 3, // Rivers
         },
         {
             id: LISTINGS.HANDBAG,
@@ -282,7 +386,8 @@ async function main() {
             allowBarter: true,
             sellerId: USERS.SARAH,
             categoryId: fashion.id,
-            imageUrl: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=500&h=500&fit=crop',
+            imageUrl: '/seed/handbag.png',
+            regionId: 2, // Abuja
         },
         {
             id: LISTINGS.PLUMBING,
@@ -295,7 +400,8 @@ async function main() {
             allowBarter: true,
             sellerId: USERS.FIXIT,
             categoryId: services.id,
-            imageUrl: 'https://images.unsplash.com/photo-1581578731117-104f8a3d46a8?w=500&h=500&fit=crop',
+            imageUrl: '/seed/plumbing.png',
+            regionId: 1, // Lagos
         },
         {
             id: LISTINGS.WEBDEV,
@@ -308,7 +414,8 @@ async function main() {
             allowBarter: true,
             sellerId: USERS.DEV,
             categoryId: services.id,
-            imageUrl: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=500&h=500&fit=crop',
+            imageUrl: '/seed/webdev.png',
+            regionId: 1, // Lagos
         },
         {
             id: LISTINGS.PIANO,
@@ -321,7 +428,8 @@ async function main() {
             allowBarter: false,
             sellerId: USERS.MUSIC,
             categoryId: jobs.id,
-            imageUrl: 'https://images.unsplash.com/photo-1552422535-c45813c61732?w=500&h=500&fit=crop',
+            imageUrl: '/seed/piano.png',
+            regionId: 2, // Abuja
         },
     ];
 
@@ -341,6 +449,8 @@ async function main() {
                 allowBarter: listing.allowBarter,
                 sellerId: listing.sellerId,
                 categoryId: listing.categoryId,
+                countryId: 1, // Default to Nigeria
+                regionId: listing.regionId,
                 images: {
                     create: {
                         url: listing.imageUrl,

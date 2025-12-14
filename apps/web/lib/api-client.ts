@@ -1,18 +1,15 @@
 import axios from 'axios';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333/api';
 
 export const apiClient = axios.create({
     baseURL: API_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
 });
 
 // Request interceptor to add auth token
 apiClient.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('accessToken');
+        const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -34,15 +31,17 @@ apiClient.interceptors.response.use(
             originalRequest._retry = true;
 
             try {
-                const refreshToken = localStorage.getItem('refreshToken');
+                const refreshToken = typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null;
                 if (refreshToken) {
                     // Try to refresh the token
                     const response = await axios.post(`${API_URL}/auth/refresh`, { refreshToken });
                     const { accessToken, refreshToken: newRefreshToken } = response.data;
 
                     // Store new tokens
-                    localStorage.setItem('accessToken', accessToken);
-                    localStorage.setItem('refreshToken', newRefreshToken);
+                    if (typeof window !== 'undefined') {
+                        localStorage.setItem('accessToken', accessToken);
+                        localStorage.setItem('refreshToken', newRefreshToken);
+                    }
 
                     // Update the original request header
                     originalRequest.headers.Authorization = `Bearer ${accessToken}`;
@@ -52,9 +51,13 @@ apiClient.interceptors.response.use(
                 }
             } catch (refreshError) {
                 // If refresh fails, logout
-                localStorage.removeItem('accessToken');
-                localStorage.removeItem('refreshToken');
-                window.location.href = '/login';
+                if (typeof window !== 'undefined') {
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('refreshToken');
+                }
+                if (typeof window !== 'undefined') {
+                    window.location.href = '/login';
+                }
                 return Promise.reject(refreshError);
             }
         }
@@ -62,5 +65,11 @@ apiClient.interceptors.response.use(
         return Promise.reject(error);
     }
 );
+
+export const confirmTrade = (offerId: string) => apiClient.post(`/barter/offers/${offerId}/confirm`);
+export const getReceipt = (offerId: string) => apiClient.post(`/barter/offers/${offerId}/receipt`);
+
+export const getCountries = () => apiClient.get<any[]>('/countries');
+export const getRegions = (countryId: number) => apiClient.get<any[]>(`/countries/${countryId}/regions`);
 
 export default apiClient;

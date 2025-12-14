@@ -1,4 +1,4 @@
-# TradePlus Web Frontend
+# BarterWave Web Frontend
 
 Next.js frontend application for TradePlus marketplace.
 

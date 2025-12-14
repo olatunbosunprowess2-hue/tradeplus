@@ -148,4 +148,93 @@ export class MessagesService {
             data: { isRead: true },
         });
     }
+
+    async getConversationByParticipant(userId: string, participantId: string) {
+        const conversation = await this.prisma.conversation.findFirst({
+            where: {
+                OR: [
+                    { buyerId: userId, sellerId: participantId },
+                    { buyerId: participantId, sellerId: userId },
+                ],
+            },
+            include: {
+                buyer: { select: { id: true, email: true, profile: { select: { displayName: true, avatarUrl: true } } } },
+                seller: { select: { id: true, email: true, profile: { select: { displayName: true, avatarUrl: true } } } },
+                listing: { select: { id: true, title: true, images: { take: 1, orderBy: { sortOrder: 'asc' } } } },
+                barterOffer: { select: { id: true, status: true } },
+            },
+        });
+
+        if (!conversation) {
+            return null;
+        }
+
+        const isBuyer = conversation.buyerId === userId;
+        const participant = isBuyer ? conversation.seller : conversation.buyer;
+
+        return {
+            id: conversation.id,
+            participantId: participant.id,
+            participantName: participant.profile?.displayName || participant.email,
+            participantAvatar: participant.profile?.avatarUrl,
+            listingContext: conversation.listing ? {
+                id: conversation.listing.id,
+                title: conversation.listing.title,
+                image: conversation.listing.images[0]?.url,
+            } : undefined,
+            barterOffer: conversation.barterOffer ? {
+                id: conversation.barterOffer.id,
+                status: conversation.barterOffer.status,
+            } : undefined,
+        };
+    }
+
+    async startConversation(userId: string, participantId: string, listingId?: string, initialMessage?: string) {
+        // Check if conversation already exists
+        let conversation = await this.prisma.conversation.findFirst({
+            where: {
+                OR: [
+                    { buyerId: userId, sellerId: participantId, listingId },
+                    { buyerId: participantId, sellerId: userId, listingId },
+                ],
+            },
+        });
+
+        if (!conversation) {
+            conversation = await this.prisma.conversation.create({
+                data: {
+                    buyerId: userId,
+                    sellerId: participantId,
+                    listingId,
+                },
+            });
+        }
+
+        // Send initial message if provided
+        if (initialMessage) {
+            await this.prisma.message.create({
+                data: {
+                    conversationId: conversation.id,
+                    senderId: userId,
+                    body: initialMessage,
+                },
+            });
+
+            // Update conversation timestamp
+            await this.prisma.conversation.update({
+                where: { id: conversation.id },
+                data: { updatedAt: new Date() },
+            });
+
+            // Send notification
+            await this.notificationsService.create(participantId, 'NEW_MESSAGE', {
+                title: 'New Message',
+                message: initialMessage.length > 50 ? initialMessage.substring(0, 50) + '...' : initialMessage,
+                conversationId: conversation.id,
+                senderId: userId,
+            });
+        }
+
+        return conversation;
+    }
 }

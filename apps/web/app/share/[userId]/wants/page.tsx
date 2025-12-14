@@ -61,10 +61,10 @@ export default function PublicWantsPage() {
             <div className="bg-white shadow-sm border-b border-gray-200 mb-8">
                 <div className="container mx-auto px-4 py-4 flex justify-between items-center max-w-7xl">
                     <Link href="/" className="text-2xl font-extrabold text-blue-600 tracking-tight">
-                        TradePlus
+                        BarterWave
                     </Link>
                     <Link href="/register" className="btn-primary text-sm px-4 py-2">
-                        Join TradePlus
+                        Join BarterWave
                     </Link>
                 </div>
             </div>

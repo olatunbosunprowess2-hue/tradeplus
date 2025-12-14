@@ -1,14 +1,14 @@
 /**
- * TradePlus Design System
+ * BarterWave Design System
  * 
  * Centralized design tokens for consistent styling across the application.
  * Based on 8-point grid system and professional design principles.
  */
 
 export const colors = {
-    // Primary Brand Colors (from TradePlus logo)
+    // Primary Brand Colors (from BarterWave brand)
     primary: {
-        main: '#4AA6E3',      // TradePlus Blue - main brand color
+        main: '#4AA6E3',      // BarterWave Blue - main brand color
         light: '#8DCAF3',     // Light Blue - highlights, hover states
         pale: '#E1F5FE',      // Pale Blue - backgrounds, cards
         dark: '#2563EB',      // Deep Blue - text on light backgrounds

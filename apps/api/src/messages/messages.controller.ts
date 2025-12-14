@@ -21,6 +21,11 @@ export class MessagesController {
         return this.messagesService.getConversations(req.user.id);
     }
 
+    @Get('conversation/with/:participantId')
+    getConversationByParticipant(@Request() req, @Param('participantId') participantId: string) {
+        return this.messagesService.getConversationByParticipant(req.user.id, participantId);
+    }
+
     @Get(':conversationId')
     getMessages(@Request() req, @Param('conversationId') conversationId: string) {
         return this.messagesService.getMessages(conversationId, req.user.id);
@@ -29,6 +34,11 @@ export class MessagesController {
     @Post()
     sendMessage(@Request() req, @Body() body: { receiverId: string; content: string; listingId?: string }) {
         return this.messagesService.sendMessage(req.user.id, body);
+    }
+
+    @Post('start')
+    startConversation(@Request() req, @Body() body: { participantId: string; listingId?: string; initialMessage?: string }) {
+        return this.messagesService.startConversation(req.user.id, body.participantId, body.listingId, body.initialMessage);
     }
 
     @Patch(':conversationId/read')

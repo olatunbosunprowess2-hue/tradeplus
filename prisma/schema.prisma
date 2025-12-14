@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
 }
 
 datasource db {
@@ -10,12 +11,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// USERS & AUTH
-
 model User {
   id            String    @id @default(uuid()) @db.Uuid
   email         String    @unique
-  passwordHash  String    @map("password_hash")
+  passwordHash  String?   @map("password_hash")
   role          String    @default("user") // 'user', 'admin'
   status        String    @default("active") // 'active', 'suspended'
   averageRating Float?    @default(0) @map("average_rating")
@@ -24,12 +23,16 @@ model User {
   updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   // Verification & Onboarding Fields
+  firstName           String?
+  lastName            String?
   onboardingCompleted Boolean @default(false)
   isVerified          Boolean @default(false) // Helper for quick checks
   verificationStatus  String  @default("NONE") // PENDING, VERIFIED, REJECTED, NONE
   phoneNumber         String?
+  supabaseUserId      String? @unique @map("supabase_user_id")
   
   // Identity Documents
+  idDocumentType      String? // 'government_id', 'student_id', 'passport', 'drivers_license'
   idDocumentFrontUrl  String?
   idDocumentBackUrl   String?
   faceVerificationUrl String?
@@ -58,11 +61,34 @@ model User {
   wants         Want[]
   reviewsGiven  Review[] @relation("ReviewsGiven")
   reviewsReceived Review[] @relation("ReviewsReceived")
+  appeals       Appeal[] @relation("UserAppeals")
+  appealsReviewed Appeal[] @relation("AdminReviewedAppeals")
+
+  // OAuth fields
+  googleId      String? @unique @map("google_id")
+  
+  // Password reset
+  passwordResetToken   String? @map("password_reset_token")
+  passwordResetExpires DateTime? @map("password_reset_expires") @db.Timestamptz
+
+  // RBAC Fields
+  roleId        String?   @map("role_id") @db.Uuid
+  userRole      Role?     @relation(fields: [roleId], references: [id])
+  twoFactorSecret String? @map("two_factor_secret")
+
+  auditLogs     AuditLog[] @relation("AuditLogUser")
+  auditTargets  AuditLog[] @relation("AuditLogTarget")
+  deviceFingerprints DeviceFingerprint[]
+  promotionsCreated PromotedListing[]
+
+  signupIpAddress String? @map("signup_ip_address")
+  lastLoginIp     String? @map("last_login_ip")
 
   deletedAt     DateTime? @map("deleted_at") @db.Timestamptz
 
   @@map("users")
   @@index([deletedAt])
+  @@index([googleId])
 }
 
 model Want {
@@ -158,8 +184,16 @@ model Listing {
   allowBarter           Boolean   @default(false) @map("allow_barter")
   allowCashPlusBarter   Boolean   @default(false) @map("allow_cash_plus_barter")
   preferredBarterNotes  String?   @map("preferred_barter_notes")
+  
+  // Structured Barter Preferences (up to 3 items seller wants)
+  barterPreference1     String?   @map("barter_preference_1") @db.VarChar(100)
+  barterPreference2     String?   @map("barter_preference_2") @db.VarChar(100)
+  barterPreference3     String?   @map("barter_preference_3") @db.VarChar(100)
+  barterPreferencesOnly Boolean   @default(false) @map("barter_preferences_only")
+  
   quantity              Int       @default(1)
   status                String    @default("active") // 'active','paused','sold','removed'
+  views                 Int       @default(0)
   shippingMeetInPerson  Boolean   @default(true) @map("shipping_meet_in_person")
   shippingShipItem      Boolean   @default(false) @map("shipping_ship_item")
   countryId             Int?      @map("country_id")
@@ -170,6 +204,7 @@ model Listing {
   updatedAt             DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   images                ListingImage[]
+  videoUrl              String?   @map("video_url") // Single video URL from Cloudinary
   barterOffers          BarterOffer[]
   barterOfferItems      BarterOfferItem[]
   cartItems             CartItem[]
@@ -178,6 +213,13 @@ model Listing {
   reports               Report[]
   recentlyViewed        RecentlyViewed[]
   reviews               Review[]
+  promotions            PromotedListing[]
+  isFeatured            Boolean   @default(false) @map("is_featured")
+
+  // Distress Sale Fields
+  isDistressSale        Boolean   @default(false) @map("is_distress_sale")
+  distressReason        String?   @map("distress_reason") // 'urgent_cash', 'relocating', 'clearing_stock'
+  distressExpiresAt     DateTime? @map("distress_expires_at") @db.Timestamptz
 
   deletedAt             DateTime? @map("deleted_at") @db.Timestamptz
 
@@ -215,6 +257,15 @@ model BarterOffer {
   currencyCode      String    @map("currency_code") @db.Char(3)
   message           String?
   expiresAt         DateTime? @map("expires_at") @db.Timestamptz
+  
+  // Trade Confirmation & Receipt
+  listingOwnerConfirmedAt DateTime? @map("listing_owner_confirmed_at") @db.Timestamptz
+  offerMakerConfirmedAt   DateTime? @map("offer_maker_confirmed_at") @db.Timestamptz
+  receiptAvailableAt      DateTime? @map("receipt_available_at") @db.Timestamptz
+  receiptGeneratedAt      DateTime? @map("receipt_generated_at") @db.Timestamptz
+  receiptNumber           String?   @map("receipt_number")
+  disputeStatus           String    @default("none") @map("dispute_status") // 'none', 'opened', 'resolved'
+
   createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt         DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
@@ -289,6 +340,7 @@ model Order {
   items             OrderItem[]
   payments          Payment[]
   review            Review?
+  escrowTransaction EscrowTransaction?
 
   deletedAt         DateTime? @map("deleted_at") @db.Timestamptz
 
@@ -296,6 +348,47 @@ model Order {
   @@index([deletedAt])
   @@index([buyerId, status])
   @@index([sellerId, status])
+}
+
+// ESCROW PROTECTION FOR DISTRESS SALES
+
+model EscrowTransaction {
+  id                  String    @id @default(uuid()) @db.Uuid
+  orderId             String    @unique @map("order_id") @db.Uuid
+  order               Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  // Amounts (all in cents)
+  itemPriceCents      BigInt    @map("item_price_cents")
+  protectionFeeCents  BigInt    @map("protection_fee_cents")  // Buyer pays this
+  commissionCents     BigInt    @map("commission_cents")      // Platform commission
+  totalPaidCents      BigInt    @map("total_paid_cents")      // itemPrice + protectionFee
+  sellerReceivesCents BigInt    @map("seller_receives_cents") // itemPrice - commission
+  currencyCode        String    @map("currency_code") @db.Char(3)
+  
+  // Escrow Status
+  status              String    @default("pending") // pending, held, released, refunded, disputed, expired
+  confirmationCode    String?   @map("confirmation_code")  // 6-digit code for buyer
+  
+  // Payment Provider Info
+  paymentProvider     String    @default("mock") @map("payment_provider")  // mock, paystack, flutterwave
+  paymentReference    String?   @map("payment_reference")
+  paymentUrl          String?   @map("payment_url")  // Checkout URL if redirecting
+  paymentStatus       String    @default("pending") @map("payment_status") // pending, success, failed
+  
+  // Timestamps
+  paidAt              DateTime? @map("paid_at") @db.Timestamptz
+  confirmedAt         DateTime? @map("confirmed_at") @db.Timestamptz
+  releasedAt          DateTime? @map("released_at") @db.Timestamptz
+  refundedAt          DateTime? @map("refunded_at") @db.Timestamptz
+  expiresAt           DateTime  @map("expires_at") @db.Timestamptz  // 24hr window for confirmation
+  
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("escrow_transactions")
+  @@index([status])
+  @@index([expiresAt])
+  @@index([paymentReference])
 }
 
 model OrderItem {
@@ -395,6 +488,7 @@ model Report {
   resolvedAt        DateTime? @map("resolved_at") @db.Timestamptz
   resolvedByAdminId String?   @map("resolved_by_admin_id") @db.Uuid
   resolvedByAdmin   User?     @relation("AdminResolver", fields: [resolvedByAdminId], references: [id])
+  appeals           Appeal[]  @relation("ReportAppeals")
 
   @@map("reports")
 }
@@ -436,4 +530,146 @@ model Review {
   @@index([listingId])
   @@index([orderId])
   @@map("reviews")
+}
+
+// APPEALS
+
+model Appeal {
+  id              String    @id @default(uuid()) @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  user            User      @relation("UserAppeals", fields: [userId], references: [id], onDelete: Cascade)
+  reportId        String?   @map("report_id") @db.Uuid
+  report          Report?   @relation("ReportAppeals", fields: [reportId], references: [id])
+  reason          String    // Why they're appealing
+  message         String    @db.Text // Detailed explanation
+  evidenceImages  String[]  @default([]) @map("evidence_images") // Optional supporting evidence
+  status          String    @default("pending") // 'pending','approved','rejected'
+  adminMessage    String?   @map("admin_message") @db.Text // Admin's response
+  reviewedByAdminId String? @map("reviewed_by_admin_id") @db.Uuid
+  reviewedByAdmin User?     @relation("AdminReviewedAppeals", fields: [reviewedByAdminId], references: [id])
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  reviewedAt      DateTime? @map("reviewed_at") @db.Timestamptz
+
+  @@map("appeals")
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+
+// RBAC MODELS
+
+model Role {
+  id          String       @id @default(uuid()) @db.Uuid
+  name        String       @unique // super_admin, admin, moderator, etc.
+  description String?
+  level       Int          @default(0) // Hierarchy level: 100=super, 80=admin, etc.
+  isSystem    Boolean      @default(false) @map("is_system") // Cannot be deleted if true
+  
+  permissions Permission[]
+  users       User[]
+
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("roles")
+}
+
+model Permission {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @unique // e.g. 'user.create', 'report.resolve'
+  group     String   // e.g. 'users', 'reports', 'settings'
+  description String?
+
+  roles     Role[]
+
+  @@map("permissions")
+}
+
+model AuditLog {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  user         User     @relation("AuditLogUser", fields: [userId], references: [id])
+  action       String   // e.g. 'ROLE_ASSIGNED', 'PERMISSION_UPDATED'
+  targetUserId String?  @map("target_user_id") @db.Uuid
+  targetUser   User?    @relation("AuditLogTarget", fields: [targetUserId], references: [id])
+  details      Json?    // Store old/new values
+  ipAddress    String?  @map("ip_address")
+  userAgent    String?  @map("user_agent")
+  
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("audit_logs")
+  @@index([action])
+  @@index([createdAt])
+}
+
+model DeviceFingerprint {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  hash      String   // Stable hash
+  userAgent String?  @map("user_agent")
+  ipAddress String?  @map("ip_address")
+  country   String?
+  
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("device_fingerprints")
+  @@index([hash])
+  @@index([ipAddress])
+  @@index([userId])
+}
+
+model BlockedIp {
+  id        String   @id @default(uuid()) @db.Uuid
+  ipAddress String   @unique @map("ip_address")
+  reason    String
+  expiresAt DateTime? @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  createdByAdminId String? @map("created_by_admin_id") @db.Uuid
+
+  @@map("blocked_ips")
+  @@index([ipAddress])
+}
+
+// PROMOTED LISTINGS
+
+model PromotedListing {
+  id          String   @id @default(uuid()) @db.Uuid
+  listingId   String   @map("listing_id") @db.Uuid
+  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  
+  placement   String   // 'homepage', 'category', 'search', 'all'
+  startDate   DateTime @map("start_date") @db.Timestamptz
+  endDate     DateTime @map("end_date") @db.Timestamptz
+  durationDays Int     @map("duration_days")
+  priceCents  BigInt   @map("price_cents")
+  
+  status      String   @default("active") // 'active', 'expired', 'cancelled'
+  
+  createdById String   @map("created_by_id") @db.Uuid
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  
+  @@map("promoted_listings")
+  @@index([listingId])
+  @@index([status, endDate])
+  @@index([placement, status])
+}
+
+// Email OTP Verification for Registration
+model EmailVerification {
+  id        String   @id @default(uuid()) @db.Uuid
+  email     String
+  otp       String   // 6-digit code
+  expiresAt DateTime @map("expires_at") @db.Timestamptz
+  verified  Boolean  @default(false)
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  
+  @@index([email])
+  @@index([email, otp])
+  @@map("email_verifications")
 }

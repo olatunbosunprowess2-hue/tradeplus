@@ -7,6 +7,10 @@ import type { BarterOffer } from '@/lib/types';
 import { useAuthStore } from '@/lib/auth-store';
 import { useRouter } from 'next/navigation';
 import CounterOfferModal from '@/components/CounterOfferModal';
+import ReceiptModal from '@/components/ReceiptModal';
+import OfferCard from '@/components/OfferCard';
+import { confirmTrade, getReceipt } from '@/lib/api-client';
+import toast from 'react-hot-toast';
 
 export default function BarterOffersPage() {
     const router = useRouter();
@@ -14,6 +18,8 @@ export default function BarterOffersPage() {
     const [filter, setFilter] = useState<'all' | 'sent' | 'received'>('all');
     const [selectedOffer, setSelectedOffer] = useState<BarterOffer | null>(null);
     const [isCounterModalOpen, setIsCounterModalOpen] = useState(false);
+    const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
+    const [receiptOffer, setReceiptOffer] = useState<BarterOffer | null>(null);
     const queryClient = useQueryClient();
 
     const { data: offers, isLoading } = useQuery({
@@ -28,7 +34,7 @@ export default function BarterOffersPage() {
             );
             return response.data;
         },
-        enabled: isAuthenticated, // Only run if authenticated
+        enabled: isAuthenticated,
     });
 
     const acceptMutation = useMutation({
@@ -36,6 +42,7 @@ export default function BarterOffersPage() {
             apiClient.patch(`/barter/offers/${offerId}/accept`),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['barter-offers'] });
+            toast.success('Offer accepted!');
         },
     });
 
@@ -44,6 +51,7 @@ export default function BarterOffersPage() {
             apiClient.patch(`/barter/offers/${offerId}/reject`),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['barter-offers'] });
+            toast.success('Offer rejected');
         },
     });
 
@@ -54,6 +62,29 @@ export default function BarterOffersPage() {
             queryClient.invalidateQueries({ queryKey: ['barter-offers'] });
             setIsCounterModalOpen(false);
             setSelectedOffer(null);
+            toast.success('Counter offer sent!');
+        },
+    });
+
+    const confirmMutation = useMutation({
+        mutationFn: (offerId: string) => confirmTrade(offerId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['barter-offers'] });
+            toast.success('Item receipt confirmed!');
+        },
+        onError: (error: any) => {
+            toast.error(error.response?.data?.message || 'Failed to confirm receipt');
+        },
+    });
+
+    const receiptMutation = useMutation({
+        mutationFn: (offerId: string) => getReceipt(offerId),
+        onSuccess: (response: any) => {
+            setReceiptOffer(response.data);
+            setIsReceiptModalOpen(true);
+        },
+        onError: (error: any) => {
+            toast.error(error.response?.data?.message || 'Failed to generate receipt');
         },
     });
 
@@ -61,20 +92,6 @@ export default function BarterOffersPage() {
         router.push('/login');
         return null;
     }
-
-    const formatPrice = (cents: number) => {
-        return `$${(cents / 100).toFixed(2)}`;
-    };
-
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'pending': return 'bg-yellow-100 text-yellow-700';
-            case 'accepted': return 'bg-green-100 text-green-700';
-            case 'rejected': return 'bg-red-100 text-red-700';
-            case 'countered': return 'bg-blue-50 text-blue-800';
-            default: return 'bg-gray-100 text-gray-700';
-        }
-    };
 
     const handleCounterClick = (offer: BarterOffer) => {
         setSelectedOffer(offer);
@@ -158,124 +175,18 @@ export default function BarterOffersPage() {
                             const isReceived = offer.sellerId === user?.id;
 
                             return (
-                                <div key={offer.id} className="bg-white rounded-lg shadow-md p-6">
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div className="flex-1">
-                                            <div className="flex items-center gap-3 mb-2">
-                                                <h3 className="text-xl font-bold text-gray-900">
-                                                    {offer.listing.title}
-                                                </h3>
-                                                <span className={`px-3 py-1 rounded text-sm font-semibold ${getStatusColor(offer.status)}`}>
-                                                    {offer.status}
-                                                </span>
-                                            </div>
-                                            <p className="text-gray-600 text-sm">
-                                                {isSent ? `To: ${offer.seller.profile?.displayName || offer.seller.email}` :
-                                                    `From: ${offer.buyer.profile?.displayName || offer.buyer.email}`}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    {/* Offer Details */}
-                                    <div className="grid md:grid-cols-2 gap-6 mb-4">
-                                        {/* Target Listing */}
-                                        <div>
-                                            <h4 className="font-semibold text-gray-900 mb-2">Target Item</h4>
-                                            <div className="flex gap-3">
-                                                {offer.listing.images[0] && (
-                                                    <img
-                                                        src={offer.listing.images[0].url}
-                                                        alt={offer.listing.title}
-                                                        className="w-20 h-20 object-cover rounded"
-                                                    />
-                                                )}
-                                                <div>
-                                                    <p className="font-medium">{offer.listing.title}</p>
-                                                    <p className="text-sm text-gray-600">
-                                                        {formatPrice(offer.listing.priceCents || 0)}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Offered Items */}
-                                        <div>
-                                            <h4 className="font-semibold text-gray-900 mb-2">Offering</h4>
-                                            {offer.offeredCashCents > 0 && (
-                                                <p className="text-lg font-bold text-green-600 mb-2">
-                                                    💵 {formatPrice(offer.offeredCashCents)}
-                                                </p>
-                                            )}
-                                            {offer.items && offer.items.length > 0 && (
-                                                <div className="space-y-2">
-                                                    {offer.items.map((item) => (
-                                                        <div key={item.id} className="flex gap-2 items-center">
-                                                            {item.offeredListing.images[0] && (
-                                                                <img
-                                                                    src={item.offeredListing.images[0].url}
-                                                                    alt={item.offeredListing.title}
-                                                                    className="w-12 h-12 object-cover rounded"
-                                                                />
-                                                            )}
-                                                            <div>
-                                                                <p className="text-sm font-medium">{item.offeredListing.title}</p>
-                                                                <p className="text-xs text-gray-600">Qty: {item.quantity}</p>
-                                                            </div>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Message */}
-                                    {offer.message && (
-                                        <div className="mb-4 p-3 bg-gray-50 rounded">
-                                            <p className="text-sm text-gray-700">{offer.message}</p>
-                                        </div>
-                                    )}
-
-                                    {/* Actions */}
-                                    {isReceived && offer.status === 'pending' && (
-                                        <div className="flex gap-3">
-                                            <button
-                                                onClick={() => acceptMutation.mutate(offer.id)}
-                                                disabled={acceptMutation.isPending}
-                                                className="flex-1 bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition disabled:opacity-50"
-                                            >
-                                                {acceptMutation.isPending ? 'Accepting...' : 'Accept Offer'}
-                                            </button>
-                                            <button
-                                                onClick={() => rejectMutation.mutate(offer.id)}
-                                                disabled={rejectMutation.isPending}
-                                                className="flex-1 bg-red-600 text-white py-2 rounded-lg font-semibold hover:bg-red-700 transition disabled:opacity-50"
-                                            >
-                                                {rejectMutation.isPending ? 'Rejecting...' : 'Reject Offer'}
-                                            </button>
-                                            <button
-                                                onClick={() => handleCounterClick(offer)}
-                                                className="flex-1 bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition"
-                                            >
-                                                Counter Offer
-                                            </button>
-                                        </div>
-                                    )}
-
-                                    {isSent && offer.status === 'pending' && (
-                                        <div className="text-center text-gray-600 text-sm">
-                                            Waiting for response...
-                                        </div>
-                                    )}
-
-                                    {offer.status === 'accepted' && (
-                                        <div className="bg-green-50 border border-green-200 rounded p-3 text-center">
-                                            <p className="text-green-700 font-semibold">✓ Offer Accepted!</p>
-                                            <p className="text-sm text-green-600 mt-1">
-                                                You can now proceed with the exchange
-                                            </p>
-                                        </div>
-                                    )}
-                                </div>
+                                <OfferCard
+                                    key={offer.id}
+                                    offer={offer}
+                                    type={isSent ? 'sent' : 'received'}
+                                    currentUserId={user?.id}
+                                    onAccept={(id) => acceptMutation.mutate(id)}
+                                    onReject={(id) => rejectMutation.mutate(id)}
+                                    onCounter={handleCounterClick}
+                                    onMessage={() => toast('Messaging not implemented yet')}
+                                    onConfirm={(id) => confirmMutation.mutate(id)}
+                                    onViewReceipt={(offer: BarterOffer) => receiptMutation.mutate(offer.id)}
+                                />
                             );
                         })}
                     </div>
@@ -292,6 +203,18 @@ export default function BarterOffersPage() {
                     }}
                     offer={selectedOffer}
                     onSubmit={handleCounterSubmit}
+                />
+            )}
+
+            {/* Receipt Modal */}
+            {receiptOffer && (
+                <ReceiptModal
+                    isOpen={isReceiptModalOpen}
+                    onClose={() => {
+                        setIsReceiptModalOpen(false);
+                        setReceiptOffer(null);
+                    }}
+                    offer={receiptOffer}
                 />
             )}
         </div>

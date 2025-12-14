@@ -5,6 +5,7 @@ import { adminApi } from '@/lib/admin-api';
 import ListingStatusBadge from '@/components/admin/ListingStatusBadge';
 import { useToastStore } from '@/lib/toast-store';
 import Link from 'next/link';
+import ConfirmationModal from '@/components/admin/ConfirmationModal';
 
 export default function AdminListingsPage() {
     const [listings, setListings] = useState<any[]>([]);
@@ -13,6 +14,10 @@ export default function AdminListingsPage() {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const { addToast } = useToastStore();
+
+    // Modal State
+    const [modalOpen, setModalOpen] = useState(false);
+    const [pendingAction, setPendingAction] = useState<{ id: string, status: string } | null>(null);
 
     const fetchListings = async () => {
         setIsLoading(true);
@@ -40,15 +45,25 @@ export default function AdminListingsPage() {
         return () => clearTimeout(timeoutId);
     }, [page, search]);
 
-    const handleStatusChange = async (listingId: string, newStatus: string) => {
-        if (!confirm(`Are you sure you want to change this listing's status to ${newStatus}?`)) return;
+    const initiateStatusChange = (listingId: string, newStatus: string) => {
+        setPendingAction({ id: listingId, status: newStatus });
+        setModalOpen(true);
+    };
 
+    const confirmStatusChange = async () => {
+        if (!pendingAction) return;
+
+        const { id, status } = pendingAction;
         try {
-            await adminApi.updateListingStatus(listingId, { status: newStatus });
-            addToast('success', `Listing status updated to ${newStatus}`);
+            await adminApi.updateListingStatus(id, { status });
+            addToast('success', `Listing status updated to ${status}`);
             fetchListings();
         } catch (error: any) {
+            console.error(error);
             addToast('error', error.response?.data?.message || 'Failed to update listing status');
+        } finally {
+            setModalOpen(false);
+            setPendingAction(null);
         }
     };
 
@@ -152,15 +167,15 @@ export default function AdminListingsPage() {
                                             <div className="flex items-center justify-end gap-2">
                                                 {listing.status === 'active' ? (
                                                     <button
-                                                        onClick={() => handleStatusChange(listing.id, 'suspended')}
-                                                        className="text-red-600 hover:text-red-700 text-sm font-medium"
+                                                        onClick={() => initiateStatusChange(listing.id, 'suspended')}
+                                                        className="text-red-600 hover:text-red-700 text-sm font-medium hover:bg-red-50 px-3 py-1 rounded-md transition"
                                                     >
                                                         Suspend
                                                     </button>
                                                 ) : (
                                                     <button
-                                                        onClick={() => handleStatusChange(listing.id, 'active')}
-                                                        className="text-green-600 hover:text-green-700 text-sm font-medium"
+                                                        onClick={() => initiateStatusChange(listing.id, 'active')}
+                                                        className="text-green-600 hover:text-green-700 text-sm font-medium hover:bg-green-50 px-3 py-1 rounded-md transition"
                                                     >
                                                         Activate
                                                     </button>
@@ -174,13 +189,12 @@ export default function AdminListingsPage() {
                     </table>
                 </div>
 
-                {/* Pagination */}
                 {totalPages > 1 && (
                     <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
                         <button
                             onClick={() => setPage((p) => Math.max(1, p - 1))}
                             disabled={page === 1}
-                            className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
                         >
                             Previous
                         </button>
@@ -190,13 +204,28 @@ export default function AdminListingsPage() {
                         <button
                             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                             disabled={page === totalPages}
-                            className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
                         >
                             Next
                         </button>
                     </div>
                 )}
             </div>
+
+            <ConfirmationModal
+                isOpen={modalOpen}
+                title={pendingAction?.status === 'suspended' ? 'Suspend Listing' : 'Activate Listing'}
+                message={pendingAction?.status === 'suspended'
+                    ? 'Are you sure you want to suspend this listing? It will no longer be visible to users.'
+                    : 'Are you sure you want to reactivate this listing? It will be visible on the marketplace again.'}
+                isDestructive={pendingAction?.status === 'suspended'}
+                confirmLabel={pendingAction?.status === 'suspended' ? 'Suspend' : 'Activate'}
+                onConfirm={confirmStatusChange}
+                onCancel={() => {
+                    setModalOpen(false);
+                    setPendingAction(null);
+                }}
+            />
         </div>
     );
 }

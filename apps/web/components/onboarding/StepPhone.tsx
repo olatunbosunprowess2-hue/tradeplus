@@ -9,119 +9,81 @@ interface StepProps {
 }
 
 export default function StepPhone({ onNext }: StepProps) {
-    const { updateProfile } = useAuthStore();
-    const [phone, setPhone] = useState('');
-    const [otp, setOtp] = useState('');
-    const [step, setStep] = useState<'INPUT' | 'VERIFY'>('INPUT');
+    const { user, updateProfile } = useAuthStore();
+    const [phoneNumber, setPhoneNumber] = useState(user?.phoneNumber || '');
     const [loading, setLoading] = useState(false);
 
-    const handleSendOtp = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
-        try {
-            const res = await fetch('http://localhost:3333/api/auth/otp/send', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phoneNumber: phone }),
-            });
-
-            if (!res.ok) throw new Error('Failed to send OTP');
-
-            setStep('VERIFY');
-            toast.success('OTP sent! Check your phone (or console for demo)');
-        } catch (error) {
-            console.error(error);
-            toast.error('Failed to send OTP. Please try again.');
-        } finally {
-            setLoading(false);
+        if (!phoneNumber) {
+            toast.error('Please enter your phone number');
+            return;
         }
-    };
 
-    const handleVerifyOtp = async (e: React.FormEvent) => {
-        e.preventDefault();
         setLoading(true);
-        try {
-            const res = await fetch('http://localhost:3333/api/auth/otp/verify', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phoneNumber: phone, code: otp }),
-            });
 
-            if (!res.ok) {
-                const data = await res.json();
-                throw new Error(data.message || 'Invalid OTP');
-            }
+        // Just save the phone number and proceed, no verification needed yet as per requirements
+        updateProfile({ phoneNumber });
 
-            updateProfile({ phoneNumber: phone });
-            toast.success('Phone verified successfully!');
+        // Simulate a brief loading state for better UX
+        setTimeout(() => {
+            setLoading(false);
             onNext();
-        } catch (error) {
-            console.error(error);
-            toast.error(error instanceof Error ? error.message : 'Verification failed');
-        } finally {
-            setLoading(false);
-        }
+        }, 500);
     };
 
     return (
         <div className="space-y-6">
             <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold text-gray-900">Verify Phone Number</h2>
-                <p className="text-gray-500">We'll send you a code to verify it's really you.</p>
+                <h2 className="text-2xl font-bold text-gray-900">Add Phone Number</h2>
+                <p className="text-gray-500">Please provide a phone number where we can reach you.</p>
             </div>
 
-            {step === 'INPUT' ? (
-                <form onSubmit={handleSendOtp} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+            <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                    <div className="relative">
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium text-lg">
+                            +
+                        </div>
                         <input
                             type="tel"
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-600 outline-none transition"
-                            placeholder="+234 800 000 0000"
+                            value={phoneNumber}
+                            onChange={(e) => {
+                                const value = e.target.value.replace(/\D/g, '');
+                                if (value.length <= 13) {
+                                    setPhoneNumber(value);
+                                }
+                            }}
+                            className="w-full pl-10 pr-4 py-4 rounded-xl border-2 border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-600 outline-none transition text-gray-900 font-medium text-lg tracking-wide"
+                            placeholder="234 800 123 4567"
                             required
                         />
                     </div>
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold text-lg hover:bg-blue-700 transition shadow-lg flex justify-center"
-                    >
-                        {loading ? 'Sending...' : 'Send Code'}
-                    </button>
-                </form>
-            ) : (
-                <form onSubmit={handleVerifyOtp} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Enter OTP Code</label>
-                        <input
-                            type="text"
-                            value={otp}
-                            onChange={(e) => setOtp(e.target.value)}
-                            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-600 outline-none transition text-center text-2xl tracking-widest"
-                            placeholder="000000"
-                            maxLength={6}
-                            required
-                        />
-                        <p className="text-xs text-center mt-2 text-gray-500">Check server console for code if no Twilio keys</p>
-                    </div>
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-green-600 text-white py-3 rounded-xl font-bold text-lg hover:bg-green-700 transition shadow-lg flex justify-center"
-                    >
-                        {loading ? 'Verifying...' : 'Verify & Continue'}
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => setStep('INPUT')}
-                        className="w-full text-gray-500 text-sm hover:text-gray-700"
-                    >
-                        Change Phone Number
-                    </button>
-                </form>
-            )}
-        </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                        <span className="text-blue-600 font-medium">Note:</span> Your phone number will be verified manually by our team.
+                    </p>
+                </div>
+                <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 rounded-xl font-bold text-lg hover:from-blue-700 hover:to-indigo-700 transition shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] flex justify-center items-center gap-3"
+                >
+                    {loading ? (
+                        <>
+                            <div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin" />
+                            Saving...
+                        </>
+                    ) : (
+                        <>
+                            Continue
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </>
+                    )}
+                </button>
+            </form >
+        </div >
     );
 }

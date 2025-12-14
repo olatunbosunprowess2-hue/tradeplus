@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import api from '@/lib/api';
+import apiClient from '@/lib/api-client';
 import { useAuthStore } from '@/lib/store';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -20,7 +20,7 @@ export default function AccountPage() {
   const { data: user } = useQuery({
     queryKey: ['user', 'me'],
     queryFn: async () => {
-      const response = await api.get('/users/me');
+      const response = await apiClient.get('/users/me');
       return response.data;
     },
     enabled: isAuthenticated(),
@@ -29,7 +29,7 @@ export default function AccountPage() {
   const { data: listings } = useQuery({
     queryKey: ['my-listings'],
     queryFn: async () => {
-      const response = await api.get('/listings/my-listings');
+      const response = await apiClient.get('/listings/my-listings');
       return response.data;
     },
     enabled: isAuthenticated(),

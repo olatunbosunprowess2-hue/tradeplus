@@ -28,7 +28,10 @@ export interface AdminListingQuery {
 }
 
 export interface UpdateUserStatusData {
-    status: string;
+    status?: string;
+    verificationStatus?: string;
+    rejectionReason?: string;
+    adminMessage?: string;
 }
 
 export interface UpdateListingStatusData {
@@ -57,4 +60,10 @@ export const adminApi = {
     // Reports
     getReports: () =>
         apiClient.get('/reports'),
+
+    resolveReport: (reportId: string, adminMessage?: string) =>
+        apiClient.patch(`/reports/${reportId}/resolve`, { adminMessage }),
+
+    deleteReportedListing: (reportId: string, adminMessage?: string) =>
+        apiClient.delete(`/reports/${reportId}/delete-listing`, { data: { adminMessage } }),
 };

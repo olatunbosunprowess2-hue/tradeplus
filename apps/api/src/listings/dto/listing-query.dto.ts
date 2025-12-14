@@ -1,5 +1,5 @@
 import { IsOptional, IsString, IsInt, Min, IsEnum } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 
 export class ListingQueryDto {
     @IsOptional()
@@ -10,6 +10,10 @@ export class ListingQueryDto {
     @IsOptional()
     @IsString()
     search?: string;
+
+    @IsOptional()
+    @IsString()
+    sellerId?: string;
 
     @IsOptional()
     @IsEnum(['new', 'used'])
@@ -44,6 +48,10 @@ export class ListingQueryDto {
     @Type(() => Number)
     @IsInt()
     regionId?: number;
+
+    @IsOptional()
+    @Transform(({ value }) => value === 'true' || value === true)
+    isDistressSale?: boolean;
 
     @IsOptional()
     @Type(() => Number)

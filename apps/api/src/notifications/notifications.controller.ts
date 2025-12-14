@@ -13,8 +13,13 @@ export class NotificationsController {
     }
 
     @Get('unread-count')
-    getUnreadCount(@Request() req) {
-        return this.notificationsService.getUnreadCount(req.user.id);
+    async getUnreadCount(@Request() req) {
+        try {
+            return await this.notificationsService.getUnreadCount(req.user.id);
+        } catch (error) {
+            console.error('Error fetching unread count:', error);
+            throw error;
+        }
     }
 
     @Patch('read-all')

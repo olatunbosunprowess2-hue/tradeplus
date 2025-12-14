@@ -1,216 +1,239 @@
-# TradePlus 🔄
+# 🌊 BarterWave
 
-A modern, revolutionary marketplace platform that enables users to buy, sell, and trade items using cash, barter, or a combination of both. Built with cutting-edge web technologies for a seamless trading experience.
+**Africa's Trusted Marketplace for Buying, Selling & Trading**
 
-![TradePlus Banner](https://via.placeholder.com/1200x300/667eea/ffffff?text=TradePlus+Marketplace)
+BarterWave is a modern hybrid marketplace that enables users across Africa to trade goods and services through cash, barter, or a combination of both. Built with security-first principles including escrow protection for distress sales.
 
-## ✨ Features
+![BarterWave](https://img.shields.io/badge/BarterWave-Marketplace-blue)
+![License](https://img.shields.io/badge/license-Private-red)
+![Platform](https://img.shields.io/badge/platform-Web-green)
+![Coverage](https://img.shields.io/badge/coverage-Africa-orange)
 
-### Trading Flexibility
-- **💵 Cash Payments** - Traditional buying and selling with secure payment options
-- **🔄 Barter System** - Exchange items without spending money
-- **💎 Hybrid Deals** - Combine cash and items for maximum flexibility
+---
+
+## 🚀 Features
+
+### Core Trading
+- **💰 Cash Sales** - Traditional buying/selling with cash payments
+- **🔄 Barter Trading** - Exchange items without money
+- **💱 Hybrid Deals** - Combine cash + items for flexible trades
+
+### Trust & Safety
+- **🔒 Escrow Protection** - Secure payments for distress sales
+- **✅ Identity Verification** - KYC with ID + selfie verification
+- **⭐ Seller Ratings** - Build trust through reviews
 
 ### User Experience
-- **🎨 Dynamic Animations** - Smooth, engaging UI with modern animations
-- **📱 Responsive Design** - Optimized for desktop, tablet, and mobile devices
-- **🔔 Real-time Notifications** - Stay updated on offers and messages
-- **💬 Integrated Messaging** - Communicate directly with buyers and sellers
-- **⭐ User Verification** - Phone verification for trusted transactions
-- **📊 Admin Dashboard** - Comprehensive platform management
+- **🔥 Distress Sales** - Urgent deals with buyer protection
+- **📱 Mobile-First Design** - Optimized for all devices
+- **🌙 Dark Mode** - Eye-friendly dark theme
+- **📍 Location Filtering** - Find items in your state
 
-### Platform Features
-- User profile management with verification badges
-- Listing creation with multiple images
-- Offer system for negotiations
-- Wants list to find desired items
-- Report system for safety
-- Advanced search and filtering
+---
 
 ## 🛠️ Tech Stack
 
-### Frontend
-- **Framework**: Next.js 14 (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **State Management**: Zustand
-- **UI Components**: Custom components with animations
+| Layer | Technology |
+|-------|------------|
+| **Frontend** | Next.js 14, React, TypeScript |
+| **Styling** | TailwindCSS, CSS Variables |
+| **State** | Zustand, TanStack Query |
+| **Backend** | NestJS, Prisma ORM |
+| **Database** | PostgreSQL |
+| **Auth** | JWT, bcrypt |
 
-### Backend
-- **Framework**: NestJS
-- **Language**: TypeScript
-- **Database**: PostgreSQL with Prisma ORM
-- **Cache**: Redis
-- **Authentication**: JWT with refresh tokens
-- **File Upload**: Cloudinary integration
+---
 
-### Infrastructure
-- **Containerization**: Docker & Docker Compose
-- **Database Migrations**: Prisma Migrate
-- **Phone Verification**: Twilio (configured for production)
-
-## 🚀 Getting Started
+## 📦 Getting Started
 
 ### Prerequisites
-- Node.js 18+ and npm
-- Docker and Docker Compose
+- Node.js 18+
+- Docker Desktop
 - Git
 
-### Installation
+### 1. Clone & Install
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/YOUR_USERNAME/TradePlus.git
-   cd TradePlus
-   ```
+```bash
+git clone <repository-url>
+cd TradePlus
+npm install
+```
 
-2. **Start Docker services**
-   ```bash
-   docker-compose up -d
-   ```
+### 2. Start Database
 
-3. **Install dependencies**
-   ```bash
-   npm install
-   ```
+```bash
+docker-compose up -d
+```
 
-4. **Set up environment variables**
-   
-   Create `.env` file in the root:
-   ```env
-   DATABASE_URL=postgresql://user:password@localhost:5432/tradeplus?schema=public
-   JWT_SECRET=super-secret-jwt-key
-   JWT_REFRESH_SECRET=super-secret-refresh-key
-   NEXT_PUBLIC_API_URL=http://localhost:3000/api
-   ```
+Wait for PostgreSQL to be healthy (check with `docker ps`).
 
-5. **Run database migrations**
-   ```bash
-   npm run db:migrate
-   ```
+### 3. Setup Database
 
-6. **Seed the database (optional)**
-   ```bash
-   npm run db:seed
-   ```
+```bash
+# First time only
+npx prisma db push
+npx prisma db seed
+```
 
-7. **Start the development servers**
-   ```bash
-   npm run dev
-   ```
+### 4. Start Development Servers
 
-   The application will be available at:
-   - **Frontend**: http://localhost:3001
-   - **Backend API**: http://localhost:3000
-   - **API Docs**: http://localhost:3000/api
+```bash
+# In one terminal - API (port 3001)
+cd apps/api && npm run start:dev
 
-### Default Admin Account
-- **Email**: admin@tradeplus.com
-- **Password**: password123
+# In another terminal - Web (port 3000)
+cd apps/web && npm run dev
+```
+
+### 5. Access the App
+
+- **Web App**: http://localhost:3000
+- **API**: http://localhost:3001
+- **API Docs**: http://localhost:3001/api/docs
+
+### Default Admin Login
+- **Email**: `admin@tradeplus.com`
+- **Password**: `password123`
+
+---
 
 ## 📁 Project Structure
 
 ```
 TradePlus/
 ├── apps/
-│   ├── api/              # NestJS backend
+│   ├── api/              # NestJS Backend
 │   │   ├── src/
-│   │   │   ├── auth/     # Authentication module
-│   │   │   ├── listings/ # Listings management
-│   │   │   ├── offers/   # Offer system
+│   │   │   ├── auth/     # Authentication
 │   │   │   ├── users/    # User management
-│   │   │   └── ...
-│   │   └── package.json
-│   └── web/              # Next.js frontend
+│   │   │   ├── listings/ # Marketplace listings
+│   │   │   ├── escrow/   # Escrow transactions
+│   │   │   ├── admin/    # Admin panel
+│   │   │   └── email/    # Email service
+│   │   └── prisma/       # Database schema
+│   │
+│   └── web/              # Next.js Frontend
 │       ├── app/          # App router pages
 │       ├── components/   # React components
-│       ├── lib/          # Utilities & stores
-│       └── package.json
-├── prisma/
-│   └── schema.prisma     # Database schema
-├── docker-compose.yml    # Docker services
-├── package.json          # Root package.json
-└── README.md
+│       └── lib/          # Utilities & stores
+│
+├── docker-compose.yml    # PostgreSQL container
+└── package.json          # Root config
 ```
-
-## 🎯 Available Scripts
-
-```bash
-# Development
-npm run dev           # Start both frontend and backend
-npm run dev:web       # Start frontend only
-npm run dev:api       # Start backend only
-
-# Database
-npm run db:generate   # Generate Prisma client
-npm run db:migrate    # Run migrations
-npm run db:seed       # Seed database
-
-# Build
-npm run build         # Build both apps
-npm run build:web     # Build frontend
-npm run build:api     # Build backend
-```
-
-## 🔐 Environment Variables
-
-### Required Variables
-- `DATABASE_URL` - PostgreSQL connection string
-- `JWT_SECRET` - Secret for access tokens
-- `JWT_REFRESH_SECRET` - Secret for refresh tokens
-- `NEXT_PUBLIC_API_URL` - Backend API URL
-
-### Optional Variables (Production)
-- `CLOUDINARY_CLOUD_NAME` - For image uploads
-- `CLOUDINARY_API_KEY`
-- `CLOUDINARY_API_SECRET`
-- `TWILIO_ACCOUNT_SID` - For phone verification
-- `TWILIO_AUTH_TOKEN`
-- `TWILIO_PHONE_NUMBER`
-
-## 🎨 Key Features in Detail
-
-### Dynamic Homepage
-- Animated hero section with eye-catching CTAs
-- Scroll-triggered counting animations for stats
-- Interactive feature cards with hover effects
-- Responsive design optimized for all devices
-
-### User Authentication
-- Secure JWT-based authentication
-- Phone number verification
-- Refresh token rotation
-- Password reset functionality
-
-### Listing Management
-- Multi-image upload support
-- Flexible payment options (cash, barter, hybrid)
-- Category-based organization
-- Advanced search and filtering
-
-### Messaging System
-- Real-time chat between users
-- Offer proposals and negotiations
-- Message notifications
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 👨‍💻 Author
-
-Your Name - [@YourGitHub](https://github.com/YOUR_USERNAME)
-
-## 🙏 Acknowledgments
-
-- Built with ❤️ using Next.js and NestJS
-- Icons and animations powered by Tailwind CSS
-- Database management with Prisma
 
 ---
 
-⭐ Star this repo if you find it helpful!
+## 🔐 Environment Variables
+
+Create a `.env` file in the root directory:
+
+```env
+# Database
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/tradeplus?schema=public"
+
+# JWT
+JWT_SECRET="your-jwt-secret-here"
+JWT_EXPIRES_IN="7d"
+
+# Email (optional - for production)
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USER=your-email
+SMTP_PASS=your-password
+EMAIL_FROM=noreply@barterwave.com
+EMAIL_FROM_NAME=BarterWave
+
+# Paystack (optional - for payments)
+PAYSTACK_SECRET_KEY=sk_test_xxx
+PAYSTACK_PUBLIC_KEY=pk_test_xxx
+
+# Frontend URL
+FRONTEND_URL=http://localhost:3000
+
+# Uploads
+UPLOAD_DIR=./uploads
+```
+
+---
+
+## 🧪 Testing
+
+```bash
+# Run API tests
+cd apps/api && npm test
+
+# Run web tests
+cd apps/web && npm test
+```
+
+---
+
+## 🚢 Deployment
+
+### Production Build
+
+```bash
+# Build API
+cd apps/api && npm run build
+
+# Build Web
+cd apps/web && npm run build
+```
+
+### Recommended Platforms
+- **Frontend**: Vercel, Netlify
+- **Backend**: Railway, Render, DigitalOcean
+- **Database**: Supabase, Railway, PlanetScale
+
+---
+
+## 📋 API Endpoints
+
+### Authentication
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/auth/register` | User registration |
+| POST | `/auth/login` | User login |
+| POST | `/auth/forgot-password` | Password reset |
+
+### Listings
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/listings` | Get all listings |
+| POST | `/listings` | Create listing |
+| GET | `/listings/:id` | Get single listing |
+| PATCH | `/listings/:id` | Update listing |
+| DELETE | `/listings/:id` | Delete listing |
+
+### Escrow
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/escrow/initiate` | Start escrow transaction |
+| POST | `/escrow/confirm/:id` | Buyer confirms receipt |
+| GET | `/escrow/my-transactions` | Get user's escrow history |
+
+---
+
+## 👥 Contributing
+
+1. Create a feature branch
+2. Make your changes
+3. Run tests
+4. Submit a pull request
+
+---
+
+## 📄 License
+
+This project is proprietary software. All rights reserved.
+
+---
+
+## 📞 Support
+
+- **Email**: support@barterwave.com
+- **Website**: https://barterwave.com
+
+---
+
+Built with ❤️ for Africa 🌍

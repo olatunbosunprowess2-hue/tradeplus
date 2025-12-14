@@ -35,6 +35,8 @@ export const useNotificationsStore = create<NotificationsState>((set, get) => ({
             set({ unreadCount: response.data });
         } catch (error) {
             console.error('Failed to fetch unread count', error);
+            // Reset count on error to prevent showing false notifications
+            set({ unreadCount: 0 });
         }
     },
 

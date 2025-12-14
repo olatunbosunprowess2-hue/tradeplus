@@ -40,21 +40,20 @@ export default function WantsPage() {
                         </p>
                     </div>
 
-                    <div className="flex gap-2">
+                    <div className="flex gap-3">
                         <button
                             onClick={() => {
                                 const user = useAuthStore.getState().user;
                                 const url = `${window.location.origin}/share/${user?.id}/wants`;
 
-                                // Dynamic share text based on active tab
                                 const shareContent = activeTab === 'wants'
                                     ? {
-                                        title: `${user?.profile?.displayName || 'My'} TradePlus Bucketlist 🎯`,
-                                        text: `Hey! 👋 Check out my bucketlist on TradePlus.`,
+                                        title: `${user?.profile?.displayName || 'My'} Wishlist 🎯`,
+                                        text: `Hey! 👋 Check out my wishlist.`,
                                     }
                                     : {
-                                        title: `${user?.profile?.displayName || 'My'} Saved Items on TradePlus 💎`,
-                                        text: `Found some amazing items on TradePlus! 🌟 Take a look at what caught my eye. You might love them too!`,
+                                        title: `${user?.profile?.displayName || 'My'} Saved Items 💎`,
+                                        text: `Found some amazing items! 🌟 Take a look at what caught my eye.`,
                                     };
 
                                 if (navigator.share) {
@@ -66,21 +65,25 @@ export default function WantsPage() {
                                 } else {
                                     const fullMessage = `${shareContent.title}\n\n${shareContent.text}\n\n${url}`;
                                     navigator.clipboard.writeText(fullMessage);
-                                    alert('Link copied to clipboard with message!');
+                                    alert('Link copied to clipboard!');
                                 }
                             }}
-                            className="flex items-center gap-2 bg-white text-blue-600 border border-blue-200 px-6 py-3 rounded-full font-bold hover:bg-blue-50 transition-transform hover:scale-105 shadow-sm"
+                            className="flex items-center gap-2 bg-white text-gray-700 border border-gray-200 px-5 py-2.5 rounded-xl font-medium hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
                         >
-                            <span className="text-xl">📤</span>
-                            Share {activeTab === 'wants' ? 'Wishlist' : 'Bookmarks'}
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                            </svg>
+                            Share
                         </button>
                         {activeTab === 'wants' && (
                             <button
                                 onClick={() => setIsModalOpen(true)}
-                                className="hidden md:flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-full font-bold hover:bg-blue-700 transition-transform hover:scale-105 shadow-lg"
+                                className="hidden md:flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-2.5 rounded-xl font-medium hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
                             >
-                                <span className="text-xl">✒️</span>
-                                Add New Want
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                </svg>
+                                Add Want
                             </button>
                         )}
                     </div>

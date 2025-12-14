@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import api from '@/lib/api';
+import apiClient from '@/lib/api-client';
 import Link from 'next/link';
 import CategoryCard from '@/components/CategoryCard';
 import ListingCard from '@/components/ListingCard';
@@ -10,7 +10,7 @@ export default function DiscoverPage() {
   const { data: listings, isLoading } = useQuery({
     queryKey: ['listings'],
     queryFn: async () => {
-      const response = await api.get('/listings', {
+      const response = await apiClient.get('/listings', {
         params: { limit: 20 },
       });
       return response.data.data || [];

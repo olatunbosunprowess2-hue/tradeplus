@@ -1,7 +1,10 @@
 'use client';
 
+import { formatPriceSimple, getCurrencyByCode } from '@/lib/currencies';
+
 interface PriceDisplayProps {
     priceCents: number;
+    currencyCode?: string;
     originalPriceCents?: number;
     size?: 'sm' | 'md' | 'lg';
     className?: string;
@@ -9,6 +12,7 @@ interface PriceDisplayProps {
 
 export default function PriceDisplay({
     priceCents,
+    currencyCode = 'NGN',
     originalPriceCents,
     size = 'md',
     className = ''
@@ -25,8 +29,10 @@ export default function PriceDisplay({
         lg: 'text-sm',
     };
 
-    const price = (priceCents / 100).toLocaleString();
-    const originalPrice = originalPriceCents ? (originalPriceCents / 100).toLocaleString() : null;
+    const price = formatPriceSimple(priceCents, currencyCode);
+    const originalPrice = originalPriceCents
+        ? formatPriceSimple(originalPriceCents, currencyCode)
+        : null;
     const discount = originalPriceCents
         ? Math.round(((originalPriceCents - priceCents) / originalPriceCents) * 100)
         : 0;
@@ -44,12 +50,12 @@ export default function PriceDisplay({
     return (
         <div className={`flex items-center gap-2 ${className}`}>
             <span className={`font-bold ${sizeClasses[size]} text-gray-900`}>
-                ₦{price}
+                {price}
             </span>
             {originalPrice && (
                 <>
                     <span className={`text-gray-400 line-through ${smallSizeClasses[size]}`}>
-                        ₦{originalPrice}
+                        {originalPrice}
                     </span>
                     <span className={`text-xs font-semibold px-2 py-0.5 rounded ${smallSizeClasses[size]}`}
                         style={{ backgroundColor: '#FEF3C7', color: '#D97706' }}>

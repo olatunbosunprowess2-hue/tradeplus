@@ -10,27 +10,50 @@ interface ModalProps {
     onDecision: (userId: string, decision: 'APPROVE' | 'REJECT') => void;
 }
 
+// Helper to get full image URL
+const getImageUrl = (path: string | null | undefined) => {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+
+    // Static files are served WITHOUT /api prefix
+    // Even if NEXT_PUBLIC_API_URL has /api, we need to remove it for uploads
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+    const baseUrl = apiUrl.replace('/api', ''); // Remove /api if present
+
+    return `${baseUrl}${path}`;
+};
+
 export default function VerificationReviewModal({ user, onClose, onDecision }: ModalProps) {
     const [rejectReason, setRejectReason] = useState('');
     const [isRejecting, setIsRejecting] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
 
-    const handleApprove = () => {
+    const handleApprove = async () => {
+        if (isProcessing) return; // Prevent multiple clicks
+        setIsProcessing(true);
+
         toast.success(`Approved ${user.profile?.displayName}`);
-        onDecision(user.id, 'APPROVE');
+        await onDecision(user.id, 'APPROVE');
+        // Don't reset isProcessing - modal will close
     };
 
     const handleRejectClick = () => {
         setIsRejecting(true);
     };
 
-    const handleConfirmReject = () => {
+    const handleConfirmReject = async () => {
         if (!rejectReason.trim()) {
             toast.error('Please provide a reason for rejection');
             return;
         }
+
+        if (isProcessing) return; // Prevent multiple clicks
+        setIsProcessing(true);
+
         console.log(`Sending rejection email to ${user.email}. Reason: ${rejectReason}`);
         toast.success(`Rejected ${user.profile?.displayName}. Email sent.`);
-        onDecision(user.id, 'REJECT');
+        await onDecision(user.id, 'REJECT');
+        // Don't reset isProcessing - modal will close
     };
 
     return (
@@ -41,7 +64,7 @@ export default function VerificationReviewModal({ user, onClose, onDecision }: M
                 <div className="p-6 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white z-10">
                     <div>
                         <h2 className="text-2xl font-bold text-gray-900">Review Verification</h2>
-                        <p className="text-gray-500">User: {user.profile?.displayName} ({user.email})</p>
+                        <p className="text-gray-500">User: {user.firstName} {user.lastName} ({user.email})</p>
                     </div>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -58,10 +81,10 @@ export default function VerificationReviewModal({ user, onClose, onDecision }: M
                         <div className="bg-gray-50 p-4 rounded-xl">
                             <h3 className="font-semibold text-gray-700 mb-2">Profile Info</h3>
                             <div className="space-y-2 text-sm">
-                                <p><span className="text-gray-500">Name:</span> {user.profile?.displayName}</p>
-                                <p><span className="text-gray-500">Bio:</span> {user.profile?.bio}</p>
-                                <p><span className="text-gray-500">Phone:</span> {user.phoneNumber}</p>
-                                <p><span className="text-gray-500">Location:</span> {user.locationAddress}</p>
+                                <p><span className="text-gray-600 font-semibold">Name:</span> <span className="text-gray-900">{user.firstName} {user.lastName}</span></p>
+                                <p><span className="text-gray-600 font-semibold">Bio:</span> <span className="text-gray-900">{user.profile?.bio || 'N/A'}</span></p>
+                                <p><span className="text-gray-600 font-semibold">Phone:</span> <span className="text-gray-900">{user.phoneNumber}</span></p>
+                                <p><span className="text-gray-600 font-semibold">Location:</span> <span className="text-gray-900">{user.locationAddress}</span></p>
                             </div>
                         </div>
 
@@ -69,7 +92,14 @@ export default function VerificationReviewModal({ user, onClose, onDecision }: M
                         <div className="bg-gray-50 p-4 rounded-xl">
                             <h3 className="font-semibold text-gray-700 mb-2">Live Selfie</h3>
                             <div className="aspect-video bg-black rounded-lg overflow-hidden">
-                                <img src={user.faceVerificationUrl} alt="Selfie" className="w-full h-full object-cover" />
+                                <img
+                                    src={getImageUrl(user.faceVerificationUrl)}
+                                    alt="Selfie"
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                        (e.target as HTMLImageElement).src = 'https://placehold.co/400x300?text=Error+Loading+Image';
+                                    }}
+                                />
                             </div>
                         </div>
                     </div>
@@ -81,13 +111,27 @@ export default function VerificationReviewModal({ user, onClose, onDecision }: M
                             <div>
                                 <p className="text-sm text-gray-500 mb-2">Front Side</p>
                                 <div className="aspect-[3/2] bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
-                                    <img src={user.idDocumentFrontUrl} alt="ID Front" className="w-full h-full object-cover" />
+                                    <img
+                                        src={getImageUrl(user.idDocumentFrontUrl)}
+                                        alt="ID Front"
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                            (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Error+Loading+Image';
+                                        }}
+                                    />
                                 </div>
                             </div>
                             <div>
                                 <p className="text-sm text-gray-500 mb-2">Back Side</p>
                                 <div className="aspect-[3/2] bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
-                                    <img src={user.idDocumentBackUrl} alt="ID Back" className="w-full h-full object-cover" />
+                                    <img
+                                        src={getImageUrl(user.idDocumentBackUrl)}
+                                        alt="ID Back"
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                            (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Error+Loading+Image';
+                                        }}
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -110,31 +154,42 @@ export default function VerificationReviewModal({ user, onClose, onDecision }: M
                             <div className="flex gap-3 justify-end">
                                 <button
                                     onClick={() => setIsRejecting(false)}
-                                    className="px-4 py-2 text-gray-600 hover:bg-gray-200 rounded-lg font-medium"
+                                    disabled={isProcessing}
+                                    className="px-4 py-2 text-gray-600 hover:bg-gray-200 rounded-lg font-medium disabled:opacity-50"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     onClick={handleConfirmReject}
-                                    className="px-6 py-2 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 shadow-sm"
+                                    disabled={isProcessing}
+                                    className={`px-6 py-2 rounded-lg font-bold shadow-sm ${isProcessing ? 'bg-gray-400' : 'bg-red-600 hover:bg-red-700'} text-white`}
                                 >
-                                    Confirm Rejection
+                                    {isProcessing ? 'Processing...' : 'Confirm Rejection'}
                                 </button>
                             </div>
                         </div>
                     ) : (
                         <div className="flex gap-4 justify-end">
                             <button
+                                onClick={onClose}
+                                disabled={isProcessing}
+                                className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition disabled:opacity-50"
+                            >
+                                Cancel
+                            </button>
+                            <button
                                 onClick={handleRejectClick}
-                                className="px-6 py-3 bg-white border border-red-200 text-red-600 rounded-xl font-bold hover:bg-red-50 transition"
+                                disabled={isProcessing}
+                                className="px-6 py-3 bg-white border border-red-200 text-red-600 rounded-xl font-bold hover:bg-red-50 transition disabled:opacity-50"
                             >
                                 Reject
                             </button>
                             <button
                                 onClick={handleApprove}
-                                className="px-8 py-3 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 shadow-lg transition transform hover:-translate-y-0.5"
+                                disabled={isProcessing}
+                                className={`px-8 py-3 rounded-xl font-bold shadow-lg transition transform ${isProcessing ? 'bg-gray-400' : 'bg-green-600 hover:bg-green-700 hover:-translate-y-0.5'} text-white`}
                             >
-                                Approve Verification
+                                {isProcessing ? 'Processing...' : 'Approve Verification'}
                             </button>
                         </div>
                     )}

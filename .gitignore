@@ -27,17 +27,36 @@ dist/
 *.pem
 
 # Debug
+# OS
+Thumbs.db
+
+# Logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# IDEs
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
+# Uploads
+apps/api/uploads/
 
-# OS
-Thumbs.db
+# Temporary Scripts
+check-*.js
+check-*.ts
+check_*.js
+create-*.js
+seed_*.js
+seed-*.js
+test-*.js
+test_*.js
+reproduce_*.js
+verify_*.js
+verify_*.ts
+find-*.js
+fix-*.js
+run-migration.js
+quick_create_user.js
+clear_data.js
+add_supabase_column.sql
+supabase-*.sql
+

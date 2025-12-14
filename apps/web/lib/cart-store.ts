@@ -83,7 +83,7 @@ export const useCartStore = create<CartState>()(
             },
         }),
         {
-            name: 'tradeplus-cart-storage', // unique name for local storage
+            name: 'barterwave-cart-storage', // unique name for local storage
         }
     )
 );

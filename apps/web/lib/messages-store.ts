@@ -33,6 +33,10 @@ export interface Conversation {
         title: string;
         image: string;
     };
+    barterOffer?: {
+        id: string;
+        status: string;
+    };
 }
 
 interface MessagesState {

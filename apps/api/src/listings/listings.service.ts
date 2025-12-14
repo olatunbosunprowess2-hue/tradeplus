@@ -27,15 +27,24 @@ export class ListingsService {
             throw new ForbiddenException('Price cannot be negative');
         }
 
-        const listing = await this.prisma.listing.create({
-            data: {
+        // Fetch user profile to get default location
+        const userProfile = await this.prisma.userProfile.findUnique({
+            where: { userId },
+        });
+
+        try {
+            const prismaData = {
                 ...listingData,
                 sellerId: userId,
-                priceCents: dto.priceCents ? BigInt(dto.priceCents) : null,
+                priceCents: dto.priceCents ? BigInt(Math.round(dto.priceCents)) : null,
                 currencyCode: dto.currencyCode || 'USD',
                 quantity: dto.quantity || 1,
                 shippingMeetInPerson: dto.shippingMeetInPerson ?? true,
                 shippingShipItem: dto.shippingShipItem ?? false,
+                // Default to seller's location if not provided
+                countryId: dto.countryId || userProfile?.countryId,
+                regionId: dto.regionId || userProfile?.regionId,
+                videoUrl: dto.videoUrl || null,
                 images: imageUrls
                     ? {
                         create: imageUrls.map((url, index) => ({
@@ -44,31 +53,49 @@ export class ListingsService {
                         })),
                     }
                     : undefined,
-            },
-            include: {
-                seller: {
-                    include: {
-                        profile: {
-                            include: {
-                                country: true,
-                                region: true,
+            };
+
+            // Log debug info to file
+            try {
+                const fs = require('fs');
+                const logPath = 'C:/Users/PC/Desktop/TradePlus/TradePlus/debug_listing.log';
+                fs.appendFileSync(logPath, `\n[${new Date().toISOString()}] PRISMA CREATE DATA: ${JSON.stringify(prismaData, (key, value) =>
+                    typeof value === 'bigint' ? value.toString() : value
+                    , 2)}\n`);
+            } catch (e) {
+                console.error('Failed to write debug log:', e);
+            }
+
+            const listing = await this.prisma.listing.create({
+                data: prismaData,
+                include: {
+                    seller: {
+                        include: {
+                            profile: {
+                                include: {
+                                    country: true,
+                                    region: true,
+                                },
                             },
                         },
                     },
+                    category: true,
+                    images: {
+                        orderBy: { sortOrder: 'asc' },
+                    },
+                    country: true,
+                    region: true,
                 },
-                category: true,
-                images: {
-                    orderBy: { sortOrder: 'asc' },
-                },
-                country: true,
-                region: true,
-            },
-        });
+            });
 
-        return {
-            ...listing,
-            priceCents: listing.priceCents ? Number(listing.priceCents) : null,
-        };
+            return {
+                ...listing,
+                priceCents: listing.priceCents ? Number(listing.priceCents) : null,
+            };
+        } catch (error) {
+            console.error('Error in ListingsService.create:', error);
+            throw error;
+        }
     }
 
     async findAll(query: ListingQueryDto) {
@@ -81,6 +108,8 @@ export class ListingsService {
             maxPrice,
             countryId,
             regionId,
+            sellerId,
+            isDistressSale,
             page = 1,
             limit = 20,
         } = query;
@@ -90,6 +119,10 @@ export class ListingsService {
         const where: any = {
             status: 'active',
         };
+
+        if (sellerId) {
+            where.sellerId = sellerId;
+        }
 
         if (categoryId) {
             where.categoryId = categoryId;
@@ -103,12 +136,30 @@ export class ListingsService {
             where.type = query.type;
         }
 
+        // Distress Sale Filter
+        if (isDistressSale !== undefined && String(isDistressSale) === 'true') {
+            where.isDistressSale = true;
+        }
+
         if (search) {
+            // Use split terms for better search matching if multiple words
+            const terms = search.trim().split(/\s+/).join(' & ');
             where.OR = [
+                // Prioritize exact/partial text match for better relevance
                 { title: { contains: search, mode: 'insensitive' } },
                 { description: { contains: search, mode: 'insensitive' } },
+                // Fallback to searching category name
                 { category: { name: { contains: search, mode: 'insensitive' } } },
             ];
+
+            // Note: If you have enabled previewFeatures=["fullTextSearch"], you could use this:
+            // where.OR = [
+            //    { title: { search: terms } },
+            //    { description: { search: terms } },
+            // ];
+            // However, sticking to 'contains' ensures substring matches work (e.g. 'pho' matches 'phone')
+            // which users often expect, whereas FTS usually scans full words.
+            // We optimize performance by reducing the SELECT payload below.
         }
 
         if (paymentMode === 'cash') {
@@ -142,23 +193,56 @@ export class ListingsService {
                 where,
                 skip,
                 take: limit,
-                include: {
-                    seller: {
-                        include: {
-                            profile: {
-                                include: {
-                                    country: true,
-                                    region: true,
-                                },
-                            },
-                        },
-                    },
-                    category: true,
+                // OPTIMIZATION: Use select instead of include to fetch only what's needed
+                select: {
+                    id: true,
+                    title: true,
+                    description: true,
+                    priceCents: true,
+                    currencyCode: true,
+                    type: true,
+                    condition: true,
+                    status: true,
+                    updatedAt: true,
+                    createdAt: true,
+                    allowCash: true,
+                    allowBarter: true,
+                    allowCashPlusBarter: true,
+                    quantity: true,
+                    isDistressSale: true,
+                    // Only fetch the first image for the card preview to save bandwidth
                     images: {
                         orderBy: { sortOrder: 'asc' },
+                        take: 1,
+                        select: { url: true }
                     },
-                    country: true,
-                    region: true,
+                    category: {
+                        select: { id: true, name: true, slug: true }
+                    },
+                    country: {
+                        select: { id: true, name: true }
+                    },
+                    region: {
+                        select: { id: true, name: true }
+                    },
+                    sellerId: true,
+                    seller: {
+                        select: {
+                            id: true,
+                            email: true,
+                            isVerified: true,
+                            locationAddress: true,
+                            profile: {
+                                select: {
+                                    displayName: true,
+                                    avatarUrl: true,
+                                    region: {
+                                        select: { name: true }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 },
                 orderBy: { createdAt: 'desc' },
             }),
@@ -169,6 +253,8 @@ export class ListingsService {
             data: listings.map((listing) => ({
                 ...listing,
                 priceCents: listing.priceCents ? Number(listing.priceCents) : null,
+                // Ensure images array structure matches expected DTO
+                images: listing.images || []
             })),
             meta: {
                 total,
@@ -212,6 +298,29 @@ export class ListingsService {
         };
     }
 
+    async findByUser(userId: string) {
+        const listings = await this.prisma.listing.findMany({
+            where: {
+                sellerId: userId,
+                status: {
+                    not: 'removed',
+                },
+            },
+            include: {
+                category: true,
+                images: {
+                    orderBy: { sortOrder: 'asc' },
+                },
+            },
+            orderBy: { createdAt: 'desc' },
+        });
+
+        return listings.map((listing) => ({
+            ...listing,
+            priceCents: listing.priceCents ? Number(listing.priceCents) : null,
+        }));
+    }
+
     async update(id: string, userId: string, dto: UpdateListingDto) {
         const listing = await this.prisma.listing.findUnique({
             where: { id },
@@ -225,7 +334,7 @@ export class ListingsService {
             throw new ForbiddenException('You can only update your own listings');
         }
 
-        const { imageUrls, priceCents, ...listingData } = dto;
+        const { imageUrls, priceCents, status, ...listingData } = dto;
 
         // Handle image updates
         if (imageUrls) {
@@ -235,9 +344,6 @@ export class ListingsService {
             });
 
             // Create new images
-            // We can't easily add to 'data' directly for nested writes in update like this without careful typing
-            // So we'll do it separately or use a transaction if strict atomicity is needed.
-            // For MVP, let's just re-create them.
             await this.prisma.listingImage.createMany({
                 data: imageUrls.map((url, index) => ({
                     listingId: id,
@@ -251,6 +357,9 @@ export class ListingsService {
         const updateData: any = { ...listingData };
         if (priceCents !== undefined) {
             updateData.priceCents = priceCents ? BigInt(priceCents) : null;
+        }
+        if (status) {
+            updateData.status = status;
         }
 
         const updated = await this.prisma.listing.update({

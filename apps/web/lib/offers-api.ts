@@ -17,6 +17,7 @@ export interface CounterOfferDto {
 export interface OfferQuery {
     role?: 'buyer' | 'seller';
     status?: string;
+    listingId?: string;
     page?: number;
     limit?: number;
 }

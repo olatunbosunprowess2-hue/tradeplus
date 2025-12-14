@@ -1,8 +1,25 @@
 // Shared types matching backend DTOs
+export interface Country {
+    id: number;
+    name: string;
+    code: string;
+    currency: string;
+    currencySymbol: string;
+}
+
+export interface Region {
+    id: number;
+    name: string;
+    city: string;
+    countryId: number;
+}
+
 export interface User {
     id: string;
     email: string;
     name?: string;
+    firstName?: string;
+    lastName?: string;
     role: string;
     createdAt: string;
 
@@ -11,6 +28,7 @@ export interface User {
     isVerified: boolean;
     verificationStatus: 'NONE' | 'PENDING' | 'VERIFIED' | 'REJECTED';
     phoneNumber?: string;
+    idDocumentType?: 'government_id' | 'student_id' | 'passport' | 'drivers_license';
     idDocumentFrontUrl?: string;
     idDocumentBackUrl?: string;
     faceVerificationUrl?: string;
@@ -73,6 +91,19 @@ export interface Listing {
     countryId?: number;
     regionId?: number;
     images: ListingImage[];
+    videoUrl?: string;
+
+    // Distress Sale Fields
+    isDistressSale?: boolean;
+    distressReason?: string;
+    distressExpiresAt?: string;
+
+    // Barter Preferences
+    barterPreference1?: string;
+    barterPreference2?: string;
+    barterPreference3?: string;
+    barterPreferencesOnly?: boolean;
+
     createdAt: string;
     updatedAt: string;
 }
@@ -96,6 +127,15 @@ export interface BarterOffer {
     currencyCode: string;
     message?: string;
     items: BarterOfferItem[];
+
+    // Verification Fields
+    listingOwnerConfirmedAt?: string;
+    offerMakerConfirmedAt?: string;
+    receiptAvailableAt?: string;
+    receiptGeneratedAt?: string;
+    receiptNumber?: string;
+    disputeStatus: 'none' | 'opened' | 'resolved';
+
     createdAt: string;
     updatedAt: string;
 }

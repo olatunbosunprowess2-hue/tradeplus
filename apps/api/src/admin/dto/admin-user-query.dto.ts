@@ -15,6 +15,10 @@ export class AdminUserQueryDto {
     status?: 'active' | 'suspended';
 
     @IsOptional()
+    @IsEnum(['PENDING', 'VERIFIED', 'REJECTED', 'NONE'])
+    verificationStatus?: 'PENDING' | 'VERIFIED' | 'REJECTED' | 'NONE';
+
+    @IsOptional()
     @Type(() => Number)
     @IsInt()
     @Min(1)

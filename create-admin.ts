@@ -4,80 +4,53 @@ import * as argon2 from 'argon2';
 const prisma = new PrismaClient();
 
 async function main() {
-    console.log('🔧 Creating/Updating Admin User...\n');
-
     const email = 'admin@tradeplus.com';
     const password = 'password123';
 
+    console.log(`Creating/Updating admin user: ${email}`);
+
     try {
-        // Check if user exists
-        const existingUser = await prisma.user.findUnique({
+        const hashedPassword = await argon2.hash(password);
+
+        const user = await prisma.user.upsert({
             where: { email },
-            include: { profile: true }
-        });
-
-        if (existingUser) {
-            console.log('📝 Admin user already exists, updating password...');
-
-            const passwordHash = await argon2.hash(password);
-
-            await prisma.user.update({
-                where: { email },
-                data: {
-                    passwordHash,
-                    role: 'admin',
-                    status: 'active',
-                    onboardingCompleted: true
-                }
-            });
-
-            console.log('✅ Admin user updated successfully!');
-            console.log({
-                email,
+            update: {
+                passwordHash: hashedPassword,
                 role: 'admin',
                 status: 'active'
-            });
-        } else {
-            console.log('➕ Creating new admin user...');
-
-            const passwordHash = await argon2.hash(password);
-
-            const newUser = await prisma.user.create({
-                data: {
-                    email,
-                    passwordHash,
-                    role: 'admin',
-                    status: 'active',
-                    onboardingCompleted: true,
-                    profile: {
-                        create: {
-                            displayName: 'Admin User'
-                        }
+            },
+            create: {
+                email,
+                passwordHash: hashedPassword,
+                role: 'admin',
+                status: 'active',
+                profile: {
+                    create: {
+                        displayName: 'Admin User',
+                        bio: 'System Administrator',
                     }
-                },
-                include: { profile: true }
-            });
+                }
+            },
+            include: {
+                profile: true
+            }
+        });
 
-            console.log('✅ Admin user created successfully!');
-            console.log({
-                id: newUser.id,
-                email: newUser.email,
-                role: newUser.role,
-                status: newUser.status,
-                displayName: newUser.profile?.displayName
-            });
-        }
-
-        console.log('\n📋 Login credentials:');
-        console.log('Email:', email);
-        console.log('Password:', password);
+        console.log('✅ Admin user created/updated successfully');
+        console.log(`ID: ${user.id}`);
+        console.log(`Email: ${user.email}`);
+        console.log(`Role: ${user.role}`);
 
     } catch (error) {
-        console.error('❌ Error:', error);
-        throw error;
-    } finally {
-        await prisma.$disconnect();
+        console.error('Error creating admin user:', error);
     }
 }
 
-main();
+main()
+    .catch((e) => {
+        console.error(e);
+        process.exit(1);
+    })
+    .finally(async () => {
+        await prisma.$disconnect();
+    });

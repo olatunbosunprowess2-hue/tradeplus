@@ -6,6 +6,7 @@ import BookmarkButton from './BookmarkButton';
 import AddToCartButton from './AddToCartButton';
 import ShareButton from './ShareButton';
 import DiscountBadge from './DiscountBadge';
+import DistressBadge from './DistressBadge';
 import StarRating from './StarRating';
 import PriceDisplay from './PriceDisplay';
 import type { BookmarkedListing } from '@/lib/bookmarks-store';
@@ -22,9 +23,14 @@ interface ListingCardProps {
         seller?: {
             profile?: {
                 displayName?: string;
+                region?: {
+                    name?: string;
+                };
             };
             email?: string;
             verified?: boolean;
+            isVerified?: boolean;
+            locationAddress?: string;
         };
         sellerId: string;
         region?: {
@@ -37,6 +43,7 @@ interface ListingCardProps {
         condition?: 'new' | 'used';
         rating?: number; // 0-5 star rating
         reviewCount?: number;
+        isDistressSale?: boolean; // Urgent/distress sale
     };
 }
 
@@ -53,8 +60,44 @@ export default function ListingCard({ listing }: ListingCardProps) {
         bookmarkedAt: new Date().toISOString(),
     };
 
+    // Extract city from address (format: "123 Street, City, State, Country")
+    const extractCity = (address?: string) => {
+        if (!address) return null;
+        const parts = address.split(',').map(p => p.trim());
+        // Typically: [street, city, state, country] - get second to last for city/state
+        if (parts.length >= 3) {
+            return parts[parts.length - 3]; // City
+        } else if (parts.length >= 2) {
+            return parts[parts.length - 2];
+        }
+        return parts[0] || null;
+    };
+
+    // Get location display - prioritize region, then extract from address
+    const getLocationDisplay = () => {
+        // First check listing's region
+        if (listing.region?.name) {
+            return listing.region.name;
+        }
+        // Then check seller's profile region
+        if (listing.seller?.profile?.region?.name) {
+            return listing.seller.profile.region.name;
+        }
+        // Finally try to extract from locationAddress
+        const city = extractCity(listing.seller?.locationAddress);
+        if (city) {
+            return city;
+        }
+        return null;
+    };
+
+    const locationDisplay = getLocationDisplay();
+
     return (
-        <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow border border-gray-200 group">
+        <div className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border border-gray-100 group relative">
+            {/* Gradient accent on hover */}
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+
             <Link href={`/listings/${listing.id}`} className="block">
                 {/* Image Section */}
                 <div className="relative">
@@ -80,6 +123,13 @@ export default function ListingCard({ listing }: ListingCardProps) {
                         />
                     )}
 
+                    {/* Distress Sale Badge - Top left */}
+                    {listing.isDistressSale && (
+                        <div className="absolute top-2 left-2 z-10">
+                            <DistressBadge size="sm" />
+                        </div>
+                    )}
+
                     {/* Bookmark Button - Always visible, top-right */}
                     <div
                         className="absolute top-2 right-2 z-10"
@@ -94,7 +144,7 @@ export default function ListingCard({ listing }: ListingCardProps) {
                         onClick={(e) => e.preventDefault()}
                     >
                         <ShareButton
-                            url={typeof window !== 'undefined' ? `${window.location.origin}/listings/${listing.id}` : `https://tradeplus.com/listings/${listing.id}`}
+                            url={typeof window !== 'undefined' ? `${window.location.origin}/listings/${listing.id}` : `https://barterwave.com/listings/${listing.id}`}
                             title={listing.title}
                             description={listing.description || listing.title}
                             imageUrl={listing.images?.[0]?.url}
@@ -168,21 +218,19 @@ export default function ListingCard({ listing }: ListingCardProps) {
                     )}
 
                     {/* Location Info */}
-                    {listing.region?.name && (
-                        <div className="flex items-center gap-1 mb-3 text-gray-600">
-                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                            </svg>
-                            <span className="text-sm">
-                                {listing.region.name}
+                    <div className="flex items-center gap-2 mb-2 text-gray-600 min-h-[24px]">
+                        <svg className="w-4 h-4 text-blue-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                        </svg>
+                        <span className="text-sm font-medium truncate">
+                            {locationDisplay || 'Location not set'}
+                        </span>
+                        {(listing.seller?.verified || listing.seller?.isVerified) && (
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-medium flex-shrink-0">
+                                ✓ Verified
                             </span>
-                            {listing.seller?.verified && (
-                                <span className="text-xs px-2 py-0.5 rounded-full ml-2" style={{ backgroundColor: 'var(--color-primary-pale)', color: 'var(--color-primary-dark)' }}>
-                                    ✓ Verified
-                                </span>
-                            )}
-                        </div>
-                    )}
+                        )}
+                    </div>
 
                     {/* Trade Options */}
                     <div className="flex gap-2 flex-wrap">

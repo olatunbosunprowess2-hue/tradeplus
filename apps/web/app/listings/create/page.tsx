@@ -5,56 +5,97 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/auth-store';
 import apiClient from '@/lib/api-client';
 import { useListingsStore } from '@/lib/listings-store';
+import { getGroupedCurrencies } from '@/lib/currencies';
+import { z } from 'zod';
+import { toast } from 'react-hot-toast';
+import VerificationRequiredModal from '@/components/VerificationRequiredModal';
+import Image from 'next/image';
+
+// --- Validation Schema ---
+const listingSchema = z.object({
+    title: z.string().min(3, 'Title must be at least 3 characters'),
+    description: z.string().optional(),
+    type: z.enum(['PHYSICAL', 'SERVICE']),
+    condition: z.enum(['new', 'used']).optional(),
+    categoryId: z.number().min(1, 'Please select a category'),
+    priceCents: z.string().optional(),
+    currency: z.string(),
+    paymentMethod: z.enum(['cash', 'barter', 'both']),
+    quantity: z.number().min(1, 'Quantity must be at least 1'),
+    images: z.array(z.any()).min(1, 'At least one image is required'),
+}).refine((data) => {
+    if (data.type === 'PHYSICAL' && !data.condition) return false;
+    return true;
+}, {
+    message: "Condition is required for physical items",
+    path: ["condition"],
+});
 
 export default function CreateListingPage() {
     const router = useRouter();
-    const { isAuthenticated, user } = useAuthStore();
+    const { isAuthenticated, user, _hasHydrated, refreshProfile } = useAuthStore();
     const { addListing } = useListingsStore();
 
+    // --- State ---
+    const [step, setStep] = useState(1);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+    const [showVerificationModal, setShowVerificationModal] = useState(false);
+
+    // Form Data
     const [formData, setFormData] = useState({
         title: '',
         description: '',
         type: 'PHYSICAL' as 'PHYSICAL' | 'SERVICE',
         condition: 'used',
-        categoryId: 1,
+        categoryId: 0,
         priceCents: '',
         currency: 'NGN',
         paymentMethod: 'cash' as 'cash' | 'barter' | 'both',
         quantity: 1,
+        isDistressSale: false,
+        distressReason: '',
+        barterPreference1: '',
+        barterPreference2: '',
+        barterPreference3: '',
+        barterPreferencesOnly: false,
     });
 
+    // Media
     const [images, setImages] = useState<File[]>([]);
     const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [showFreeConfirmation, setShowFreeConfirmation] = useState(false);
+    const [video, setVideo] = useState<File | null>(null);
+    const [videoPreview, setVideoPreview] = useState<string>('');
 
-    // Service-based categories where condition, quantity, and images are optional
-    // Also check if the user explicitly selected "Service" type
-    const serviceCategories = [8, 9, 14]; // Services, Repair & Construction, Jobs
+    // Service Categories
+    const serviceCategories = [8, 9, 14];
     const isServiceCategory = serviceCategories.includes(formData.categoryId) || formData.type === 'SERVICE';
 
-    // Redirect if not authenticated
+    // --- Effects ---
     useEffect(() => {
-        if (!isAuthenticated) {
-            router.push('/login');
+        if (_hasHydrated) {
+            if (!isAuthenticated) {
+                router.push('/login');
+            } else if (user && !user.isVerified) {
+                setShowVerificationModal(true);
+            }
         }
-    }, [isAuthenticated, router]);
+    }, [isAuthenticated, user, router, _hasHydrated]);
 
-    if (!isAuthenticated) {
-        return null;
-    }
+    useEffect(() => {
+        if (isAuthenticated) refreshProfile();
+    }, [isAuthenticated, refreshProfile]);
 
+    // --- Handlers ---
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
         if (files.length + images.length > 3) {
-            setError('You can only upload up to 3 images');
+            toast.error('Maximum 3 images allowed');
             return;
         }
 
-        setImages([...images, ...files]);
-
-        // Create previews
+        const newPreviews: string[] = [];
         files.forEach(file => {
             const reader = new FileReader();
             reader.onloadend = () => {
@@ -62,353 +103,423 @@ export default function CreateListingPage() {
             };
             reader.readAsDataURL(file);
         });
+
+        setImages(prev => [...prev, ...files]);
     };
 
     const removeImage = (index: number) => {
-        setImages(images.filter((_, i) => i !== index));
-        setImagePreviews(imagePreviews.filter((_, i) => i !== index));
+        setImages(prev => prev.filter((_, i) => i !== index));
+        setImagePreviews(prev => prev.filter((_, i) => i !== index));
     };
 
-    const processSubmission = async () => {
-        setError('');
+    const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        if (file.size > 50 * 1024 * 1024) {
+            toast.error('Video must be under 50MB');
+            return;
+        }
+        setVideo(file);
+        const reader = new FileReader();
+        reader.onloadend = () => setVideoPreview(reader.result as string);
+        reader.readAsDataURL(file);
+    };
+
+    const validateStep = (currentStep: number) => {
+        const errors: Record<string, string> = {};
+
+        if (currentStep === 1) {
+            if (formData.categoryId === 0) errors.categoryId = 'Please select a category';
+        }
+
+        if (currentStep === 2) {
+            if (formData.title.length < 3) errors.title = 'Title must be at least 3 characters';
+            if (!isServiceCategory && !formData.condition) errors.condition = 'Condition is required';
+        }
+
+        if (currentStep === 3) {
+            if (images.length === 0 && !isServiceCategory) errors.images = 'At least one image is required';
+        }
+
+        setValidationErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
+    const nextStep = () => {
+        if (validateStep(step)) {
+            setStep(prev => prev + 1);
+            window.scrollTo(0, 0);
+        }
+    };
+
+    const prevStep = () => {
+        setStep(prev => prev - 1);
+        window.scrollTo(0, 0);
+    };
+
+    const handleSubmit = async () => {
+        if (!validateStep(4)) return;
         setLoading(true);
-        setShowFreeConfirmation(false);
 
         try {
-            // Simulate API delay
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            const form = new FormData();
+            // Data Mapping
+            form.append('title', formData.title);
+            if (formData.description) form.append('description', formData.description);
+            form.append('type', formData.type);
+            if (formData.condition) form.append('condition', formData.condition);
+            form.append('categoryId', formData.categoryId.toString());
+            if (formData.priceCents && parseFloat(formData.priceCents) > 0) {
+                form.append('priceCents', (parseFloat(formData.priceCents) * 100).toString());
+            }
+            form.append('currencyCode', formData.currency);
+            form.append('quantity', formData.quantity.toString());
 
-            const newListing: any = {
-                id: Math.random().toString(36).substr(2, 9),
-                title: formData.title,
-                description: formData.description,
-                type: formData.type,
-                priceCents: formData.priceCents ? parseInt(formData.priceCents) * 100 : 0,
-                originalPriceCents: 0,
-                condition: formData.type === 'SERVICE' ? undefined : formData.condition,
-                allowCash: formData.paymentMethod === 'cash' || formData.paymentMethod === 'both',
-                allowBarter: formData.paymentMethod === 'barter' || formData.paymentMethod === 'both',
-                allowCashPlusBarter: false, // Default for now
-                shippingMeetInPerson: true, // Default
-                shippingShipItem: formData.type === 'PHYSICAL', // Default
-                images: imagePreviews.map((url, index) => ({
-                    id: Math.random().toString(36).substr(2, 9),
-                    url,
-                    sortOrder: index
-                })),
-                sellerId: user?.id || 'current-user',
-                seller: {
-                    id: user?.id || 'current-user',
-                    email: user?.email || 'user@example.com',
-                    profile: {
-                        displayName: user?.profile?.displayName || 'Me',
-                        region: user?.profile?.region
-                    }
-                },
-                quantity: formData.quantity,
-                categoryId: formData.categoryId,
-                category: { id: formData.categoryId, name: 'Category', slug: 'category' }, // Simplified
-                currencyCode: formData.currency,
-                status: 'active',
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-            };
+            // Payment Methods
+            const allowCash = formData.paymentMethod === 'cash' || formData.paymentMethod === 'both';
+            const allowBarter = formData.paymentMethod === 'barter' || formData.paymentMethod === 'both';
+            form.append('allowCash', allowCash.toString());
+            form.append('allowBarter', allowBarter.toString());
 
-            addListing(newListing);
-            router.push('/listings');
+            // Files
+            images.forEach(img => form.append('images', img));
+            if (video) form.append('video', video);
+
+            // Distress
+            if (formData.isDistressSale) {
+                form.append('isDistressSale', 'true');
+                if (formData.distressReason) form.append('distressReason', formData.distressReason);
+            }
+
+            // Barter Prefs
+            if (allowBarter) {
+                if (formData.barterPreference1) form.append('barterPreference1', formData.barterPreference1);
+                if (formData.barterPreference2) form.append('barterPreference2', formData.barterPreference2);
+                if (formData.barterPreference3) form.append('barterPreference3', formData.barterPreference3);
+                form.append('barterPreferencesOnly', formData.barterPreferencesOnly.toString());
+            }
+
+            const response = await apiClient.post('/listings', form);
+            addListing(response.data);
+            toast.success('Listing created successfully!');
+            router.push(`/listings/${response.data.id}`);
+
         } catch (err: any) {
-            setError(err.message || 'Failed to create listing');
+            console.error(err);
+            toast.error(err.response?.data?.message || 'Failed to create listing');
         } finally {
             setLoading(false);
         }
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    if (!_hasHydrated || !isAuthenticated) return null;
 
-        // Check for free listing
-        if (!formData.priceCents || parseInt(formData.priceCents) === 0) {
-            if (formData.paymentMethod !== 'barter') {
-                setShowFreeConfirmation(true);
-                return;
-            }
-        }
-
-        processSubmission();
-    };
-
+    // --- Render Wizard Steps ---
     return (
-        <div className="min-h-screen bg-gray-50 py-6 pb-20 relative">
-            {showFreeConfirmation && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-xl shadow-xl max-w-sm w-full p-6 animate-in fade-in zoom-in duration-200">
-                        <div className="text-center mb-6">
-                            <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <span className="text-3xl">🎁</span>
-                            </div>
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">List for Free?</h3>
-                            <p className="text-gray-600">
-                                You haven't set a price. Do you want to list this item for free?
-                            </p>
-                        </div>
-                        <div className="flex gap-3">
-                            <button
-                                onClick={() => setShowFreeConfirmation(false)}
-                                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={processSubmission}
-                                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700"
-                            >
-                                Yes, List Free
-                            </button>
-                        </div>
+        <div className="min-h-screen bg-gray-50 py-10 pb-20">
+            <VerificationRequiredModal isOpen={showVerificationModal} onClose={() => router.push('/listings')} />
+
+            <div className="container mx-auto px-4 max-w-3xl">
+                {/* Progress Bar */}
+                <div className="mb-8">
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-semibold text-gray-500">Step {step} of 4</span>
+                        <span className="text-sm font-bold text-blue-600">
+                            {step === 1 ? 'Basics' : step === 2 ? 'Details' : step === 3 ? 'Media' : 'Pricing'}
+                        </span>
+                    </div>
+                    <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div
+                            className="h-full bg-blue-600 transition-all duration-500 ease-out"
+                            style={{ width: `${(step / 4) * 100}%` }}
+                        />
                     </div>
                 </div>
-            )}
 
-            <div className="container mx-auto px-4 max-w-2xl">
-                <h1 className="text-2xl font-bold text-gray-900 mb-6">Create New Listing</h1>
+                <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100 min-h-[500px] flex flex-col">
+                    <div className="p-8 flex-1">
 
-                {error && (
-                    <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                        {error}
-                    </div>
-                )}
+                        {/* STEP 1: BASICS */}
+                        {step === 1 && (
+                            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                                <h1 className="text-2xl font-bold text-gray-900">What are you listing?</h1>
 
-                <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm p-5 space-y-5">
-                    {/* Listing Type */}
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-800 mb-3">
-                            Listing Type <span className="text-red-500">*</span>
-                        </label>
-                        <div className="flex gap-3">
-                            <button
-                                type="button"
-                                onClick={() => setFormData({ ...formData, type: 'PHYSICAL' })}
-                                className={`flex-1 py-3 px-4 rounded-lg font-semibold text-sm transition-all border-2 ${formData.type === 'PHYSICAL'
-                                    ? 'bg-blue-600 text-white border-blue-600'
-                                    : 'bg-white text-gray-700 border-gray-300 hover:border-blue-600'
-                                    }`}
-                            >
-                                Physical Product
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setFormData({ ...formData, type: 'SERVICE' })}
-                                className={`flex-1 py-3 px-4 rounded-lg font-semibold text-sm transition-all border-2 ${formData.type === 'SERVICE'
-                                    ? 'bg-blue-600 text-white border-blue-600'
-                                    : 'bg-white text-gray-700 border-gray-300 hover:border-blue-600'
-                                    }`}
-                            >
-                                Service
-                            </button>
-                        </div>
-                    </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <button
+                                        onClick={() => setFormData({ ...formData, type: 'PHYSICAL' })}
+                                        className={`p-6 rounded-xl border-2 text-left transition-all ${formData.type === 'PHYSICAL'
+                                            ? 'border-blue-600 bg-blue-50 ring-1 ring-blue-600'
+                                            : 'border-gray-200 hover:border-blue-400 hover:bg-gray-50'
+                                            }`}
+                                    >
+                                        <span className="text-3xl mb-3 block">📦</span>
+                                        <h3 className="font-bold text-gray-900">Physical Item</h3>
+                                        <p className="text-sm text-gray-500 mt-1">Gadgets, Clothes, Cars...</p>
+                                    </button>
 
-                    {/* Image Upload */}
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-800 mb-2">
-                            Product Images {!isServiceCategory && <span className="text-red-500">*</span>}
-                            {isServiceCategory && <span className="text-gray-500 text-xs font-normal ml-1">(Optional)</span>}
-                        </label>
-                        <p className="text-xs text-gray-600 mb-3">Upload up to 3 images</p>
-                        {imagePreviews.map((preview, index) => (
-                            <div key={index} className="relative aspect-square rounded-lg overflow-hidden border-2 border-gray-200">
-                                <img src={preview} alt={`Preview ${index + 1}`} className="w-full h-full object-cover" />
-                                <button
-                                    type="button"
-                                    onClick={() => removeImage(index)}
-                                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition"
-                                >
-                                    ×
-                                </button>
+                                    <button
+                                        onClick={() => setFormData({ ...formData, type: 'SERVICE' })}
+                                        className={`p-6 rounded-xl border-2 text-left transition-all ${formData.type === 'SERVICE'
+                                            ? 'border-blue-600 bg-blue-50 ring-1 ring-blue-600'
+                                            : 'border-gray-200 hover:border-blue-400 hover:bg-gray-50'
+                                            }`}
+                                    >
+                                        <span className="text-3xl mb-3 block">🛠️</span>
+                                        <h3 className="font-bold text-gray-900">Service</h3>
+                                        <p className="text-sm text-gray-500 mt-1">Plumbing, Design, Lessons...</p>
+                                    </button>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Category</label>
+                                    <select
+                                        value={formData.categoryId}
+                                        onChange={(e) => setFormData({ ...formData, categoryId: parseInt(e.target.value) })}
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                                    >
+                                        <option value={0}>Select a category</option>
+                                        <option value={1}>Electronics</option>
+                                        <option value={2}>Fashion</option>
+                                        <option value={3}>Mobile Phones & Tablets</option>
+                                        <option value={4}>Home & Garden</option>
+                                        <option value={5}>Sports & Outdoors</option>
+                                        <option value={6}>Beauty & Health</option>
+                                        <option value={7}>Vehicles</option>
+                                        <option value={8}>Services</option>
+                                        <option value={9}>Books & Media</option>
+                                        <option value={10}>Jobs</option>
+                                    </select>
+                                    {validationErrors.categoryId && <p className="text-red-500 text-sm mt-1">{validationErrors.categoryId}</p>}
+                                </div>
                             </div>
-                        ))}
+                        )}
 
-                        {images.length < 3 && (
-                            <label className="aspect-square border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-600 hover:bg-blue-50 transition">
-                                <svg className="w-8 h-8 text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                                </svg>
-                                <span className="text-xs text-gray-500 font-medium">Add Photo</span>
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleImageChange}
-                                    className="hidden"
-                                    multiple
-                                />
-                            </label>
+                        {/* STEP 2: DETAILS */}
+                        {step === 2 && (
+                            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                                <h1 className="text-2xl font-bold text-gray-900">Describe your item</h1>
+
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Title</label>
+                                    <input
+                                        type="text"
+                                        value={formData.title}
+                                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                        placeholder="e.g. iPhone 13 Pro Max - 256GB"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                                    />
+                                    {validationErrors.title && <p className="text-red-500 text-sm mt-1">{validationErrors.title}</p>}
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Description</label>
+                                    <textarea
+                                        value={formData.description}
+                                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                        rows={4}
+                                        placeholder="Add details about condition, features, specific flaws, etc."
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 resize-none"
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    {!isServiceCategory && (
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-2">Condition</label>
+                                            <select
+                                                value={formData.condition}
+                                                onChange={(e) => setFormData({ ...formData, condition: e.target.value })}
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white"
+                                            >
+                                                <option value="used">Used</option>
+                                                <option value="new">New</option>
+                                            </select>
+                                        </div>
+                                    )}
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-2">Quantity</label>
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            value={formData.quantity}
+                                            onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 1 })}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* STEP 3: MEDIA */}
+                        {step === 3 && (
+                            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                                <h1 className="text-2xl font-bold text-gray-900">Add Photos & Video</h1>
+                                <p className="text-gray-500 text-sm">Clear photos increase your chances of selling.</p>
+
+                                <div>
+                                    <div className="grid grid-cols-3 gap-4 mb-4">
+                                        {imagePreviews.map((src, idx) => (
+                                            <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border shadow-sm group">
+                                                <img src={src} alt="Preview" className="w-full h-full object-cover" />
+                                                <button
+                                                    onClick={() => removeImage(idx)}
+                                                    className="absolute top-2 right-2 bg-red-500/80 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                >
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                                                </button>
+                                            </div>
+                                        ))}
+
+                                        {images.length < 3 && (
+                                            <label className="aspect-square rounded-xl border-2 border-dashed border-gray-300 hover:border-blue-500 hover:bg-blue-50 transition-colors flex flex-col items-center justify-center cursor-pointer">
+                                                <svg className="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+                                                <span className="text-xs font-semibold text-gray-600">Add Image</span>
+                                                <input type="file" onChange={handleImageChange} accept="image/*" className="hidden" />
+                                            </label>
+                                        )}
+                                    </div>
+                                    {validationErrors.images && <p className="text-red-500 text-sm">{validationErrors.images}</p>}
+                                </div>
+
+                                <div className="border-t border-gray-100 pt-6">
+                                    <label className="block text-sm font-bold text-gray-700 mb-3">Add Video (Optional)</label>
+                                    {videoPreview ? (
+                                        <div className="relative rounded-xl overflow-hidden bg-black aspect-video group">
+                                            <video src={videoPreview} className="w-full h-full" controls />
+                                            <button
+                                                onClick={() => { setVideo(null); setVideoPreview(''); }}
+                                                className="absolute top-4 right-4 bg-red-600 text-white px-3 py-1 rounded-full text-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <label className="block w-full p-6 border-2 border-dashed border-gray-300 rounded-xl text-center cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-colors">
+                                            <span className="text-purple-600 font-medium">Click to upload video</span>
+                                            <span className="block text-xs text-gray-400 mt-1">MP4 up to 50MB</span>
+                                            <input type="file" onChange={handleVideoChange} accept="video/*" className="hidden" />
+                                        </label>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* STEP 4: PRICING */}
+                        {step === 4 && (
+                            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                                <h1 className="text-2xl font-bold text-gray-900">Price & Payment</h1>
+
+                                <div className="p-4 bg-orange-50 border border-orange-200 rounded-xl flex items-start gap-4">
+                                    <div className="pt-1"><span className="text-xl">🔥</span></div>
+                                    <div className="flex-1">
+                                        <div className="flex justify-between items-center">
+                                            <h3 className="font-bold text-gray-900">Distress Sale?</h3>
+                                            <div onClick={() => setFormData(p => ({ ...p, isDistressSale: !p.isDistressSale }))} className={`w-12 h-6 rounded-full p-1 cursor-pointer transition-colors ${formData.isDistressSale ? 'bg-orange-500' : 'bg-gray-300'}`}>
+                                                <div className={`bg-white w-4 h-4 rounded-full shadow-sm transition-transform ${formData.isDistressSale ? 'translate-x-6' : 'translate-x-0'}`} />
+                                            </div>
+                                        </div>
+                                        <p className="text-xs text-gray-600 mt-1">Mark this if you need cash urgently. Trade will be disabled.</p>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-2">Price</label>
+                                        <input
+                                            type="number"
+                                            placeholder="0.00"
+                                            value={formData.priceCents}
+                                            onChange={(e) => setFormData({ ...formData, priceCents: e.target.value })}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-2">Currency</label>
+                                        <select
+                                            value={formData.currency}
+                                            onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white"
+                                        >
+                                            {Object.entries(getGroupedCurrencies()).map(([group, currencies]) => (
+                                                <optgroup label={group} key={group}>
+                                                    {currencies.map(c => <option key={c.code} value={c.code}>{c.code}</option>)}
+                                                </optgroup>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                {!formData.isDistressSale && (
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-3">Accept Payment Via</label>
+                                        <div className="grid grid-cols-3 gap-3">
+                                            {['cash', 'barter', 'both'].map((method) => (
+                                                <button
+                                                    key={method}
+                                                    onClick={() => setFormData({ ...formData, paymentMethod: method as any })}
+                                                    className={`py-3 rounded-xl border font-medium text-sm transition-all capitalize ${formData.paymentMethod === method
+                                                        ? 'bg-gray-900 text-white border-gray-900'
+                                                        : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                                                        }`}
+                                                >
+                                                    {method}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {(formData.paymentMethod === 'barter' || formData.paymentMethod === 'both') && !formData.isDistressSale && (
+                                    <div className="animate-in fade-in slide-in-from-top-2">
+                                        <label className="block text-sm font-bold text-gray-700 mb-2">Preferred Trade Items (Optional)</label>
+                                        <div className="space-y-3">
+                                            <input
+                                                type="text"
+                                                placeholder="e.g. Gaming Laptop"
+                                                value={formData.barterPreference1}
+                                                onChange={(e) => setFormData({ ...formData, barterPreference1: e.target.value })}
+                                                className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm"
+                                            />
+                                            <input
+                                                type="text"
+                                                placeholder="e.g. DSLR Camera"
+                                                value={formData.barterPreference2}
+                                                onChange={(e) => setFormData({ ...formData, barterPreference2: e.target.value })}
+                                                className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         )}
                     </div>
 
-                    {/* Title */}
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-800 mb-2">
-                            Product/Service Title <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            required
-                            value={formData.title}
-                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 text-gray-900 font-medium placeholder:text-gray-500"
-                            placeholder={formData.type === 'SERVICE' ? 'e.g., Professional Web Development' : 'e.g., iPhone 13 Pro Max - 256GB'}
-                        />
-                    </div>
-
-                    {/* Description */}
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-800 mb-2">
-                            Description
-                        </label>
-                        <textarea
-                            value={formData.description}
-                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                            rows={4}
-                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 text-gray-900 placeholder:text-gray-500 font-medium resize-none transition-colors"
-                            placeholder="Describe your item..."
-                        />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        {/* Condition */}
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-800 mb-2">
-                                Condition {!isServiceCategory && <span className="text-red-500">*</span>}
-                                {isServiceCategory && <span className="text-gray-500 text-xs font-normal ml-1">(Optional)</span>}
-                            </label>
-                            <select
-                                value={formData.condition}
-                                onChange={(e) => setFormData({ ...formData, condition: e.target.value })}
-                                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 text-gray-900 font-medium bg-white transition-colors cursor-pointer"
+                    {/* FOOTER ACTIONS */}
+                    <div className="p-6 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
+                        {step > 1 ? (
+                            <button
+                                onClick={prevStep}
+                                className="px-6 py-3 text-gray-600 font-bold hover:text-gray-900"
                             >
-                                <option value="new">New</option>
-                                <option value="used">Used</option>
-                                {isServiceCategory && <option value="">Not Applicable</option>}
-                            </select>
-                        </div>
+                                Back
+                            </button>
+                        ) : (
+                            <div />
+                        )}
 
-                        {/* Quantity */}
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-800 mb-2">
-                                Quantity {!isServiceCategory && <span className="text-red-500">*</span>}
-                                {isServiceCategory && <span className="text-gray-500 text-xs font-normal ml-1">(Optional)</span>}
-                            </label>
-                            <input
-                                type="number"
-                                min="1"
-                                required={!isServiceCategory}
-                                value={formData.quantity}
-                                onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) })}
-                                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 text-gray-900 font-medium transition-colors"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Category */}
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-800 mb-2">
-                            Category <span className="text-red-500">*</span>
-                        </label>
-                        <select
-                            required
-                            value={formData.categoryId}
-                            onChange={(e) => setFormData({ ...formData, categoryId: parseInt(e.target.value) })}
-                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 text-gray-900 font-medium bg-white transition-colors cursor-pointer"
-                        >
-                            <option value="">Select a category</option>
-                            <option value={1}>Electronics</option>
-                            <option value={2}>Fashion</option>
-                            <option value={3}>Mobile Phones & Tablets</option>
-                            <option value={4}>Home & Garden</option>
-                            <option value={5}>Sports & Outdoors</option>
-                            <option value={6}>Beauty & Health</option>
-                            <option value={7}>Vehicles</option>
-                            <option value={8}>Services</option>
-                            <option value={9}>Books & Media</option>
-                            <option value={10}>Jobs</option>
-                        </select>
-                    </div>
-
-                    {/* Price & Currency */}
-                    <div className="grid grid-cols-3 gap-4">
-                        <div className="col-span-2">
-                            <label className="block text-sm font-semibold text-gray-800 mb-2">
-                                Price
-                            </label>
-                            <input
-                                type="number"
-                                min="0"
-                                step="0.01"
-                                value={formData.priceCents}
-                                onChange={(e) => setFormData({ ...formData, priceCents: e.target.value })}
-                                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 text-gray-900 placeholder:text-gray-500 font-medium transition-colors"
-                                placeholder="0.00"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-800 mb-2">
-                                Currency
-                            </label>
-                            <select
-                                value={formData.currency}
-                                onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
-                                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 text-gray-900 font-medium bg-white transition-colors cursor-pointer"
-                            >
-                                <option value="NGN">₦ NGN</option>
-                                <option value="USD">$ USD</option>
-                                <option value="GHS">₵ GHS</option>
-                                <option value="KES">KSh KES</option>
-                                <option value="ZAR">R ZAR</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    {/* Payment Method */}
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-800 mb-3">
-                            Payment Method <span className="text-red-500">*</span>
-                        </label>
-                        <div className="flex gap-3">
-                            {(['cash', 'barter', 'both'] as const).map((method) => (
-                                <button
-                                    key={method}
-                                    type="button"
-                                    onClick={() => setFormData({ ...formData, paymentMethod: method })}
-                                    className={`flex-1 py-3 px-4 rounded-lg font-semibold text-sm transition-all border-2 ${formData.paymentMethod === method
-                                        ? 'bg-blue-600 text-white border-blue-600'
-                                        : 'bg-white text-gray-700 border-gray-300 hover:border-blue-600'
-                                        }`}
-                                >
-                                    {method === 'cash' ? 'Cash Only' : method === 'barter' ? 'Barter Only' : 'Cash & Barter'}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Submit Button */}
-                    <div className="flex gap-3 pt-2">
                         <button
-                            type="button"
-                            onClick={() => router.back()}
-                            className="flex-1 px-6 py-3 border-2 border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 transition"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
+                            onClick={step === 4 ? handleSubmit : nextStep}
                             disabled={loading}
-                            className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                            className={`px-8 py-3 rounded-xl font-bold text-white shadow-lg transition-transform hover:-translate-y-0.5 ${loading
+                                ? 'bg-gray-400 cursor-not-allowed'
+                                : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-blue-200'
+                                }`}
                         >
-                            {loading ? 'Creating...' : 'Create Listing'}
+                            {loading ? 'Creating...' : step === 4 ? 'Publish Listing' : 'Next Step'}
                         </button>
                     </div>
-                </form>
-            </div >
-        </div >
+                </div>
+            </div>
+        </div>
     );
 }

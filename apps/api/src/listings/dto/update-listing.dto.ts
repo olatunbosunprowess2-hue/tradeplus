@@ -10,4 +10,8 @@ export class UpdateListingDto extends PartialType(CreateListingDto) {
 
     @IsOptional()
     priceCents?: number;
+
+    @IsOptional()
+    @IsString()
+    status?: string;
 }

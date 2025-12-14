@@ -20,7 +20,7 @@ export default function LandingPage() {
         if (entries[0].isIntersecting && !hasAnimated) {
           setHasAnimated(true);
 
-          const duration = 3000; // 3 seconds
+          const duration = 2500;
           const frameDuration = 1000 / 60;
           const totalFrames = Math.round(duration / frameDuration);
 
@@ -28,11 +28,11 @@ export default function LandingPage() {
           const counter = setInterval(() => {
             frame++;
             const progress = frame / totalFrames;
-            const easeOutQuad = progress * (2 - progress);
+            const easeOutQuart = 1 - Math.pow(1 - progress, 4);
 
-            setActiveUsers(Math.round(easeOutQuad * 10000));
-            setItemsListed(Math.round(easeOutQuad * 50000));
-            setSatisfaction(Math.round(easeOutQuad * 95));
+            setActiveUsers(Math.round(easeOutQuart * 10000));
+            setItemsListed(Math.round(easeOutQuart * 50000));
+            setSatisfaction(Math.round(easeOutQuart * 95));
 
             if (frame === totalFrames) {
               clearInterval(counter);
@@ -49,194 +49,294 @@ export default function LandingPage() {
       observer.unobserve(currentRef);
     };
   }, [hasAnimated]);
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary via-primary-dark to-purple-700 text-white overflow-hidden">
-        <div className="absolute inset-0 bg-black/10"></div>
+    <div className="min-h-screen bg-white overflow-x-hidden">
+      {/* Hero Section with Mesh Gradient */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* Animated Mesh Gradient Background */}
+        <div className="absolute inset-0 mesh-gradient" />
+
+        {/* Floating Shapes */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {/* Large floating circle */}
+          <div className="absolute top-1/4 -left-20 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-float" />
+          <div className="absolute bottom-1/4 -right-20 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-float-delayed" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-3xl animate-float-slow" />
+
+          {/* Small decorative elements */}
+          <div className="absolute top-20 right-1/4 w-3 h-3 bg-white/30 rounded-full animate-float" />
+          <div className="absolute top-1/3 left-1/5 w-2 h-2 bg-white/20 rounded-full animate-float-delayed" />
+          <div className="absolute bottom-1/3 right-1/3 w-4 h-4 bg-purple-300/30 rounded-full animate-float-slow" />
+        </div>
+
+        {/* Grid pattern overlay */}
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: `
+              linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)
+            `,
+            backgroundSize: '50px 50px'
+          }}
+        />
+
+        {/* Content */}
         <div className="container mx-auto px-4 py-20 relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight">
+          <div className="max-w-5xl mx-auto text-center">
+            {/* Logo Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-8 animate-fade-in">
+              <img
+                src="/logo-transparent.png"
+                alt="BarterWave"
+                className="w-8 h-8 object-contain"
+              />
+              <span className="text-white/90 text-sm font-medium">The Future of Trading is Here</span>
+            </div>
+
+            {/* Main Heading */}
+            <h1 className="text-hero text-white mb-6 animate-slide-up font-display">
               Buy, Sell & Trade
-              <span className="block text-yellow-300 mt-2">Anything You Want</span>
+              <span className="block mt-2 gradient-text-hero">
+                Anything You Want
+              </span>
             </h1>
-            <p className="text-xl md:text-2xl mb-8 text-blue-50 max-w-2xl mx-auto">
-              The revolutionary marketplace where you can pay with cash, barter items, or combine both. Your items, your rules.
+
+            {/* Subtitle */}
+            <p className="text-xl md:text-2xl text-white/80 mb-10 max-w-3xl mx-auto animate-slide-up delay-200 leading-relaxed">
+              The revolutionary marketplace where you can pay with cash,
+              barter items, or combine both. <span className="text-white font-semibold">Your items, your rules.</span>
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up delay-300">
               <Link
                 href="/register"
-                className="bg-white text-blue-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-blue-50 transition shadow-2xl hover:shadow-3xl transform hover:-translate-y-1"
+                className="group relative inline-flex items-center justify-center gap-2 bg-white text-gray-900 px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 hover:scale-105 shadow-2xl hover:shadow-white/25"
               >
-                Get Started Free
+                <span>Get Started Free</span>
+                <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
               </Link>
               <Link
                 href="/listings"
-                className="bg-blue-600/20 backdrop-blur-sm text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-blue-600/30 transition border-2 border-white/30"
+                className="group inline-flex items-center justify-center gap-2 glass text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 hover:bg-white/20"
               >
-                Browse Marketplace
+                <span>Browse Marketplace</span>
+                <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
               </Link>
+            </div>
+
+            {/* Trust Indicators */}
+            <div className="mt-16 flex flex-wrap justify-center gap-8 animate-fade-in delay-500">
+              <div className="flex items-center gap-2 text-white/70">
+                <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span className="text-sm font-medium">100% Free to Join</span>
+              </div>
+              <div className="flex items-center gap-2 text-white/70">
+                <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span className="text-sm font-medium">Verified Users</span>
+              </div>
+              <div className="flex items-center gap-2 text-white/70">
+                <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span className="text-sm font-medium">Secure Transactions</span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Decorative Elements */}
+        {/* Bottom Wave */}
         <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
             <path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="white" />
           </svg>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-white">
+      <section className="py-24 bg-white relative">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">How TradePlus Works</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">Three flexible ways to trade - choose what works best for you</p>
+            <span className="inline-block px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 text-sm font-semibold mb-4">
+              How It Works
+            </span>
+            <h2 className="text-h1 text-gray-900 mb-4 font-display">
+              Three Ways to <span className="gradient-text">Trade</span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Choose the trading method that works best for you
+            </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {/* Cash */}
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-8 hover:shadow-xl transition border border-green-100">
-              <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
-                <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
-                  <path fillRule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clipRule="evenodd" />
-                </svg>
+            {/* Cash Card */}
+            <div className="group relative bg-white rounded-3xl p-8 card-hover border border-gray-100">
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="relative">
+                <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-emerald-500/25 group-hover:scale-110 transition-transform">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3 font-display">Pay with Cash</h3>
+                <p className="text-gray-600 leading-relaxed">
+                  Traditional buying and selling with secure payment options. Simple, fast, and reliable for everyday transactions.
+                </p>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">Pay with Cash</h3>
-              <p className="text-gray-600 leading-relaxed">
-                Traditional buying and selling with secure payment options. Simple, fast, and reliable for everyday transactions.
-              </p>
             </div>
 
-            {/* Barter */}
-            <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl p-8 hover:shadow-xl transition border border-purple-100">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                </svg>
+            {/* Barter Card */}
+            <div className="group relative bg-white rounded-3xl p-8 card-hover border border-gray-100">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="relative">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-purple-500/25 group-hover:scale-110 transition-transform">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                  </svg>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3 font-display">Trade Items</h3>
+                <p className="text-gray-600 leading-relaxed">
+                  Exchange your items for others without spending money. The modern barter system for smart traders.
+                </p>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">Trade Items</h3>
-              <p className="text-gray-600 leading-relaxed">
-                Exchange your items for others without spending money. The modern barter system for smart traders.
-              </p>
             </div>
 
-            {/* Hybrid */}
-            <div className="bg-gradient-to-br from-primary-pale to-cyan-50 rounded-2xl p-8 hover:shadow-xl transition border border-blue-200">
-              <div className="w-16 h-16 bg-gradient-to-br from-primary to-cyan-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+            {/* Hybrid Card */}
+            <div className="group relative bg-white rounded-3xl p-8 card-hover border border-gray-100">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="relative">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-500/25 group-hover:scale-110 transition-transform">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3 font-display">Hybrid Deals</h3>
+                <p className="text-gray-600 leading-relaxed">
+                  Combine cash and items for ultimate flexibility. Get creative with your trades and maximize value!
+                </p>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">Hybrid Deals</h3>
-              <p className="text-gray-600 leading-relaxed">
-                Combine cash and items for ultimate flexibility. Get creative with your trades and maximize value!
-              </p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Stats Section */}
-      <section ref={statsRef} className="py-20 bg-gradient-to-br from-gray-50 to-primary-pale">
+      <section ref={statsRef} className="py-20 bg-white relative">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto text-center">
-            <div className="group hover:scale-110 transition-transform duration-300">
-              <div className="text-5xl font-bold text-blue-600 mb-2 group-hover:animate-pulse">
-                {activeUsers.toLocaleString()}+
+          <div className="max-w-5xl mx-auto">
+            <div className="grid grid-cols-3 gap-4 md:gap-8">
+              {/* Active Users */}
+              <div className="text-center">
+                <div className="w-12 h-12 md:w-16 md:h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                  <svg className="w-6 h-6 md:w-8 md:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <div className="text-2xl md:text-4xl font-bold text-gray-900 mb-1">
+                  {activeUsers.toLocaleString()}+
+                </div>
+                <p className="text-gray-500 text-xs md:text-sm font-medium">Active Users</p>
               </div>
-              <p className="text-gray-600 text-lg">Active Users</p>
-            </div>
-            <div className="group hover:scale-110 transition-transform duration-300">
-              <div className="text-5xl font-bold text-blue-600 mb-2 group-hover:animate-pulse">
-                {itemsListed.toLocaleString()}+
+
+              {/* Items Listed */}
+              <div className="text-center">
+                <div className="w-12 h-12 md:w-16 md:h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                  <svg className="w-6 h-6 md:w-8 md:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  </svg>
+                </div>
+                <div className="text-2xl md:text-4xl font-bold text-gray-900 mb-1">
+                  {itemsListed.toLocaleString()}+
+                </div>
+                <p className="text-gray-500 text-xs md:text-sm font-medium">Items Listed</p>
               </div>
-              <p className="text-gray-600 text-lg">Items Listed</p>
-            </div>
-            <div className="group hover:scale-110 transition-transform duration-300">
-              <div className="text-5xl font-bold text-blue-600 mb-2 group-hover:animate-pulse">
-                {satisfaction}%
+
+              {/* Satisfaction */}
+              <div className="text-center">
+                <div className="w-12 h-12 md:w-16 md:h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                  <svg className="w-6 h-6 md:w-8 md:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="text-2xl md:text-4xl font-bold text-gray-900 mb-1">
+                  {satisfaction}%
+                </div>
+                <p className="text-gray-500 text-xs md:text-sm font-medium">Satisfaction</p>
               </div>
-              <p className="text-gray-600 text-lg">Satisfaction Rate</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Trust Section */}
-      <section className="py-20 bg-white">
+      <section className="py-24 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Why Choose TradePlus?</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">Built with your safety and convenience in mind</p>
+            <span className="inline-block px-4 py-1.5 rounded-full bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 text-sm font-semibold mb-4">
+              Why Choose Us
+            </span>
+            <h2 className="text-h1 text-gray-900 mb-4 font-display">
+              Built for <span className="gradient-text">Your Safety</span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              We prioritize your safety and convenience above everything else
+            </p>
           </div>
 
-          <div className="grid md:grid-cols-4 gap-8 max-w-6xl mx-auto">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
+          <div className="grid md:grid-cols-4 gap-6 max-w-6xl mx-auto">
+            {[
+              { icon: '🔒', title: 'Secure Transactions', desc: 'End-to-end encrypted payments' },
+              { icon: '⚡', title: 'Lightning Fast', desc: 'List and trade in seconds' },
+              { icon: '✅', title: 'Verified Users', desc: 'Identity verification required' },
+              { icon: '🎧', title: '24/7 Support', desc: 'Always here to help you' },
+            ].map((feature, i) => (
+              <div key={i} className="group text-center p-6 rounded-2xl hover:bg-gray-50 transition-all">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl group-hover:scale-110 transition-transform">
+                  {feature.icon}
+                </div>
+                <h4 className="font-bold text-gray-900 mb-2 font-display">{feature.title}</h4>
+                <p className="text-gray-600 text-sm">{feature.desc}</p>
               </div>
-              <h4 className="font-bold text-gray-900 mb-2">Secure Transactions</h4>
-              <p className="text-gray-600 text-sm">Protected payments and verified users</p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
-              <h4 className="font-bold text-gray-900 mb-2">Lightning Fast</h4>
-              <p className="text-gray-600 text-sm">List items in seconds, trade instantly</p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
-                </svg>
-              </div>
-              <h4 className="font-bold text-gray-900 mb-2">Easy to Use</h4>
-              <p className="text-gray-600 text-sm">Intuitive interface for everyone</p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-              </div>
-              <h4 className="font-bold text-gray-900 mb-2">24/7 Support</h4>
-              <p className="text-gray-600 text-sm">Always here to help you</p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+      <section className="py-24 relative overflow-hidden">
+        <div className="absolute inset-0 mesh-gradient" />
+        <div className="absolute inset-0 bg-black/20" />
+
+        <div className="container mx-auto px-4 text-center relative z-10">
+          <h2 className="text-h1 text-white mb-6 font-display">
             Ready to Start Trading?
           </h2>
-          <p className="text-xl text-blue-50 mb-10 max-w-2xl mx-auto">
+          <p className="text-xl text-white/80 mb-10 max-w-2xl mx-auto">
             Join thousands of users buying, selling, and bartering. Create your free account in seconds.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/register"
-              className="bg-white text-blue-600 px-10 py-4 rounded-xl font-bold text-lg hover:bg-blue-50 transition shadow-2xl inline-block"
+              className="group inline-flex items-center justify-center gap-2 bg-white text-gray-900 px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 hover:scale-105 shadow-2xl"
             >
-              Sign Up Now - It's Free
+              <span>Sign Up Now - It's Free</span>
+              <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
             </Link>
             <Link
               href="/login"
-              className="bg-blue-600 text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-blue-600-light transition border-2 border-white inline-block"
+              className="inline-flex items-center justify-center gap-2 glass text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 hover:bg-white/20"
             >
               Already Have Account?
             </Link>
@@ -245,40 +345,68 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400 py-12">
+      <footer className="bg-gray-950 text-gray-400 py-12">
         <div className="container mx-auto px-4">
-          <div className="mb-8">
-            <h3 className="text-white font-bold text-lg mb-4">TradePlus</h3>
-            <p className="text-sm max-w-md">The modern marketplace for buying, selling, and trading.</p>
+          {/* Mobile: horizontal 2x2 grid, Desktop: 4 columns */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-10">
+            {/* Brand - full width on mobile */}
+            <div className="col-span-2 md:col-span-1 mb-4 md:mb-0">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                  </svg>
+                </div>
+                <span className="text-white font-bold text-lg">BarterWave</span>
+              </div>
+              <p className="text-xs leading-relaxed text-gray-500">
+                Africa's trusted marketplace for buying, selling, and trading goods.
+              </p>
+            </div>
+
+            {/* Company */}
+            <div>
+              <h4 className="text-white font-semibold text-sm mb-3">Company</h4>
+              <ul className="space-y-2 text-xs">
+                <li><Link href="/about" className="hover:text-white transition">About Us</Link></li>
+                <li><Link href="/listings" className="hover:text-white transition">Marketplace</Link></li>
+                <li><Link href="/contact" className="hover:text-white transition">Contact</Link></li>
+              </ul>
+            </div>
+
+            {/* Support */}
+            <div>
+              <h4 className="text-white font-semibold text-sm mb-3">Support</h4>
+              <ul className="space-y-2 text-xs">
+                <li><Link href="/help" className="hover:text-white transition">Help Center</Link></li>
+                <li><Link href="/verification" className="hover:text-white transition">Get Verified</Link></li>
+                <li><Link href="/contact" className="hover:text-white transition">Contact Us</Link></li>
+              </ul>
+            </div>
+
+            {/* Legal */}
+            <div>
+              <h4 className="text-white font-semibold text-sm mb-3">Legal</h4>
+              <ul className="space-y-2 text-xs">
+                <li><Link href="/terms" className="hover:text-white transition">Terms of Service</Link></li>
+                <li><Link href="/privacy" className="hover:text-white transition">Privacy Policy</Link></li>
+              </ul>
+            </div>
           </div>
-          <div className="grid grid-cols-3 gap-4 sm:gap-8 mb-8">
-            <div>
-              <h4 className="text-white font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-white transition">About Us</a></li>
-                <li><a href="#" className="hover:text-white transition">Careers</a></li>
-                <li><a href="#" className="hover:text-white transition">Press</a></li>
-              </ul>
+
+          <div className="border-t border-gray-800 pt-6 flex flex-col-reverse md:flex-row justify-between items-center gap-4">
+            <p className="text-xs">© 2024 BarterWave. All rights reserved.</p>
+            <div className="flex gap-3">
+              <a href="#" className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" /></svg>
+              </a>
+              <a href="#" className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" /></svg>
+              </a>
+              <a href="#" className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" /></svg>
+              </a>
             </div>
-            <div>
-              <h4 className="text-white font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-white transition">Help Center</a></li>
-                <li><a href="#" className="hover:text-white transition">Safety</a></li>
-                <li><a href="#" className="hover:text-white transition">Contact</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-white transition">Terms</a></li>
-                <li><a href="#" className="hover:text-white transition">Privacy</a></li>
-                <li><a href="#" className="hover:text-white transition">Cookies</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 pt-8 text-center text-sm">
-            <p>&copy; 2024 TradePlus. All rights reserved.</p>
           </div>
         </div>
       </footer>

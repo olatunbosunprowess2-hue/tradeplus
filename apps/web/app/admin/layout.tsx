@@ -6,10 +6,12 @@ import { useAuthStore } from '@/lib/auth-store';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-    const { user, isAuthenticated } = useAuthStore();
+    const { user, isAuthenticated, _hasHydrated } = useAuthStore();
     const router = useRouter();
 
     useEffect(() => {
+        if (!_hasHydrated) return; // Wait for hydration
+
         if (!isAuthenticated) {
             router.push('/login');
             return;
@@ -19,9 +21,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         if (user?.role !== 'admin') {
             router.push('/listings');
         }
-    }, [isAuthenticated, user, router]);
+    }, [isAuthenticated, user, router, _hasHydrated]);
 
-    if (!isAuthenticated || user?.role !== 'admin') {
+    if (!_hasHydrated || !isAuthenticated || user?.role !== 'admin') {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>

@@ -30,7 +30,7 @@ export class AdminController {
         @Param('id') id: string,
         @Body() updateUserStatusDto: UpdateUserStatusDto,
     ) {
-        return this.adminService.updateUserStatus(id, updateUserStatusDto);
+        return this.adminService.updateUserStatus(id, updateUserStatusDto, updateUserStatusDto.adminMessage);
     }
 
     @Get('listings')
