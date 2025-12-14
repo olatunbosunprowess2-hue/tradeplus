@@ -27,7 +27,7 @@ function useDebounce<T>(value: T, delay: number): T {
 }
 
 export default function Navbar() {
-  const { user, isAuthenticated, _hasHydrated } = useAuthStore();
+  const { user, isAuthenticated, _hasHydrated, refreshProfile } = useAuthStore();
   const { getItemCount } = useCartStore();
   const { unreadCount, fetchUnreadCount } = useNotificationsStore();
   const [searchQuery, setSearchQuery] = useState('');
@@ -83,6 +83,15 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Periodic profile refresh for real-time suspension detection
+  useEffect(() => {
+    if (_hasHydrated && isAuthenticated) {
+      refreshProfile();
+      const profileInterval = setInterval(() => refreshProfile(), 30000);
+      return () => clearInterval(profileInterval);
+    }
+  }, [_hasHydrated, isAuthenticated, refreshProfile]);
 
   useEffect(() => {
     // Only fetch notifications after hydration is complete and user is authenticated

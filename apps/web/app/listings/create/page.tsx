@@ -87,8 +87,19 @@ export default function CreateListingPage() {
         }
     }, [isAuthenticated, user, router, _hasHydrated]);
 
+    // Periodic suspension check - refresh profile every 30 seconds
     useEffect(() => {
-        if (isAuthenticated) refreshProfile();
+        if (!isAuthenticated) return;
+
+        // Initial refresh
+        refreshProfile();
+
+        // Set up interval for periodic refresh
+        const interval = setInterval(() => {
+            refreshProfile();
+        }, 30000); // 30 seconds
+
+        return () => clearInterval(interval);
     }, [isAuthenticated, refreshProfile]);
 
     // --- Handlers ---
@@ -162,6 +173,12 @@ export default function CreateListingPage() {
     };
 
     const handleSubmit = async () => {
+        // Block submission if user is suspended
+        if (user?.status === 'suspended') {
+            setShowSuspendedModal(true);
+            return;
+        }
+
         if (!validateStep(4)) return;
         setLoading(true);
 
@@ -280,7 +297,7 @@ export default function CreateListingPage() {
                                     <select
                                         value={formData.categoryId}
                                         onChange={(e) => setFormData({ ...formData, categoryId: parseInt(e.target.value) })}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
                                     >
                                         <option value={0}>Select a category</option>
                                         <option value={1}>Electronics</option>
