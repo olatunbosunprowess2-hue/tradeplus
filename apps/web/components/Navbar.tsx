@@ -234,7 +234,26 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className={`bg-white/80 backdrop-blur-xl border-b sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'border-gray-200 shadow-sm' : 'border-transparent'
+      {/* Suspension Banner - Fixed at top for suspended users */}
+      {_hasHydrated && isAuthenticated && user?.status === 'suspended' && (
+        <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white fixed top-0 left-0 right-0 z-[60] shadow-lg">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between py-2.5 gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">⚠️</span>
+                <span className="text-sm font-medium">Your account is suspended. Some features are unavailable.</span>
+              </div>
+              <Link
+                href="/appeals"
+                className="bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-4 py-1.5 rounded-full transition-colors whitespace-nowrap"
+              >
+                Submit Appeal →
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+      <nav className={`bg-white/80 backdrop-blur-xl border-b sticky z-50 transition-all duration-300 ${_hasHydrated && isAuthenticated && user?.status === 'suspended' ? 'top-[44px]' : 'top-0'} ${isScrolled ? 'border-gray-200 shadow-sm' : 'border-transparent'
         }`}>
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16 gap-4">

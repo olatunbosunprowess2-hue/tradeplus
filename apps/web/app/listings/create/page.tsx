@@ -9,6 +9,7 @@ import { getGroupedCurrencies } from '@/lib/currencies';
 import { z } from 'zod';
 import { toast } from 'react-hot-toast';
 import VerificationRequiredModal from '@/components/VerificationRequiredModal';
+import SuspendedAccountModal from '@/components/SuspendedAccountModal';
 import Image from 'next/image';
 
 // --- Validation Schema ---
@@ -42,6 +43,7 @@ export default function CreateListingPage() {
     const [error, setError] = useState('');
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
     const [showVerificationModal, setShowVerificationModal] = useState(false);
+    const [showSuspendedModal, setShowSuspendedModal] = useState(false);
 
     // Form Data
     const [formData, setFormData] = useState({
@@ -77,6 +79,8 @@ export default function CreateListingPage() {
         if (_hasHydrated) {
             if (!isAuthenticated) {
                 router.push('/login');
+            } else if (user?.status === 'suspended') {
+                setShowSuspendedModal(true);
             } else if (user && !user.isVerified) {
                 setShowVerificationModal(true);
             }
@@ -218,6 +222,7 @@ export default function CreateListingPage() {
     return (
         <div className="min-h-screen bg-gray-50 py-10 pb-20">
             <VerificationRequiredModal isOpen={showVerificationModal} onClose={() => router.push('/listings')} />
+            <SuspendedAccountModal isOpen={showSuspendedModal} onClose={() => router.push('/listings')} actionAttempted="create a listing" />
 
             <div className="container mx-auto px-4 max-w-3xl">
                 {/* Progress Bar */}
