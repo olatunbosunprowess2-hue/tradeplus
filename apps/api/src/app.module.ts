@@ -28,7 +28,6 @@ import { SecurityModule } from './security/security.module';
 import { EscrowModule } from './escrow/escrow.module';
 import { EmailModule } from './email/email.module';
 import { HealthModule } from './health/health.module';
-import { PromotionsModule } from './promotions/promotions.module';
 
 @Module({
     imports: [
@@ -65,7 +64,6 @@ import { PromotionsModule } from './promotions/promotions.module';
         EscrowModule,
         EmailModule,
         HealthModule,
-        PromotionsModule,
     ],
     providers: [
         {
