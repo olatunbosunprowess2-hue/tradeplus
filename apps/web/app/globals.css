@@ -165,6 +165,29 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Global Form Input Styles - Ensure visible text */
+@layer base {
+
+  input,
+  textarea,
+  select {
+    color: #111827;
+    /* gray-900 */
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: #9CA3AF;
+    /* gray-400 */
+  }
+
+  select option {
+    color: #111827;
+    /* gray-900 */
+    background-color: white;
+  }
+}
+
 /* Premium Typography */
 .font-display {
   font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
