@@ -37,7 +37,7 @@ export default function AdminUsersPage() {
                 search: search || undefined,
             });
             setUsers(response.data.data);
-            setTotalPages(response.data.meta.lastPage);
+            setTotalPages(response.data.meta.totalPages || 1);
         } catch (error) {
             console.error('Failed to fetch users:', error);
             addToast('error', 'Failed to load users');

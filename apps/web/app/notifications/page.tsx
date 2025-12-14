@@ -72,6 +72,13 @@ export default function NotificationsPage() {
             case 'ROLE_REVOKED':
                 return '/admin';
 
+            // Account status notifications
+            case 'USER_SUSPENDED':
+            case 'USER_BANNED':
+                return '/appeals'; // Link to appeals page where they can submit an appeal
+            case 'SUSPENSION_REMOVED':
+                return '/profile'; // Account restored, go to profile
+
             // System notifications
             case 'system':
             case 'SYSTEM':
@@ -162,6 +169,14 @@ export default function NotificationsPage() {
             case 'ROLE_ASSIGNED':
             case 'ROLE_REVOKED':
                 return '👤';
+
+            // Account status
+            case 'USER_SUSPENDED':
+                return '⚠️';
+            case 'USER_BANNED':
+                return '🚫';
+            case 'SUSPENSION_REMOVED':
+                return '🎉';
 
             // System
             case 'system':

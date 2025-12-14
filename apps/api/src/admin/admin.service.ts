@@ -211,11 +211,13 @@ export class AdminService {
                     }
                 );
             } else if (dto.status === 'active' && (previousStatus === 'suspended' || previousStatus === 'banned')) {
+                // Always use a positive welcome back message for reactivation
+                const reactivationMessage = 'Great news! Your account has been reactivated. Welcome back to the community! Please ensure you follow our guidelines.';
                 await this.notificationsService.create(
                     id,
                     'SUSPENSION_REMOVED',
                     {
-                        message: adminMessage || 'Your account suspension has been lifted. Welcome back! Please ensure you follow our community guidelines.',
+                        message: reactivationMessage,
                         timestamp: new Date()
                     }
                 );
