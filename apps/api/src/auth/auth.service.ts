@@ -299,7 +299,7 @@ export class AuthService {
             include: { profile: true },
         });
 
-        if (!user || user.status !== 'active') {
+        if (!user) {
             throw new UnauthorizedException();
         }
 
@@ -312,7 +312,7 @@ export class AuthService {
             include: { profile: true },
         });
 
-        if (!user || user.status !== 'active') {
+        if (!user) {
             throw new UnauthorizedException();
         }
 
