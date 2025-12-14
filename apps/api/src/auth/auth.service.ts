@@ -137,7 +137,7 @@ export class AuthService {
                 email: user.email,
                 name: user.profile?.displayName || undefined,
                 role: user.role,
-                status: user.status, // Include account status for suspension detection
+                status: user.status as 'active' | 'suspended' | 'banned', // Include account status for suspension detection
                 createdAt: user.createdAt.toISOString(),
                 onboardingCompleted: user.onboardingCompleted,
                 isVerified: user.isVerified,
@@ -404,9 +404,8 @@ export class AuthService {
             }
         }
 
-        if (user.status !== 'active') {
-            throw new UnauthorizedException('Account is suspended');
-        }
+        // Note: We allow suspended users to login so they can see their status
+        // Frontend will handle restrictions
 
         // Generate our own tokens
         const jwtTokens = await this.generateTokens(user.id, user.email);

@@ -10,6 +10,8 @@ export class AuthResponseDto {
         onboardingCompleted: boolean;
         isVerified: boolean;
         verificationStatus: 'NONE' | 'PENDING' | 'VERIFIED' | 'REJECTED';
+        status?: 'active' | 'suspended' | 'banned';
+        rejectionReason?: string;
         phoneNumber?: string;
         locationLat?: number;
         locationLng?: number;
