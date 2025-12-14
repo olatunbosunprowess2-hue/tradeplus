@@ -118,10 +118,8 @@ export class AuthService {
             throw new UnauthorizedException('Invalid credentials');
         }
 
-        // Check if user is active
-        if (user.status !== 'active') {
-            throw new UnauthorizedException('Account is suspended');
-        }
+        // Note: We allow suspended users to login so they can see their status and submit appeals
+        // The frontend will handle restricting their actions
 
         // Update last login
         await this.prisma.userProfile.update({
@@ -139,10 +137,12 @@ export class AuthService {
                 email: user.email,
                 name: user.profile?.displayName || undefined,
                 role: user.role,
+                status: user.status, // Include account status for suspension detection
                 createdAt: user.createdAt.toISOString(),
                 onboardingCompleted: user.onboardingCompleted,
                 isVerified: user.isVerified,
                 verificationStatus: user.verificationStatus as 'NONE' | 'PENDING' | 'VERIFIED' | 'REJECTED',
+                rejectionReason: user.rejectionReason || undefined, // Include for suspension reason display
                 phoneNumber: user.phoneNumber || undefined,
                 locationLat: user.locationLat || undefined,
                 locationLng: user.locationLng || undefined,
