@@ -253,7 +253,7 @@ export default function Navbar() {
           </div>
         </div>
       )}
-      <nav className={`bg-white/80 backdrop-blur-xl border-b sticky z-50 transition-all duration-300 ${_hasHydrated && isAuthenticated && user?.status === 'suspended' ? 'top-[44px]' : 'top-0'} ${isScrolled ? 'border-gray-200 shadow-sm' : 'border-transparent'
+      <nav className={`bg-gradient-to-r from-purple-100 via-pink-100 to-orange-100 backdrop-blur-xl border-b sticky z-50 transition-all duration-300 ${_hasHydrated && isAuthenticated && user?.status === 'suspended' ? 'top-[44px]' : 'top-0'} ${isScrolled ? 'border-purple-200/50 shadow-sm' : 'border-transparent'
         }`}>
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16 gap-4">

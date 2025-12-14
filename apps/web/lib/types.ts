@@ -21,6 +21,7 @@ export interface User {
     firstName?: string;
     lastName?: string;
     role: string;
+    status?: 'active' | 'suspended' | 'banned'; // Account status
     createdAt: string;
 
     // Verification Fields
