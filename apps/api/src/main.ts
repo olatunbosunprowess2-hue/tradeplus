@@ -36,6 +36,7 @@ async function bootstrap() {
   app.use(helmet({
     contentSecurityPolicy: process.env.NODE_ENV === 'production' ? undefined : false, // Disable CSP in dev for Swagger UI
     crossOriginEmbedderPolicy: false, // Allow embedding for certain use cases
+    crossOriginResourcePolicy: { policy: "cross-origin" }, // Allow cross-origin resource sharing (images)
     hsts: {
       maxAge: 31536000,
       includeSubDomains: true,

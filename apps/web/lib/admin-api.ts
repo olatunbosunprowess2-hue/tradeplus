@@ -43,6 +43,9 @@ export const adminApi = {
     getUsers: (query?: AdminUserQuery) =>
         apiClient.get('/admin/users', { params: query }),
 
+    getUser: (id: string) =>
+        apiClient.get(`/admin/users/${id}`),
+
     updateUserStatus: (id: string, data: UpdateUserStatusData) =>
         apiClient.patch(`/admin/users/${id}/status`, data),
 

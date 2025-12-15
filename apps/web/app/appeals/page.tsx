@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/auth-store';
 import { appealsApi, CreateAppealData } from '@/lib/appeals-api';
 import { useToastStore } from '@/lib/toast-store';
+import ImageUpload from '@/components/ImageUpload';
 
 interface Appeal {
     id: string;
@@ -29,6 +30,7 @@ export default function AppealsPage() {
     // Form state
     const [reason, setReason] = useState('');
     const [message, setMessage] = useState('');
+    const [evidenceImages, setEvidenceImages] = useState<string[]>([]);
 
     useEffect(() => {
         if (_hasHydrated && !user) {
@@ -66,12 +68,14 @@ export default function AppealsPage() {
             const data: CreateAppealData = {
                 reason: reason.trim(),
                 message: message.trim(),
+                evidenceImages,
             };
 
             await appealsApi.submitAppeal(data);
             addToast('success', 'Your appeal has been submitted. We will review it shortly.');
             setReason('');
             setMessage('');
+            setEvidenceImages([]);
             setShowForm(false);
             fetchAppeals();
         } catch (error: any) {
@@ -207,6 +211,45 @@ export default function AppealsPage() {
                                 />
                                 <p className="text-xs text-gray-500 mt-1">
                                     Be respectful and honest. False information may result in permanent account ban.
+                                </p>
+                            </div>
+
+                            {/* Evidence Upload Section */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Evidence (Optional)
+                                </label>
+
+                                {evidenceImages.length > 0 && (
+                                    <div className="grid grid-cols-3 gap-3 mb-3">
+                                        {evidenceImages.map((url, index) => (
+                                            <div key={index} className="relative group">
+                                                <img
+                                                    src={url}
+                                                    alt={`Evidence ${index + 1}`}
+                                                    className="w-full h-20 object-cover rounded-lg border border-gray-200"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setEvidenceImages(prev => prev.filter((_, i) => i !== index))}
+                                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm z-10"
+                                                >
+                                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                <div className="bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                                    <ImageUpload
+                                        onUploadComplete={(url) => setEvidenceImages(prev => [...prev, url])}
+                                    />
+                                </div>
+                                <p className="text-xs text-gray-500 mt-2">
+                                    Upload screenshots or documents to support your case. Max 5MB per file.
                                 </p>
                             </div>
 

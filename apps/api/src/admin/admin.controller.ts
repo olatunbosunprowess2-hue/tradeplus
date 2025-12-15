@@ -14,6 +14,7 @@ import { AdminListingQueryDto } from './dto/admin-listing-query.dto';
 import { UpdateListingStatusDto } from './dto/update-listing-status.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from './guards/admin.guard';
+import { RolesGuard, RequireRole } from '../common/guards/roles.guard';
 
 @Controller('admin')
 @UseGuards(JwtAuthGuard, AdminGuard)
@@ -23,6 +24,13 @@ export class AdminController {
     @Get('users')
     getUsers(@Query() query: AdminUserQueryDto) {
         return this.adminService.getUsers(query);
+    }
+
+    @Get('users/:id')
+    @UseGuards(RolesGuard)
+    @RequireRole('super_admin')
+    getUser(@Param('id') id: string) {
+        return this.adminService.getUser(id);
     }
 
     @Patch('users/:id/status')

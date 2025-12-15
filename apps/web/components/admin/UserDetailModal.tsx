@@ -124,9 +124,19 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
                                         </span>
                                     </div>
                                 </div>
+
+                                <button
+                                    onClick={() => window.open(`/admin/users/print?userId=${user.id}`, '_blank')}
+                                    className="p-2 hover:bg-white/20 rounded-lg transition ml-2"
+                                    title="Print Security Report"
+                                >
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                    </svg>
+                                </button>
                                 <button
                                     onClick={onClose}
-                                    className="p-2 hover:bg-white/20 rounded-lg transition"
+                                    className="p-2 hover:bg-white/20 rounded-lg transition ml-2"
                                 >
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -315,34 +325,36 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
                             </div>
                         )}
                     </div>
-                </div>
-            </div>
+                </div >
+            </div >
 
             {/* Full Image Viewer */}
-            {activeImageUrl && (
-                <div
-                    className="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center p-4"
-                    onClick={() => setActiveImageUrl(null)}
-                >
-                    <button
+            {
+                activeImageUrl && (
+                    <div
+                        className="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center p-4"
                         onClick={() => setActiveImageUrl(null)}
-                        className="absolute top-4 right-4 p-2 text-white hover:bg-white/20 rounded-lg transition"
                     >
-                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                    <div className="relative max-w-4xl max-h-[90vh] w-full h-full">
-                        <Image
-                            src={activeImageUrl}
-                            alt="Full size document"
-                            fill
-                            className="object-contain"
-                            draggable={false}
-                        />
+                        <button
+                            onClick={() => setActiveImageUrl(null)}
+                            className="absolute top-4 right-4 p-2 text-white hover:bg-white/20 rounded-lg transition"
+                        >
+                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                        <div className="relative max-w-4xl max-h-[90vh] w-full h-full">
+                            <Image
+                                src={activeImageUrl}
+                                alt="Full size document"
+                                fill
+                                className="object-contain"
+                                draggable={false}
+                            />
+                        </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             <ActionConfirmModal
                 isOpen={actionModal.open}

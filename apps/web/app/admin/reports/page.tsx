@@ -18,11 +18,18 @@ export default function AdminReportsPage() {
     const [adminMessage, setAdminMessage] = useState('');
     const [pendingAction, setPendingAction] = useState<{ type: 'resolve' | 'delete', reportId: string } | null>(null);
 
+    // Pagination state
+    const [page, setPage] = useState(1);
+    const itemsPerPage = 10;
+    const totalPages = Math.ceil(reports.length / itemsPerPage);
+    const paginatedReports = reports.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+
     const fetchReports = async () => {
         setIsLoading(true);
         try {
             const response = await adminApi.getReports();
             setReports(response.data);
+            setPage(1); // Reset to first page on new data
         } catch (error) {
             console.error('Failed to fetch reports:', error);
             addToast('error', 'Failed to load reports');
@@ -101,7 +108,7 @@ export default function AdminReportsPage() {
                                     </td>
                                 </tr>
                             ) : (
-                                reports.map((report) => (
+                                paginatedReports.map((report) => (
                                     <tr key={report.id} className="hover:bg-gray-50 transition">
                                         <td className="px-6 py-4">
                                             <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${report.listingId ? 'bg-blue-50 text-blue-800' :
@@ -181,6 +188,29 @@ export default function AdminReportsPage() {
                         </tbody>
                     </table>
                 </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-center gap-4">
+                        <button
+                            onClick={() => setPage((p) => Math.max(1, p - 1))}
+                            disabled={page === 1}
+                            className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Previous
+                        </button>
+                        <span className="text-sm text-gray-600 font-medium px-4">
+                            Page {page} of {totalPages}
+                        </span>
+                        <button
+                            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                            disabled={page === totalPages}
+                            className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Next
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* Admin Message Modal */}
@@ -230,8 +260,8 @@ export default function AdminReportsPage() {
                             <button
                                 onClick={handleSubmitWithMessage}
                                 className={`flex-1 px-4 py-2 text-white rounded-lg font-medium ${pendingAction?.type === 'delete'
-                                        ? 'bg-red-600 hover:bg-red-700'
-                                        : 'bg-green-600 hover:bg-green-700'
+                                    ? 'bg-red-600 hover:bg-red-700'
+                                    : 'bg-green-600 hover:bg-green-700'
                                     }`}
                             >
                                 {pendingAction?.type === 'delete' ? 'Delete & Notify' : 'Resolve & Notify'}

@@ -18,6 +18,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { ReportsModule } from './reports/reports.module';
 import { AppealsModule } from './appeals/appeals.module';
+import { UploadsModule } from './uploads/uploads.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 
 import { RolesModule } from './roles/roles.module';
@@ -56,6 +57,7 @@ import { HealthModule } from './health/health.module';
         ReviewsModule,
         ReportsModule,
         AppealsModule,
+        UploadsModule,
         RolesModule,
         AuditModule,
         ActivityModule,
@@ -73,6 +75,7 @@ import { HealthModule } from './health/health.module';
     ],
 })
 export class AppModule implements NestModule {
+    // Trigger rebuild for new UploadsModule
     configure(consumer: MiddlewareConsumer) {
         consumer.apply(LoggerMiddleware).forRoutes('(.*)');
     }

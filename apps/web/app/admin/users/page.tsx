@@ -213,7 +213,7 @@ export default function AdminUsersPage() {
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                    <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                    <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-center gap-4">
                         <button
                             onClick={() => setPage((p) => Math.max(1, p - 1))}
                             disabled={page === 1}
@@ -221,7 +221,7 @@ export default function AdminUsersPage() {
                         >
                             Previous
                         </button>
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm text-gray-600 font-medium px-4">
                             Page {page} of {totalPages}
                         </span>
                         <button

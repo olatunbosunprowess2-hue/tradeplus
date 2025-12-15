@@ -11,15 +11,22 @@ export default function AdminAppealsPage() {
     const { addToast } = useToastStore();
 
     const [selectedAppeal, setSelectedAppeal] = useState<any>(null);
-    const [reviewAction, setReviewAction] = useState<'approved' | 'rejected' | null>(null);
+    const [reviewAction, setReviewAction] = useState<'approved' | 'rejected' | 'view' | null>(null);
     const [adminMessage, setAdminMessage] = useState('');
     const [actionLoading, setActionLoading] = useState(false);
+
+    // Pagination state
+    const [page, setPage] = useState(1);
+    const itemsPerPage = 10;
+    const totalPages = Math.ceil(appeals.length / itemsPerPage);
+    const paginatedAppeals = appeals.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
     const fetchAppeals = async () => {
         setIsLoading(true);
         try {
             const response = await appealsApi.getAppeals();
             setAppeals(response.data);
+            setPage(1); // Reset to first page on new data
         } catch (error) {
             console.error('Failed to fetch appeals:', error);
             addToast('error', 'Failed to load appeals');
@@ -28,14 +35,14 @@ export default function AdminAppealsPage() {
         }
     };
 
-    const openReviewModal = (appeal: any, action: 'approved' | 'rejected') => {
+    const openReviewModal = (appeal: any, action: 'approved' | 'rejected' | 'view') => {
         setSelectedAppeal(appeal);
         setReviewAction(action);
         setAdminMessage('');
     };
 
     const handleReviewSubmit = async () => {
-        if (!selectedAppeal || !reviewAction) return;
+        if (!selectedAppeal || !reviewAction || reviewAction === 'view') return;
 
         setActionLoading(true);
         try {
@@ -93,7 +100,7 @@ export default function AdminAppealsPage() {
                                     </td>
                                 </tr>
                             ) : (
-                                appeals.map((appeal) => (
+                                paginatedAppeals.map((appeal) => (
                                     <tr key={appeal.id} className="hover:bg-gray-50 transition">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
@@ -109,8 +116,8 @@ export default function AdminAppealsPage() {
                                                         {appeal.user.profile?.displayName || appeal.user.email}
                                                     </p>
                                                     <span className={`text-xs px-1.5 py-0.5 rounded ${appeal.user.status === 'suspended' ? 'bg-red-100 text-red-800' :
-                                                            appeal.user.status === 'banned' ? 'bg-gray-800 text-white' :
-                                                                'bg-green-100 text-green-800'
+                                                        appeal.user.status === 'banned' ? 'bg-gray-800 text-white' :
+                                                            'bg-green-100 text-green-800'
                                                         }`}>
                                                         {appeal.user.status}
                                                     </span>
@@ -134,8 +141,8 @@ export default function AdminAppealsPage() {
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={`px-2 py-1 rounded-full text-xs font-bold capitalize ${appeal.status === 'approved' ? 'bg-green-100 text-green-800' :
-                                                    appeal.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                                                        'bg-yellow-100 text-yellow-800'
+                                                appeal.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                                                    'bg-yellow-100 text-yellow-800'
                                                 }`}>
                                                 {appeal.status}
                                             </span>
@@ -144,8 +151,14 @@ export default function AdminAppealsPage() {
                                             {new Date(appeal.createdAt).toLocaleDateString()}
                                         </td>
                                         <td className="px-6 py-4">
-                                            {appeal.status === 'pending' && (
+                                            {appeal.status === 'pending' ? (
                                                 <div className="flex gap-2">
+                                                    <button
+                                                        onClick={() => openReviewModal(appeal, 'view')}
+                                                        className="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-medium rounded hover:bg-gray-200"
+                                                    >
+                                                        View
+                                                    </button>
                                                     <button
                                                         onClick={() => openReviewModal(appeal, 'approved')}
                                                         className="px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded hover:bg-green-700"
@@ -159,6 +172,13 @@ export default function AdminAppealsPage() {
                                                         Reject
                                                     </button>
                                                 </div>
+                                            ) : (
+                                                <button
+                                                    onClick={() => openReviewModal(appeal, 'view')}
+                                                    className="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-medium rounded hover:bg-gray-200"
+                                                >
+                                                    View Details
+                                                </button>
                                             )}
                                         </td>
                                     </tr>
@@ -167,6 +187,29 @@ export default function AdminAppealsPage() {
                         </tbody>
                     </table>
                 </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-center gap-4">
+                        <button
+                            onClick={() => setPage((p) => Math.max(1, p - 1))}
+                            disabled={page === 1}
+                            className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Previous
+                        </button>
+                        <span className="text-sm text-gray-600 font-medium px-4">
+                            Page {page} of {totalPages}
+                        </span>
+                        <button
+                            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                            disabled={page === totalPages}
+                            className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Next
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* Review Modal */}
@@ -175,7 +218,7 @@ export default function AdminAppealsPage() {
                     <div className="bg-white rounded-2xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-xl font-bold text-gray-900">
-                                {reviewAction === 'approved' ? 'Approve Appeal' : 'Reject Appeal'}
+                                {reviewAction === 'view' ? 'Appeal Details' : (reviewAction === 'approved' ? 'Approve Appeal' : 'Reject Appeal')}
                             </h3>
                             <button
                                 onClick={() => {
@@ -209,24 +252,26 @@ export default function AdminAppealsPage() {
                                 </div>
                             )}
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Admin Message (Optional)
-                                </label>
-                                <p className="text-xs text-gray-500 mb-2">
-                                    {reviewAction === 'approved'
-                                        ? 'Default: "Your appeal has been approved."'
-                                        : 'Default: "After careful review, we have decided to uphold our original decision."'
-                                    }
-                                </p>
-                                <textarea
-                                    value={adminMessage}
-                                    onChange={(e) => setAdminMessage(e.target.value)}
-                                    placeholder="Enter a personalized response..."
-                                    className="w-full p-3 border border-gray-300 rounded-lg text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    rows={4}
-                                />
-                            </div>
+                            {reviewAction !== 'view' && (
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Admin Message (Optional)
+                                    </label>
+                                    <p className="text-xs text-gray-500 mb-2">
+                                        {reviewAction === 'approved'
+                                            ? 'Default: "Your appeal has been approved."'
+                                            : 'Default: "After careful review, we have decided to uphold our original decision."'
+                                        }
+                                    </p>
+                                    <textarea
+                                        value={adminMessage}
+                                        onChange={(e) => setAdminMessage(e.target.value)}
+                                        placeholder="Enter a personalized response..."
+                                        className="w-full p-3 border border-gray-300 rounded-lg text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        rows={4}
+                                    />
+                                </div>
+                            )}
                         </div>
 
                         <div className="flex gap-3">
@@ -237,18 +282,20 @@ export default function AdminAppealsPage() {
                                 }}
                                 className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200"
                             >
-                                Cancel
+                                {reviewAction === 'view' ? 'Close' : 'Cancel'}
                             </button>
-                            <button
-                                onClick={handleReviewSubmit}
-                                disabled={actionLoading}
-                                className={`flex-1 px-4 py-2 text-white rounded-lg font-medium ${reviewAction === 'approved'
+                            {reviewAction !== 'view' && (
+                                <button
+                                    onClick={handleReviewSubmit}
+                                    disabled={actionLoading}
+                                    className={`flex-1 px-4 py-2 text-white rounded-lg font-medium ${reviewAction === 'approved'
                                         ? 'bg-green-600 hover:bg-green-700'
                                         : 'bg-red-600 hover:bg-red-700'
-                                    } disabled:opacity-50`}
-                            >
-                                {actionLoading ? 'Processing...' : `Confirm ${reviewAction === 'approved' ? 'Approval' : 'Rejection'}`}
-                            </button>
+                                        } disabled:opacity-50`}
+                                >
+                                    {actionLoading ? 'Processing...' : `Confirm ${reviewAction === 'approved' ? 'Approval' : 'Rejection'}`}
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>

@@ -16,6 +16,31 @@ export class AdminService {
         private emailService: EmailService,
     ) { }
 
+    async getUser(id: string) {
+        const user = await this.prisma.user.findUnique({
+            where: { id },
+            include: {
+                profile: true,
+                _count: {
+                    select: {
+                        listings: true,
+                        ordersBought: true,
+                        ordersSold: true,
+                        reportsMade: true,
+                        reportsAgainst: true,
+                    },
+                },
+            },
+        });
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        const { passwordHash, ...userWithoutPassword } = user;
+        return userWithoutPassword;
+    }
+
     async getUsers(query: AdminUserQueryDto) {
         const { search, role, status, page = 1, limit = 20 } = query;
         const skip = (page - 1) * limit;
@@ -69,8 +94,15 @@ export class AdminService {
 
         return {
             data: users.map((user) => {
-                const { passwordHash, ...userWithoutPassword } = user;
-                return userWithoutPassword;
+                const {
+                    passwordHash,
+                    idDocumentFrontUrl,
+                    idDocumentBackUrl,
+                    faceVerificationUrl,
+                    idDocumentType,
+                    ...safeUser
+                } = user;
+                return safeUser;
             }),
             meta: {
                 total,

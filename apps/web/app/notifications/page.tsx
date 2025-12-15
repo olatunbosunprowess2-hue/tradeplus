@@ -79,6 +79,13 @@ export default function NotificationsPage() {
             case 'SUSPENSION_REMOVED':
                 return '/profile'; // Account restored, go to profile
 
+            // Appeals
+            case 'NEW_APPEAL':
+                return '/admin/appeals'; // Admin: Go to appeals management
+            case 'APPEAL_APPROVED':
+            case 'APPEAL_REJECTED':
+                return '/appeals'; // User: Go to my appeals
+
             // System notifications
             case 'system':
             case 'SYSTEM':
@@ -242,8 +249,8 @@ export default function NotificationsPage() {
                                         key={notification.id}
                                         onClick={(e) => handleNotificationClick(e, notification)}
                                         className={`block rounded-xl p-5 shadow-sm border transition hover:shadow-md cursor-pointer ${notification.readAt
-                                                ? 'bg-red-50 border-red-200'
-                                                : 'bg-white border-red-300 ring-1 ring-red-100'
+                                            ? 'bg-red-50 border-red-200'
+                                            : 'bg-white border-red-300 ring-1 ring-red-100'
                                             }`}
                                     >
                                         <div className="flex gap-4">
@@ -271,6 +278,50 @@ export default function NotificationsPage() {
                                                     <span>•</span>
                                                     <span className="font-medium hover:underline">Tap to appeal &rarr;</span>
                                                 </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            }
+
+                            const isAppealDecision = ['APPEAL_APPROVED', 'APPEAL_REJECTED', 'SUSPENSION_REMOVED'].includes(notification.type);
+
+                            if (isAppealDecision) {
+                                const isApproved = ['APPEAL_APPROVED', 'SUSPENSION_REMOVED'].includes(notification.type);
+                                return (
+                                    <div
+                                        key={notification.id}
+                                        onClick={(e) => handleNotificationClick(e, notification)}
+                                        className={`block rounded-xl p-5 shadow-sm border transition hover:shadow-md cursor-pointer ${notification.readAt
+                                            ? (isApproved ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200')
+                                            : (isApproved ? 'bg-white border-green-300 ring-1 ring-green-100' : 'bg-white border-red-300 ring-1 ring-red-100')
+                                            }`}
+                                    >
+                                        <div className="flex gap-4">
+                                            <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl flex-shrink-0 ${isApproved ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
+                                                }`}>
+                                                {isApproved ? '✅' : '🚫'}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex justify-between items-start">
+                                                    <h4 className={`font-bold text-lg mb-1 ${isApproved ? 'text-green-800' : 'text-red-800'}`}>
+                                                        {isApproved ? 'Appeal Approved' : 'Appeal Rejected'}
+                                                    </h4>
+                                                    {!notification.readAt && (
+                                                        <span className={`flex w-3 h-3 rounded-full ${isApproved ? 'bg-green-600' : 'bg-red-600'}`}></span>
+                                                    )}
+                                                </div>
+
+                                                <div className={`rounded-lg p-3 border mb-2 ${isApproved ? 'bg-white/60 border-green-100' : 'bg-white/60 border-red-100'
+                                                    }`}>
+                                                    <p className="text-gray-900 font-medium">
+                                                        {notification.data.message}
+                                                    </p>
+                                                </div>
+
+                                                <p className={`text-sm ${isApproved ? 'text-green-700/70' : 'text-red-700/70'}`}>
+                                                    {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
+                                                </p>
                                             </div>
                                         </div>
                                     </div>
@@ -306,6 +357,6 @@ export default function NotificationsPage() {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 }
