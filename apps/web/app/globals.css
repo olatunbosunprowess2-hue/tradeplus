@@ -301,6 +301,23 @@ body {
   animation: pulse-glow 3s ease-in-out infinite;
 }
 
+/* Subtle pulse for urgent/distress items */
+@keyframes pulse-subtle {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+  }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
+
 /* Shimmer effect */
 @keyframes shimmer {
   0% {
@@ -649,4 +666,42 @@ body>nextjs-portal {
 ::selection {
   background: var(--color-primary-pale);
   color: var(--color-primary-dark);
+}
+
+/* Print Styles */
+@media print {
+
+  /* Remove browser-added margins and headers/footers */
+  @page {
+    margin: 0.5in;
+    size: A4;
+  }
+
+  /* Hide unnecessary elements when printing */
+  nav,
+  header:not(.print-header),
+  footer:not(.print-footer),
+  .no-print,
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Ensure white background */
+  html,
+  body {
+    background: white !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Remove shadows and transforms for cleaner print */
+  * {
+    box-shadow: none !important;
+  }
+
+  /* Ensure images print correctly */
+  img {
+    max-width: 100% !important;
+    page-break-inside: avoid !important;
+  }
 }

@@ -82,15 +82,20 @@ export default function TeamManagementPage() {
     const [adding, setAdding] = useState(false);
 
     useEffect(() => {
+        // Allow admin roles: admin, moderator, super_admin
+        const isAdminRole = user?.role === 'admin' || user?.userRole?.name === 'admin' ||
+            user?.userRole?.name === 'moderator' || user?.userRole?.name === 'super_admin';
         if (_hasHydrated) {
-            if (!user || user.role !== 'admin') {
+            if (!user || !isAdminRole) {
                 router.push('/login');
             }
         }
     }, [user, _hasHydrated, router]);
 
     useEffect(() => {
-        if (user?.role === 'admin') {
+        const isAdminRole = user?.role === 'admin' || user?.userRole?.name === 'admin' ||
+            user?.userRole?.name === 'moderator' || user?.userRole?.name === 'super_admin';
+        if (isAdminRole) {
             fetchData();
         }
     }, [user]);

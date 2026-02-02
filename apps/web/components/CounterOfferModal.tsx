@@ -34,8 +34,8 @@ export default function CounterOfferModal({ isOpen, onClose, offer, onSubmit }: 
             const fetchListings = async () => {
                 setIsLoadingListings(true);
                 try {
-                    const listings = await listingsApi.getAll({ sellerId: user.id });
-                    setUserListings(listings);
+                    const response = await listingsApi.getAll({ sellerId: user.id });
+                    setUserListings(response.data);
                 } catch (error) {
                     console.error('Failed to fetch user listings:', error);
                 } finally {

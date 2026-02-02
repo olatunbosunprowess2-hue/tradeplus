@@ -1,12 +1,16 @@
 'use client';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 
 import { AuthSyncer } from '@/components/AuthSyncer';
 import { ThemeProvider } from '@/lib/theme-context';
 
-export function Providers({ children }: { children: React.ReactNode }) {
+interface ProvidersProps {
+  children: ReactNode;
+}
+
+export function Providers({ children }: ProvidersProps): ReactNode {
   const [queryClient] = useState(
     () =>
       new QueryClient({

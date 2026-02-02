@@ -1,16 +1,29 @@
 'use client';
 
 import { useMessagesStore } from '@/lib/messages-store';
+import { useAuthStore } from '@/lib/auth-store';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useEffect } from 'react';
 import Image from 'next/image';
 
 export default function MessagesPage() {
+    const router = useRouter();
     const { conversations, fetchConversations, isLoading } = useMessagesStore();
+    const { isAuthenticated, _hasHydrated } = useAuthStore();
+
+    // Redirect to login if not authenticated
+    useEffect(() => {
+        if (_hasHydrated && !isAuthenticated) {
+            router.push('/login');
+        }
+    }, [_hasHydrated, isAuthenticated, router]);
 
     useEffect(() => {
-        fetchConversations();
-    }, []);
+        if (isAuthenticated) {
+            fetchConversations();
+        }
+    }, [fetchConversations, isAuthenticated]);
 
     const getTimeAgo = (timestamp: number) => {
         const seconds = Math.floor((Date.now() - timestamp) / 1000);
@@ -26,6 +39,15 @@ export default function MessagesPage() {
     };
 
     const totalUnread = conversations.reduce((sum, conv) => sum + conv.unreadCount, 0);
+
+    // Show loading while hydrating or if not authenticated
+    if (!_hasHydrated || !isAuthenticated) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+        );
+    }
 
     if (isLoading && conversations.length === 0) {
         return (

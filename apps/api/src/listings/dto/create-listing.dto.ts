@@ -54,8 +54,9 @@ export class CreateListingDto {
     allowBarter: boolean;
 
     @IsBoolean()
-    @Transform(({ value }) => value === 'true' || value === true)
-    allowCashPlusBarter: boolean;
+    @IsOptional()
+    @Transform(({ value }) => value === 'true' || value === true || false)
+    allowCashPlusBarter?: boolean;
 
     @IsString()
     @IsOptional()

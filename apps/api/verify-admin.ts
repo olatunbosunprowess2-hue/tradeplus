@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 async function main() {
     const admin = await prisma.user.findUnique({
-        where: { email: 'admin@tradeplus.com' },
+        where: { email: 'admin@barterwave.com' },
     });
 
     if (admin) {

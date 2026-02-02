@@ -11,15 +11,24 @@ export class UsersController {
 
     @UseGuards(JwtAuthGuard)
     @Get('admin/all') // Used by Team Page initial load
-    async getAdmins() {
-        return this.usersService.findAllAdmins();
+    async getAdmins(
+        @Query('page') page?: number,
+        @Query('limit') limit?: number
+    ) {
+        return this.usersService.findAllAdmins(page, limit);
     }
+
 
     @UseGuards(JwtAuthGuard)
     @Get()
-    async findAll(@Query('search') search?: string) {
-        return this.usersService.findAll(search);
+    async findAll(
+        @Query('search') search?: string,
+        @Query('page') page?: number,
+        @Query('limit') limit?: number
+    ) {
+        return this.usersService.findAll(search, page, limit);
     }
+
 
     @UseGuards(JwtAuthGuard)
     @Get('profile')
@@ -61,15 +70,15 @@ export class UsersController {
                 console.log('✅ Avatar saved:', dto.avatarUrl);
             }
             if (files?.faceVerification?.[0]) {
-                dto.faceVerificationUrl = `/uploads/${files.faceVerification[0].filename}`;
+                dto.faceVerificationUrl = `/private-uploads/${files.faceVerification[0].filename}`;
                 console.log('✅ Face verification saved:', dto.faceVerificationUrl);
             }
             if (files?.idDocumentFront?.[0]) {
-                dto.idDocumentFrontUrl = `/uploads/${files.idDocumentFront[0].filename}`;
+                dto.idDocumentFrontUrl = `/private-uploads/${files.idDocumentFront[0].filename}`;
                 console.log('✅ ID Front saved:', dto.idDocumentFrontUrl);
             }
             if (files?.idDocumentBack?.[0]) {
-                dto.idDocumentBackUrl = `/uploads/${files.idDocumentBack[0].filename}`;
+                dto.idDocumentBackUrl = `/private-uploads/${files.idDocumentBack[0].filename}`;
                 console.log('✅ ID Back saved:', dto.idDocumentBackUrl);
             }
 

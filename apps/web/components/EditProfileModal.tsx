@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/lib/auth-store';
+import { getRegions } from '@/lib/api-client';
+import SearchableSelect from './SearchableSelect';
 
 interface EditProfileModalProps {
     isOpen: boolean;
@@ -15,36 +17,93 @@ export default function EditProfileModal({ isOpen, onClose }: EditProfileModalPr
     // Form state
     const [displayName, setDisplayName] = useState(user?.profile?.displayName || '');
     const [bio, setBio] = useState(user?.profile?.bio || '');
-    const [city, setCity] = useState(user?.profile?.region?.city || '');
-    const [state, setState] = useState(user?.profile?.region?.name || '');
+    const [city, setCity] = useState('');
+    const [selectedRegionId, setSelectedRegionId] = useState<number | undefined>(user?.profile?.regionId);
+
+    // State dropdown data
+    const [regions, setRegions] = useState<{ id: number; name: string }[]>([]);
+    const [loadingRegions, setLoadingRegions] = useState(false);
+
+    // Avatar state
+    const [avatarFile, setAvatarFile] = useState<File | null>(null);
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.profile?.avatarUrl || null);
+
+    // Extract city from locationAddress on mount
+    useEffect(() => {
+        if (user?.locationAddress) {
+            const parts = user.locationAddress.split(',').map(p => p.trim());
+            setCity(parts[0] || '');
+        }
+    }, [user?.locationAddress]);
+
+    // Fetch regions for the user's country
+    useEffect(() => {
+        const countryId = user?.profile?.countryId;
+        if (countryId && isOpen) {
+            setLoadingRegions(true);
+            getRegions(countryId)
+                .then(res => {
+                    setRegions(res.data || []);
+                })
+                .catch(err => {
+                    console.error('Failed to fetch regions:', err);
+                })
+                .finally(() => setLoadingRegions(false));
+        }
+    }, [user?.profile?.countryId, isOpen]);
 
     if (!isOpen || !user) return null;
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setAvatarFile(file);
+            setAvatarPreview(URL.createObjectURL(file));
+        }
+    };
+
+    const selectedRegion = regions.find(r => r.id === selectedRegionId);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
 
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        try {
+            // Build location address as "City, State"
+            const locationAddress = city + (selectedRegion ? `, ${selectedRegion.name}` : '');
 
-        updateProfile({
-            displayName,
-            bio,
-            region: {
-                ...user.profile?.region,
-                id: user.profile?.region?.id || 1,
-                name: state,
-                city: city
+            if (avatarFile) {
+                // Use FormData for file upload
+                const formData = new FormData();
+                formData.append('avatar', avatarFile);
+                formData.append('displayName', displayName);
+                formData.append('bio', bio);
+                formData.append('locationAddress', locationAddress);
+                if (selectedRegionId) {
+                    formData.append('regionId', selectedRegionId.toString());
+                }
+
+                await updateProfile(formData);
+            } else {
+                // Flatten payload to match backend DTO
+                await updateProfile({
+                    displayName,
+                    bio,
+                    locationAddress,
+                    regionId: selectedRegionId,
+                } as any);
             }
-        });
-
-        setIsLoading(false);
-        onClose();
+            onClose();
+        } catch (error) {
+            console.error('Failed to update profile:', error);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-            <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl overflow-hidden animate-in fade-in zoom-in duration-200 text-left">
                 <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
                     <h2 className="text-xl font-bold text-gray-900">Edit Profile</h2>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition">
@@ -54,69 +113,103 @@ export default function EditProfileModal({ isOpen, onClose }: EditProfileModalPr
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 space-y-5">
+                <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                    {/* Profile Picture Section */}
+                    <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                        <div className="relative w-16 h-16 rounded-full overflow-hidden bg-gray-200 border-2 border-white shadow-sm shrink-0">
+                            {avatarPreview ? (
+                                <img src={avatarPreview} alt="Profile" className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="w-full h-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold">
+                                    {displayName[0]?.toUpperCase() || user.email[0].toUpperCase()}
+                                </div>
+                            )}
+                        </div>
+                        <div className="flex-1">
+                            <label className="block text-sm font-semibold text-gray-900 mb-1">
+                                Profile Picture
+                                <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-bold uppercase rounded-full">Recommended</span>
+                            </label>
+                            <p className="text-xs text-gray-500 mb-2">
+                                Adding a professional logo or photo significantly increases trust and engagement.
+                            </p>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleFileChange}
+                                className="block w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition"
+                            />
+                        </div>
+                    </div>
+
                     {/* Read-Only Security Fields */}
-                    <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                        <h3 className="text-xs font-bold text-blue-800 uppercase tracking-wider mb-2">Verified Information</h3>
-                        <div className="space-y-3">
-                            <div>
-                                <label className="block text-xs text-blue-600 mb-1">Email Address</label>
-                                <div className="font-medium text-gray-900 text-sm break-all">{user.email}</div>
+                    <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 opacity-75">
+                        <div className="flex justify-between items-start">
+                            <div className="space-y-1">
+                                <label className="block text-xs text-blue-800 font-bold uppercase">Email Address</label>
+                                <div className="text-sm font-medium text-gray-900">{user.email}</div>
                             </div>
-                            <div>
-                                <label className="block text-xs text-blue-600 mb-1">Member Since</label>
-                                <div className="font-medium text-gray-900 text-sm">2024</div>
+                            <div className="space-y-1 text-right">
+                                <label className="block text-xs text-blue-800 font-bold uppercase">Account Status</label>
+                                <div className="text-sm font-semibold text-green-600">Active</div>
                             </div>
                         </div>
-                        <p className="text-xs text-blue-600 mt-3 flex items-center gap-1">
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                            </svg>
-                            These fields cannot be changed for security reasons.
-                        </p>
                     </div>
 
                     {/* Editable Fields */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Display Name</label>
+                        <label className="block text-sm font-bold text-gray-900 mb-1">Business / Profile Name</label>
                         <input
                             type="text"
                             value={displayName}
                             onChange={(e) => setDisplayName(e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 transition"
-                            placeholder="How you appear to others"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 transition font-medium text-gray-900"
+                            placeholder="e.g. Acme Trading Co. or John Doe"
                         />
+                        <p className="mt-1.5 text-xs text-gray-500 flex items-center gap-1">
+                            <svg className="w-3 h-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Using your business name or a professional name helps build trust with buyers.
+                        </p>
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Bio / About Business</label>
                         <textarea
                             value={bio}
                             onChange={(e) => setBio(e.target.value)}
                             rows={3}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 transition resize-none"
-                            placeholder="Tell others about yourself..."
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 transition resize-none text-gray-900"
+                            placeholder="Tell others about your services or what you trade..."
                         />
                     </div>
 
+                    {/* Location Fields */}
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">City / Area</label>
                             <input
                                 type="text"
                                 value={city}
                                 onChange={(e) => setCity(e.target.value)}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 transition"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 transition text-gray-900"
+                                placeholder="e.g. Ona Ara"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
-                            <input
-                                type="text"
-                                value={state}
-                                onChange={(e) => setState(e.target.value)}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 transition"
+                            <SearchableSelect
+                                label="State / Region"
+                                options={regions}
+                                value={selectedRegionId}
+                                onChange={(val) => setSelectedRegionId(Number(val))}
+                                placeholder="Select your state"
+                                loading={loadingRegions}
+                                emptyMessage="No states available"
                             />
+                            <p className="mt-1 text-xs text-gray-500">
+                                Wrong state? Select the correct one here.
+                            </p>
                         </div>
                     </div>
 

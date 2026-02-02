@@ -5,6 +5,7 @@ import { useAuthStore } from '@/lib/auth-store';
 import { useRouter } from 'next/navigation';
 import apiClient from '@/lib/api-client';
 import VerificationReviewModal from '@/components/admin/VerificationReviewModal';
+import { canAccessAdminPanel, canManageUsers, canViewSecurity } from '@/lib/rbac';
 import type { User } from '@/lib/types';
 
 interface ActivityStats {
@@ -78,13 +79,13 @@ export default function AdminDashboardPage() {
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
     useEffect(() => {
-        if (_hasHydrated && (!user || user.role !== 'admin')) {
+        if (_hasHydrated && (!user || !canAccessAdminPanel(user))) {
             router.push('/login');
         }
     }, [user, _hasHydrated, router]);
 
     useEffect(() => {
-        if (user?.role === 'admin') {
+        if (canAccessAdminPanel(user)) {
             fetchData();
             // Refresh every 30 seconds
             const interval = setInterval(fetchData, 30000);
@@ -94,20 +95,28 @@ export default function AdminDashboardPage() {
 
     const fetchData = async () => {
         try {
-            const [statsRes, topUsersRes, feedRes, ipsRes, pendingRes] = await Promise.all([
+            // Core stats for everyone
+            const promises: [Promise<any>, Promise<any>, Promise<any>, Promise<any>, Promise<any>] = [
                 apiClient.get('/activity/stats'),
                 apiClient.get('/activity/top-users?hours=24'),
                 apiClient.get('/activity/feed?limit=20'),
-                apiClient.get('/activity/login-ips?limit=30'),
-                apiClient.get('/admin/users?verificationStatus=PENDING&limit=100'),
-            ]);
+                canViewSecurity(user) ? apiClient.get('/activity/login-ips?limit=30') : Promise.resolve({ data: [] }),
+                canManageUsers(user) ? apiClient.get('/admin/users?verificationStatus=PENDING&limit=100') : Promise.resolve({ data: { data: [] } }),
+            ];
+
+            const [statsRes, topUsersRes, feedRes, ipsRes, pendingRes] = await Promise.all(promises);
+
             setStats(statsRes.data);
             setTopUsers(topUsersRes.data);
             setFeed(feedRes.data);
             setLoginIps(ipsRes.data);
             setPendingUsers(pendingRes.data.data || []);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to fetch activity data:', error);
+            // Check if it's a permission error
+            if (error?.response?.status === 403) {
+                console.warn('Access denied to some dashboard components');
+            }
         } finally {
             setLoading(false);
         }
@@ -245,15 +254,18 @@ export default function AdminDashboardPage() {
                 </div>
                 <div className="flex items-center gap-4">
                     {/* Pending Reviews Badge */}
-                    <button
-                        onClick={() => document.getElementById('pending-section')?.scrollIntoView({ behavior: 'smooth' })}
-                        className="bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50 transition"
-                    >
-                        <span className="text-sm text-gray-500">Pending Reviews:</span>
-                        <span className={`ml-2 font-bold text-lg ${pendingUsers.length > 0 ? 'text-orange-600' : 'text-blue-600'}`}>
-                            {pendingUsers.length}
-                        </span>
-                    </button>
+                    {/* Pending Reviews Badge - Hidden for Analysts */}
+                    {canManageUsers(user) && (
+                        <button
+                            onClick={() => document.getElementById('pending-section')?.scrollIntoView({ behavior: 'smooth' })}
+                            className="bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50 transition"
+                        >
+                            <span className="text-sm text-gray-500">Pending Reviews:</span>
+                            <span className={`ml-2 font-bold text-lg ${pendingUsers.length > 0 ? 'text-orange-600' : 'text-blue-600'}`}>
+                                {pendingUsers.length}
+                            </span>
+                        </button>
+                    )}
                     <div className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
                         <span className="text-sm text-gray-600">Live</span>
@@ -407,115 +419,119 @@ export default function AdminDashboardPage() {
                     </div>
                 </div>
 
-                {/* Login IPs */}
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-                    <div className="p-4 border-b border-gray-200">
-                        <h2 className="font-bold text-gray-900">🌐 Recent Login IPs</h2>
-                    </div>
-                    <div className="max-h-96 overflow-y-auto divide-y divide-gray-100">
-                        {loginIps.slice(0, 15).map((ip, idx) => (
-                            <div key={idx} className={`p-3 hover:bg-gray-50 ${ip.isSuspicious ? 'bg-red-50' : ''}`}>
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <div className="flex items-center gap-2">
-                                            <span className="font-mono text-sm text-gray-700">{ip.ip}</span>
-                                            {ip.isSuspicious && (
-                                                <span className="px-1.5 py-0.5 text-[10px] font-bold bg-red-500 text-white rounded">
-                                                    SUSPICIOUS
-                                                </span>
-                                            )}
-                                        </div>
-                                        <p className="text-xs text-gray-500 mt-0.5">
-                                            {ip.userName} • {ip.country}
-                                        </p>
-                                    </div>
-                                    <span className="text-xs text-gray-400">{formatTimeAgo(ip.lastSeen)}</span>
-                                </div>
-                            </div>
-                        ))}
-                        {loginIps.length === 0 && (
-                            <div className="p-4 text-center text-gray-400 text-sm">No recent logins</div>
-                        )}
-                    </div>
-                </div>
-            </div>
-
-            {/* Pending Verifications Section */}
-            <div id="pending-section" className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-                    <div>
-                        <h2 className="text-lg font-semibold text-gray-800">📋 Pending Verifications</h2>
-                        <p className="text-sm text-gray-500 mt-1">Users waiting for ID verification approval</p>
-                    </div>
-                    <button
-                        onClick={() => router.push('/admin/users?verificationStatus=PENDING')}
-                        className="text-sm text-blue-600 font-medium hover:underline"
-                    >
-                        View All
-                    </button>
-                </div>
-
-                {pendingUsers.length === 0 ? (
-                    <div className="p-12 text-center text-gray-500">
-                        <p className="text-xl">🎉 All caught up!</p>
-                        <p>No pending verifications at the moment.</p>
-                    </div>
-                ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left">
-                            <thead className="bg-gray-50 text-gray-600 text-sm uppercase tracking-wider">
-                                <tr>
-                                    <th className="px-6 py-4">User</th>
-                                    <th className="px-6 py-4">Location</th>
-                                    <th className="px-6 py-4">Submitted</th>
-                                    <th className="px-6 py-4">Status</th>
-                                    <th className="px-6 py-4">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-200">
-                                {pendingUsers.slice(0, 5).map((pendingUser) => (
-                                    <tr key={pendingUser.id} className="hover:bg-gray-50 transition">
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-3">
-                                                <img
-                                                    src={pendingUser.profile?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(pendingUser.profile?.displayName || pendingUser.email)}&background=6366f1&color=fff`}
-                                                    alt={pendingUser.profile?.displayName}
-                                                    className="w-10 h-10 rounded-full bg-gray-200"
-                                                />
-                                                <div>
-                                                    <p className="font-medium text-gray-900">
-                                                        {pendingUser.firstName} {pendingUser.lastName}
-                                                    </p>
-                                                    <p className="text-sm text-gray-500">{pendingUser.email}</p>
-                                                </div>
+                {/* Login IPs - Admin Only */}
+                {canViewSecurity(user) && (
+                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+                        <div className="p-4 border-b border-gray-200">
+                            <h2 className="font-bold text-gray-900">🌐 Recent Login IPs</h2>
+                        </div>
+                        <div className="max-h-96 overflow-y-auto divide-y divide-gray-100">
+                            {loginIps.slice(0, 15).map((ip, idx) => (
+                                <div key={idx} className={`p-3 hover:bg-gray-50 ${ip.isSuspicious ? 'bg-red-50' : ''}`}>
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-mono text-sm text-gray-700">{ip.ip}</span>
+                                                {ip.isSuspicious && (
+                                                    <span className="px-1.5 py-0.5 text-[10px] font-bold bg-red-500 text-white rounded">
+                                                        SUSPICIOUS
+                                                    </span>
+                                                )}
                                             </div>
-                                        </td>
-                                        <td className="px-6 py-4 text-gray-600">
-                                            {pendingUser.locationAddress || 'N/A'}
-                                        </td>
-                                        <td className="px-6 py-4 text-gray-500 text-sm">
-                                            {new Date(pendingUser.createdAt).toLocaleDateString()}
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
-                                                Pending Review
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <button
-                                                onClick={() => handleReview(pendingUser)}
-                                                className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition shadow-sm"
-                                            >
-                                                Review
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                            <p className="text-xs text-gray-500 mt-0.5">
+                                                {ip.userName} • {ip.country}
+                                            </p>
+                                        </div>
+                                        <span className="text-xs text-gray-400">{formatTimeAgo(ip.lastSeen)}</span>
+                                    </div>
+                                </div>
+                            ))}
+                            {loginIps.length === 0 && (
+                                <div className="p-4 text-center text-gray-400 text-sm">No recent logins</div>
+                            )}
+                        </div>
                     </div>
                 )}
             </div>
+
+            {/* Pending Verifications Section - Moderator+ */}
+            {canManageUsers(user) && (
+                <div id="pending-section" className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+                        <div>
+                            <h2 className="text-lg font-semibold text-gray-800">📋 Pending Verifications</h2>
+                            <p className="text-sm text-gray-500 mt-1">Users waiting for ID verification approval</p>
+                        </div>
+                        <button
+                            onClick={() => router.push('/admin/users?verificationStatus=PENDING')}
+                            className="text-sm text-blue-600 font-medium hover:underline"
+                        >
+                            View All
+                        </button>
+                    </div>
+
+                    {pendingUsers.length === 0 ? (
+                        <div className="p-12 text-center text-gray-500">
+                            <p className="text-xl">🎉 All caught up!</p>
+                            <p>No pending verifications at the moment.</p>
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead className="bg-gray-50 text-gray-600 text-sm uppercase tracking-wider">
+                                    <tr>
+                                        <th className="px-6 py-4">User</th>
+                                        <th className="px-6 py-4">Location</th>
+                                        <th className="px-6 py-4">Submitted</th>
+                                        <th className="px-6 py-4">Status</th>
+                                        <th className="px-6 py-4">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-200">
+                                    {pendingUsers.slice(0, 5).map((pendingUser) => (
+                                        <tr key={pendingUser.id} className="hover:bg-gray-50 transition">
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-3">
+                                                    <img
+                                                        src={pendingUser.profile?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(pendingUser.profile?.displayName || pendingUser.email)}&background=6366f1&color=fff`}
+                                                        alt={pendingUser.profile?.displayName}
+                                                        className="w-10 h-10 rounded-full bg-gray-200"
+                                                    />
+                                                    <div>
+                                                        <p className="font-medium text-gray-900">
+                                                            {pendingUser.firstName} {pendingUser.lastName}
+                                                        </p>
+                                                        <p className="text-sm text-gray-500">{pendingUser.email}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 text-gray-600">
+                                                {pendingUser.locationAddress || 'N/A'}
+                                            </td>
+                                            <td className="px-6 py-4 text-gray-500 text-sm">
+                                                {new Date(pendingUser.createdAt).toLocaleDateString()}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
+                                                    Pending Review
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <button
+                                                    onClick={() => handleReview(pendingUser)}
+                                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition shadow-sm"
+                                                >
+                                                    Review
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* Verification Review Modal */}
             {selectedUser && (

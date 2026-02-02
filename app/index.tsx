@@ -5,11 +5,11 @@ export default function Home() {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>Welcome to TradePlus</Text>
+        <Text style={styles.title}>Welcome to BarterWave</Text>
         <Text style={styles.subtitle}>
           A hybrid marketplace for Cash, Barter, and Cash+Barter deals
         </Text>
-        
+
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Features:</Text>
           <Text style={styles.feature}>• Buy items with cash</Text>

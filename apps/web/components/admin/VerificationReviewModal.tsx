@@ -93,11 +93,11 @@ export default function VerificationReviewModal({ user, onClose, onDecision }: M
                             <h3 className="font-semibold text-gray-700 mb-2">Live Selfie</h3>
                             <div className="aspect-video bg-black rounded-lg overflow-hidden">
                                 <img
-                                    src={getImageUrl(user.faceVerificationUrl)}
+                                    src={getImageUrl(user.faceVerificationUrl) ?? 'https://placehold.co/400x300?text=No+Image'}
                                     alt="Selfie"
                                     className="w-full h-full object-cover"
                                     onError={(e) => {
-                                        (e.target as HTMLImageElement).src = 'https://placehold.co/400x300?text=Error+Loading+Image';
+                                        e.currentTarget.src = 'https://placehold.co/400x300?text=Error+Loading+Image';
                                     }}
                                 />
                             </div>
@@ -112,11 +112,11 @@ export default function VerificationReviewModal({ user, onClose, onDecision }: M
                                 <p className="text-sm text-gray-500 mb-2">Front Side</p>
                                 <div className="aspect-[3/2] bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
                                     <img
-                                        src={getImageUrl(user.idDocumentFrontUrl)}
+                                        src={getImageUrl(user.idDocumentFrontUrl) ?? 'https://placehold.co/600x400?text=No+Image'}
                                         alt="ID Front"
                                         className="w-full h-full object-cover"
                                         onError={(e) => {
-                                            (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Error+Loading+Image';
+                                            e.currentTarget.src = 'https://placehold.co/600x400?text=Error+Loading+Image';
                                         }}
                                     />
                                 </div>
@@ -125,11 +125,11 @@ export default function VerificationReviewModal({ user, onClose, onDecision }: M
                                 <p className="text-sm text-gray-500 mb-2">Back Side</p>
                                 <div className="aspect-[3/2] bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
                                     <img
-                                        src={getImageUrl(user.idDocumentBackUrl)}
+                                        src={getImageUrl(user.idDocumentBackUrl) ?? 'https://placehold.co/600x400?text=No+Image'}
                                         alt="ID Back"
                                         className="w-full h-full object-cover"
                                         onError={(e) => {
-                                            (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Error+Loading+Image';
+                                            e.currentTarget.src = 'https://placehold.co/600x400?text=Error+Loading+Image';
                                         }}
                                     />
                                 </div>

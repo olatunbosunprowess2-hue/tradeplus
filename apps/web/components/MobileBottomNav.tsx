@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/lib/auth-store';
+import { canAccessAdminPanel } from '@/lib/rbac';
 import { useNotificationsStore } from '@/lib/notifications-store';
 import { useEffect, useState } from 'react';
 
@@ -94,7 +95,7 @@ export default function MobileBottomNav() {
         },
     ];
 
-    if (user?.role === 'admin') {
+    if (canAccessAdminPanel(user)) {
         navItems.push({
             href: '/admin',
             label: 'Admin',
@@ -110,7 +111,7 @@ export default function MobileBottomNav() {
 
     return (
         <nav
-            className="md:hidden fixed left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-gray-200/50 z-[9999] shadow-lg shadow-black/5"
+            className="md:hidden fixed left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-gray-200/50 z-[9999] shadow-lg shadow-black/5 print:hidden"
             style={{ bottom: '0px' }}
         >
             {/* Gradient top border */}

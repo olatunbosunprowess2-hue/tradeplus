@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useRef } from 'react';
-import { QRCodeSVG } from 'qrcode.react';
+import { QRCodeSVG as QRCodeSVGComponent } from 'qrcode.react';
+// Cast to any to fix React 19 type conflict with qrcode.react
+const QRCodeSVG = QRCodeSVGComponent as any;
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { BarterOffer } from '@/lib/types';
@@ -146,13 +148,15 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ isOpen, onClose, offer }) =
                         {/* Footer / QR */}
                         <div className="mt-8 pt-6 border-t border-dashed border-gray-300 text-center">
                             <div className="flex justify-center mb-4">
-                                <QRCodeSVG
-                                    value={`https://barterwave.com/verify/${offer.receiptNumber}`}
-                                    size={80}
-                                    level="M"
-                                    fgColor="#000000"
-                                    bgColor="#ffffff"
-                                />
+                                <span>
+                                    <QRCodeSVG
+                                        value={`https://barterwave.com/verify/${offer.receiptNumber}`}
+                                        size={80}
+                                        level="M"
+                                        fgColor="#000000"
+                                        bgColor="#ffffff"
+                                    />
+                                </span>
                             </div>
                             <p className="text-xs text-gray-400 max-w-xs mx-auto leading-relaxed">
                                 Enjoy a scam-free trade with BarterWave. This receipt confirms that both parties have successfully exchanged items.

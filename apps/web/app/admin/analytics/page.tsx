@@ -41,17 +41,22 @@ export default function AnalyticsDashboardPage() {
     const [hotListings, setHotListings] = useState<HotListing[]>([]);
     const [spamStats, setSpamStats] = useState<SpamStats | null>(null);
 
-    useEffect(() => {
-        if (_hasHydrated && (!user || user.role !== 'admin')) {
-            router.push('/login');
-        }
-    }, [user, _hasHydrated, router]);
+    // Allow admin roles: admin, moderator, super_admin
+    const isAdminRole = user?.role === 'admin' || user?.userRole?.name === 'admin' ||
+        user?.userRole?.name === 'moderator' || user?.userRole?.name === 'super_admin' ||
+        user?.userRole?.name === 'analytics_viewer';
 
     useEffect(() => {
-        if (user?.role === 'admin') {
+        if (_hasHydrated && (!user || !isAdminRole)) {
+            router.push('/login');
+        }
+    }, [user, _hasHydrated, router, isAdminRole]);
+
+    useEffect(() => {
+        if (isAdminRole) {
             fetchData();
         }
-    }, [user]);
+    }, [user, isAdminRole]);
 
     const fetchData = async () => {
         try {

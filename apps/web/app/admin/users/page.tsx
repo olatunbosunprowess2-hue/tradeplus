@@ -14,8 +14,12 @@ export default function AdminUsersPage() {
     const [isLoading, setIsLoading] = useState(true);
     // Initialize search from URL params
     const [search, setSearch] = useState(searchParams.get('search') || '');
+    const [status, setStatus] = useState('');
+    const [role, setRole] = useState('');
+    const [verificationStatus, setVerificationStatus] = useState('');
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+
     const [selectedUser, setSelectedUser] = useState<any | null>(null);
     const { addToast } = useToastStore();
 
@@ -35,7 +39,11 @@ export default function AdminUsersPage() {
                 page,
                 limit: 10,
                 search: search || undefined,
+                status: status || undefined,
+                role: role || undefined,
+                verificationStatus: verificationStatus || undefined,
             });
+
             setUsers(response.data.data);
             setTotalPages(response.data.meta.totalPages || 1);
         } catch (error) {
@@ -52,7 +60,8 @@ export default function AdminUsersPage() {
         }, 300); // Debounce search
 
         return () => clearTimeout(timeoutId);
-    }, [page, search]);
+    }, [page, search, status, role, verificationStatus]);
+
 
     const [statusAction, setStatusAction] = useState<{
         open: boolean;
@@ -82,7 +91,7 @@ export default function AdminUsersPage() {
     const getVerificationBadge = (status: string) => {
         switch (status) {
             case 'VERIFIED':
-                return <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-bold">✓ Verified</span>;
+                return <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-bold">✓ Verified ID</span>;
             case 'PENDING':
                 return <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-bold">⏳ Pending</span>;
             case 'REJECTED':
@@ -99,29 +108,56 @@ export default function AdminUsersPage() {
                     <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
                     <p className="text-sm text-gray-600 mt-1">Search by email, name, phone, or location</p>
                 </div>
-                <div className="relative">
-                    <input
-                        type="text"
-                        placeholder="Search users..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="pl-10 pr-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent w-72"
-                    />
-                    <svg
-                        className="w-5 h-5 text-gray-400 absolute left-3 top-2.5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                <div className="flex gap-3">
+                    <select
+                        value={status}
+                        onChange={(e) => { setStatus(e.target.value); setPage(1); }}
+                        className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm"
                     >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                        <option value="">All Statuses</option>
+                        <option value="active">Active</option>
+                        <option value="suspended">Suspended</option>
+                        <option value="banned">Banned</option>
+                    </select>
+
+                    <select
+                        value={verificationStatus}
+                        onChange={(e) => { setVerificationStatus(e.target.value); setPage(1); }}
+                        className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm"
+                    >
+                        <option value="">All Verification</option>
+                        <option value="VERIFIED">Verified</option>
+                        <option value="PENDING">Pending</option>
+                        <option value="REJECTED">Rejected</option>
+                        <option value="NONE">None</option>
+                    </select>
+
+                    <div className="relative">
+                        <input
+                            type="text"
+                            placeholder="Search users..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="pl-10 pr-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent w-72"
                         />
-                    </svg>
+
+                        <svg
+                            className="w-5 h-5 text-gray-400 absolute left-3 top-2.5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                            />
+                        </svg>
+                    </div>
                 </div>
             </div>
+
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                 <div className="overflow-x-auto">
@@ -158,9 +194,19 @@ export default function AdminUsersPage() {
                                                     {(user.profile?.displayName || user.email).charAt(0).toUpperCase()}
                                                 </div>
                                                 <div>
-                                                    <span className="font-medium text-gray-900 block">
-                                                        {user.profile?.displayName || 'No Name'}
-                                                    </span>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="font-medium text-gray-900">
+                                                            {user.profile?.displayName || 'No Name'}
+                                                        </span>
+                                                        {user._count?.reportsAgainst >= 2 && (
+                                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-100 text-red-700 text-xs font-bold rounded-full" title={`${user._count.reportsAgainst} reports against this user`}>
+                                                                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                                                </svg>
+                                                                {user._count.reportsAgainst}
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                     {user.firstName && user.lastName && (
                                                         <span className="text-xs text-gray-500">
                                                             {user.firstName} {user.lastName}

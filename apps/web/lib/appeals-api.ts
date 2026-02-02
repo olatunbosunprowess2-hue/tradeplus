@@ -18,8 +18,9 @@ export const appealsApi = {
         apiClient.post('/appeals', data),
 
     // Get all appeals (user sees their own, admin sees all)
-    getAppeals: () =>
-        apiClient.get('/appeals'),
+    getAppeals: (page?: number, limit?: number) =>
+        apiClient.get('/appeals', { params: { page, limit } }),
+
 
     // Review appeal (admin only)
     reviewAppeal: (appealId: string, data: ReviewAppealData) =>

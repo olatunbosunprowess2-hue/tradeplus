@@ -1,5 +1,5 @@
 {
-  "name": "barterwave-monorepo",
+  "name": "barterwave",
   "version": "1.0.0",
   "private": true,
   "prisma": {

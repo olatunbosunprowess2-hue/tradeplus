@@ -9,10 +9,12 @@ export interface Message {
     content: string;
     timestamp: number;
     read: boolean;
-    type: 'text' | 'image' | 'listing';
+    type: 'text' | 'image' | 'listing' | 'system';
     listingId?: string;
     listingTitle?: string;
     listingImage?: string;
+    mediaUrl?: string; // New field
+    mediaType?: 'image' | 'video' | 'file'; // New field
 }
 
 export interface Conversation {
@@ -46,7 +48,7 @@ interface MessagesState {
     error: string | null;
     fetchConversations: () => Promise<void>;
     fetchMessages: (conversationId: string) => Promise<void>;
-    sendMessage: (receiverId: string, content: string, listingId?: string) => Promise<void>;
+    sendMessage: (receiverId: string, content: string, listingId?: string, file?: File) => Promise<void>;
     markAsRead: (conversationId: string) => Promise<void>;
     createConversation: (participantId: string, participantName: string, participantAvatar?: string, listingContext?: { id: string; title: string; image: string }) => void;
 }
@@ -77,9 +79,9 @@ export const useMessagesStore = create<MessagesState>((set, get) => ({
         }
     },
 
-    sendMessage: async (receiverId, content, listingId) => {
+    sendMessage: async (receiverId, content, listingId, file) => {
         try {
-            const newMessage = await messagesApi.sendMessage({ receiverId, content, listingId });
+            const newMessage = await messagesApi.sendMessage({ receiverId, content, listingId, file });
 
             // Optimistic update or re-fetch
             // For simplicity, we'll append to messages if we are in that conversation

@@ -22,6 +22,9 @@ export interface User {
     lastName?: string;
     role: string;
     status?: 'active' | 'suspended' | 'banned'; // Account status
+    tier?: 'free' | 'premium';
+    spotlightCredits?: number;
+    chatPassExpiry?: string;
     createdAt: string;
 
     // Verification Fields
@@ -37,6 +40,9 @@ export interface User {
     locationLat?: number;
     locationLng?: number;
     locationAddress?: string;
+    city?: string;
+    state?: string;
+    countryId?: number;
 
     profile?: {
         displayName?: string;
@@ -56,6 +62,14 @@ export interface User {
         rating?: number;
         reviewCount?: number;
         responseRate?: number;
+    };
+
+    // RBAC Role
+    userRole?: {
+        id: string;
+        name: string;
+        level: number;
+        description?: string;
     };
 }
 

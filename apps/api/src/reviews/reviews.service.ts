@@ -19,7 +19,22 @@ export class ReviewsService {
     ) { }
 
     async create(userId: string, createReviewDto: CreateReviewDto) {
-        const { orderId, rating, comment } = createReviewDto;
+        const { orderId, rating, comment, photoProof } = createReviewDto;
+
+        // Check if user is verified
+        const reviewer = await this.prisma.user.findUnique({
+            where: { id: userId },
+            select: { isVerified: true },
+        });
+
+        if (!reviewer?.isVerified) {
+            throw new ForbiddenException('Only verified users can leave reviews. Please complete identity verification first.');
+        }
+
+        // Require photo proof for negative reviews (1-2 stars)
+        if (rating <= 2 && !photoProof) {
+            throw new BadRequestException('Photo proof is required for negative reviews (1-2 stars). Please upload evidence supporting your rating.');
+        }
 
         // Verify order exists and is completed
         const order = await this.prisma.order.findUnique({
@@ -72,6 +87,7 @@ export class ReviewsService {
             data: {
                 rating,
                 comment,
+                photoProof,
                 orderId,
                 reviewerId: userId,
                 revieweeId,

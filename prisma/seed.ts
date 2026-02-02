@@ -205,7 +205,7 @@ async function main() {
     const adminRole = await prisma.role.findUnique({ where: { name: 'super_admin' } });
 
     const adminUser = await prisma.user.upsert({
-        where: { email: 'admin@tradeplus.com' },
+        where: { email: 'admin@barterwave.com' },
         update: {
             role: 'admin',
             passwordHash: hashedPassword,
@@ -213,7 +213,7 @@ async function main() {
         },
         create: {
             id: USERS.ADMIN,
-            email: 'admin@tradeplus.com',
+            email: 'admin@barterwave.com',
             passwordHash: hashedPassword,
             role: 'admin',
             roleId: adminRole?.id,
@@ -230,92 +230,63 @@ async function main() {
 
     console.log('✅ Users created (including admin)');
 
-    // Create Countries and Regions
-    const nigeria = await prisma.country.upsert({
-        where: { id: 1 },
-        update: {},
-        create: { id: 1, name: 'Nigeria', code: 'NG' },
-    });
-
-    const regions = [
-        { id: 1, name: 'Lagos', countryId: 1 },
-        { id: 2, name: 'Abuja', countryId: 1 },
-        { id: 3, name: 'Rivers', countryId: 1 },
-        { id: 4, name: 'Ogun', countryId: 1 },
-        { id: 5, name: 'Kano', countryId: 1 },
-    ];
-
-    for (const region of regions) {
-        await prisma.region.upsert({
-            where: { id: region.id },
-            update: {},
-            create: { id: region.id, name: region.name, countryId: region.countryId },
+    // Create Countries (Dynamic sync via service)
+    // We don't need to manually create regions here anymore.
+    // However, for the seed listings to work, we ensure Nigeria exists in the DB.
+    let nigeria = await prisma.country.findUnique({ where: { code: 'NG' } });
+    if (!nigeria) {
+        nigeria = await prisma.country.create({
+            data: { name: 'Nigeria', code: 'NG' }
         });
     }
-    console.log('✅ Locations created');
+    console.log(`✅ Nigeria country ensured (ID: ${nigeria.id})`);
 
-    // Create categories
-    const electronics = await prisma.category.upsert({
-        where: { id: 1 },
-        update: {},
-        create: { id: 1, name: 'Electronics', slug: 'electronics' },
-    });
+    // Create categories - Comprehensive list for African marketplace
+    const categories = [
+        { id: 1, name: 'Electronics', slug: 'electronics' },
+        { id: 2, name: 'Fashion', slug: 'fashion' },
+        { id: 3, name: 'Mobile Phones & Tablets', slug: 'mobile-phones' },
+        { id: 4, name: 'Home & Garden', slug: 'home-garden' },
+        { id: 5, name: 'Sports & Outdoors', slug: 'sports' },
+        { id: 6, name: 'Beauty & Health', slug: 'beauty' },
+        { id: 7, name: 'Vehicles', slug: 'vehicles' },
+        { id: 8, name: 'Services', slug: 'services' },
+        { id: 9, name: 'Books & Media', slug: 'books' },
+        { id: 10, name: 'Jobs', slug: 'jobs' },
+        // Additional categories for comprehensive coverage
+        { id: 11, name: 'Computers & Laptops', slug: 'computers' },
+        { id: 12, name: 'Gaming', slug: 'gaming' },
+        { id: 13, name: 'Furniture', slug: 'furniture' },
+        { id: 14, name: 'Real Estate', slug: 'real-estate' },
+        { id: 15, name: 'Baby & Kids', slug: 'baby-kids' },
+        { id: 16, name: 'Musical Instruments', slug: 'musical-instruments' },
+        { id: 17, name: 'Agriculture & Food', slug: 'agriculture' },
+        { id: 18, name: 'Building Materials', slug: 'building-materials' },
+        { id: 19, name: 'Jewelry & Watches', slug: 'jewelry' },
+        { id: 20, name: 'Appliances', slug: 'appliances' },
+        { id: 21, name: 'Art & Collectibles', slug: 'art-collectibles' },
+        { id: 22, name: 'Photography', slug: 'photography' },
+        { id: 23, name: 'Pets & Animals', slug: 'pets' },
+        { id: 24, name: 'Office Equipment', slug: 'office' },
+        { id: 25, name: 'Other', slug: 'other' },
+    ];
 
-    const fashion = await prisma.category.upsert({
-        where: { id: 2 },
-        update: {},
-        create: { id: 2, name: 'Fashion', slug: 'fashion' },
-    });
+    for (const category of categories) {
+        await prisma.category.upsert({
+            where: { id: category.id },
+            update: { name: category.name, slug: category.slug },
+            create: { id: category.id, name: category.name, slug: category.slug },
+        });
+    }
 
-    const mobilePhones = await prisma.category.upsert({
-        where: { id: 3 },
-        update: {},
-        create: { id: 3, name: 'Mobile Phones & Tablets', slug: 'mobile-phones' },
-    });
+    // Reference variables for backward compatibility with existing seed data
+    const electronics = { id: 1 };
+    const fashion = { id: 2 };
+    const mobilePhones = { id: 3 };
+    const services = { id: 8 };
+    const jobs = { id: 10 };
 
-    const home = await prisma.category.upsert({
-        where: { id: 4 },
-        update: {},
-        create: { id: 4, name: 'Home & Garden', slug: 'home-garden' },
-    });
-
-    const sports = await prisma.category.upsert({
-        where: { id: 5 },
-        update: {},
-        create: { id: 5, name: 'Sports & Outdoors', slug: 'sports' },
-    });
-
-    const beauty = await prisma.category.upsert({
-        where: { id: 6 },
-        update: {},
-        create: { id: 6, name: 'Beauty & Health', slug: 'beauty' },
-    });
-
-    const vehicles = await prisma.category.upsert({
-        where: { id: 7 },
-        update: {},
-        create: { id: 7, name: 'Vehicles', slug: 'vehicles' },
-    });
-
-    const services = await prisma.category.upsert({
-        where: { id: 8 },
-        update: {},
-        create: { id: 8, name: 'Services', slug: 'services' },
-    });
-
-    const books = await prisma.category.upsert({
-        where: { id: 9 },
-        update: {},
-        create: { id: 9, name: 'Books & Media', slug: 'books' },
-    });
-
-    const jobs = await prisma.category.upsert({
-        where: { id: 10 },
-        update: {},
-        create: { id: 10, name: 'Jobs', slug: 'jobs' },
-    });
-
-    console.log('✅ Categories created');
+    console.log('✅ Categories created (25 categories)');
 
     // Create listings with various trade options
     const listings = [
@@ -449,8 +420,8 @@ async function main() {
                 allowBarter: listing.allowBarter,
                 sellerId: listing.sellerId,
                 categoryId: listing.categoryId,
-                countryId: 1, // Default to Nigeria
-                regionId: listing.regionId,
+                countryId: nigeria.id,
+                regionId: undefined, // Let regions be dynamic
                 images: {
                     create: {
                         url: listing.imageUrl,
@@ -461,6 +432,143 @@ async function main() {
         });
         console.log(`✅ Created/Updated listing: ${created.title}`);
     }
+
+    // ==========================================
+    // MONETIZATION SEED DATA
+    // ==========================================
+    console.log('💰 Seeding monetization data...');
+
+    // Clear existing monetization data first
+    await prisma.purchase.deleteMany({});
+    await prisma.subscription.deleteMany({});
+    console.log('🗑️ Cleared existing purchases and subscriptions');
+
+    // Create sample purchases (completed transactions)
+    const purchases = [
+        {
+            userId: USERS.JOHN,
+            type: 'spotlight_3',
+            amountCents: 200000, // ₦2,000
+            listingId: LISTINGS.IPHONE,
+            status: 'completed',
+            paystackRef: 'PSK_test_1234567890',
+        },
+        {
+            userId: USERS.SARAH,
+            type: 'spotlight_7',
+            amountCents: 400000, // ₦4,000
+            listingId: LISTINGS.TV,
+            status: 'completed',
+            paystackRef: 'PSK_test_2345678901',
+        },
+        {
+            userId: USERS.MIKE,
+            type: 'cross_list',
+            amountCents: 150000, // ₦1,500
+            listingId: LISTINGS.PS5,
+            status: 'completed',
+            paystackRef: 'PSK_test_3456789012',
+        },
+        {
+            userId: USERS.JOHN,
+            type: 'chat_pass',
+            amountCents: 150000, // ₦1,500
+            listingId: null,
+            status: 'completed',
+            paystackRef: 'PSK_test_4567890123',
+        },
+        {
+            userId: USERS.SARAH,
+            type: 'aggressive_boost',
+            amountCents: 400000, // ₦4,000
+            listingId: LISTINGS.HANDBAG,
+            status: 'completed',
+            paystackRef: 'PSK_test_5678901234',
+        },
+    ];
+
+    for (const purchase of purchases) {
+        await prisma.purchase.create({
+            data: {
+                userId: purchase.userId,
+                type: purchase.type,
+                amountCents: purchase.amountCents,
+                listingId: purchase.listingId,
+                status: purchase.status,
+                paystackRef: purchase.paystackRef,
+            },
+        });
+    }
+    console.log('✅ Created sample purchases');
+
+    // Create sample subscriptions
+    const subscriptions = [
+        {
+            userId: USERS.JOHN,
+            status: 'active',
+            expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+            paystackSubCode: 'SUB_test_john123',
+        },
+        {
+            userId: USERS.DEV,
+            status: 'active',
+            expiresAt: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000), // 15 days from now
+            paystackSubCode: 'SUB_test_dev456',
+        },
+    ];
+
+    for (const sub of subscriptions) {
+        await prisma.subscription.create({
+            data: {
+                userId: sub.userId,
+                status: sub.status,
+                expiresAt: sub.expiresAt,
+                paystackSubCode: sub.paystackSubCode,
+            },
+        });
+    }
+    console.log('✅ Created sample subscriptions');
+
+    // Update some listings to be spotlighted/cross-listed
+    // Make iPhone a spotlight item
+    await prisma.listing.update({
+        where: { id: LISTINGS.IPHONE },
+        data: {
+            isFeatured: true,
+            spotlightExpiry: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days
+        },
+    });
+
+    // Make TV a spotlight item
+    await prisma.listing.update({
+        where: { id: LISTINGS.TV },
+        data: {
+            isFeatured: true,
+            spotlightExpiry: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+        },
+    });
+
+    // Make PS5 a distress sale with cross-listing
+    await prisma.listing.update({
+        where: { id: LISTINGS.PS5 },
+        data: {
+            isDistressSale: true,
+            isCrossListed: true,
+        },
+    });
+
+    // Make Handbag a distress sale with aggressive boost
+    await prisma.listing.update({
+        where: { id: LISTINGS.HANDBAG },
+        data: {
+            isDistressSale: true,
+            isCrossListed: true,
+            pushNotificationSent: true,
+        },
+    });
+
+    console.log('✅ Updated listings with spotlight/distress status');
+    console.log('💰 Monetization seeding complete!');
 
     console.log('🎉 Seeding completed successfully!');
 }

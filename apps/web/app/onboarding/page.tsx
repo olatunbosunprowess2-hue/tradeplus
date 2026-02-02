@@ -15,6 +15,17 @@ export default function OnboardingPage() {
     const { user, updateProfile } = useAuthStore();
     const [step, setStep] = useState(0); // 0: Intro, 1: Profile, 2: Location, 3: Phone, 4: Identity
     const [showSuccess, setShowSuccess] = useState(false);
+    const [showRejectionBanner, setShowRejectionBanner] = useState(true);
+
+    // Auto-dismiss rejection banner after 60 seconds
+    useEffect(() => {
+        if (user?.verificationStatus === 'REJECTED' && showRejectionBanner) {
+            const timer = setTimeout(() => {
+                setShowRejectionBanner(false);
+            }, 60000); // 60 seconds
+            return () => clearTimeout(timer);
+        }
+    }, [user?.verificationStatus, showRejectionBanner]);
 
     useEffect(() => {
         if (!user) {
@@ -28,6 +39,10 @@ export default function OnboardingPage() {
 
     const handleNext = () => {
         setStep((prev) => prev + 1);
+    };
+
+    const handleBack = () => {
+        setStep((prev) => Math.max(0, prev - 1));
     };
 
     const handleComplete = async () => {
@@ -125,8 +140,17 @@ export default function OnboardingPage() {
                                 >
                                     Start Verification
                                 </button>
-                                {user.verificationStatus === 'REJECTED' && (
-                                    <div className="mt-4 bg-red-50 border border-red-200 rounded-xl p-4 text-left">
+                                {user.verificationStatus === 'REJECTED' && showRejectionBanner && (
+                                    <div className="mt-4 bg-red-50 border border-red-200 rounded-xl p-4 text-left relative">
+                                        <button
+                                            onClick={() => setShowRejectionBanner(false)}
+                                            className="absolute top-2 right-2 text-red-400 hover:text-red-600 transition"
+                                            title="Dismiss"
+                                        >
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
                                         <p className="font-bold text-red-800 mb-1">⚠️ Verification Rejected</p>
                                         <p className="text-sm text-red-700">
                                             {user.rejectionReason || 'Your verification documents were rejected. Please try again with clearer photos.'}
@@ -136,10 +160,10 @@ export default function OnboardingPage() {
                             </div>
                         )}
 
-                        {step === 1 && <StepProfile onNext={handleNext} />}
-                        {step === 2 && <StepLocation onNext={handleNext} />}
-                        {step === 3 && <StepPhone onNext={handleNext} />}
-                        {step === 4 && <StepIdentity onComplete={handleComplete} />}
+                        {step === 1 && <StepProfile onNext={handleNext} onBack={handleBack} />}
+                        {step === 2 && <StepLocation onNext={handleNext} onBack={handleBack} />}
+                        {step === 3 && <StepPhone onNext={handleNext} onBack={handleBack} />}
+                        {step === 4 && <StepIdentity onComplete={handleComplete} onBack={handleBack} />}
                     </div>
                 </div>
             )}

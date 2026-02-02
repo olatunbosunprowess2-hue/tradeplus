@@ -147,16 +147,16 @@ export default function LoginPage() {
     // LOGIN WITH RETRY LOGIC
     // ========================================================================
     const executeLoginWithRetry = useCallback(
-        async (email: string, password: string, retryCount = 0): Promise<void> => {
+        async (email: string, password: string, rememberMe: boolean = false, retryCount = 0): Promise<void> => {
             try {
-                await login(email, password);
+                await login(email, password, rememberMe);
             } catch (err: any) {
                 // Check if it's a network error and we have retries left
                 if (isNetworkError(err) && retryCount < MAX_RETRY_ATTEMPTS) {
                     const delay = BASE_RETRY_DELAY_MS * Math.pow(2, retryCount);
                     console.log(`Network error, retrying in ${delay}ms (attempt ${retryCount + 1}/${MAX_RETRY_ATTEMPTS})`);
                     await sleep(delay);
-                    return executeLoginWithRetry(email, password, retryCount + 1);
+                    return executeLoginWithRetry(email, password, rememberMe, retryCount + 1);
                 }
                 throw err;
             }
@@ -194,7 +194,7 @@ export default function LoginPage() {
         setLoginState('authenticating');
 
         try {
-            await executeLoginWithRetry(sanitizedEmail, sanitizedPassword);
+            await executeLoginWithRetry(sanitizedEmail, sanitizedPassword, data.rememberMe || false);
 
             // Handle "Remember Me"
             if (data.rememberMe && typeof window !== 'undefined') {

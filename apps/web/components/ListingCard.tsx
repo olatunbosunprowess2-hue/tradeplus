@@ -9,6 +9,7 @@ import DiscountBadge from './DiscountBadge';
 import DistressBadge from './DistressBadge';
 import StarRating from './StarRating';
 import PriceDisplay from './PriceDisplay';
+import PremiumBadge from './PremiumBadge';
 import type { BookmarkedListing } from '@/lib/bookmarks-store';
 
 interface ListingCardProps {
@@ -31,6 +32,7 @@ interface ListingCardProps {
             verified?: boolean;
             isVerified?: boolean;
             locationAddress?: string;
+            tier?: string; // 'free' or 'premium'
         };
         sellerId: string;
         region?: {
@@ -60,43 +62,74 @@ export default function ListingCard({ listing }: ListingCardProps) {
         bookmarkedAt: new Date().toISOString(),
     };
 
-    // Extract city from address (format: "123 Street, City, State, Country")
-    const extractCity = (address?: string) => {
-        if (!address) return null;
+    // Extract city from address and pair with state/region
+    const extractLocationDisplay = (address?: string, stateName?: string) => {
+        if (!address) return stateName || null;
         const parts = address.split(',').map(p => p.trim());
-        // Typically: [street, city, state, country] - get second to last for city/state
-        if (parts.length >= 3) {
-            return parts[parts.length - 3]; // City
-        } else if (parts.length >= 2) {
-            return parts[parts.length - 2];
+        const city = parts[0];
+        // If we have a state name, use "City, State" format
+        if (stateName) {
+            return `${city}, ${stateName}`;
         }
-        return parts[0] || null;
+        // Fallback: if address has multiple parts, try "City, State" from address
+        if (parts.length >= 2) {
+            // Assume format is "City, State, Country" - return "City, State"
+            const state = parts.length >= 3 ? parts[1] : parts[1];
+            return `${city}, ${state}`;
+        }
+        return city || null;
     };
 
-    // Get location display - prioritize region, then extract from address
+    // Get location display - prioritize region/state, then extract from address
     const getLocationDisplay = () => {
-        // First check listing's region
-        if (listing.region?.name) {
-            return listing.region.name;
+        // First check listing's region (state)
+        const listingState = listing.region?.name;
+        if (listingState) {
+            // Try to get city from seller's address
+            const sellerAddress = listing.seller?.locationAddress;
+            if (sellerAddress) {
+                const city = sellerAddress.split(',')[0]?.trim();
+                if (city && city !== listingState) {
+                    return `${city}, ${listingState}`;
+                }
+            }
+            return listingState;
         }
         // Then check seller's profile region
-        if (listing.seller?.profile?.region?.name) {
-            return listing.seller.profile.region.name;
+        const sellerState = listing.seller?.profile?.region?.name;
+        if (sellerState) {
+            const sellerAddress = listing.seller?.locationAddress;
+            if (sellerAddress) {
+                const city = sellerAddress.split(',')[0]?.trim();
+                if (city && city !== sellerState) {
+                    return `${city}, ${sellerState}`;
+                }
+            }
+            return sellerState;
         }
-        // Finally try to extract from locationAddress
-        const city = extractCity(listing.seller?.locationAddress);
-        if (city) {
-            return city;
+        // Fallback: extract from address with state detection
+        const location = extractLocationDisplay(listing.seller?.locationAddress);
+        if (location) {
+            return location;
         }
         return null;
     };
 
     const locationDisplay = getLocationDisplay();
 
+    // Determine if this is an urgent/distress item that needs special styling
+    const isUrgentItem = listing.isDistressSale;
+
     return (
-        <div className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border border-gray-100 group relative">
-            {/* Gradient accent on hover */}
-            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className={`rounded-2xl shadow-md overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group relative ${isUrgentItem
+            ? 'bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-400 ring-2 ring-red-200 animate-pulse-subtle'
+            : 'bg-white border border-gray-100'
+            }`}>
+            {/* Gradient accent on hover - Red for distress, purple for normal */}
+            <div className={`absolute inset-x-0 top-0 h-1 ${isUrgentItem
+                ? 'bg-gradient-to-r from-red-500 via-orange-500 to-red-500 opacity-100'
+                : 'bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100'
+                } transition-opacity`} />
 
             <Link href={`/listings/${listing.id}`} className="block">
                 {/* Image Section */}
@@ -197,6 +230,7 @@ export default function ListingCard({ listing }: ListingCardProps) {
                                 priceCents={listing.priceCents}
                                 originalPriceCents={listing.originalPriceCents}
                                 size="md"
+                                isBarterFriendly={listing.allowBarter}
                             />
                         </div>
                     )}
@@ -225,9 +259,13 @@ export default function ListingCard({ listing }: ListingCardProps) {
                         <span className="text-sm font-medium truncate">
                             {locationDisplay || 'Location not set'}
                         </span>
+                        {/* Premium Badge - Twitter/Instagram style */}
+                        {listing.seller?.tier === 'premium' && (
+                            <PremiumBadge size="sm" />
+                        )}
                         {(listing.seller?.verified || listing.seller?.isVerified) && (
                             <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-medium flex-shrink-0">
-                                ✓ Verified
+                                ✓ Verified ID
                             </span>
                         )}
                     </div>

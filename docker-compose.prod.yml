@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  # Database
+  postgres:
+    image: postgres:15
+    container_name: barterwave-postgres-prod
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-barterwave}
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: always
+    networks:
+      - barterwave-prod-net
+
+  # Redis for Caching/Queues
+  redis:
+    image: redis:7-alpine
+    container_name: barterwave-redis-prod
+    restart: always
+    volumes:
+      - redis_prod_data:/data
+    networks:
+      - barterwave-prod-net
+
+  # API Service
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile.prod
+    container_name: barterwave-api-prod
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-barterwave}?schema=public
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      # Add other env vars here or use env_file
+      JWT_SECRET: ${JWT_SECRET}
+      SUPABASE_JWT_SECRET: ${SUPABASE_JWT_SECRET}
+      PORT: 3333
+    ports:
+      - "3333:3333"
+    restart: always
+    networks:
+      - barterwave-prod-net
+
+  # Web Service
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile.prod
+    container_name: barterwave-web-prod
+    depends_on:
+      - api
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: http://api:3333 # For server-side calls
+      # Note: Client-side calls might need the public domain/IP
+    ports:
+      - "3000:3000"
+    restart: always
+    networks:
+      - barterwave-prod-net
+
+volumes:
+  postgres_prod_data:
+  redis_prod_data:
+
+
+networks:
+  barterwave-prod-net:
+    driver: bridge
+

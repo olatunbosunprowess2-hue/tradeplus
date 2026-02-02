@@ -15,13 +15,14 @@ import ReviewList from '@/components/ReviewList';
 import ReportModal from '@/components/ReportModal';
 import VerificationBlockModal from '@/components/VerificationBlockModal';
 import DistressBadge from '@/components/DistressBadge';
-import EscrowPaymentModal from '@/components/EscrowPaymentModal';
-import EscrowConfirmModal from '@/components/EscrowConfirmModal';
+import PremiumBadge from '@/components/PremiumBadge';
+import { ChatLimitModal } from '@/components/PaywallModal';
+import { checkChatLimit, initializePayment, redirectToPaystack } from '@/lib/payments-api';
 
 export default function ListingDetailPage() {
     const params = useParams();
     const router = useRouter();
-    const { user } = useAuthStore();
+    const { user, isAuthenticated } = useAuthStore();
     const listingId = params.id as string;
 
     const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
@@ -31,8 +32,8 @@ export default function ListingDetailPage() {
     const [listing, setListing] = useState<Listing | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
-    const [showEscrowModal, setShowEscrowModal] = useState(false);
-    const [escrowOrderId, setEscrowOrderId] = useState<string | null>(null);
+    const [showChatLimitModal, setShowChatLimitModal] = useState(false);
+    const [isPaymentLoading, setIsPaymentLoading] = useState(false);
 
     const { makeOffer } = useOffersStore();
     const { listings } = useListingsStore();
@@ -66,6 +67,25 @@ export default function ListingDetailPage() {
         }
     }, [listingId, listings]);
 
+    // Track listing view for Aggressive Boost targeting
+    useEffect(() => {
+        const trackView = async () => {
+            if (!listingId || !isAuthenticated) return;
+
+            try {
+                const { apiClient } = await import('@/lib/api-client');
+                await apiClient.post(`/listings/${listingId}/view`);
+            } catch (error) {
+                // Silently fail - view tracking is not critical
+                console.debug('View tracking failed:', error);
+            }
+        };
+
+        // Slight delay to avoid tracking partial page loads
+        const timer = setTimeout(trackView, 1000);
+        return () => clearTimeout(timer);
+    }, [listingId, isAuthenticated]);
+
     const formatPrice = (cents: number | undefined) => {
         if (cents === undefined) return 'N/A';
         return `₦${(cents / 100).toLocaleString()}`;
@@ -90,9 +110,39 @@ export default function ListingDetailPage() {
         }
     };
 
-    const handleContactSeller = () => {
+    const handleContactSeller = async () => {
         if (!listing) return;
+        if (!isAuthenticated) {
+            router.push('/login');
+            return;
+        }
+
+        // Check chat limit
+        try {
+            const limitStatus = await checkChatLimit();
+            if (!limitStatus.allowed) {
+                setShowChatLimitModal(true);
+                return;
+            }
+        } catch (error) {
+            console.error('Failed to check chat limit:', error);
+            // Allow proceeding on error (fail open)
+        }
+
         router.push(`/messages/${listing.sellerId}`);
+    };
+
+    const handleChatPaywallSelect = async (optionId: string, currency: 'NGN' | 'USD') => {
+        setIsPaymentLoading(true);
+        try {
+            const result = await initializePayment(optionId as any, undefined, currency);
+            redirectToPaystack(result.authorizationUrl);
+        } catch (error) {
+            console.error('Payment initialization failed:', error);
+            alert('Failed to initialize payment. Please try again.');
+        } finally {
+            setIsPaymentLoading(false);
+        }
     };
 
     if (isLoading) {
@@ -267,69 +317,19 @@ export default function ListingDetailPage() {
                             <h1 className="text-xl font-bold text-gray-900 mb-3 leading-tight">{listing.title}</h1>
 
                             <div className="flex items-baseline gap-3 mb-3">
-                                <span className="text-2xl font-bold text-gray-900">
-                                    {formatPrice(listing.priceCents)}
-                                </span>
+                                <div>
+                                    {listing.allowBarter && (
+                                        <span className="text-xs text-gray-500 block mb-0.5">Seller valued at</span>
+                                    )}
+                                    <span className="text-2xl font-bold text-gray-900">
+                                        {formatPrice(listing.priceCents)}
+                                    </span>
+                                </div>
                                 <span className="text-gray-500 text-sm">
                                     {listing.quantity > 1 && `(${listing.quantity} available)`}
                                 </span>
                             </div>
 
-                            {/* Escrow Fee Breakdown for Distress Sales */}
-                            {(listing as any).isDistressSale && listing.priceCents && (
-                                <div className="mb-5 p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border border-orange-200">
-                                    <div className="flex items-center gap-2 mb-3">
-                                        <svg className="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                                        </svg>
-                                        <span className="text-sm font-bold text-orange-700">Escrow Protected - You Pay:</span>
-                                    </div>
-                                    {(() => {
-                                        const price = Number(listing.priceCents);
-                                        let protectionFeePercent: number;
-                                        let protectionFeeCents: number;
-
-                                        // Tiered fee structure matching backend
-                                        if (price < 10_000_000) { // < ₦100,000
-                                            protectionFeePercent = 1.5;
-                                            protectionFeeCents = Math.max(Math.floor(price * protectionFeePercent / 100), 50_000); // Min ₦500
-                                        } else if (price < 50_000_000) { // < ₦500,000
-                                            protectionFeePercent = 1.0;
-                                            protectionFeeCents = Math.floor(price * protectionFeePercent / 100);
-                                        } else { // ₦500,000+
-                                            protectionFeePercent = 0;
-                                            protectionFeeCents = 500_000; // Flat ₦5,000
-                                        }
-
-                                        const totalCents = price + protectionFeeCents;
-
-                                        return (
-                                            <div className="space-y-2 text-sm">
-                                                <div className="flex justify-between">
-                                                    <span className="text-gray-600">Item Price</span>
-                                                    <span className="font-medium text-gray-900">{formatPrice(listing.priceCents)}</span>
-                                                </div>
-                                                <div className="flex justify-between">
-                                                    <span className="text-gray-600">
-                                                        Protection Fee
-                                                        <span className="text-xs text-gray-500 ml-1">
-                                                            ({protectionFeePercent > 0 ? `${protectionFeePercent}%` : 'flat ₦5,000'})
-                                                        </span>
-                                                    </span>
-                                                    <span className="font-medium text-orange-600">+₦{(protectionFeeCents / 100).toLocaleString()}</span>
-                                                </div>
-                                                <div className="flex justify-between pt-2 border-t border-orange-200">
-                                                    <span className="font-bold text-gray-900">Total You Pay</span>
-                                                    <span className="font-bold text-lg text-green-600">₦{(totalCents / 100).toLocaleString()}</span>
-                                                </div>
-                                                <p className="text-xs text-gray-500 pt-2">
-                                                    ✅ Your payment is held securely until you confirm receipt of the item.
-                                                </p>
-                                            </div>
-                                        );
-                                    })()}
-                                </div>
-                            )}
 
                             {/* Trade Options */}
                             <div className="flex flex-wrap gap-2 mb-4">
@@ -430,28 +430,14 @@ export default function ListingDetailPage() {
                             {!isOwner ? (
                                 listing.status === 'active' ? (
                                     <div className="space-y-3">
-                                        {/* Escrow Buy Button for Distress Sales */}
-                                        {(listing as any).isDistressSale && (
-                                            <button
-                                                onClick={() => {
-                                                    if (user && !user.isVerified) {
-                                                        setShowVerificationModal(true);
-                                                    } else {
-                                                        setShowEscrowModal(true);
-                                                    }
-                                                }}
-                                                className="w-full px-6 py-3.5 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg font-bold hover:from-orange-600 hover:to-red-600 transition shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
-                                            >
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                                                </svg>
-                                                Buy with Protection
-                                            </button>
-                                        )}
 
                                         <div className="grid grid-cols-2 gap-3">
                                             <button
                                                 onClick={() => {
+                                                    if (!isAuthenticated) {
+                                                        router.push('/login');
+                                                        return;
+                                                    }
                                                     if (user && !user.isVerified) {
                                                         setShowVerificationModal(true);
                                                     } else {
@@ -513,13 +499,23 @@ export default function ListingDetailPage() {
                         <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
                             <h3 className="font-bold text-gray-900 mb-4 text-sm uppercase tracking-wide">Seller Information</h3>
                             <div className="flex items-start gap-4 mb-4">
-                                <div className="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center text-gray-600 font-bold text-xl">
+                                <button
+                                    onClick={() => router.push(`/listings?sellerId=${listing.sellerId}&countryId=${listing.countryId || 1}`)}
+                                    className="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center text-gray-600 font-bold text-xl hover:ring-2 hover:ring-blue-500 transition cursor-pointer"
+                                >
                                     {(listing.seller.profile?.displayName || listing.seller.email).charAt(0).toUpperCase()}
-                                </div>
+                                </button>
                                 <div className="flex-1">
-                                    <p className="font-bold text-gray-900 text-base">
+                                    <button
+                                        onClick={() => router.push(`/listings?sellerId=${listing.sellerId}&countryId=${listing.countryId || 1}`)}
+                                        className="font-bold text-gray-900 text-base hover:text-blue-600 hover:underline transition cursor-pointer text-left flex items-center gap-1.5"
+                                    >
                                         {listing.seller.profile?.displayName || listing.seller.email}
-                                    </p>
+                                        {/* Premium Badge - Twitter/Instagram style */}
+                                        {(listing.seller as any).tier === 'premium' && (
+                                            <PremiumBadge size="sm" />
+                                        )}
+                                    </button>
                                     <p className="text-xs text-green-600 font-bold flex items-center gap-1 mt-0.5">
                                         <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                             <path
@@ -528,7 +524,7 @@ export default function ListingDetailPage() {
                                                 clipRule="evenodd"
                                             />
                                         </svg>
-                                        Verified Seller
+                                        Verified ID
                                     </p>
                                     {listing.seller.profile?.region && (
                                         <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
@@ -731,40 +727,14 @@ export default function ListingDetailPage() {
                 onClose={() => setShowVerificationModal(false)}
             />
 
-            {/* Escrow Payment Modal */}
-            {listing && (
-                <EscrowPaymentModal
-                    isOpen={showEscrowModal}
-                    onClose={() => setShowEscrowModal(false)}
-                    listing={{
-                        id: listing.id,
-                        title: listing.title,
-                        priceCents: listing.priceCents || 0,
-                        currencyCode: listing.currencyCode || 'NGN',
-                        images: listing.images,
-                        seller: listing.seller,
-                    }}
-                    onSuccess={(data) => {
-                        setEscrowOrderId(data.orderId);
-                        // Could show the confirmation code here or redirect to orders
-                    }}
-                />
-            )}
+            {/* Chat Limit Paywall Modal */}
+            <ChatLimitModal
+                isOpen={showChatLimitModal}
+                onClose={() => setShowChatLimitModal(false)}
+                onSelectOption={handleChatPaywallSelect}
+                isLoading={isPaymentLoading}
+            />
 
-            {/* Escrow Confirm Modal - for when user has a pending escrow */}
-            {escrowOrderId && listing && (
-                <EscrowConfirmModal
-                    isOpen={!!escrowOrderId}
-                    onClose={() => setEscrowOrderId(null)}
-                    orderId={escrowOrderId}
-                    listingTitle={listing.title}
-                    sellerName={listing.seller.profile?.displayName || listing.seller.email || 'Seller'}
-                    onSuccess={() => {
-                        setEscrowOrderId(null);
-                        // Maybe redirect to completed orders
-                    }}
-                />
-            )}
         </div>
     );
 }

@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/auth-store';
 import AdminSidebar from '@/components/admin/AdminSidebar';
+import { canAccessAdminPanel } from '@/lib/rbac';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const { user, isAuthenticated, _hasHydrated } = useAuthStore();
@@ -17,13 +18,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             return;
         }
 
-        // Check if user is admin
-        if (user?.role !== 'admin') {
+        // Check if user has access to admin panel
+        if (!canAccessAdminPanel(user)) {
             router.push('/listings');
         }
     }, [isAuthenticated, user, router, _hasHydrated]);
 
-    if (!_hasHydrated || !isAuthenticated || user?.role !== 'admin') {
+    if (!_hasHydrated || !isAuthenticated || !canAccessAdminPanel(user)) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>

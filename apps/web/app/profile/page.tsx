@@ -8,6 +8,9 @@ import EditProfileModal from '@/components/EditProfileModal';
 import ReviewList from '@/components/ReviewList';
 import apiClient from '@/lib/api-client';
 import toast from 'react-hot-toast';
+import { DistressBoostModal, SpotlightModal } from '@/components/PaywallModal';
+import { initializePayment, redirectToPaystack, useSpotlightCredit } from '@/lib/payments-api';
+import { Check, Sparkles } from 'lucide-react';
 
 interface Listing {
     id: string;
@@ -20,16 +23,28 @@ interface Listing {
         url: string;
         sortOrder: number;
     }>;
+    isDistressSale?: boolean;
+    isFeatured?: boolean;
+    spotlightExpiry?: string;
+    isCrossListed?: boolean;
 }
 
 export default function ProfilePage() {
-    const { user, isAuthenticated, logout } = useAuthStore();
+    const { user, isAuthenticated } = useAuthStore();
     const router = useRouter();
-    const [activeTab, setActiveTab] = useState<'listings' | 'reviews' | 'settings'>('listings');
+    const [activeTab, setActiveTab] = useState<'listings' | 'reviews'>('listings');
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
     const [listings, setListings] = useState<Listing[]>([]);
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(true);
+
+    // Promote modal state
+    const [promoteModal, setPromoteModal] = useState<'distress' | 'spotlight' | null>(null);
+    const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
+    const [isPaymentLoading, setIsPaymentLoading] = useState(false);
+
 
     useEffect(() => {
         setIsMounted(true);
@@ -46,8 +61,14 @@ export default function ProfilePage() {
         const fetchListings = async () => {
             if (user) {
                 try {
-                    const response = await apiClient.get('/listings/my-listings');
-                    setListings(response.data);
+                    setLoading(true);
+                    const response = await apiClient.get(`/listings/my-listings?page=${page}&limit=10`);
+                    if (page === 1) {
+                        setListings(response.data.data);
+                    } else {
+                        setListings(prev => [...prev, ...response.data.data]);
+                    }
+                    setTotalPages(response.data.meta.totalPages);
                 } catch (error) {
                     console.error('Failed to fetch listings:', error);
                 } finally {
@@ -57,7 +78,8 @@ export default function ProfilePage() {
         };
 
         fetchListings();
-    }, [user]);
+    }, [user, page]);
+
 
     const handleMarkAsSold = async (listingId: string) => {
         try {
@@ -109,12 +131,68 @@ export default function ProfilePage() {
         return `${currencyCode} ${price.toLocaleString()}`;
     };
 
-    if (!isMounted || !user) return null;
-
-    const handleLogout = () => {
-        logout();
-        router.push('/');
+    // Handle Promote button click
+    const handlePromote = (listing: Listing) => {
+        setSelectedListingId(listing.id);
+        if (listing.isDistressSale) {
+            setPromoteModal('distress');
+        } else {
+            setPromoteModal('spotlight');
+        }
     };
+
+    // Handle payment selection
+    const handlePaywallSelect = async (optionId: string, currency: 'NGN' | 'USD') => {
+        if (!selectedListingId) return;
+        setIsPaymentLoading(true);
+        try {
+            const result = await initializePayment(optionId as any, selectedListingId, currency);
+            redirectToPaystack(result.authorizationUrl);
+        } catch (error) {
+            console.error('Payment initialization failed:', error);
+            toast.error('Failed to initialize payment. Please try again.');
+        } finally {
+            setIsPaymentLoading(false);
+        }
+    };
+
+    const handleUseCredit = async (optionId: string) => {
+        if (!selectedListingId) return;
+
+        setIsPaymentLoading(true);
+        try {
+            const result = await useSpotlightCredit(selectedListingId);
+            if (result.success) {
+                toast.success(result.message);
+                // Refresh listings to show boosted status
+                const response = await apiClient.get(`/listings/my-listings?page=${page}&limit=10`);
+                setListings(response.data.data);
+                setPromoteModal(null);
+            } else {
+                toast.error(result.message);
+            }
+        } catch (error) {
+            console.error('Credit usage failed:', error);
+            toast.error('Failed to use credit. Please try again.');
+        } finally {
+            setIsPaymentLoading(false);
+        }
+    };
+
+    const handleModalClose = () => {
+        setPromoteModal(null);
+        setSelectedListingId(null);
+    };
+
+    // Check if listing is already boosted
+    const isAlreadyBoosted = (listing: Listing): boolean => {
+        if (listing.isDistressSale) {
+            return !!listing.isCrossListed;
+        }
+        return !!(listing.isFeatured || (listing.spotlightExpiry && new Date(listing.spotlightExpiry) > new Date()));
+    };
+
+    if (!isMounted || !user) return null;
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white pb-20">
@@ -130,9 +208,20 @@ export default function ProfilePage() {
                         {/* Avatar */}
                         <div className="relative">
                             <div className="w-32 h-32 rounded-full border-4 border-white bg-white shadow-md overflow-hidden">
-                                <div className="w-full h-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-4xl font-bold">
-                                    {user.profile?.displayName?.[0]?.toUpperCase() || user.email[0].toUpperCase()}
-                                </div>
+                                {user.profile?.avatarUrl ? (
+                                    <img
+                                        src={user.profile.avatarUrl.startsWith('http')
+                                            ? user.profile.avatarUrl
+                                            : `${(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333/api').replace(/\/api$/, '')}${user.profile.avatarUrl}`
+                                        }
+                                        alt="Profile"
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-4xl font-bold">
+                                        {user.profile?.displayName?.[0]?.toUpperCase() || user.firstName?.[0]?.toUpperCase() || user.email[0].toUpperCase()}
+                                    </div>
+                                )}
                             </div>
                             <div className="absolute bottom-2 right-2 bg-green-500 w-5 h-5 rounded-full border-2 border-white" title="Online"></div>
                         </div>
@@ -143,17 +232,20 @@ export default function ProfilePage() {
                                 <div>
                                     <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                                         {user.profile?.displayName || 'User'}
-                                        <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                        </svg>
+                                        {user.verificationStatus === 'VERIFIED' && (
+                                            <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                            </svg>
+                                        )}
                                     </h1>
                                     <p className="text-gray-500 flex items-center gap-1 mt-1">
                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                         </svg>
-                                        {user.profile?.region?.city || 'Lagos'}, {user.profile?.region?.name || 'Nigeria'}
+                                        {user.locationAddress || 'Lagos, Nigeria'}
                                     </p>
+
                                 </div>
                                 <button
                                     onClick={() => setIsEditModalOpen(true)}
@@ -172,9 +264,12 @@ export default function ProfilePage() {
                                     <span className="text-sm text-gray-500">Rating ({user.profile?.reviewCount || 0} reviews)</span>
                                 </div>
                                 <div>
-                                    <span className="block text-2xl font-bold text-gray-900">2024</span>
+                                    <span className="block text-2xl font-bold text-gray-900">
+                                        {new Date(user.createdAt).getFullYear()}
+                                    </span>
                                     <span className="text-sm text-gray-500">Member Since</span>
                                 </div>
+
                             </div>
                         </div>
                     </div>
@@ -196,14 +291,6 @@ export default function ProfilePage() {
                                 : 'border-transparent text-gray-500 hover:text-gray-700'
                                 }`}>
                             Reviews
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('settings')}
-                            className={`px-6 py-4 font-medium text-sm border-b-2 transition ${activeTab === 'settings'
-                                ? 'border-blue-600 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700'
-                                }`}>
-                            Settings
                         </button>
                     </div>
                 </div>
@@ -240,35 +327,84 @@ export default function ProfilePage() {
                                                 <p className={`text-blue-600 font-bold text-sm mb-4 ${listing.status === 'sold' ? 'line-through opacity-60' : ''}`}>
                                                     {formatPrice(listing.priceCents, listing.currencyCode)}
                                                 </p>
-                                                <div className="flex gap-2">
+                                                <div className="flex flex-col gap-2">
+                                                    {/* Promote Button - Only for active listings */}
                                                     {listing.status === 'active' && (
                                                         <button
-                                                            onClick={() => handleMarkAsSold(listing.id)}
-                                                            className="flex-1 px-3 py-2 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-100 transition">
-                                                            Mark as Sold
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                e.stopPropagation();
+                                                                handlePromote(listing);
+                                                            }}
+                                                            disabled={!!isAlreadyBoosted(listing)}
+                                                            className={`w-full py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all duration-300 shadow-xl overflow-hidden group/btn ${isAlreadyBoosted(listing)
+                                                                ? 'bg-emerald-500 text-white cursor-default shadow-emerald-100'
+                                                                : 'bg-slate-900 text-white hover:bg-slate-800 hover:scale-[1.02] active:scale-[0.98]'
+                                                                }`}
+                                                        >
+                                                            {!isAlreadyBoosted(listing) && (
+                                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite] transition-transform" />
+                                                            )}
+
+                                                            {isAlreadyBoosted(listing) ? (
+                                                                <>
+                                                                    <div className="w-3.5 h-3.5 rounded-full bg-white/20 flex items-center justify-center">
+                                                                        <Check className="w-2.5 h-2.5" />
+                                                                    </div>
+                                                                    ACTIVE BOOST
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <Sparkles className="w-3 h-3 text-amber-400 group-hover/btn:rotate-12 transition-transform" />
+                                                                    BOOST VISIBILITY
+                                                                </>
+                                                            )}
                                                         </button>
                                                     )}
-                                                    {listing.status === 'sold' && (
+                                                    <div className="flex gap-2">
+                                                        {listing.status === 'active' && (
+                                                            <button
+                                                                onClick={() => handleMarkAsSold(listing.id)}
+                                                                className="flex-1 px-3 py-2 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-100 transition">
+                                                                Mark as Sold
+                                                            </button>
+                                                        )}
+                                                        {listing.status === 'sold' && (
+                                                            <button
+                                                                onClick={() => handleReactivate(listing.id)}
+                                                                className="flex-1 px-3 py-2 bg-green-50 text-green-700 rounded-lg text-sm font-medium hover:bg-green-100 transition">
+                                                                Reactivate
+                                                            </button>
+                                                        )}
                                                         <button
-                                                            onClick={() => handleReactivate(listing.id)}
-                                                            className="flex-1 px-3 py-2 bg-green-50 text-green-700 rounded-lg text-sm font-medium hover:bg-green-100 transition">
-                                                            Reactivate
+                                                            onClick={() => handleDelete(listing.id)}
+                                                            className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition">
+                                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                            </svg>
                                                         </button>
-                                                    )}
-                                                    <button
-                                                        onClick={() => handleDelete(listing.id)}
-                                                        className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition">
-                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                        </svg>
-                                                    </button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     ))}
 
+                                    {/* Load More */}
+                                    {page < totalPages && (
+                                        <div className="col-span-full flex justify-center mt-4">
+                                            <button
+                                                onClick={() => setPage(p => p + 1)}
+                                                disabled={loading}
+                                                className="px-6 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition"
+                                            >
+                                                {loading ? 'Loading...' : 'Load More Listings'}
+                                            </button>
+                                        </div>
+                                    )}
+
                                     {/* Add New Card */}
-                                    <Link href="/listings/create" className="bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center p-8 hover:border-blue-600 hover:bg-blue-50 transition group">
+                                    <Link href="/listings/create" className="bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center p-8 hover:border-blue-600 hover:bg-blue-50 transition group min-h-[200px]">
+
                                         <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm mb-3 group-hover:scale-110 transition">
                                             <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -287,82 +423,28 @@ export default function ProfilePage() {
                             <ReviewList userId={user.id} />
                         </div>
                     )}
-
-                    {activeTab === 'settings' && (
-                        <div className="grid md:grid-cols-3 gap-8">
-                            {/* Settings Sidebar */}
-                            <div className="md:col-span-1 space-y-1">
-                                <button className="w-full text-left px-4 py-2 bg-blue-50 text-blue-600 font-medium rounded-lg">
-                                    General
-                                </button>
-                                <button className="w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-50 font-medium rounded-lg transition">
-                                    Notifications
-                                </button>
-                                <button className="w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-50 font-medium rounded-lg transition">
-                                    Privacy & Security
-                                </button>
-                                <button className="w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-50 font-medium rounded-lg transition">
-                                    Payments
-                                </button>
-                            </div>
-
-                            {/* Settings Content */}
-                            <div className="md:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                                <h2 className="text-xl font-bold text-gray-900 mb-6">General Settings</h2>
-
-                                <div className="space-y-8">
-                                    {/* Contact Info */}
-                                    <section className="space-y-4">
-                                        <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider border-b border-gray-100 pb-2">Contact Information</h3>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                                            <div className="flex gap-3">
-                                                <input
-                                                    type="email"
-                                                    value={user.email}
-                                                    disabled
-                                                    className="flex-1 px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-gray-500 cursor-not-allowed"
-                                                />
-                                                <span className="px-3 py-2 bg-green-100 text-green-700 rounded-lg text-sm font-medium flex items-center">
-                                                    Verified
-                                                </span>
-                                            </div>
-                                            <p className="text-xs text-gray-500 mt-1">Contact support to change your email.</p>
-                                        </div>
-                                    </section>
-
-                                    {/* Account Actions */}
-                                    <section className="pt-4 border-t border-gray-200 space-y-3">
-                                        <button
-                                            onClick={handleLogout}
-                                            className="w-full flex items-center justify-between p-4 border-2 border-gray-200 rounded-lg hover:border-blue-600 hover:bg-blue-50 transition group">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center group-hover:bg-blue-200 transition">
-                                                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                                                    </svg>
-                                                </div>
-                                                <div className="text-left">
-                                                    <span className="block font-semibold text-gray-900">Logout</span>
-                                                    <span className="text-xs text-gray-500">Sign out of your account</span>
-                                                </div>
-                                            </div>
-                                            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                            </svg>
-                                        </button>
-                                    </section>
-                                </div>
-                            </div>
-                        </div>
-                    )}
                 </div>
             </div>
 
             <EditProfileModal
                 isOpen={isEditModalOpen}
                 onClose={() => setIsEditModalOpen(false)}
+            />
+
+            {/* Promote Modals */}
+            <DistressBoostModal
+                isOpen={promoteModal === 'distress'}
+                onClose={handleModalClose}
+                onSelectOption={handlePaywallSelect}
+                isLoading={isPaymentLoading}
+            />
+            <SpotlightModal
+                isOpen={promoteModal === 'spotlight'}
+                onClose={handleModalClose}
+                onSelectOption={handlePaywallSelect}
+                onUseCredit={handleUseCredit}
+                creditsAvailable={user?.spotlightCredits}
+                isLoading={isPaymentLoading}
             />
         </div>
     );

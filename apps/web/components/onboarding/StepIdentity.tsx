@@ -7,9 +7,10 @@ import { toast } from 'react-hot-toast';
 
 interface StepProps {
     onComplete: () => void;
+    onBack?: () => void;
 }
 
-export default function StepIdentity({ onComplete }: StepProps) {
+export default function StepIdentity({ onComplete, onBack }: StepProps) {
     const { updateProfile } = useAuthStore();
     const webcamRef = useRef<Webcam>(null);
     const [selfie, setSelfie] = useState<string | null>(null);
@@ -281,16 +282,29 @@ export default function StepIdentity({ onComplete }: StepProps) {
                 </div>
             </div>
 
-            <button
-                onClick={handleSubmit}
-                disabled={loading || !selfie || !idFront || !idBack}
-                className={`w-full py-4 rounded-xl font-bold text-lg transition shadow-lg mt-8 ${loading || !selfie || !idFront || !idBack
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-green-600 text-white hover:bg-green-700'
-                    }`}
-            >
-                {loading ? 'Submitting for Review...' : 'Submit Verification'}
-            </button>
+            <div className="flex gap-3 mt-8">
+                {onBack && (
+                    <button
+                        onClick={onBack}
+                        className="flex-1 bg-gray-100 text-gray-700 py-4 rounded-xl font-bold text-lg hover:bg-gray-200 transition flex items-center justify-center gap-2"
+                    >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                        Back
+                    </button>
+                )}
+                <button
+                    onClick={handleSubmit}
+                    disabled={loading || !selfie || !idFront || !idBack}
+                    className={`${onBack ? 'flex-1' : 'w-full'} py-4 rounded-xl font-bold text-lg transition shadow-lg ${loading || !selfie || !idFront || !idBack
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        : 'bg-green-600 text-white hover:bg-green-700'
+                        }`}
+                >
+                    {loading ? 'Submitting for Review...' : 'Submit Verification'}
+                </button>
+            </div>
         </div>
     );
 }

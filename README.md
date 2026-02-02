@@ -55,7 +55,7 @@ BarterWave is a modern hybrid marketplace that enables users across Africa to tr
 
 ```bash
 git clone <repository-url>
-cd TradePlus
+cd BarterWave
 npm install
 ```
 
@@ -92,7 +92,7 @@ cd apps/web && npm run dev
 - **API Docs**: http://localhost:3001/api/docs
 
 ### Default Admin Login
-- **Email**: `admin@tradeplus.com`
+- **Email**: `admin@barterwave.com`
 - **Password**: `password123`
 
 ---
@@ -100,7 +100,7 @@ cd apps/web && npm run dev
 ## 📁 Project Structure
 
 ```
-TradePlus/
+BarterWave/
 ├── apps/
 │   ├── api/              # NestJS Backend
 │   │   ├── src/
@@ -129,7 +129,7 @@ Create a `.env` file in the root directory:
 
 ```env
 # Database
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/tradeplus?schema=public"
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/barterwave?schema=public"
 
 # JWT
 JWT_SECRET="your-jwt-secret-here"

@@ -1,4 +1,4 @@
-# TradePlus - How to Start the App
+# BarterWave - How to Start the App
 
 ## Why Login Failed Previously
 
@@ -12,7 +12,7 @@ When you ran `npm run dev`, it started the API and Frontend, but the database wa
 
 ---
 
-## How to Start TradePlus (Step by Step)
+## How to Start BarterWave (Step by Step)
 
 ### Step 1: Start the Database
 
@@ -57,7 +57,7 @@ http://localhost:3000
 ## Login Credentials
 
 ### Admin Account
-- **Email:** `admin@tradeplus.com`
+- **Email:** `admin@barterwave.com`
 - **Password:** `password123`
 
 ### Test Users

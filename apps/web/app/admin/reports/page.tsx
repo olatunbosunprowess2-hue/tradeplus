@@ -18,18 +18,22 @@ export default function AdminReportsPage() {
     const [adminMessage, setAdminMessage] = useState('');
     const [pendingAction, setPendingAction] = useState<{ type: 'resolve' | 'delete', reportId: string } | null>(null);
 
-    // Pagination state
+    // Filter and Pagination state
+    const [status, setStatus] = useState('');
     const [page, setPage] = useState(1);
-    const itemsPerPage = 10;
-    const totalPages = Math.ceil(reports.length / itemsPerPage);
-    const paginatedReports = reports.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+    const [totalPages, setTotalPages] = useState(1);
+
 
     const fetchReports = async () => {
         setIsLoading(true);
         try {
-            const response = await adminApi.getReports();
-            setReports(response.data);
-            setPage(1); // Reset to first page on new data
+            const response = await adminApi.getReports({
+                page,
+                limit: 10,
+                status: status || undefined
+            });
+            setReports(response.data.data);
+            setTotalPages(response.data.meta.totalPages || 1);
         } catch (error) {
             console.error('Failed to fetch reports:', error);
             addToast('error', 'Failed to load reports');
@@ -37,6 +41,7 @@ export default function AdminReportsPage() {
             setIsLoading(false);
         }
     };
+
 
     const openMessageModal = (type: 'resolve' | 'delete', reportId: string) => {
         setPendingAction({ type, reportId });
@@ -71,13 +76,29 @@ export default function AdminReportsPage() {
 
     useEffect(() => {
         fetchReports();
-    }, []);
+    }, [page, status]);
+
 
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-bold text-gray-900">Reports</h1>
+                <div className="flex gap-3">
+                    <select
+                        value={status}
+                        onChange={(e) => {
+                            setStatus(e.target.value);
+                            setPage(1);
+                        }}
+                        className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm"
+                    >
+                        <option value="">All Statuses</option>
+                        <option value="open">Open</option>
+                        <option value="resolved">Resolved</option>
+                    </select>
+                </div>
             </div>
+
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                 <div className="overflow-x-auto">
@@ -108,7 +129,7 @@ export default function AdminReportsPage() {
                                     </td>
                                 </tr>
                             ) : (
-                                paginatedReports.map((report) => (
+                                reports.map((report) => (
                                     <tr key={report.id} className="hover:bg-gray-50 transition">
                                         <td className="px-6 py-4">
                                             <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${report.listingId ? 'bg-blue-50 text-blue-800' :

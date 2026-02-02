@@ -5,10 +5,15 @@ import { existsSync, mkdirSync } from 'fs';
 export const multerConfig = {
     storage: diskStorage({
         destination: (req, file, cb) => {
-            const uploadPath = './uploads';
+            // Distinguish between public and private fields
+            const privateFields = ['faceVerification', 'idDocumentFront', 'idDocumentBack'];
+            const isPrivate = privateFields.includes(file.fieldname);
+
+            const uploadPath = isPrivate ? './private-uploads' : './uploads';
+
             // Create folder if it doesn't exist
             if (!existsSync(uploadPath)) {
-                mkdirSync(uploadPath);
+                mkdirSync(uploadPath, { recursive: true });
             }
             cb(null, uploadPath);
         },
@@ -18,15 +23,18 @@ export const multerConfig = {
                 .fill(null)
                 .map(() => Math.round(Math.random() * 16).toString(16))
                 .join('');
-            // Calling the callback passing the random name generated with the original extension name
+
+            // For private files, we might want to prefix them or just keep them random
             cb(null, `${randomName}${extname(file.originalname)}`);
         },
     }),
     limits: {
-        fileSize: 5 * 1024 * 1024, // 5MB limit
+        fileSize: 100 * 1024 * 1024, // 100MB limit for files
+        fieldSize: 100 * 1024 * 1024, // 100MB limit for non-file fields
     },
     fileFilter: (req: any, file: any, cb: any) => {
-        if (file.mimetype.match(/\/(jpg|jpeg|png|gif|webp)$/)) {
+        // Allow images and common video formats
+        if (file.mimetype.match(/\/(jpg|jpeg|png|gif|webp|mp4|mov|avi|mkv|webm)$/)) {
             // Allow storage of file
             cb(null, true);
         } else {

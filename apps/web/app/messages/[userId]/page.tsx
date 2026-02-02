@@ -7,6 +7,10 @@ import { useAuthStore } from '@/lib/auth-store';
 import { messagesApi } from '@/lib/messages-api';
 import Link from 'next/link';
 import Image from 'next/image';
+import ReportModal from '@/components/ReportModal';
+import { ChatLimitModal } from '@/components/PaywallModal';
+import { checkChatLimit, initializePayment, redirectToPaystack } from '@/lib/payments-api';
+import toast from 'react-hot-toast';
 
 export default function ChatPage() {
     const params = useParams();
@@ -31,6 +35,13 @@ export default function ChatPage() {
     const [isLoadingConversation, setIsLoadingConversation] = useState(true);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const messagesContainerRef = useRef<HTMLDivElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [filePreview, setFilePreview] = useState<string | null>(null);
+    const [showReportModal, setShowReportModal] = useState(false);
+    const [showChatLimitModal, setShowChatLimitModal] = useState(false);
+    const [isPaymentLoading, setIsPaymentLoading] = useState(false);
 
     // Find conversation with this participant
     const conversation = conversations.find(c => c.participantId === participantId) || conversationData;
@@ -92,14 +103,48 @@ export default function ChatPage() {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, []);
 
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            if (file.size > 10 * 1024 * 1024) { // 10MB limit
+                alert('File is too large (max 10MB)');
+                return;
+            }
+            setSelectedFile(file);
+            const url = URL.createObjectURL(file);
+            setFilePreview(url);
+        }
+    };
+
+    const clearFile = () => {
+        setSelectedFile(null);
+        if (filePreview) URL.revokeObjectURL(filePreview);
+        setFilePreview(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
     const handleSend = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!messageText.trim() || isSending) return;
+        if ((!messageText.trim() && !selectedFile) || isSending) return;
+
+        // Check chat limit before sending (new conversations)
+        if (!conversationId || conversationId.startsWith('temp-')) {
+            try {
+                const limitStatus = await checkChatLimit();
+                if (!limitStatus.allowed) {
+                    setShowChatLimitModal(true);
+                    return;
+                }
+            } catch (error) {
+                console.error('Failed to check chat limit:', error);
+            }
+        }
 
         setIsSending(true);
         try {
-            await sendMessage(participantId, messageText.trim());
+            await sendMessage(participantId, messageText.trim(), undefined, selectedFile || undefined);
             setMessageText('');
+            clearFile();
             // Refetch messages after sending
             if (conversationId) {
                 setTimeout(() => fetchMessages(conversationId), 500);
@@ -108,6 +153,19 @@ export default function ChatPage() {
             console.error('Failed to send message:', error);
         } finally {
             setIsSending(false);
+        }
+    };
+
+    const handleChatPaywallSelect = async (optionId: string, currency: 'NGN' | 'USD') => {
+        setIsPaymentLoading(true);
+        try {
+            const result = await initializePayment(optionId as any, undefined, currency);
+            redirectToPaystack(result.authorizationUrl);
+        } catch (error) {
+            console.error('Payment initialization failed:', error);
+            toast.error('Failed to initialize payment. Please try again.');
+        } finally {
+            setIsPaymentLoading(false);
         }
     };
 
@@ -221,6 +279,16 @@ export default function ChatPage() {
                             Trade Active
                         </Link>
                     )}
+
+                    <button
+                        onClick={() => setShowReportModal(true)}
+                        className="p-2 text-gray-400 hover:text-red-500 transition"
+                        title="Report User"
+                    >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </button>
                 </div>
             </div>
 
@@ -258,6 +326,16 @@ export default function ChatPage() {
             {/* Messages */}
             <div ref={messagesContainerRef} className="flex-1 overflow-y-auto px-4 py-4">
                 <div className="container mx-auto max-w-4xl space-y-3">
+                    {/* Safety Banner - Always visible at start of chat */}
+                    <div className="flex justify-center my-6">
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-3 max-w-lg text-center shadow-sm">
+                            <p className="text-sm text-yellow-800">
+                                🛡️ <span className="font-bold">Stay Safe:</span> Keep all conversations inside BarterWave.
+                                Never pay in advance for items that need to be shipped.
+                            </p>
+                        </div>
+                    </div>
+
                     {messages.length === 0 ? (
                         <div className="text-center py-12">
                             <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -301,9 +379,21 @@ export default function ChatPage() {
                                                 : 'bg-white border border-gray-200 text-gray-900 rounded-bl-md'
                                                 }`}
                                         >
-                                            <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">
-                                                {message.content}
-                                            </p>
+                                            {message.mediaUrl && message.mediaType === 'image' && (
+                                                <div className="mb-2 -mx-2 -mt-2">
+                                                    <img src={message.mediaUrl} alt="Attachment" className="rounded-lg max-w-full h-auto object-cover" style={{ maxHeight: '200px' }} />
+                                                </div>
+                                            )}
+                                            {message.mediaUrl && message.mediaType === 'video' && (
+                                                <div className="mb-2 -mx-2 -mt-2">
+                                                    <video src={message.mediaUrl} controls className="rounded-lg max-w-full h-auto" style={{ maxHeight: '200px' }} />
+                                                </div>
+                                            )}
+                                            {message.content && (
+                                                <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">
+                                                    {message.content}
+                                                </p>
+                                            )}
                                             <div className={`flex items-center gap-1 mt-1 ${isOwn ? 'justify-end' : ''}`}>
                                                 <p className={`text-[10px] ${isOwn ? 'text-blue-200' : 'text-gray-400'}`}>
                                                     {new Date(message.timestamp).toLocaleTimeString('en-US', {
@@ -351,7 +441,46 @@ export default function ChatPage() {
             <div className="bg-white border-t border-gray-200 px-4 py-3 pb-safe">
                 <div className="container mx-auto max-w-4xl">
                     <form onSubmit={handleSend} className="flex gap-2 items-end">
+
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            className="hidden"
+                            accept="image/*,video/*"
+                            onChange={handleFileSelect}
+                        />
+                        <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="p-3 text-gray-500 hover:text-blue-600 hover:bg-gray-100 rounded-full transition"
+                            title="Attach image or video"
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                            </svg>
+                        </button>
+
                         <div className="flex-1 relative">
+                            {filePreview && (
+                                <div className="absolute bottom-full left-0 mb-2 p-2 bg-white rounded-lg shadow-lg border border-gray-200 flex items-center gap-2">
+                                    {selectedFile?.type.startsWith('image/') ? (
+                                        <img src={filePreview} alt="Preview" className="w-16 h-16 object-cover rounded-md" />
+                                    ) : (
+                                        <div className="w-16 h-16 bg-gray-100 rounded-md flex items-center justify-center">
+                                            <span className="text-2xl">🎥</span>
+                                        </div>
+                                    )}
+                                    <button
+                                        type="button"
+                                        onClick={clearFile}
+                                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 shadow-sm"
+                                    >
+                                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            )}
                             <textarea
                                 value={messageText}
                                 onChange={(e) => setMessageText(e.target.value)}
@@ -369,7 +498,7 @@ export default function ChatPage() {
                         </div>
                         <button
                             type="submit"
-                            disabled={!messageText.trim() || isSending}
+                            disabled={(!messageText.trim() && !filePreview) || isSending}
                             className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-full font-semibold hover:from-blue-700 hover:to-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg flex items-center justify-center shrink-0"
                         >
                             {isSending ? (
@@ -383,6 +512,19 @@ export default function ChatPage() {
                     </form>
                 </div>
             </div>
+            <ReportModal
+                isOpen={showReportModal}
+                onClose={() => setShowReportModal(false)}
+                reportedUserId={participantId}
+                listingId={conversation.listingContext?.id}
+            />
+
+            <ChatLimitModal
+                isOpen={showChatLimitModal}
+                onClose={() => setShowChatLimitModal(false)}
+                onSelectOption={handleChatPaywallSelect}
+                isLoading={isPaymentLoading}
+            />
         </div>
     );
 }

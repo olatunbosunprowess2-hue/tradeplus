@@ -9,7 +9,7 @@ async function main() {
         const passwordHash = await bcrypt.hash('password123', 10);
 
         // Create Admin User
-        const adminEmail = 'admin@tradeplus.com';
+        const adminEmail = 'admin@barterwave.com';
         let admin = await prisma.user.findUnique({ where: { email: adminEmail } });
         if (!admin) {
             admin = await prisma.user.create({

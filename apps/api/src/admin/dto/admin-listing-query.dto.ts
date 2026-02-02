@@ -26,4 +26,9 @@ export class AdminListingQueryDto {
     @IsInt()
     @Min(1)
     limit?: number = 20;
+
+    @IsOptional()
+    @IsString()
+    isDistressSale?: 'true' | 'false';
 }
+

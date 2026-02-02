@@ -59,15 +59,20 @@ export class ReportsService {
             }
         );
 
-        // Notify all admins about the new report
-        const admins = await this.prisma.user.findMany({
-            where: { role: 'admin' },
+        // Notify all staff (admin, moderator, etc.) about the new report
+        const staff = await this.prisma.user.findMany({
+            where: {
+                userRole: {
+                    level: { gte: 50 } // Moderator level and above
+                }
+            },
             select: { id: true }
         });
 
-        for (const admin of admins) {
+        for (const person of staff) {
             await this.notificationsService.create(
-                admin.id,
+                person.id,
+
                 'NEW_REPORT',
                 {
                     reportId: report.id,

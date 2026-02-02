@@ -12,6 +12,8 @@ import { LoginDto } from './dto/login.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { EmailService } from '../email/email.service';
 
+import { ActivityService } from '../activity/activity.service';
+
 @Injectable()
 export class AuthService {
     constructor(
@@ -19,6 +21,7 @@ export class AuthService {
         private jwtService: JwtService,
         private configService: ConfigService,
         private emailService: EmailService,
+        private activityService: ActivityService,
     ) { }
 
     async register(dto: RegisterDto): Promise<AuthResponseDto> {
@@ -49,6 +52,7 @@ export class AuthService {
             },
             include: {
                 profile: true,
+                userRole: true // Include RBAC role
             },
         });
 
@@ -96,11 +100,20 @@ export class AuthService {
         // Find user
         const user = await this.prisma.user.findUnique({
             where: { email: dto.email.toLowerCase() },
-            include: { profile: true },
+            include: {
+                profile: true,
+                userRole: true // Include RBAC role
+            },
         });
 
         if (!user) {
             throw new UnauthorizedException('Invalid credentials');
+        }
+
+        // Check if user is locked out
+        if (user.lockoutUntil && user.lockoutUntil > new Date()) {
+            const timeLeft = Math.ceil((user.lockoutUntil.getTime() - Date.now()) / 60000);
+            throw new UnauthorizedException(`Account is temporarily locked. Please try again in ${timeLeft} minutes.`);
         }
 
         // Check if user has a password (Supabase-only users don't)
@@ -115,8 +128,35 @@ export class AuthService {
         );
 
         if (!isPasswordValid) {
+            // Increment failed attempts
+            const failedAttempts = user.failedLoginAttempts + 1;
+            const isLockoutTriggered = failedAttempts >= 5;
+
+            await this.prisma.user.update({
+                where: { id: user.id },
+                data: {
+                    failedLoginAttempts: failedAttempts,
+                    lockoutUntil: isLockoutTriggered
+                        ? new Date(Date.now() + 15 * 60 * 1000) // 15 mins
+                        : user.lockoutUntil
+                }
+            });
+
+            if (isLockoutTriggered) {
+                throw new UnauthorizedException('Too many failed attempts. Account locked for 15 minutes.');
+            }
+
             throw new UnauthorizedException('Invalid credentials');
         }
+
+        // Reset failed attempts on success
+        await this.prisma.user.update({
+            where: { id: user.id },
+            data: {
+                failedLoginAttempts: 0,
+                lockoutUntil: null,
+            }
+        });
 
         // Note: We allow suspended users to login so they can see their status and submit appeals
         // The frontend will handle restricting their actions
@@ -127,42 +167,30 @@ export class AuthService {
             data: { lastLoginAt: new Date() },
         });
 
+        // Trigger Activity Feed
+        this.activityService.handleUserLogin(user.id, '127.0.0.1').catch(err => {
+            console.error('Failed to trigger activity feed for login:', err);
+        });
+
         // Generate tokens
         const tokens = await this.generateTokens(user.id, user.email);
 
         return {
             ...tokens,
-            user: {
-                id: user.id,
-                email: user.email,
-                name: user.profile?.displayName || undefined,
-                role: user.role,
-                status: user.status as 'active' | 'suspended' | 'banned', // Include account status for suspension detection
-                createdAt: user.createdAt.toISOString(),
-                onboardingCompleted: user.onboardingCompleted,
-                isVerified: user.isVerified,
-                verificationStatus: user.verificationStatus as 'NONE' | 'PENDING' | 'VERIFIED' | 'REJECTED',
-                rejectionReason: user.rejectionReason || undefined, // Include for suspension reason display
-                phoneNumber: user.phoneNumber || undefined,
-                locationLat: user.locationLat || undefined,
-                locationLng: user.locationLng || undefined,
-                locationAddress: user.locationAddress || undefined,
-                profile: user.profile
-                    ? {
-                        displayName: user.profile.displayName || undefined,
-                        countryId: user.profile.countryId || undefined,
-                        regionId: user.profile.regionId || undefined,
-                    }
-                    : undefined,
-            },
+            user: this.formatUserResponse(user),
         };
     }
 
-    async syncSupabaseUser(dto: { supabaseUserId: string; email: string; displayName?: string }) {
+
+
+    async syncSupabaseUser(dto: { supabaseUserId: string; email: string; displayName?: string }): Promise<AuthResponseDto> {
         // Check if user exists by email
         let user = await this.prisma.user.findUnique({
             where: { email: dto.email.toLowerCase() },
-            include: { profile: true },
+            include: {
+                profile: true,
+                userRole: true
+            },
         });
 
         if (user) {
@@ -179,7 +207,10 @@ export class AuthService {
                 user = await this.prisma.user.update({
                     where: { id: user.id },
                     data: { supabaseUserId: dto.supabaseUserId },
-                    include: { profile: true },
+                    include: {
+                        profile: true,
+                        userRole: true
+                    },
                 });
             }
         } else {
@@ -197,32 +228,16 @@ export class AuthService {
                 },
                 include: {
                     profile: true,
+                    userRole: true
                 },
             });
         }
 
+        const tokens = await this.generateTokens(user!.id, user!.email);
+
         return {
-            user: {
-                id: user.id,
-                email: user.email,
-                name: user.profile?.displayName || undefined,
-                role: user.role,
-                createdAt: user.createdAt.toISOString(),
-                onboardingCompleted: user.onboardingCompleted,
-                isVerified: user.isVerified,
-                verificationStatus: user.verificationStatus as 'NONE' | 'PENDING' | 'VERIFIED' | 'REJECTED',
-                phoneNumber: user.phoneNumber || undefined,
-                locationLat: user.locationLat || undefined,
-                locationLng: user.locationLng || undefined,
-                locationAddress: user.locationAddress || undefined,
-                profile: user.profile
-                    ? {
-                        displayName: user.profile.displayName || undefined,
-                        countryId: user.profile.countryId || undefined,
-                        regionId: user.profile.regionId || undefined,
-                    }
-                    : undefined,
-            },
+            ...tokens,
+            user: this.formatUserResponse(user),
         };
     }
 
@@ -255,7 +270,10 @@ export class AuthService {
 
             const user = await this.prisma.user.findUnique({
                 where: { id: payload.sub },
-                include: { profile: true },
+                include: {
+                    profile: true,
+                    userRole: true
+                },
             });
 
             if (!user) {
@@ -269,29 +287,7 @@ export class AuthService {
 
             return {
                 ...tokens,
-                user: {
-                    id: user.id,
-                    email: user.email,
-                    name: user.profile?.displayName || undefined,
-                    role: user.role,
-                    status: user.status as 'active' | 'suspended' | 'banned',
-                    createdAt: user.createdAt.toISOString(),
-                    onboardingCompleted: user.onboardingCompleted,
-                    isVerified: user.isVerified,
-                    verificationStatus: user.verificationStatus as 'NONE' | 'PENDING' | 'VERIFIED' | 'REJECTED',
-                    rejectionReason: user.rejectionReason || undefined,
-                    phoneNumber: user.phoneNumber || undefined,
-                    locationLat: user.locationLat || undefined,
-                    locationLng: user.locationLng || undefined,
-                    locationAddress: user.locationAddress || undefined,
-                    profile: user.profile
-                        ? {
-                            displayName: user.profile.displayName || undefined,
-                            countryId: user.profile.countryId || undefined,
-                            regionId: user.profile.regionId || undefined,
-                        }
-                        : undefined,
-                },
+                user: this.formatUserResponse(user),
             };
         } catch (error) {
             throw new UnauthorizedException('Invalid refresh token');
@@ -314,7 +310,10 @@ export class AuthService {
     async validateUserByEmail(email: string) {
         const user = await this.prisma.user.findUnique({
             where: { email: email.toLowerCase() },
-            include: { profile: true },
+            include: {
+                profile: true,
+                userRole: true  // Include RBAC role for AdminGuard
+            },
         });
 
         if (!user) {
@@ -371,16 +370,20 @@ export class AuthService {
         // Find or create user
         let user = await this.prisma.user.findUnique({
             where: { email: googleUser.email.toLowerCase() },
-            include: { profile: true },
+            include: {
+                profile: true,
+                userRole: true
+            },
         });
 
         if (!user) {
             // Create new user from Google account
+            const googleIdStr = googleUser.id.toString();
             user = await this.prisma.user.create({
                 data: {
                     email: googleUser.email.toLowerCase(),
-                    googleId: googleUser.id,
-                    isVerified: googleUser.verified_email || false,
+                    googleId: googleIdStr,
+                    isEmailVerified: true, // Google accounts are verified
                     profile: {
                         create: {
                             displayName: googleUser.name || googleUser.email.split('@')[0],
@@ -388,7 +391,10 @@ export class AuthService {
                         },
                     },
                 },
-                include: { profile: true },
+                include: {
+                    profile: true,
+                    userRole: true
+                },
             });
         } else {
             // Link Google ID if not already linked
@@ -396,7 +402,11 @@ export class AuthService {
                 user = await this.prisma.user.update({
                     where: { id: user.id },
                     data: { googleId: googleUser.id },
-                    include: { profile: true },
+                    include: {
+                        profile: true,
+                        userRole: true
+                    },
+
                 });
             }
 
@@ -408,6 +418,11 @@ export class AuthService {
                 });
             }
         }
+
+        // Trigger Activity Feed
+        this.activityService.handleUserLogin(user.id, '127.0.0.1').catch(err => {
+            console.error('Failed to trigger activity feed for Google login:', err);
+        });
 
         // Note: We allow suspended users to login so they can see their status
         // Frontend will handle restrictions
@@ -490,6 +505,8 @@ export class AuthService {
                     passwordHash,
                     passwordResetToken: null,
                     passwordResetExpires: null,
+                    failedLoginAttempts: 0,
+                    lockoutUntil: null,
                 },
             });
 
@@ -510,6 +527,7 @@ export class AuthService {
             role: user.role,
             createdAt: user.createdAt.toISOString(),
             onboardingCompleted: user.onboardingCompleted,
+            isEmailVerified: user.isEmailVerified,
             isVerified: user.isVerified,
             verificationStatus: user.verificationStatus as 'NONE' | 'PENDING' | 'VERIFIED' | 'REJECTED',
             phoneNumber: user.phoneNumber || undefined,
@@ -524,6 +542,11 @@ export class AuthService {
                     avatarUrl: user.profile.avatarUrl || undefined,
                 }
                 : undefined,
+            userRole: user.userRole ? {
+                id: user.userRole.id,
+                name: user.userRole.name,
+                level: user.userRole.level,
+            } : undefined,
         };
     }
 
@@ -607,6 +630,12 @@ export class AuthService {
         await this.prisma.emailVerification.update({
             where: { id: verification.id },
             data: { verified: true },
+        });
+
+        // Also update the user if matched
+        await this.prisma.user.updateMany({
+            where: { email: email.toLowerCase() },
+            data: { isEmailVerified: true },
         });
 
         return { verified: true, message: 'Email verified successfully!' };

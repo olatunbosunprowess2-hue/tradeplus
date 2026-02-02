@@ -55,9 +55,7 @@ export default function MakeOfferModal({ isOpen, onClose, listing, onSubmit }: M
                 setIsLoadingListings(true);
                 try {
                     const response = await listingsApi.getAll({ sellerId: user.id });
-                    // Handle both paginated and non-paginated responses
-                    const listings = Array.isArray(response) ? response : (response.data || []);
-                    setUserListings(listings);
+                    setUserListings(response.data || []);
                 } catch (error) {
                     console.error('Failed to fetch user listings:', error);
                     setUserListings([]); // Set to empty array on error
@@ -117,7 +115,7 @@ export default function MakeOfferModal({ isOpen, onClose, listing, onSubmit }: M
             cashAmount: parsedCashAmount,
             currency: (offerType === 'cash' || offerType === 'both') ? currency : undefined,
             offeredItems,
-            message,
+            message: message ?? '',
         };
 
         onSubmit(offerData);

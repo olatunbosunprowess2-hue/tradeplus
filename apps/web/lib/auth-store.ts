@@ -15,58 +15,24 @@ const GOOGLE_REDIRECT_URI = process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI ||
 // ============================================================================
 interface AuthState {
     user: User | null;
-    accessToken: string | null;
-    refreshToken: string | null;
     isAuthenticated: boolean;
+    rememberMe: boolean;
     _hasHydrated: boolean;
-    login: (email: string, password: string) => Promise<void>;
+    login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
     register: (data: { email: string; password: string; displayName: string }) => Promise<void>;
     loginWithGoogle: () => Promise<void>;
     handleGoogleCallback: (code: string) => Promise<void>;
     logout: () => Promise<void>;
-    setAuth: (data: AuthResponse) => void;
+    setAuth: (user: User) => void;
     updateProfile: (data: Partial<User> | FormData) => Promise<void>;
     refreshProfile: () => Promise<void>;
-    refreshAccessToken: () => Promise<boolean>;
+    checkAuth: () => Promise<boolean>;
     setHasHydrated: (state: boolean) => void;
 }
 
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
-
-/**
- * Securely store tokens - prioritizes HttpOnly cookies when available
- * Falls back to localStorage with additional security measures
- */
-function storeTokensSecurely(accessToken: string, refreshToken: string): void {
-    if (typeof window === 'undefined') return;
-
-    // For client-side, we store in localStorage
-    // Note: In production, you should use HttpOnly cookies set by the server
-    // This requires the backend to set cookies in the login response
-    try {
-        localStorage.setItem('accessToken', accessToken);
-        localStorage.setItem('refreshToken', refreshToken);
-    } catch (e) {
-        console.error('Failed to store tokens:', e);
-    }
-}
-
-/**
- * Clear stored tokens
- */
-function clearStoredTokens(): void {
-    if (typeof window === 'undefined') return;
-
-    try {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('auth-storage');
-    } catch (e) {
-        console.error('Failed to clear tokens:', e);
-    }
-}
 
 /**
  * Generate a cryptographically secure state parameter for OAuth
@@ -109,30 +75,34 @@ export const useAuthStore = create<AuthState>()(
     persist(
         (set, get) => ({
             user: null,
-            accessToken: null,
-            refreshToken: null,
             isAuthenticated: false,
+            rememberMe: false,
             _hasHydrated: false,
 
             // ================================================================
             // EMAIL/PASSWORD LOGIN
             // ================================================================
-            login: async (email: string, password: string) => {
+            login: async (email: string, password: string, rememberMe: boolean = false) => {
                 const response = await apiClient.post<AuthResponse>('/auth/login', {
                     email,
                     password,
                 });
 
-                const { accessToken, refreshToken, user } = response.data;
-
-                // Store tokens securely
-                storeTokensSecurely(accessToken, refreshToken);
+                // Store tokens based on rememberMe preference
+                // sessionStorage = cleared when browser closes
+                // localStorage = persistent across browser sessions
+                if (typeof window !== 'undefined') {
+                    const storage = rememberMe ? localStorage : sessionStorage;
+                    storage.setItem('accessToken', response.data.accessToken);
+                    storage.setItem('refreshToken', response.data.refreshToken);
+                    // Also save rememberMe flag permanently so we know which storage to check
+                    localStorage.setItem('rememberMe', rememberMe ? 'true' : 'false');
+                }
 
                 set({
-                    user,
-                    accessToken,
-                    refreshToken,
+                    user: response.data.user,
                     isAuthenticated: true,
+                    rememberMe,
                 });
             },
 
@@ -141,14 +111,15 @@ export const useAuthStore = create<AuthState>()(
             // ================================================================
             register: async (data) => {
                 const response = await apiClient.post<AuthResponse>('/auth/register', data);
-                const { accessToken, refreshToken, user } = response.data;
 
-                storeTokensSecurely(accessToken, refreshToken);
+                // Store tokens in localStorage as fallback
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem('accessToken', response.data.accessToken);
+                    localStorage.setItem('refreshToken', response.data.refreshToken);
+                }
 
                 set({
-                    user,
-                    accessToken,
-                    refreshToken,
+                    user: response.data.user,
                     isAuthenticated: true,
                 });
             },
@@ -210,18 +181,18 @@ export const useAuthStore = create<AuthState>()(
                     redirectUri: GOOGLE_REDIRECT_URI,
                 });
 
-                const { accessToken, refreshToken, user } = response.data;
+                // Store tokens in localStorage
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem('accessToken', response.data.accessToken);
+                    localStorage.setItem('refreshToken', response.data.refreshToken);
+                }
 
                 // Clear PKCE storage
                 sessionStorage.removeItem('oauth_code_verifier');
                 sessionStorage.removeItem('oauth_state');
 
-                storeTokensSecurely(accessToken, refreshToken);
-
                 set({
-                    user,
-                    accessToken,
-                    refreshToken,
+                    user: response.data.user,
                     isAuthenticated: true,
                 });
             },
@@ -230,36 +201,40 @@ export const useAuthStore = create<AuthState>()(
             // LOGOUT
             // ================================================================
             logout: async () => {
-                // Optionally notify backend
+                // Clear state immediately to prevent stale data bleeding
+                set({
+                    user: null,
+                    isAuthenticated: false,
+                    rememberMe: false,
+                });
+
+                // Optionally notify backend to clear cookies
                 try {
-                    const token = get().refreshToken;
-                    if (token) {
-                        await apiClient.post('/auth/logout', { refreshToken: token }).catch(() => { });
-                    }
+                    await apiClient.post('/auth/logout').catch(() => { });
                 } catch {
                     // Ignore logout errors
                 }
 
-                clearStoredTokens();
-
-                set({
-                    user: null,
-                    accessToken: null,
-                    refreshToken: null,
-                    isAuthenticated: false,
-                });
+                // Clear tokens from BOTH storages to prevent data bleeding between accounts
+                if (typeof window !== 'undefined') {
+                    // Clear localStorage
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('refreshToken');
+                    localStorage.removeItem('auth-storage');
+                    localStorage.removeItem('rememberMe');
+                    // Clear sessionStorage
+                    sessionStorage.removeItem('accessToken');
+                    sessionStorage.removeItem('refreshToken');
+                    sessionStorage.removeItem('auth-storage');
+                }
             },
 
             // ================================================================
             // SET AUTH (used by callbacks)
             // ================================================================
-            setAuth: (data: AuthResponse) => {
-                storeTokensSecurely(data.accessToken, data.refreshToken);
-
+            setAuth: (user: User) => {
                 set({
-                    user: data.user,
-                    accessToken: data.accessToken,
-                    refreshToken: data.refreshToken,
+                    user,
                     isAuthenticated: true,
                 });
             },
@@ -270,9 +245,35 @@ export const useAuthStore = create<AuthState>()(
             updateProfile: async (data: Partial<User> | FormData) => {
                 // Optimistic update only works for JSON data
                 if (!(data instanceof FormData)) {
-                    set((state) => ({
-                        user: state.user ? { ...state.user, ...data } : null
-                    }));
+                    set((state) => {
+                        if (!state.user) return { user: null };
+
+                        const profileFields = ['displayName', 'bio', 'avatarUrl', 'countryId', 'regionId'];
+                        const newUser = { ...state.user };
+                        const updateData = data as any;
+
+                        // Handle profile fields
+                        const profileUpdates: any = {};
+                        profileFields.forEach(field => {
+                            if (updateData[field] !== undefined) {
+                                profileUpdates[field] = updateData[field];
+                            }
+                        });
+
+                        if (Object.keys(profileUpdates).length > 0) {
+                            newUser.profile = { ...(newUser.profile || {}), ...profileUpdates };
+                        }
+
+                        // Handle root user fields
+                        const rootFields = ['firstName', 'lastName', 'phoneNumber', 'locationAddress', 'locationLat', 'locationLng', 'onboardingCompleted', 'city', 'state', 'countryId'];
+                        rootFields.forEach(field => {
+                            if (updateData[field] !== undefined) {
+                                (newUser as any)[field] = updateData[field];
+                            }
+                        });
+
+                        return { user: newUser };
+                    });
                 }
 
                 const response = await apiClient.patch('/users/profile', data);
@@ -293,38 +294,42 @@ export const useAuthStore = create<AuthState>()(
                     set((state) => ({
                         user: state.user ? { ...state.user, ...response.data } : response.data
                     }));
-                } catch (error) {
-                    // Graceful degradation - profile refresh is optional
-                    console.warn('Failed to refresh profile:', error);
+                } catch (error: any) {
+                    // If 401, user session is invalid - clear auth state
+                    if (error?.response?.status === 401) {
+                        set({
+                            user: null,
+                            isAuthenticated: false,
+                        });
+                    } else {
+                        // Other errors - graceful degradation
+                        console.warn('Failed to refresh profile:', error);
+                    }
                 }
             },
 
             // ================================================================
-            // REFRESH ACCESS TOKEN
+            // CHECK AUTH (REFRESH TOKEN)
             // ================================================================
-            refreshAccessToken: async () => {
-                const refreshToken = get().refreshToken;
-                if (!refreshToken) return false;
-
+            checkAuth: async () => {
                 try {
-                    const response = await apiClient.post<{ accessToken: string; refreshToken?: string }>('/auth/refresh', {
-                        refreshToken,
-                    });
-
-                    const newAccessToken = response.data.accessToken;
-                    const newRefreshToken = response.data.refreshToken || refreshToken;
-
-                    storeTokensSecurely(newAccessToken, newRefreshToken);
+                    // Try to hit a protected endpoint or refresh endpoint to verify cookie validity
+                    const response = await apiClient.get<User>('/auth/me'); // Or just profile
 
                     set({
-                        accessToken: newAccessToken,
-                        refreshToken: newRefreshToken,
+                        user: response.data,
+                        isAuthenticated: true,
                     });
 
                     return true;
                 } catch (error) {
-                    // Refresh failed, logout
-                    get().logout();
+                    // If check fails, we might try to refresh?
+                    // But apiClient interceptor usually handles refresh. 
+                    // If everything fails, we are not auth.
+                    set({
+                        isAuthenticated: false,
+                        user: null,
+                    });
                     return false;
                 }
             },
@@ -339,8 +344,11 @@ export const useAuthStore = create<AuthState>()(
         {
             name: 'auth-storage',
             partialize: (state) => {
-                // Exclude sensitive image URLs from localStorage
-                const { user, ...rest } = state;
+                // Persistent store mainly for user profile data for UX
+                // Auth validity is now determined by the cookie, but we assume
+                // valid if state says so until an API call proves otherwise (401).
+
+                const { user, isAuthenticated, ...rest } = state;
                 const sanitizedUser = user ? {
                     ...user,
                     faceVerificationUrl: undefined,
@@ -349,8 +357,8 @@ export const useAuthStore = create<AuthState>()(
                 } : null;
 
                 return {
-                    ...rest,
                     user: sanitizedUser,
+                    isAuthenticated, // Optimistically persist auth state
                 };
             },
             onRehydrateStorage: () => (state) => {
@@ -359,3 +367,4 @@ export const useAuthStore = create<AuthState>()(
         }
     )
 );
+

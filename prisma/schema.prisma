@@ -26,7 +26,8 @@ model User {
   firstName           String?
   lastName            String?
   onboardingCompleted Boolean @default(false)
-  isVerified          Boolean @default(false) // Helper for quick checks
+  isEmailVerified     Boolean @default(false) @map("is_email_verified")
+  isVerified          Boolean @default(false) // Identity verified
   verificationStatus  String  @default("NONE") // PENDING, VERIFIED, REJECTED, NONE
   phoneNumber         String?
   supabaseUserId      String? @unique @map("supabase_user_id")
@@ -42,6 +43,8 @@ model User {
   locationLat     Float?
   locationLng     Float?
   locationAddress String?
+  city            String?
+  state           String?
 
   profile       UserProfile?
   listings      Listing[]
@@ -63,6 +66,8 @@ model User {
   reviewsReceived Review[] @relation("ReviewsReceived")
   appeals       Appeal[] @relation("UserAppeals")
   appealsReviewed Appeal[] @relation("AdminReviewedAppeals")
+  disputesFiled    Dispute[] @relation("DisputeReporter")
+  disputesResolved Dispute[] @relation("DisputeResolver")
 
   // OAuth fields
   googleId      String? @unique @map("google_id")
@@ -84,12 +89,35 @@ model User {
   signupIpAddress String? @map("signup_ip_address")
   lastLoginIp     String? @map("last_login_ip")
 
+  // Login security
+  failedLoginAttempts Int       @default(0) @map("failed_login_attempts")
+  lockoutUntil        DateTime? @map("lockout_until") @db.Timestamptz
+
+  // Monetization Fields
+  tier                String    @default("free") // 'free', 'premium'
+  chatPassExpiry      DateTime? @map("chat_pass_expiry") @db.Timestamptz
+  dailyChatCount      Int       @default(0) @map("daily_chat_count")
+  dailyChatResetAt    DateTime? @map("daily_chat_reset_at") @db.Timestamptz
+  spotlightCredits    Int       @default(0) @map("spotlight_credits")
+  subscriptions       Subscription[]
+  purchases           Purchase[]
+  
+  // Boost notification spam prevention
+  lastBoostNotificationAt   DateTime? @map("last_boost_notification_at") @db.Timestamptz
+  boostNotificationCount24h Int       @default(0) @map("boost_notification_count_24h")
+  boostNotificationResetAt  DateTime? @map("boost_notification_reset_at") @db.Timestamptz
+
   deletedAt     DateTime? @map("deleted_at") @db.Timestamptz
 
   @@map("users")
   @@index([deletedAt])
   @@index([googleId])
+  @@index([verificationStatus])
+  @@index([status])
+  @@index([phoneNumber])
+  @@index([boostNotificationCount24h]) // Fast spam filtering for boost targeting
 }
+
 
 model Want {
   id          String   @id @default(uuid()) @db.Uuid
@@ -107,6 +135,7 @@ model Want {
   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   @@map("wants")
+  @@index([category]) // Speeds up "Find users who want Electronics"
 }
 
 model UserProfile {
@@ -122,11 +151,21 @@ model UserProfile {
   bio           String?
   isVerified    Boolean   @default(false) @map("is_verified")
   lastLoginAt   DateTime? @map("last_login_at") @db.Timestamptz
+  
+  // Response Rate Tracking (for sellers)
+  totalConversationsReceived    Int       @default(0) @map("total_conversations_received")
+  conversationsRespondedWithin24h Int     @default(0) @map("conversations_responded_within_24h")
+  responseRate                   Float    @default(100) @map("response_rate") // Percentage 0-100
+  lastResponseRateUpdate         DateTime? @map("last_response_rate_update") @db.Timestamptz
+  
   createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   @@map("user_profiles")
+  @@index([displayName])
+  @@index([regionId]) // Speeds up "Find users in Lagos"
 }
+
 
 // LOCATION & CATEGORIES
 
@@ -220,6 +259,11 @@ model Listing {
   isDistressSale        Boolean   @default(false) @map("is_distress_sale")
   distressReason        String?   @map("distress_reason") // 'urgent_cash', 'relocating', 'clearing_stock'
   distressExpiresAt     DateTime? @map("distress_expires_at") @db.Timestamptz
+
+  // Monetization/Boost Fields
+  isCrossListed         Boolean   @default(false) @map("is_cross_listed")
+  spotlightExpiry       DateTime? @map("spotlight_expiry") @db.Timestamptz
+  pushNotificationSent  Boolean   @default(false) @map("push_notification_sent")
 
   deletedAt             DateTime? @map("deleted_at") @db.Timestamptz
 
@@ -317,6 +361,7 @@ model CartItem {
   createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamptz
 
   @@map("cart_items")
+  @@index([listingId]) // Speeds up category-from-cart targeting
 }
 
 // ORDERS & PAYMENTS
@@ -341,6 +386,7 @@ model Order {
   payments          Payment[]
   review            Review?
   escrowTransaction EscrowTransaction?
+  disputes          Dispute[]
 
   deletedAt         DateTime? @map("deleted_at") @db.Timestamptz
 
@@ -432,6 +478,11 @@ model Conversation {
   seller        User         @relation("SellerConversations", fields: [sellerId], references: [id], onDelete: Cascade)
   barterOfferId String?      @map("barter_offer_id") @db.Uuid
   barterOffer   BarterOffer? @relation(fields: [barterOfferId], references: [id])
+  
+  // Response Rate Tracking
+  sellerFirstResponseAt DateTime? @map("seller_first_response_at") @db.Timestamptz
+  responseTracked       Boolean   @default(false) @map("response_tracked") // Has this been counted in stats?
+  
   createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamptz
   updatedAt     DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
@@ -448,6 +499,8 @@ model Message {
   sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
   body           String
   messageType    String       @default("text") @map("message_type") // 'text','system'
+  mediaUrl       String?      @map("media_url")
+  mediaType      String?      @map("media_type") // 'image', 'video'
   isRead         Boolean      @default(false) @map("is_read")
   createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz
   reports        Report[]
@@ -503,6 +556,7 @@ model RecentlyViewed {
   listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
   viewedAt  DateTime @default(now()) @map("viewed_at") @db.Timestamptz
 
+  @@unique([userId, listingId])
   @@map("recently_viewed")
 }
 
@@ -522,6 +576,7 @@ model Review {
   listing       Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
   isPublic      Boolean  @default(true) @map("is_public")
   flagged       Boolean  @default(false)
+  photoProof    String?  @map("photo_proof") // Required for negative reviews (rating <= 2)
   adminResponse String?  @map("admin_response") @db.Text
   createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt     DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
@@ -552,6 +607,32 @@ model Appeal {
 
   @@map("appeals")
   @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// DISPUTES
+
+model Dispute {
+  id              String    @id @default(uuid()) @db.Uuid
+  orderId         String    @map("order_id") @db.Uuid
+  order           Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  reporterId      String    @map("reporter_id") @db.Uuid
+  reporter        User      @relation("DisputeReporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  reason          String    // 'item_not_as_described', 'seller_no_show', 'buyer_no_show', 'fraud', 'other'
+  description     String    @db.Text
+  evidenceImages  String[]  @default([]) @map("evidence_images")
+  status          String    @default("open") // 'open', 'under_review', 'resolved', 'rejected'
+  resolution      String?   // 'full_refund', 'partial_refund', 'no_action', 'warning_issued'
+  adminNotes      String?   @map("admin_notes") @db.Text
+  resolvedById    String?   @map("resolved_by_id") @db.Uuid
+  resolvedBy      User?     @relation("DisputeResolver", fields: [resolvedById], references: [id])
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  resolvedAt      DateTime? @map("resolved_at") @db.Timestamptz
+
+  @@map("disputes")
+  @@index([orderId])
+  @@index([reporterId])
   @@index([status])
   @@index([createdAt])
 }
@@ -672,4 +753,41 @@ model EmailVerification {
   @@index([email])
   @@index([email, otp])
   @@map("email_verifications")
+}
+
+// MONETIZATION MODELS
+
+model Subscription {
+  id              String    @id @default(uuid()) @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status          String    @default("active") // 'active', 'cancelled', 'expired'
+  startedAt       DateTime  @default(now()) @map("started_at") @db.Timestamptz
+  expiresAt       DateTime  @map("expires_at") @db.Timestamptz
+  paystackSubCode String?   @map("paystack_sub_code")
+  paystackCustCode String?  @map("paystack_cust_code")
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("subscriptions")
+  @@index([userId])
+  @@index([status, expiresAt])
+}
+
+model Purchase {
+  id              String    @id @default(uuid()) @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type            String    // 'chat_pass', 'cross_list', 'aggressive_boost', 'spotlight_3', 'spotlight_7', 'premium'
+  amountCents     Int       @map("amount_cents")
+  currency        String    @default("NGN")
+  listingId       String?   @map("listing_id") @db.Uuid
+  paystackRef     String?   @map("paystack_ref")
+  status          String    @default("pending") // 'pending', 'completed', 'failed'
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("purchases")
+  @@index([userId])
+  @@index([paystackRef])
+  @@index([status])
 }

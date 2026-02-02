@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import ActionConfirmModal from './ActionConfirmModal';
 import { adminApi } from '@/lib/admin-api';
@@ -47,6 +47,29 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
     }>({ open: false, type: null });
     const { addToast } = useToastStore();
 
+    // Report history state
+    const [userReports, setUserReports] = useState<any[]>([]);
+    const [loadingReports, setLoadingReports] = useState(false);
+    const [showReportHistory, setShowReportHistory] = useState(false);
+
+    // Fetch reports when user has reports against them and modal is open
+    useEffect(() => {
+        if (isOpen && user._count?.reportsAgainst && user._count.reportsAgainst > 0) {
+            const fetchReports = async () => {
+                setLoadingReports(true);
+                try {
+                    const response = await adminApi.getUserReports(user.id);
+                    setUserReports(response.data.reports || []);
+                } catch (error) {
+                    console.error('Failed to fetch user reports:', error);
+                } finally {
+                    setLoadingReports(false);
+                }
+            };
+            fetchReports();
+        }
+    }, [isOpen, user.id, user._count?.reportsAgainst]);
+
     const handleVerificationAction = async (reason?: string) => {
         if (!actionModal.type) return;
 
@@ -91,6 +114,16 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
             hour: '2-digit',
             minute: '2-digit'
         });
+    };
+
+    const getImageUrl = (path: string) => {
+        if (!path) return '';
+        if (path.startsWith('http')) return path;
+        // The path already includes /uploads/ or /private-uploads/ prefix
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333/api';
+        // Remove '/api' suffix if present for static files
+        const staticBaseUrl = baseUrl.replace(/\/api$/, '');
+        return `${staticBaseUrl}${path.startsWith('/') ? path : '/' + path}`;
     };
 
     return (
@@ -204,6 +237,71 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
                                 </div>
                             )}
 
+                            {/* Report History Section - Show if user has reports against them */}
+                            {user._count && user._count.reportsAgainst > 0 && (
+                                <div className="border border-red-200 bg-red-50 rounded-xl p-4 mb-6">
+                                    <button
+                                        onClick={() => setShowReportHistory(!showReportHistory)}
+                                        className="w-full flex items-center justify-between"
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <svg className="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                            </svg>
+                                            <span className="text-red-800 font-bold">
+                                                ⚠️ User has been reported {user._count.reportsAgainst} time{user._count.reportsAgainst > 1 ? 's' : ''}
+                                            </span>
+                                        </div>
+                                        <svg
+                                            className={`w-5 h-5 text-red-600 transition-transform ${showReportHistory ? 'rotate-180' : ''}`}
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </button>
+
+                                    {showReportHistory && (
+                                        <div className="mt-4 space-y-3">
+                                            {loadingReports ? (
+                                                <div className="text-center text-red-600 py-4">Loading report history...</div>
+                                            ) : userReports.length === 0 ? (
+                                                <div className="text-center text-red-600 py-4">No reports found</div>
+                                            ) : (
+                                                userReports.map((report: any) => (
+                                                    <div key={report.id} className="bg-white border border-red-100 rounded-lg p-3">
+                                                        <div className="flex items-start justify-between mb-2">
+                                                            <div>
+                                                                <span className={`px-2 py-0.5 text-xs font-bold rounded ${report.status === 'resolved' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                                                                    }`}>
+                                                                    {report.status?.toUpperCase()}
+                                                                </span>
+                                                                <span className="ml-2 text-xs text-gray-500">
+                                                                    {new Date(report.createdAt).toLocaleDateString()}
+                                                                </span>
+                                                            </div>
+                                                            {report.listing && (
+                                                                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
+                                                                    Listing: {report.listing.title}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <p className="text-sm font-medium text-gray-900">{report.reason}</p>
+                                                        {report.description && (
+                                                            <p className="text-sm text-gray-600 mt-1">{report.description}</p>
+                                                        )}
+                                                        <p className="text-xs text-gray-500 mt-2">
+                                                            Reported by: {report.reporter?.profile?.displayName || report.reporter?.email || 'Unknown'}
+                                                        </p>
+                                                    </div>
+                                                ))
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
                             {/* Identity Documents Section */}
                             <div className="border-t border-gray-200 pt-6">
                                 <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -229,7 +327,7 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
                                                 onClick={() => setActiveImageUrl(user.faceVerificationUrl!)}
                                             >
                                                 <Image
-                                                    src={user.faceVerificationUrl}
+                                                    src={getImageUrl(user.faceVerificationUrl)}
                                                     alt="Face verification"
                                                     fill
                                                     className="object-cover"
@@ -254,7 +352,7 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
                                                 onClick={() => setActiveImageUrl(user.idDocumentFrontUrl!)}
                                             >
                                                 <Image
-                                                    src={user.idDocumentFrontUrl}
+                                                    src={getImageUrl(user.idDocumentFrontUrl)}
                                                     alt="ID Front"
                                                     fill
                                                     className="object-cover"
@@ -276,7 +374,7 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
                                                 onClick={() => setActiveImageUrl(user.idDocumentBackUrl!)}
                                             >
                                                 <Image
-                                                    src={user.idDocumentBackUrl}
+                                                    src={getImageUrl(user.idDocumentBackUrl)}
                                                     alt="ID Back"
                                                     fill
                                                     className="object-cover"
@@ -345,7 +443,7 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
                         </button>
                         <div className="relative max-w-4xl max-h-[90vh] w-full h-full">
                             <Image
-                                src={activeImageUrl}
+                                src={getImageUrl(activeImageUrl)}
                                 alt="Full size document"
                                 fill
                                 className="object-contain"

@@ -10,7 +10,7 @@ async function createAdmin() {
         const hash = await argon2.hash('password123');
 
         const user = await prisma.user.upsert({
-            where: { email: 'admin@tradeplus.com' },
+            where: { email: 'admin@barterwave.com' },
             update: {
                 passwordHash: hash,
                 role: 'admin',
@@ -18,7 +18,7 @@ async function createAdmin() {
                 onboardingCompleted: true
             },
             create: {
-                email: 'admin@tradeplus.com',
+                email: 'admin@barterwave.com',
                 passwordHash: hash,
                 role: 'admin',
                 status: 'active',
@@ -41,7 +41,7 @@ async function createAdmin() {
         }, null, 2));
 
         console.log('\n📋 Login credentials:');
-        console.log('Email: admin@tradeplus.com');
+        console.log('Email: admin@barterwave.com');
         console.log('Password: password123');
 
     } catch (error) {

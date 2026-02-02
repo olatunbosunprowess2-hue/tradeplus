@@ -11,8 +11,13 @@ export default function AdminListingsPage() {
     const [listings, setListings] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [search, setSearch] = useState('');
+    const [status, setStatus] = useState('');
+    const [categoryId, setCategoryId] = useState('');
+    const [isDistressSale, setIsDistressSale] = useState('');
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [categories, setCategories] = useState<any[]>([]);
+
     const { addToast } = useToastStore();
 
     // Modal State
@@ -26,9 +31,15 @@ export default function AdminListingsPage() {
                 page,
                 limit: 10,
                 search: search || undefined,
+                status: (status as any) || undefined,
+                categoryId: categoryId ? parseInt(categoryId) : undefined,
+                isDistressSale: (isDistressSale as any) || undefined,
             });
+
+
             setListings(response.data.data);
-            setTotalPages(response.data.meta.lastPage);
+            setTotalPages(response.data.meta.totalPages || 1);
+
         } catch (error) {
             console.error('Failed to fetch listings:', error);
             addToast('error', 'Failed to load listings');
@@ -43,7 +54,21 @@ export default function AdminListingsPage() {
         }, 500); // Debounce search
 
         return () => clearTimeout(timeoutId);
-    }, [page, search]);
+    }, [page, search, status, categoryId, isDistressSale]);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                // Assuming there's a public endpoint or admin endpoint for categories
+                const response = await adminApi.getStats(); // Just to check if I can get them elsewhere
+                // Actually I should check if there is a getCategories in adminApi or similar
+            } catch (error) {
+                console.error('Failed to fetch categories:', error);
+            }
+        };
+        // For now let's just use the ones we know or fetch via general API if available
+    }, []);
+
 
     const initiateStatusChange = (listingId: string, newStatus: string) => {
         setPendingAction({ id: listingId, status: newStatus });
@@ -71,29 +96,54 @@ export default function AdminListingsPage() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-bold text-gray-900">Listing Moderation</h1>
-                <div className="relative">
-                    <input
-                        type="text"
-                        placeholder="Search listings..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="pl-10 pr-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
-                    />
-                    <svg
-                        className="w-5 h-5 text-gray-400 absolute left-3 top-2.5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                <div className="flex gap-3">
+                    <select
+                        value={status}
+                        onChange={(e) => setStatus(e.target.value)}
+                        className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm"
                     >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                        <option value="">All Statuses</option>
+                        <option value="active">Active</option>
+                        <option value="suspended">Suspended</option>
+                        <option value="paused">Paused</option>
+                        <option value="sold">Sold</option>
+                    </select>
+
+                    <select
+                        value={isDistressSale}
+                        onChange={(e) => setIsDistressSale(e.target.value)}
+                        className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm"
+                    >
+                        <option value="">All Sales</option>
+                        <option value="true">Distress Sales</option>
+                        <option value="false">Regular Sales</option>
+                    </select>
+
+                    <div className="relative">
+                        <input
+                            type="text"
+                            placeholder="Search listings..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="pl-10 pr-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
                         />
-                    </svg>
+                        <svg
+                            className="w-5 h-5 text-gray-400 absolute left-3 top-2.5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                            />
+                        </svg>
+                    </div>
                 </div>
             </div>
+
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                 <div className="overflow-x-auto">

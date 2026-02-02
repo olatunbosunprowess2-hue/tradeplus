@@ -20,12 +20,13 @@ import { UpdateListingDto } from './dto/update-listing.dto';
 import { ListingQueryDto } from './dto/listing-query.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { VerifiedUserGuard } from '../auth/guards/verified-user.guard';
+import { EmailVerifiedGuard } from '../auth/guards/email-verified.guard';
 
 @Controller('listings')
 export class ListingsController {
     constructor(private readonly listingsService: ListingsService) { }
 
-    @UseGuards(JwtAuthGuard, VerifiedUserGuard)
+    @UseGuards(JwtAuthGuard, EmailVerifiedGuard, VerifiedUserGuard)
     @Post()
     @UseInterceptors(FileFieldsInterceptor([
         { name: 'images', maxCount: 10 },
@@ -54,13 +55,8 @@ export class ListingsController {
             }
 
             return await this.listingsService.create(req.user.id, createListingDto);
-            // return { success: true, message: 'Skipped service' };
         } catch (error) {
             console.error('Error in ListingsController.create:', error.message);
-            if (error.code) {
-                console.error('PRISMA ERROR CODE:', error.code);
-                console.error('PRISMA ERROR META:', JSON.stringify(error.meta));
-            }
             throw error;
         }
     }
@@ -72,8 +68,12 @@ export class ListingsController {
 
     @UseGuards(JwtAuthGuard)
     @Get('my-listings')
-    getMyListings(@Request() req) {
-        return this.listingsService.findByUser(req.user.id);
+    getMyListings(
+        @Request() req,
+        @Query('page') page?: number,
+        @Query('limit') limit?: number
+    ) {
+        return this.listingsService.findByUser(req.user.id, page, limit);
     }
 
     @Get(':id')
@@ -81,7 +81,7 @@ export class ListingsController {
         return this.listingsService.findOne(id);
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, EmailVerifiedGuard)
     @Patch(':id')
     update(
         @Request() req,
@@ -91,9 +91,16 @@ export class ListingsController {
         return this.listingsService.update(id, req.user.id, updateListingDto);
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, EmailVerifiedGuard)
     @Delete(':id')
     remove(@Request() req, @Param('id') id: string) {
         return this.listingsService.remove(id, req.user.id);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Post(':id/view')
+    async recordView(@Request() req, @Param('id') id: string) {
+        await this.listingsService.recordView(id, req.user.id);
+        return { success: true };
     }
 }

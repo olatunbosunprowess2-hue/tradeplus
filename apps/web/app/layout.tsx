@@ -13,12 +13,12 @@ export const metadata: Metadata = {
     default: 'BarterWave - Buy, Sell & Trade Across Africa',
     template: '%s | BarterWave',
   },
-  description: 'Africa\'s trusted marketplace for buying, selling, and trading goods. Secure escrow protection, verified sellers, and easy barter trading.',
+  description: 'Africa\'s trusted marketplace for buying, selling, and trading goods. Verified sellers and easy barter trading.',
   keywords: [
     'buy and sell Africa',
     'online marketplace Africa',
     'barter trading',
-    'escrow payment',
+    'secure payment',
     'sell items online',
     'buy used items',
     'trade goods Africa',
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     locale: 'en_US',
     siteName: 'BarterWave',
     title: 'BarterWave - Buy, Sell & Trade Across Africa',
-    description: 'Africa\'s trusted marketplace for buying, selling, and trading goods. Secure escrow protection and verified sellers.',
+    description: 'Africa\'s trusted marketplace for buying, selling, and trading goods. Verified sellers and secure transactions.',
     images: [
       {
         url: '/og-image.png',

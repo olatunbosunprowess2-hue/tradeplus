@@ -53,17 +53,21 @@ export default function AdminActivityPage() {
     const [limit, setLimit] = useState(50);
     const [hasMore, setHasMore] = useState(true);
 
-    useEffect(() => {
-        if (_hasHydrated && (!user || user.role !== 'admin')) {
-            router.push('/login');
-        }
-    }, [user, _hasHydrated, router]);
+    // Allow admin roles: admin, moderator, super_admin
+    const isAdminRole = user?.role === 'admin' || user?.userRole?.name === 'admin' ||
+        user?.userRole?.name === 'moderator' || user?.userRole?.name === 'super_admin';
 
     useEffect(() => {
-        if (user?.role === 'admin') {
+        if (_hasHydrated && (!user || !isAdminRole)) {
+            router.push('/login');
+        }
+    }, [user, _hasHydrated, router, isAdminRole]);
+
+    useEffect(() => {
+        if (isAdminRole) {
             fetchActivity();
         }
-    }, [user, limit]);
+    }, [user, limit, isAdminRole]);
 
     const fetchActivity = async () => {
         try {

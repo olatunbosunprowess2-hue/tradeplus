@@ -4,8 +4,10 @@ import { MessagesController } from './messages.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 
+import { ActivityModule } from '../activity/activity.module';
+
 @Module({
-    imports: [PrismaModule, NotificationsModule],
+    imports: [PrismaModule, NotificationsModule, ActivityModule],
     controllers: [MessagesController],
     providers: [MessagesService],
     exports: [MessagesService],

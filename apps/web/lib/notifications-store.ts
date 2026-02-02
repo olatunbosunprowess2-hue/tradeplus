@@ -33,9 +33,13 @@ export const useNotificationsStore = create<NotificationsState>((set, get) => ({
         try {
             const response = await notificationsApi.getUnreadCount();
             set({ unreadCount: response.data });
-        } catch (error) {
-            console.error('Failed to fetch unread count', error);
-            // Reset count on error to prevent showing false notifications
+        } catch (error: any) {
+            // Silently ignore 401 (unauthenticated) or 0 (network error) status
+            const status = error?.response?.status;
+            if (status !== 401 && error?.message !== 'Network Error') {
+                console.warn('Notification count sync paused:', error.message);
+            }
+            // Reset count to prevent false indicators
             set({ unreadCount: 0 });
         }
     },

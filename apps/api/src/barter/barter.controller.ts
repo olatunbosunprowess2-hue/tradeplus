@@ -14,11 +14,12 @@ import { CreateOfferDto } from './dto/create-offer.dto';
 import { CounterOfferDto } from './dto/counter-offer.dto';
 import { OfferQueryDto } from './dto/offer-query.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { EmailVerifiedGuard } from '../auth/guards/email-verified.guard';
 
 import { VerifiedUserGuard } from '../auth/guards/verified-user.guard';
 
 @Controller('barter')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, EmailVerifiedGuard)
 export class BarterController {
     constructor(private readonly barterService: BarterService) { }
 

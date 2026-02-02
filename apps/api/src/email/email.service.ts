@@ -886,4 +886,78 @@ export class EmailService {
             text: `Your BarterWave account has been suspended. Reason: ${reason}. Contact support if you believe this is a mistake.`,
         });
     }
+
+    // ========================================================================
+    // AGGRESSIVE BOOST EMAIL TEMPLATE
+    // ========================================================================
+
+    async sendAggressiveBoostNotification(
+        email: string,
+        userName: string,
+        listingTitle: string,
+        categoryName: string,
+        sellerName: string,
+        listingId: string,
+    ): Promise<boolean> {
+        const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
+        const listingLink = `${frontendUrl}/listings/${listingId}`;
+
+        return this.send({
+            to: email,
+            subject: `🔥 Hot Deal: "${listingTitle}" in ${categoryName}!`,
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <h1 style="color: #1E40AF; margin: 0;">BarterWave</h1>
+                        <p style="color: #64748B; font-size: 14px;">Deals you don't want to miss</p>
+                    </div>
+                    
+                    <div style="background: linear-gradient(135deg, #F97316, #DC2626); border-radius: 12px; padding: 30px; text-align: center; color: white;">
+                        <span style="font-size: 48px;">🔥</span>
+                        <h2 style="margin: 10px 0;">Hot Deal Alert!</h2>
+                        <p style="font-size: 14px; opacity: 0.9; margin: 0;">Based on your interests</p>
+                    </div>
+                    
+                    <p style="color: #4B5563; line-height: 1.6; margin-top: 20px;">
+                        Hi${userName ? ` ${userName}` : ''},
+                    </p>
+                    
+                    <p style="color: #4B5563; line-height: 1.6;">
+                        A new listing just dropped that we think you'll love! <strong>${sellerName}</strong> is selling:
+                    </p>
+                    
+                    <div style="background: #F9FAFB; border-radius: 12px; padding: 20px; margin: 20px 0; border: 2px solid #F97316;">
+                        <h3 style="color: #1F2937; margin: 0 0 8px 0;">${listingTitle}</h3>
+                        <p style="color: #F97316; font-weight: bold; margin: 0;">📂 ${categoryName}</p>
+                    </div>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="${listingLink}" 
+                           style="background: linear-gradient(to right, #F97316, #DC2626); 
+                                  color: white; 
+                                  padding: 16px 32px; 
+                                  text-decoration: none; 
+                                  border-radius: 8px; 
+                                  font-weight: bold;
+                                  font-size: 16px;
+                                  display: inline-block;
+                                  box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);">
+                            View This Deal →
+                        </a>
+                    </div>
+                    
+                    <p style="color: #9CA3AF; font-size: 12px; text-align: center; margin-top: 30px;">
+                        You received this because you've shown interest in ${categoryName} listings on BarterWave.
+                    </p>
+                    
+                    <hr style="border: none; border-top: 1px solid #E5E7EB; margin: 20px 0;">
+                    
+                    <p style="color: #9CA3AF; font-size: 12px; text-align: center;">
+                        © ${new Date().getFullYear()} BarterWave. All rights reserved.
+                    </p>
+                </div>
+            `,
+            text: `Hot Deal Alert! ${sellerName} is selling "${listingTitle}" in ${categoryName}. Check it out: ${listingLink}`,
+        });
+    }
 }

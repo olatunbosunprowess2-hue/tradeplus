@@ -1,10 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
     <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#1D4ED8;stop-opacity:1" />
+      <stop offset="0%" style="stop-color:#2563EB;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#06B6D4;stop-opacity:1" />
     </linearGradient>
   </defs>
-  <circle cx="50" cy="50" r="48" fill="url(#grad)"/>
-  <text x="50" y="70" font-family="Arial, sans-serif" font-size="60" font-weight="bold" fill="white" text-anchor="middle">T+</text>
+  <!-- Top Hand - Clasping Motion -->
+  <path
+    d="M380 140C340 100 280 90 230 100C180 110 130 140 100 180C95 185 95 195 100 200C105 205 115 205 120 200C145 170 185 145 235 135C285 125 330 135 365 170C400 205 415 250 415 300C415 330 405 360 390 385C385 395 388 405 396 410C404 415 415 412 420 403C440 370 450 335 450 300C450 240 430 190 380 140Z"
+    fill="url(#grad)"
+  />
+  <!-- Palm Dot -->
+  <circle cx="395" cy="300" r="15" fill="url(#grad)" />
+  
+  <!-- Bottom Hand - Clasping Motion -->
+  <path
+    d="M132 372C172 412 232 422 282 412C332 402 382 372 412 332C417 327 417 317 412 312C407 307 397 307 392 312C367 342 327 367 277 377C227 387 182 377 147 342C112 307 97 262 97 212C97 182 107 152 122 127C127 117 124 107 116 102C108 97 97 100 92 109C72 142 62 177 62 212C62 272 82 322 132 372Z"
+    fill="url(#grad)"
+  />
+  <!-- Palm Dot -->
+  <circle cx="117" cy="212" r="15" fill="url(#grad)" />
 </svg>

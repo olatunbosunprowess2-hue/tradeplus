@@ -40,6 +40,8 @@ function DistressContent() {
     const minPrice = searchParams.get('minPrice') || undefined;
     const maxPrice = searchParams.get('maxPrice') || undefined;
     const category = searchParams.get('category') || undefined;
+    const countryId = searchParams.get('countryId') || undefined;
+    const regionId = searchParams.get('regionId') || undefined;
 
     const { ref, inView } = useInView();
     const [showMobileFilters, setShowMobileFilters] = useState(false);
@@ -71,7 +73,7 @@ function DistressContent() {
         isFetchingNextPage,
         status,
     } = useInfiniteQuery({
-        queryKey: ['distress-listings', search, type, condition, paymentMode, minPrice, maxPrice, category],
+        queryKey: ['distress-listings', search, type, condition, paymentMode, minPrice, maxPrice, category, countryId, regionId],
         queryFn: async ({ pageParam = 1 }) => {
             const params = {
                 page: pageParam,
@@ -83,6 +85,8 @@ function DistressContent() {
                 minPrice,
                 maxPrice,
                 category,
+                countryId,
+                regionId,
                 isDistressSale: 'true', // FORCE DISTRESS FILTER
             };
             const response = await apiClient.get<PaginatedResponse<Listing>>('/listings', { params });

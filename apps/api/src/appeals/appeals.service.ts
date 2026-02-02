@@ -55,15 +55,20 @@ export class AppealsService {
             }
         );
 
-        // Notify all admins about the new appeal
-        const admins = await this.prisma.user.findMany({
-            where: { role: 'admin' },
+        // Notify all staff (admin, moderator, etc.) about the new appeal
+        const staff = await this.prisma.user.findMany({
+            where: {
+                userRole: {
+                    level: { gte: 50 } // Moderator level and above
+                }
+            },
             select: { id: true }
         });
 
-        for (const admin of admins) {
+        for (const person of staff) {
             await this.notificationsService.create(
-                admin.id,
+                person.id,
+
                 'NEW_APPEAL',
                 {
                     appealId: appeal.id,
@@ -77,10 +82,15 @@ export class AppealsService {
         return appeal;
     }
 
-    async findAll(userId: string, isAdmin: boolean) {
-        if (isAdmin) {
-            // Admins see all appeals
-            return this.prisma.appeal.findMany({
+    async findAll(userId: string, isAdmin: boolean, page: number = 1, limit: number = 20) {
+        const skip = (page - 1) * limit;
+        const where: any = isAdmin ? {} : { userId };
+
+        const [appeals, total] = await Promise.all([
+            this.prisma.appeal.findMany({
+                where,
+                skip,
+                take: limit,
                 include: {
                     user: {
                         select: {
@@ -106,26 +116,21 @@ export class AppealsService {
                 orderBy: {
                     createdAt: 'desc'
                 }
-            });
-        } else {
-            // Users see only their own appeals
-            return this.prisma.appeal.findMany({
-                where: { userId },
-                include: {
-                    report: {
-                        select: {
-                            id: true,
-                            reason: true,
-                            status: true
-                        }
-                    }
-                },
-                orderBy: {
-                    createdAt: 'desc'
-                }
-            });
-        }
+            }),
+            this.prisma.appeal.count({ where })
+        ]);
+
+        return {
+            data: appeals,
+            meta: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit)
+            }
+        };
     }
+
 
     async reviewAppeal(appealId: string, adminId: string, reviewDto: ReviewAppealDto) {
         const appeal = await this.prisma.appeal.findUnique({

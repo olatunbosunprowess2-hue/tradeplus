@@ -9,7 +9,8 @@ import { PrismaModule } from '../prisma/prisma.module';
   imports: [PrismaModule],
   providers: [ActivityGateway, ActivityService],
   controllers: [ActivityController],
-  exports: [ActivityService],
+  exports: [ActivityService, ActivityGateway],
 })
+
 export class ActivityModule { }
 

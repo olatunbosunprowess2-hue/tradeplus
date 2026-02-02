@@ -17,7 +17,20 @@ export const messagesApi = {
         return response.data;
     },
 
-    sendMessage: async (data: { receiverId: string; content: string; listingId?: string }) => {
+    sendMessage: async (data: { receiverId: string; content: string; listingId?: string; file?: File }) => {
+        if (data.file) {
+            const formData = new FormData();
+            formData.append('receiverId', data.receiverId);
+            formData.append('content', data.content || '');
+            if (data.listingId) formData.append('listingId', data.listingId);
+            formData.append('file', data.file);
+
+            const response = await apiClient.post<Message>('/messages', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+            return response.data;
+        }
+
         const response = await apiClient.post<Message>('/messages', data);
         return response.data;
     },

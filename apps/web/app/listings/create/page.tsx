@@ -10,6 +10,9 @@ import { z } from 'zod';
 import { toast } from 'react-hot-toast';
 import VerificationRequiredModal from '@/components/VerificationRequiredModal';
 import SuspendedAccountModal from '@/components/SuspendedAccountModal';
+import BusinessAddressModal from '@/components/BusinessAddressModal';
+import { DistressBoostModal, SpotlightModal } from '@/components/PaywallModal';
+import { initializePayment, redirectToPaystack, checkListingLimit, useSpotlightCredit } from '@/lib/payments-api';
 import Image from 'next/image';
 
 // --- Validation Schema ---
@@ -44,6 +47,11 @@ export default function CreateListingPage() {
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
     const [showVerificationModal, setShowVerificationModal] = useState(false);
     const [showSuspendedModal, setShowSuspendedModal] = useState(false);
+    const [showBusinessAddressModal, setShowBusinessAddressModal] = useState(false);
+    const [showPaywallModal, setShowPaywallModal] = useState<'distress' | 'spotlight' | null>(null);
+    const [createdListingId, setCreatedListingId] = useState<string | null>(null);
+    const [isPaymentLoading, setIsPaymentLoading] = useState(false);
+    const [showListingLimitModal, setShowListingLimitModal] = useState(false);
 
     // Form Data
     const [formData, setFormData] = useState({
@@ -70,6 +78,9 @@ export default function CreateListingPage() {
     const [video, setVideo] = useState<File | null>(null);
     const [videoPreview, setVideoPreview] = useState<string>('');
 
+    // Categories
+    const [categories, setCategories] = useState<{ id: number; name: string; slug: string }[]>([]);
+
     // Service Categories
     const serviceCategories = [8, 9, 14];
     const isServiceCategory = serviceCategories.includes(formData.categoryId) || formData.type === 'SERVICE';
@@ -83,9 +94,19 @@ export default function CreateListingPage() {
                 setShowSuspendedModal(true);
             } else if (user && !user.isVerified) {
                 setShowVerificationModal(true);
+            } else if (user && !user.profile?.countryId) {
+                // Prompt user to set business address if not set
+                setShowBusinessAddressModal(true);
             }
         }
     }, [isAuthenticated, user, router, _hasHydrated]);
+
+    // Fetch categories from API
+    useEffect(() => {
+        apiClient.get('/categories')
+            .then(res => setCategories(res.data))
+            .catch(err => console.error('Failed to fetch categories:', err));
+    }, []);
 
     // Periodic suspension check - refresh profile every 30 seconds
     useEffect(() => {
@@ -201,6 +222,7 @@ export default function CreateListingPage() {
             const allowBarter = formData.paymentMethod === 'barter' || formData.paymentMethod === 'both';
             form.append('allowCash', allowCash.toString());
             form.append('allowBarter', allowBarter.toString());
+            form.append('allowCashPlusBarter', (allowCash && allowBarter).toString());
 
             // Files
             images.forEach(img => form.append('images', img));
@@ -220,16 +242,78 @@ export default function CreateListingPage() {
                 form.append('barterPreferencesOnly', formData.barterPreferencesOnly.toString());
             }
 
+            // Auto-apply user's business location to listing
+            if (user?.profile?.countryId) {
+                form.append('countryId', user.profile.countryId.toString());
+            }
+            if (user?.profile?.regionId) {
+                form.append('regionId', user.profile.regionId.toString());
+            }
+
             const response = await apiClient.post('/listings', form);
             addListing(response.data);
             toast.success('Listing created successfully!');
-            router.push(`/listings/${response.data.id}`);
+
+            // Store listing ID for potential boost purchase
+            setCreatedListingId(response.data.id);
+
+            // Show appropriate paywall modal based on listing type
+            if (formData.isDistressSale) {
+                setShowPaywallModal('distress');
+            } else {
+                setShowPaywallModal('spotlight');
+            }
 
         } catch (err: any) {
             console.error(err);
             toast.error(err.response?.data?.message || 'Failed to create listing');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handlePaywallSelect = async (optionId: string) => {
+        if (!createdListingId) return;
+
+        setIsPaymentLoading(true);
+        try {
+            const result = await initializePayment(optionId as any, createdListingId);
+            redirectToPaystack(result.authorizationUrl);
+        } catch (error) {
+            console.error('Payment initialization failed:', error);
+            toast.error('Failed to initialize payment. Please try again.');
+            // Still navigate to listing on error
+            router.push(`/listings/${createdListingId}`);
+        } finally {
+            setIsPaymentLoading(false);
+        }
+    };
+
+    const handleUseCredit = async (optionId: string) => {
+        if (!createdListingId) return;
+
+        setIsPaymentLoading(true);
+        try {
+            const result = await useSpotlightCredit(createdListingId);
+            if (result.success) {
+                toast.success(result.message);
+                await refreshProfile(); // Refresh credits
+                router.push(`/listings/${createdListingId}`);
+            } else {
+                toast.error(result.message);
+            }
+        } catch (error) {
+            console.error('Credit usage failed:', error);
+            toast.error('Failed to use credit. Please try again.');
+        } finally {
+            setIsPaymentLoading(false);
+        }
+    };
+
+    const handlePaywallClose = () => {
+        setShowPaywallModal(null);
+        if (createdListingId) {
+            router.push(`/listings/${createdListingId}`);
         }
     };
 
@@ -240,6 +324,27 @@ export default function CreateListingPage() {
         <div className="min-h-screen bg-gray-50 py-10 pb-20">
             <VerificationRequiredModal isOpen={showVerificationModal} onClose={() => router.push('/listings')} />
             <SuspendedAccountModal isOpen={showSuspendedModal} onClose={() => router.push('/listings')} actionAttempted="create a listing" />
+            <BusinessAddressModal
+                isOpen={showBusinessAddressModal}
+                onClose={() => router.push('/listings')}
+                onComplete={() => setShowBusinessAddressModal(false)}
+            />
+
+            {/* Post-Upload Paywall Modals */}
+            <DistressBoostModal
+                isOpen={showPaywallModal === 'distress'}
+                onClose={handlePaywallClose}
+                onSelectOption={handlePaywallSelect}
+                isLoading={isPaymentLoading}
+            />
+            <SpotlightModal
+                isOpen={showPaywallModal === 'spotlight'}
+                onClose={handlePaywallClose}
+                onSelectOption={handlePaywallSelect}
+                onUseCredit={handleUseCredit}
+                creditsAvailable={user?.spotlightCredits}
+                isLoading={isPaymentLoading}
+            />
 
             <div className="container mx-auto px-4 max-w-3xl">
                 {/* Progress Bar */}
@@ -300,16 +405,9 @@ export default function CreateListingPage() {
                                         className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
                                     >
                                         <option value={0}>Select a category</option>
-                                        <option value={1}>Electronics</option>
-                                        <option value={2}>Fashion</option>
-                                        <option value={3}>Mobile Phones & Tablets</option>
-                                        <option value={4}>Home & Garden</option>
-                                        <option value={5}>Sports & Outdoors</option>
-                                        <option value={6}>Beauty & Health</option>
-                                        <option value={7}>Vehicles</option>
-                                        <option value={8}>Services</option>
-                                        <option value={9}>Books & Media</option>
-                                        <option value={10}>Jobs</option>
+                                        {categories.map(category => (
+                                            <option key={category.id} value={category.id}>{category.name}</option>
+                                        ))}
                                     </select>
                                     {validationErrors.categoryId && <p className="text-red-500 text-sm mt-1">{validationErrors.categoryId}</p>}
                                 </div>

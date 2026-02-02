@@ -3,6 +3,7 @@ import { ReportsService } from './reports.service';
 import { CreateReportDto } from './dto/create-report.dto';
 import { ResolveReportDto } from './dto/resolve-report.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard, RequireRole } from '../common/guards/roles.guard';
 
 @Controller('reports')
 export class ReportsController {
@@ -14,39 +15,33 @@ export class ReportsController {
         return this.reportsService.create(req.user.id, createReportDto);
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @RequireRole('moderator')
     @Get()
     findAll(@Request() req) {
-        // Only allow admins to view all reports
-        if (req.user.role !== 'admin') {
-            throw new HttpException('Unauthorized: Admin access required', HttpStatus.UNAUTHORIZED);
-        }
         return this.reportsService.findAll();
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @RequireRole('moderator')
     @Patch(':id/resolve')
     async resolveReport(
         @Request() req,
         @Param('id') reportId: string,
         @Body() resolveReportDto: ResolveReportDto
     ) {
-        if (req.user.role !== 'admin') {
-            throw new HttpException('Unauthorized: Admin access required', HttpStatus.UNAUTHORIZED);
-        }
         return this.reportsService.resolveReport(reportId, resolveReportDto.adminMessage);
     }
 
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @RequireRole('moderator')
     @Delete(':id/delete-listing')
     async deleteReportedListing(
         @Request() req,
         @Param('id') reportId: string,
         @Body() resolveReportDto: ResolveReportDto
     ) {
-        if (req.user.role !== 'admin') {
-            throw new HttpException('Unauthorized: Admin access required', HttpStatus.UNAUTHORIZED);
-        }
         return this.reportsService.deleteReportedListing(reportId, resolveReportDto.adminMessage);
     }
 }
+

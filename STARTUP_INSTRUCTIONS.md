@@ -1,6 +1,6 @@
 # Startup Instructions
 
-Follow these steps to successfully start the TradePlus application.
+Follow these steps to successfully start the BarterWave application.
 
 ## Prerequisites
 
@@ -25,7 +25,7 @@ If you want to ensure the database is ready:
 ```powershell
 docker ps
 ```
-*You should see `tradeplus_postgres` and `tradeplus_redis` in the list.*
+*You should see `barterwave-postgres` in the list.*
 
 ### 3. Start the Application
 This command starts both the Backend API (Port 3333) and Frontend Web App (Port 3000).

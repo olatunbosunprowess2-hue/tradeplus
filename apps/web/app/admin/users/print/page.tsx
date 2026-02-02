@@ -72,13 +72,22 @@ export default function UserPrintParamsPage() {
         year: 'numeric', month: 'long', day: 'numeric'
     });
 
+    // Helper to get full image URL for relative paths
+    const getImageUrl = (path: string | null | undefined): string => {
+        if (!path) return '';
+        if (path.startsWith('http')) return path;
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333/api';
+        const baseUrl = apiUrl.replace(/\/api$/, ''); // Remove /api for static files
+        return `${baseUrl}${path.startsWith('/') ? path : '/' + path}`;
+    };
+
     return (
         <div className="bg-white min-h-screen print:m-0">
-            {/* Subtle Watermark Pattern - Very Light */}
-            <div className="fixed inset-0 pointer-events-none z-50 opacity-[0.015] select-none overflow-hidden print:opacity-[0.025]">
-                <div className="absolute inset-0 flex flex-wrap content-center justify-center gap-40 -rotate-[20deg] scale-125">
-                    {Array.from({ length: 50 }).map((_, i) => (
-                        <span key={i} className="text-6xl font-black text-slate-900 uppercase whitespace-nowrap tracking-widest">
+            {/* Watermark Pattern - Balanced visibility */}
+            <div className="fixed inset-0 pointer-events-none z-50 opacity-[0.025] select-none overflow-hidden print:opacity-[0.035]">
+                <div className="absolute inset-0 flex flex-wrap content-start justify-start gap-24 -rotate-[20deg] scale-125 -translate-x-10 -translate-y-10">
+                    {Array.from({ length: 80 }).map((_, i) => (
+                        <span key={i} className="text-5xl font-bold text-slate-600 uppercase whitespace-nowrap tracking-wider">
                             Barterwave
                         </span>
                     ))}
@@ -247,31 +256,31 @@ export default function UserPrintParamsPage() {
                     {/* Photo Grid */}
                     <div className="space-y-8">
                         {/* Selfie */}
-                        <div className="break-inside-avoid">
+                        <div className="break-inside-avoid mb-6">
                             <div className="flex items-center justify-between mb-3">
                                 <h3 className="font-semibold text-slate-700">1. Live Selfie Verification</h3>
                                 <span className="text-xs text-slate-500">Face Match</span>
                             </div>
-                            <div className="bg-slate-100 rounded-xl overflow-hidden border border-slate-200 h-[350px] flex items-center justify-center">
+                            <div className="bg-slate-100 rounded-xl overflow-hidden border border-slate-200 h-[250px] flex items-center justify-center">
                                 {user.faceVerificationUrl ? (
-                                    <img src={user.faceVerificationUrl} alt="Selfie Verification" className="max-w-full max-h-full object-contain" />
+                                    <img src={getImageUrl(user.faceVerificationUrl)} alt="Selfie Verification" className="max-w-full max-h-full object-contain" crossOrigin="anonymous" />
                                 ) : (
                                     <p className="text-slate-400 italic">No selfie provided</p>
                                 )}
                             </div>
                         </div>
 
-                        {/* ID Documents */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 print:grid-cols-1">
+                        {/* ID Documents - Both on same row for print */}
+                        <div className="grid grid-cols-2 gap-4 print:gap-6">
                             {/* ID Front */}
                             <div className="break-inside-avoid">
-                                <div className="flex items-center justify-between mb-3">
-                                    <h3 className="font-semibold text-slate-700">2. ID Front</h3>
-                                    <span className="text-xs bg-slate-200 px-2 py-1 rounded text-slate-600">{user.idDocumentType || 'ID'}</span>
+                                <div className="flex items-center justify-between mb-2">
+                                    <h3 className="font-semibold text-slate-700 text-sm">2. ID Front</h3>
+                                    <span className="text-xs bg-slate-200 px-2 py-0.5 rounded text-slate-600">{user.idDocumentType || 'ID'}</span>
                                 </div>
-                                <div className="bg-slate-100 rounded-xl overflow-hidden border border-slate-200 h-[280px] flex items-center justify-center print:h-[400px]">
+                                <div className="bg-slate-100 rounded-xl overflow-hidden border border-slate-200 h-[200px] print:h-[250px] flex items-center justify-center">
                                     {user.idDocumentFrontUrl ? (
-                                        <img src={user.idDocumentFrontUrl} alt="ID Front" className="max-w-full max-h-full object-contain" />
+                                        <img src={getImageUrl(user.idDocumentFrontUrl)} alt="ID Front" className="max-w-full max-h-full object-contain" crossOrigin="anonymous" />
                                     ) : (
                                         <p className="text-slate-400 italic">Not provided</p>
                                     )}
@@ -280,12 +289,12 @@ export default function UserPrintParamsPage() {
 
                             {/* ID Back */}
                             <div className="break-inside-avoid">
-                                <div className="flex items-center justify-between mb-3">
-                                    <h3 className="font-semibold text-slate-700">3. ID Back</h3>
+                                <div className="flex items-center justify-between mb-2">
+                                    <h3 className="font-semibold text-slate-700 text-sm">3. ID Back</h3>
                                 </div>
-                                <div className="bg-slate-100 rounded-xl overflow-hidden border border-slate-200 h-[280px] flex items-center justify-center print:h-[400px]">
+                                <div className="bg-slate-100 rounded-xl overflow-hidden border border-slate-200 h-[200px] print:h-[250px] flex items-center justify-center">
                                     {user.idDocumentBackUrl ? (
-                                        <img src={user.idDocumentBackUrl} alt="ID Back" className="max-w-full max-h-full object-contain" />
+                                        <img src={getImageUrl(user.idDocumentBackUrl)} alt="ID Back" className="max-w-full max-h-full object-contain" crossOrigin="anonymous" />
                                     ) : (
                                         <p className="text-slate-400 italic">Not provided</p>
                                     )}

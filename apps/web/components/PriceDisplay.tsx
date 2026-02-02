@@ -8,6 +8,7 @@ interface PriceDisplayProps {
     originalPriceCents?: number;
     size?: 'sm' | 'md' | 'lg';
     className?: string;
+    isBarterFriendly?: boolean;
 }
 
 export default function PriceDisplay({
@@ -15,7 +16,8 @@ export default function PriceDisplay({
     currencyCode = 'NGN',
     originalPriceCents,
     size = 'md',
-    className = ''
+    className = '',
+    isBarterFriendly = false
 }: PriceDisplayProps) {
     const sizeClasses = {
         sm: 'text-sm',
@@ -48,21 +50,26 @@ export default function PriceDisplay({
     }
 
     return (
-        <div className={`flex items-center gap-2 ${className}`}>
-            <span className={`font-bold ${sizeClasses[size]} text-gray-900`}>
-                {price}
-            </span>
-            {originalPrice && (
-                <>
-                    <span className={`text-gray-400 line-through ${smallSizeClasses[size]}`}>
-                        {originalPrice}
-                    </span>
-                    <span className={`text-xs font-semibold px-2 py-0.5 rounded ${smallSizeClasses[size]}`}
-                        style={{ backgroundColor: '#FEF3C7', color: '#D97706' }}>
-                        -{discount}%
-                    </span>
-                </>
+        <div className={`${className}`}>
+            {isBarterFriendly && (
+                <span className="text-xs text-gray-500 block mb-0.5">Seller valued at</span>
             )}
+            <div className="flex items-center gap-2">
+                <span className={`font-bold ${sizeClasses[size]} text-gray-900`}>
+                    {price}
+                </span>
+                {originalPrice && (
+                    <>
+                        <span className={`text-gray-400 line-through ${smallSizeClasses[size]}`}>
+                            {originalPrice}
+                        </span>
+                        <span className={`text-xs font-semibold px-2 py-0.5 rounded ${smallSizeClasses[size]}`}
+                            style={{ backgroundColor: '#FEF3C7', color: '#D97706' }}>
+                            -{discount}%
+                        </span>
+                    </>
+                )}
+            </div>
         </div>
     );
 }

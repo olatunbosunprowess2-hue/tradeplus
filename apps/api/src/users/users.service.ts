@@ -11,7 +11,8 @@ export class UsersService {
         private notificationsService: NotificationsService
     ) { }
 
-    async findAll(search?: string) {
+    async findAll(search?: string, page: number = 1, limit: number = 20) {
+        const skip = (page - 1) * limit;
         const where: any = {};
         if (search) {
             where.OR = [
@@ -20,38 +21,75 @@ export class UsersService {
             ];
         }
 
-        return this.prisma.user.findMany({
-            where,
-            select: {
-                id: true,
-                email: true,
-                role: true,
-                userRole: { select: { name: true, level: true } },
-                profile: { select: { displayName: true, avatarUrl: true } },
-                verificationStatus: true
-            },
-            take: 20
-        });
+        const [users, total] = await Promise.all([
+            this.prisma.user.findMany({
+                where,
+                select: {
+                    id: true,
+                    email: true,
+                    role: true,
+                    userRole: { select: { name: true, level: true } },
+                    profile: { select: { displayName: true, avatarUrl: true } },
+                    verificationStatus: true,
+                    createdAt: true
+                },
+                skip,
+                take: limit,
+                orderBy: { createdAt: 'desc' }
+            }),
+            this.prisma.user.count({ where })
+        ]);
+
+        return {
+            data: users,
+            meta: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit)
+            }
+        };
     }
 
-    async findAllAdmins() {
-        return this.prisma.user.findMany({
-            where: {
-                OR: [
-                    { role: 'admin' },
-                    { roleId: { not: null } }
-                ]
-            },
-            select: {
-                id: true,
-                email: true,
-                role: true,
-                userRole: { select: { name: true, level: true } },
-                profile: { select: { displayName: true } },
-                verificationStatus: true
+    async findAllAdmins(page: number = 1, limit: number = 20) {
+        const skip = (page - 1) * limit;
+        const where = {
+            OR: [
+                { role: 'admin' },
+                { roleId: { not: null } }
+            ]
+        };
+
+        const [users, total] = await Promise.all([
+            this.prisma.user.findMany({
+                where,
+                select: {
+                    id: true,
+                    email: true,
+                    role: true,
+                    userRole: { select: { name: true, level: true } },
+                    profile: { select: { displayName: true } },
+                    verificationStatus: true,
+                    createdAt: true
+                },
+                skip,
+                take: limit,
+                orderBy: { createdAt: 'desc' }
+            }),
+            this.prisma.user.count({ where })
+        ]);
+
+        return {
+            data: users,
+            meta: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit)
             }
-        });
+        };
     }
+
 
     async findOne(id: string) {
         const user = await this.prisma.user.findUnique({
@@ -90,11 +128,13 @@ export class UsersService {
             locationAddress,
             locationLat,
             locationLng,
+            city,
+            state,
             ...profileData
         } = dto;
 
         // Update User fields if present
-        if (verificationStatus || idDocumentType || idDocumentFrontUrl || idDocumentBackUrl || faceVerificationUrl || phoneNumber || onboardingCompleted !== undefined || firstName || lastName || locationAddress) {
+        if (verificationStatus || idDocumentType || idDocumentFrontUrl || idDocumentBackUrl || faceVerificationUrl || phoneNumber || onboardingCompleted !== undefined || firstName || lastName || locationAddress || city || state) {
 
             // Fetch current user to check if verification status is changing
             const currentUser = await this.prisma.user.findUnique({
@@ -102,19 +142,35 @@ export class UsersService {
                 select: { verificationStatus: true }
             });
 
-            // Only notify admins if status is CHANGING TO PENDING (not if it's already PENDING)
+            // Only notify staff if status is CHANGING TO PENDING (not if it's already PENDING)
             if (verificationStatus === 'PENDING' && currentUser?.verificationStatus !== 'PENDING') {
-                const admins = await this.prisma.user.findMany({
-                    where: { role: 'admin' }
+                const staff = await this.prisma.user.findMany({
+                    where: {
+                        OR: [
+                            { role: 'admin' },
+                            {
+                                userRole: {
+                                    level: { gte: 50 } // Moderator level and above
+                                }
+                            }
+                        ]
+                    }
                 });
 
-                for (const admin of admins) {
+                const userForName = await this.prisma.user.findUnique({
+                    where: { id: userId },
+                    select: { email: true, firstName: true }
+                });
+
+                for (const person of staff) {
                     await this.notificationsService.create(
-                        admin.id,
+                        person.id,
+
                         'VERIFICATION_REQUEST',
                         {
                             userId,
-                            message: `New verification request from ${firstName || 'a user'}`,
+                            userEmail: userForName?.email,
+                            message: `New verification request from ${firstName || userForName?.firstName || 'a user'}`,
                             timestamp: new Date()
                         }
                     );
@@ -132,6 +188,8 @@ export class UsersService {
             if (firstName !== undefined) userData.firstName = firstName;
             if (lastName !== undefined) userData.lastName = lastName;
             if (locationAddress !== undefined) userData.locationAddress = locationAddress;
+            if (city !== undefined) userData.city = city;
+            if (state !== undefined) userData.state = state;
             if (locationLat !== undefined) userData.locationLat = locationLat;
             if (locationLng !== undefined) userData.locationLng = locationLng;
 
@@ -139,23 +197,41 @@ export class UsersService {
                 where: { id: userId },
                 data: userData,
             });
+
+            // Auto-sync displayName in profile when firstName/lastName change
+            if (firstName !== undefined || lastName !== undefined) {
+                const updatedUser = await this.prisma.user.findUnique({
+                    where: { id: userId },
+                    select: { firstName: true, lastName: true }
+                });
+                if (updatedUser) {
+                    const generatedDisplayName = `${updatedUser.firstName || ''} ${updatedUser.lastName || ''}`.trim();
+                    if (generatedDisplayName) {
+                        await this.prisma.userProfile.upsert({
+                            where: { userId },
+                            update: { displayName: generatedDisplayName },
+                            create: { userId, displayName: generatedDisplayName },
+                        });
+                    }
+                }
+            }
         }
 
         // Update or create Profile fields
-        const profile = await this.prisma.userProfile.upsert({
-            where: { userId },
-            update: {
-                ...profileData,
-            },
-            create: {
-                userId,
-                ...profileData,
-            },
-            include: {
-                country: true,
-                region: true,
-            },
-        });
+        // Only trigger upsert if we have profile data to update/create
+        if (Object.keys(profileData).length > 0) {
+            await this.prisma.userProfile.upsert({
+                where: { userId },
+                update: {
+                    ...profileData,
+                },
+                create: {
+                    userId,
+                    ...profileData,
+                },
+            });
+        }
+
 
         // Return full user object to keep auth store in sync
         return this.findOne(userId);

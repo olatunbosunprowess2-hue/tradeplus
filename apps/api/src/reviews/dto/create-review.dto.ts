@@ -14,4 +14,8 @@ export class CreateReviewDto {
     @IsString()
     @IsNotEmpty()
     orderId: string;
+
+    @IsString()
+    @IsOptional()
+    photoProof?: string; // Required for negative reviews (rating <= 2)
 }

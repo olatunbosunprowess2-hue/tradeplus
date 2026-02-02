@@ -17,16 +17,15 @@ export default function AdminAppealsPage() {
 
     // Pagination state
     const [page, setPage] = useState(1);
-    const itemsPerPage = 10;
-    const totalPages = Math.ceil(appeals.length / itemsPerPage);
-    const paginatedAppeals = appeals.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+    const [totalPages, setTotalPages] = useState(1);
+
 
     const fetchAppeals = async () => {
         setIsLoading(true);
         try {
-            const response = await appealsApi.getAppeals();
-            setAppeals(response.data);
-            setPage(1); // Reset to first page on new data
+            const response = await appealsApi.getAppeals(page, 10);
+            setAppeals(response.data.data);
+            setTotalPages(response.data.meta.totalPages || 1);
         } catch (error) {
             console.error('Failed to fetch appeals:', error);
             addToast('error', 'Failed to load appeals');
@@ -64,7 +63,8 @@ export default function AdminAppealsPage() {
 
     useEffect(() => {
         fetchAppeals();
-    }, []);
+    }, [page]);
+
 
     return (
         <div className="space-y-6">
@@ -100,26 +100,26 @@ export default function AdminAppealsPage() {
                                     </td>
                                 </tr>
                             ) : (
-                                paginatedAppeals.map((appeal) => (
+                                appeals.map((appeal) => (
                                     <tr key={appeal.id} className="hover:bg-gray-50 transition">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                {appeal.user.profile?.avatarUrl ? (
+                                                {appeal.user?.profile?.avatarUrl ? (
                                                     <img src={appeal.user.profile.avatarUrl} alt="" className="w-8 h-8 rounded-full" />
                                                 ) : (
                                                     <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-500">
-                                                        {appeal.user.email[0].toUpperCase()}
+                                                        {appeal.user?.email?.[0]?.toUpperCase() || '?'}
                                                     </div>
                                                 )}
                                                 <div>
                                                     <p className="text-sm font-medium text-gray-900">
-                                                        {appeal.user.profile?.displayName || appeal.user.email}
+                                                        {appeal.user?.profile?.displayName || appeal.user?.email || 'Unknown User'}
                                                     </p>
-                                                    <span className={`text-xs px-1.5 py-0.5 rounded ${appeal.user.status === 'suspended' ? 'bg-red-100 text-red-800' :
-                                                        appeal.user.status === 'banned' ? 'bg-gray-800 text-white' :
+                                                    <span className={`text-xs px-1.5 py-0.5 rounded ${appeal.user?.status === 'suspended' ? 'bg-red-100 text-red-800' :
+                                                        appeal.user?.status === 'banned' ? 'bg-gray-800 text-white' :
                                                             'bg-green-100 text-green-800'
                                                         }`}>
-                                                        {appeal.user.status}
+                                                        {appeal.user?.status || 'unknown'}
                                                     </span>
                                                 </div>
                                             </div>

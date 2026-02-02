@@ -1,14 +1,20 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 import { NotificationsService } from '../notifications/notifications.service';
+
+import { ActivityService } from '../activity/activity.service';
+import { ActivityGateway } from '../activity/activity.gateway';
 
 @Injectable()
 export class MessagesService {
     constructor(
         private prisma: PrismaService,
         private notificationsService: NotificationsService,
+        private activityService: ActivityService,
+        private gateway: ActivityGateway
     ) { }
+
 
     async getConversations(userId: string) {
         const conversations = await this.prisma.conversation.findMany({
@@ -84,10 +90,26 @@ export class MessagesService {
             timestamp: msg.createdAt.getTime(),
             read: msg.isRead,
             type: msg.messageType,
+            mediaUrl: msg.mediaUrl,
+            mediaType: msg.mediaType,
         }));
     }
 
-    async sendMessage(userId: string, data: { receiverId: string; content: string; listingId?: string }) {
+    async sendMessage(userId: string, data: { receiverId: string; content: string; listingId?: string }, file?: Express.Multer.File) {
+        // 0. Fraud Detection: Rate Limiting
+        // Check if user sent >20 messages in last 1 minute
+        const oneMinuteAgo = new Date(Date.now() - 60 * 1000);
+        const recentMessagesCount = await this.prisma.message.count({
+            where: {
+                senderId: userId,
+                createdAt: { gt: oneMinuteAgo },
+            },
+        });
+
+        if (recentMessagesCount >= 20) {
+            throw new ForbiddenException('You are sending messages too quickly. Please wait a moment.');
+        }
+
         // 1. Find or create conversation
         let conversation = await this.prisma.conversation.findFirst({
             where: {
@@ -108,35 +130,79 @@ export class MessagesService {
                     listingId: data.listingId,
                 },
             });
+
+            // Track new conversation for seller's response rate
+            await this.trackNewConversationForSeller(data.receiverId);
+
+            // Trigger Activity Feed
+            this.activityService.handleChatStarted(conversation.id, userId).catch(err => {
+                console.error('Failed to trigger activity feed for new chat:', err);
+            });
         }
 
-        // 2. Create message
+        // Track seller's first response
+        if (userId === conversation.sellerId && !conversation.sellerFirstResponseAt) {
+            await this.trackSellerResponse(conversation);
+        }
+
+        // 2. Prepare media data
+        let mediaUrl: string | undefined;
+        let mediaType: string | undefined;
+
+        if (file) {
+            mediaUrl = `/uploads/${file.filename}`;
+            if (file.mimetype.startsWith('image/')) {
+                mediaType = 'image';
+            } else if (file.mimetype.startsWith('video/')) {
+                mediaType = 'video';
+            } else {
+                mediaType = 'file'; // Fallback
+            }
+        }
+
+        // 3. Create message
         const message = await this.prisma.message.create({
             data: {
                 conversationId: conversation.id,
                 senderId: userId,
-                body: data.content,
+                body: data.content || '', // Allow empty body if file is present
+                mediaUrl,
+                mediaType,
+                messageType: data.content ? 'text' : (mediaType || 'text'), // If no content but file, assume media type? Or mix? 
+                // Let's keep messageType as 'text' or 'system' mostly, but we can overload it or relies on mediaType field.
+                // Schema says messageType default 'text'.
             },
         });
 
-        // 3. Update conversation timestamp
+        // 4. Update conversation timestamp
         await this.prisma.conversation.update({
             where: { id: conversation.id },
             data: { updatedAt: new Date() },
         });
 
-        // 4. Send Notification
+        // 5. Send Notification
         if (data.receiverId !== userId) {
+            const notificationMsg = file
+                ? (mediaType === 'image' ? '📷 Sent an image' : '🎥 Sent a video')
+                : (data.content?.length > 50 ? data.content.substring(0, 50) + '...' : (data.content || ''));
+
             await this.notificationsService.create(data.receiverId, 'NEW_MESSAGE', {
                 title: 'New Message',
-                message: data.content.length > 50 ? data.content.substring(0, 50) + '...' : data.content,
+                message: notificationMsg,
                 conversationId: conversation.id,
                 senderId: userId,
+            });
+
+            // 6. Real-time broadcast
+            this.gateway.sendToUser(data.receiverId, 'NEW_MESSAGE', {
+                ...message,
+                sender: userId === conversation.buyerId ? 'buyer' : 'seller' // Helper for UI
             });
         }
 
         return message;
     }
+
 
     async markAsRead(conversationId: string, userId: string) {
         await this.prisma.message.updateMany({
@@ -208,6 +274,11 @@ export class MessagesService {
                     listingId,
                 },
             });
+
+            // Trigger Activity Feed
+            this.activityService.handleChatStarted(conversation.id, userId).catch(err => {
+                console.error('Failed to trigger activity feed for new chat:', err);
+            });
         }
 
         // Send initial message if provided
@@ -236,5 +307,67 @@ export class MessagesService {
         }
 
         return conversation;
+    }
+
+    // Response Rate Tracking Methods
+
+    private async trackNewConversationForSeller(sellerId: string) {
+        try {
+            // Increment total conversations received for the seller
+            await this.prisma.userProfile.upsert({
+                where: { userId: sellerId },
+                update: {
+                    totalConversationsReceived: { increment: 1 },
+                },
+                create: {
+                    userId: sellerId,
+                    totalConversationsReceived: 1,
+                },
+            });
+        } catch (error) {
+            console.error('Failed to track new conversation for seller:', error);
+        }
+    }
+
+    private async trackSellerResponse(conversation: { id: string; createdAt: Date; sellerId: string }) {
+        try {
+            const now = new Date();
+            const conversationAge = now.getTime() - conversation.createdAt.getTime();
+            const twentyFourHours = 24 * 60 * 60 * 1000;
+            const respondedWithin24h = conversationAge <= twentyFourHours;
+
+            // Mark the conversation as having been responded to
+            await this.prisma.conversation.update({
+                where: { id: conversation.id },
+                data: {
+                    sellerFirstResponseAt: now,
+                    responseTracked: true,
+                },
+            });
+
+            // Update seller's response stats if responded within 24h
+            if (respondedWithin24h) {
+                const profile = await this.prisma.userProfile.findUnique({
+                    where: { userId: conversation.sellerId },
+                });
+
+                if (profile) {
+                    const newRespondedCount = profile.conversationsRespondedWithin24h + 1;
+                    const totalConversations = profile.totalConversationsReceived || 1;
+                    const newResponseRate = Math.round((newRespondedCount / totalConversations) * 100);
+
+                    await this.prisma.userProfile.update({
+                        where: { userId: conversation.sellerId },
+                        data: {
+                            conversationsRespondedWithin24h: newRespondedCount,
+                            responseRate: Math.min(100, newResponseRate),
+                            lastResponseRateUpdate: now,
+                        },
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Failed to track seller response:', error);
+        }
     }
 }

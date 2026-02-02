@@ -22,7 +22,14 @@ export class ActivityGateway implements OnGatewayConnection, OnGatewayDisconnect
 
     handleConnection(client: Socket) {
         this.logger.log(`Client connected: ${client.id}`);
-        // In a real app, validate JWT here
+
+        // Setup room joining
+        client.on('join', (userId: string) => {
+            if (userId) {
+                client.join(`user:${userId}`);
+                this.logger.log(`Client ${client.id} joined room: user:${userId}`);
+            }
+        });
     }
 
     handleDisconnect(client: Socket) {
@@ -32,4 +39,9 @@ export class ActivityGateway implements OnGatewayConnection, OnGatewayDisconnect
     broadcast(event: string, data: any) {
         this.server.emit(event, data);
     }
+
+    sendToUser(userId: string, event: string, data: any) {
+        this.server.to(`user:${userId}`).emit(event, data);
+    }
 }
+

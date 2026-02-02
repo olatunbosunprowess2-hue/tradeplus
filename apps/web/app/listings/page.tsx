@@ -12,6 +12,7 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 
 import SearchFilters from '@/components/SearchFilters';
 import CategoryPills from '@/components/CategoryPills';
+import SpotlightCarousel from '@/components/SpotlightCarousel';
 
 // Debounce hook for live search
 function useDebounce<T>(value: T, delay: number): T {
@@ -33,7 +34,7 @@ function useDebounce<T>(value: T, delay: number): T {
 // Rotating tips/taglines for the hero
 const heroSlides = [
     { emoji: '🛒', text: 'Discover unique items for cash or barter' },
-    { emoji: '🔒', text: 'Trade safely with our secure escrow system' },
+    { emoji: '🔒', text: 'Trade safely with verified sellers' },
     { emoji: '🔥', text: 'Check out urgent Distress Deals for big savings' },
     { emoji: '💬', text: 'Chat directly with verified sellers' },
     { emoji: '🤝', text: 'Swap items you have for items you need' },
@@ -48,7 +49,10 @@ function ListingsContent() {
     const paymentMode = searchParams.get('paymentMode') || undefined;
     const minPrice = searchParams.get('minPrice') || undefined;
     const maxPrice = searchParams.get('maxPrice') || undefined;
-    const category = searchParams.get('category') || undefined;
+    const categoryId = searchParams.get('categoryId') || undefined;
+    const isDistressSale = searchParams.get('isDistressSale') || undefined;
+    const countryId = searchParams.get('countryId') || undefined;
+    const regionId = searchParams.get('regionId') || undefined;
 
     const { ref, inView } = useInView();
     const [showMobileFilters, setShowMobileFilters] = useState(false);
@@ -89,7 +93,7 @@ function ListingsContent() {
         isFetchingNextPage,
         status,
     } = useInfiniteQuery({
-        queryKey: ['listings', search, type, condition, paymentMode, minPrice, maxPrice, category],
+        queryKey: ['listings', search, type, condition, paymentMode, minPrice, maxPrice, categoryId, isDistressSale, countryId, regionId],
         queryFn: async ({ pageParam = 1 }) => {
             const params = {
                 page: pageParam,
@@ -100,7 +104,10 @@ function ListingsContent() {
                 paymentMode,
                 minPrice,
                 maxPrice,
-                category,
+                categoryId,
+                isDistressSale,
+                countryId,
+                regionId,
             };
             const response = await apiClient.get<PaginatedResponse<Listing>>('/listings', { params });
             return response.data;
@@ -231,6 +238,11 @@ function ListingsContent() {
 
                     {/* Listings Grid */}
                     <div className="flex-1">
+                        {/* Spotlight Carousel - Featured Items */}
+                        {!isLoading && listings.length > 0 && (
+                            <SpotlightCarousel listings={listings} />
+                        )}
+
                         <CategoryPills />
 
                         {/* Search status indicator */}

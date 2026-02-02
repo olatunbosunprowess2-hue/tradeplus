@@ -7,7 +7,11 @@ import {
     Param,
     UseGuards,
     Request,
+    UseInterceptors,
+    UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { multerConfig } from '../common/configs/multer.config';
 import { MessagesService } from './messages.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
@@ -32,8 +36,13 @@ export class MessagesController {
     }
 
     @Post()
-    sendMessage(@Request() req, @Body() body: { receiverId: string; content: string; listingId?: string }) {
-        return this.messagesService.sendMessage(req.user.id, body);
+    @UseInterceptors(FileInterceptor('file', multerConfig))
+    async sendMessage(
+        @Request() req,
+        @Body() body: { receiverId: string; content: string; listingId?: string },
+        @UploadedFile() file: Express.Multer.File
+    ) {
+        return this.messagesService.sendMessage(req.user.id, body, file);
     }
 
     @Post('start')

@@ -4,7 +4,7 @@
     "plugins": [
       "expo-router"
     ],
-    "name": "TradePlus",
-    "slug": "TradePlus"
+    "name": "BarterWave",
+    "slug": "barterwave"
   }
 }

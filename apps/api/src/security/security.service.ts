@@ -45,23 +45,22 @@ export class SecurityService {
         await this.detectDeviceSharing();
     }
 
-    // Rule 1: Same IP creates > 4 accounts in 24h
+    // Rule 1: Same IP creates > 3 accounts in 24h
     private async detectAccountFlooding() {
-        // Query users created in last 24h, group by signupIpAddress
-        // Prisma doesn't support concise 'HAVING count > 4' in groupBy easily for strings? use raw.
         const floodedIps = await this.prisma.$queryRaw`
             SELECT signup_ip_address as ip, COUNT(id) as count
             FROM users
             WHERE created_at > NOW() - INTERVAL '24 hours'
               AND signup_ip_address IS NOT NULL
             GROUP BY signup_ip_address
-            HAVING COUNT(id) > 4
+            HAVING COUNT(id) > 3
         `;
 
         for (const record of floodedIps as any[]) {
             await this.flagIp(record.ip, `Account Flooding: ${record.count} accounts created in 24h`);
         }
     }
+
 
     // Rule 2: Same IP posts > 15 ads in 1h
     private async detectAdFlooding() {
@@ -116,18 +115,20 @@ export class SecurityService {
         // Check if already blocked or flagged
         const existing = await this.prisma.blockedIp.findUnique({ where: { ipAddress: ip } });
         if (!existing) {
-            this.logger.warn(`FLAGGING SUSPICIOUS IP: ${ip} - ${reason}`);
-            // Auto-block or just warn? Requirement said "Auto-alert". "Block button" is manual.
-            // But "IP-blocking middleware" implies we use BlockedIp table.
-            // Let's validly insert into BlockedIp but maybe with a "WARNING" reason, 
-            // or just use the Admin Table to show it.
-            // The requirement says "Admin must have a Suspicious IPs table".
-            // It doesn't strictly say "Auto-add to blocked table". 
-            // But to make the table work, we might need a model for "SuspiciousIp" or just query logs.
-            // Let's just Log/Email for now, and maybe create a BlockedIp entry if critical.
-            await this.alertAdmin(`Suspicious IP Alert: ${ip} - ${reason}`);
+            this.logger.error(`AUTO-BLOCKING IP: ${ip} - REASON: ${reason}`);
+
+            // Auto-block by inserting into BlockedIp table
+            await this.prisma.blockedIp.create({
+                data: {
+                    ipAddress: ip,
+                    reason: reason,
+                }
+            });
+
+            await this.alertAdmin(`IP Auto-Blocked: ${ip} - ${reason}`);
         }
     }
+
 
     private async alertAdmin(msg: string) {
         // Placeholder for Email Service
@@ -171,4 +172,31 @@ export class SecurityService {
         const blocked = await this.prisma.blockedIp.findUnique({ where: { ipAddress: ip } });
         return !!blocked;
     }
+
+    /**
+     * Checks if a user has exceeded their listing rate limit (20/hr).
+     * Returns true if allowed, throws ForbiddenException if blocked.
+     */
+    async checkListingRateLimit(userId: string): Promise<{ allowed: boolean; warning?: boolean }> {
+        const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+
+        const count = await this.prisma.listing.count({
+            where: {
+                sellerId: userId,
+                createdAt: { gte: oneHourAgo },
+                status: { not: 'removed' }
+            }
+        });
+
+        if (count >= 20) {
+            return { allowed: false };
+        }
+
+        if (count >= 15) {
+            return { allowed: true, warning: true };
+        }
+
+        return { allowed: true };
+    }
 }
+

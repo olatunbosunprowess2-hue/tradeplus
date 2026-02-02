@@ -4,7 +4,7 @@ import * as argon2 from 'argon2';
 const prisma = new PrismaClient();
 
 async function main() {
-    const email = 'admin@tradeplus.com';
+    const email = 'admin@barterwave.com';
     const password = 'password123';
 
     console.log(`Creating/Updating admin user: ${email}`);

@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Patch, Body, Param, UseGuards, Request, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Param, UseGuards, Request, Query, HttpException, HttpStatus } from '@nestjs/common';
+
 import { AppealsService } from './appeals.service';
 import { CreateAppealDto } from './dto/create-appeal.dto';
 import { ReviewAppealDto } from './dto/review-appeal.dto';
@@ -16,10 +17,17 @@ export class AppealsController {
 
     @UseGuards(JwtAuthGuard)
     @Get()
-    findAll(@Request() req) {
-        const isAdmin = req.user.role === 'admin';
-        return this.appealsService.findAll(req.user.id, isAdmin);
+    findAll(
+        @Request() req,
+        @Query('page') page?: number,
+        @Query('limit') limit?: number
+    ) {
+        // Use userRole level if available, fallback to legacy role
+        const roleLevel = req.user.userRole?.level || (req.user.role === 'admin' ? 80 : 0);
+        const isAdmin = roleLevel >= 50; // Moderator and above
+        return this.appealsService.findAll(req.user.id, isAdmin, page ? Number(page) : 1, limit ? Number(limit) : 20);
     }
+
 
     @UseGuards(JwtAuthGuard)
     @Patch(':id/review')
@@ -28,9 +36,11 @@ export class AppealsController {
         @Param('id') appealId: string,
         @Body() reviewDto: ReviewAppealDto
     ) {
-        if (req.user.role !== 'admin') {
-            throw new HttpException('Unauthorized: Admin access required', HttpStatus.UNAUTHORIZED);
+        const roleLevel = req.user.userRole?.level || (req.user.role === 'admin' ? 80 : 0);
+        if (roleLevel < 50) {
+            throw new HttpException('Unauthorized: Staff access required', HttpStatus.UNAUTHORIZED);
         }
         return this.appealsService.reviewAppeal(appealId, req.user.id, reviewDto);
     }
+
 }

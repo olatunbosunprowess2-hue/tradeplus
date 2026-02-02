@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 
 type Theme = 'light' | 'dark' | 'system';
 
@@ -11,9 +11,13 @@ interface ThemeContextType {
     toggleTheme: () => void;
 }
 
+interface ThemeProviderProps {
+    children: ReactNode;
+}
+
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
+export function ThemeProvider({ children }: ThemeProviderProps): ReactNode {
     const [theme, setThemeState] = useState<Theme>('system');
     const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light');
     const [mounted, setMounted] = useState(false);
@@ -71,7 +75,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     // Prevent flash on first render
     if (!mounted) {
-        return <>{children}</>;
+        return null;
     }
 
     return (

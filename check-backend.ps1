@@ -22,7 +22,7 @@ catch {
 Write-Host ""
 Write-Host "2. Checking if database migrations are needed..." -ForegroundColor Yellow
 Write-Host "   Run this command to check:" -ForegroundColor White
-Write-Host "   cd C:\Users\PC\Desktop\TradePlus\TradePlus" -ForegroundColor Cyan
+Write-Host "   cd C:\Users\PC\Desktop\BarterWave" -ForegroundColor Cyan
 Write-Host "   npx prisma migrate status" -ForegroundColor Cyan
 
 Write-Host ""

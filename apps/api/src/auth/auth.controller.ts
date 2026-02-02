@@ -16,10 +16,20 @@ export class AuthController {
     ) { }
 
     @Post('register')
-    async register(@Body() dto: RegisterDto) {
+    async register(@Body() dto: RegisterDto, @Res({ passthrough: true }) res: Response) {
         console.log('Register request:', dto);
         try {
-            return await this.authService.register(dto);
+            const result = await this.authService.register(dto);
+
+            // Set HttpOnly Cookies
+            this.setCookies(res, result.accessToken, result.refreshToken);
+
+            // Return tokens AND user for cross-origin compatibility
+            return {
+                user: result.user,
+                accessToken: result.accessToken,
+                refreshToken: result.refreshToken
+            };
         } catch (error) {
             console.error('Register error:', error);
             throw error;
@@ -49,13 +59,41 @@ export class AuthController {
     }
 
     @Post('login')
-    async login(@Body() dto: LoginDto) {
-        return this.authService.login(dto);
+    async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
+        const result = await this.authService.login(dto);
+
+        // Set HttpOnly Cookies
+        this.setCookies(res, result.accessToken, result.refreshToken);
+
+        // Return tokens AND user for cross-origin compatibility
+        return {
+            user: result.user,
+            accessToken: result.accessToken,
+            refreshToken: result.refreshToken
+        };
     }
 
     @Post('refresh')
-    async refresh(@Body('refreshToken') refreshToken: string) {
-        return this.authService.refreshTokens(refreshToken);
+    async refresh(@Request() req, @Body('refreshToken') bodyRefreshToken: string, @Res({ passthrough: true }) res: Response) {
+        // Extract refresh token from cookie or body as fallback
+        const refreshToken = bodyRefreshToken || req.cookies['refresh_token'];
+
+        if (!refreshToken) {
+            throw new Error('No refresh token found');
+        }
+
+        const result = await this.authService.refreshTokens(refreshToken);
+
+        // Update Cookies
+        this.setCookies(res, result.accessToken, result.refreshToken);
+
+        // Return tokens AND user for cross-origin compatibility
+        return {
+            message: 'Tokens refreshed',
+            accessToken: result.accessToken,
+            refreshToken: result.refreshToken,
+            user: result.user
+        };
     }
 
     @UseGuards(JwtAuthGuard)
@@ -175,10 +213,33 @@ export class AuthController {
      * POST /api/auth/logout
      */
     @Post('logout')
-    async logout(@Body('refreshToken') refreshToken: string) {
-        // In a production app, you'd blacklist the refresh token here
-        // For now, we just return success
+    async logout(@Res({ passthrough: true }) res: Response) {
+        // Clear cookies with same path they were set with
+        res.clearCookie('access_token', { path: '/' });
+        res.clearCookie('refresh_token', { path: '/' });
+
         return { message: 'Logged out successfully' };
+    }
+
+    // Helper to set cookies
+    private setCookies(res: Response, accessToken: string, refreshToken: string) {
+        const isProduction = process.env.NODE_ENV === 'production';
+
+        res.cookie('access_token', accessToken, {
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: isProduction ? 'strict' : 'lax',
+            path: '/',
+            maxAge: 15 * 60 * 1000, // 15 minutes
+        });
+
+        res.cookie('refresh_token', refreshToken, {
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: isProduction ? 'strict' : 'lax',
+            path: '/', // Send with all requests so refresh endpoint can access it
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
     }
 
     /**

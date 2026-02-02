@@ -1,16 +1,18 @@
+const { withSentryConfig } = require('@sentry/nextjs');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone',
   reactStrictMode: true,
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333/api',
   },
   images: {
     domains: [
       'ui-avatars.com',
       'images.unsplash.com',
       'placehold.co',
-      'localhost',  // for local development
-      // Automatically add production API hostname from env var
+      'localhost',
       ...(process.env.NEXT_PUBLIC_API_URL
         ? [new URL(process.env.NEXT_PUBLIC_API_URL).hostname]
         : [])
@@ -28,7 +30,22 @@ const nextConfig = {
   },
 }
 
-module.exports = nextConfig
+module.exports = withSentryConfig(
+  nextConfig,
+  {
+    silent: true,
+    org: "barterwave",
+    project: "javascript-nextjs",
+  },
+  {
+    widenClientFileUpload: true,
+    transpileClientSDK: true,
+    tunnelRoute: "/monitoring",
+    hideSourceMaps: true,
+    disableLogger: false,
+    automaticVercelMonitors: true,
+  }
+);
 
 
 

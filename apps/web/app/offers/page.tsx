@@ -15,7 +15,7 @@ type Tab = 'received' | 'sent' | 'history';
 
 export default function OffersPage() {
     const router = useRouter();
-    const { user } = useAuthStore();
+    const { user, isAuthenticated, _hasHydrated } = useAuthStore();
     const [activeTab, setActiveTab] = useState<Tab>('received');
     const [isCounterModalOpen, setIsCounterModalOpen] = useState(false);
     const [selectedOffer, setSelectedOffer] = useState<BarterOffer | null>(null);
@@ -35,9 +35,27 @@ export default function OffersPage() {
 
     const { createConversation } = useMessagesStore();
 
+    // Redirect to login if not authenticated
     useEffect(() => {
-        fetchOffers();
-    }, [fetchOffers]);
+        if (_hasHydrated && !isAuthenticated) {
+            router.push('/login');
+        }
+    }, [_hasHydrated, isAuthenticated, router]);
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            fetchOffers();
+        }
+    }, [fetchOffers, isAuthenticated]);
+
+    // Show loading while hydrating or if not authenticated
+    if (!_hasHydrated || !isAuthenticated) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+        );
+    }
 
     const receivedOffers = user ? getReceivedOffers(user.id) : [];
     const sentOffers = user ? getSentOffers(user.id) : [];

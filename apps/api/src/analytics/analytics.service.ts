@@ -116,29 +116,19 @@ export class AnalyticsService {
 
     async getSpamStats() {
         // 1. Hourly Deleted Ads (Last 24h)
-        const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        const hourlyDeletedRaw = await this.prisma.$queryRaw`
+            SELECT 
+                TO_CHAR(created_at, 'HH24:00') as time,
+                COUNT(*)::int as count
+            FROM audit_logs
+            WHERE action = 'DELETE_LISTING'
+              AND created_at > NOW() - INTERVAL '24 hours'
+            GROUP BY TO_CHAR(created_at, 'HH24:00')
+            ORDER BY time ASC
+        `;
 
-        // Using AuditLogs for 'DELETE_LISTING'
-        const deletedLogs = await this.prisma.auditLog.groupBy({
-            by: ['createdAt'],
-            where: {
-                action: 'DELETE_LISTING',
-                createdAt: { gte: yesterday }
-            },
-        });
+        const hourlyDeleted = JSON.parse(JSON.stringify(hourlyDeletedRaw));
 
-        // Aggregate in JS (since group by hour is tricky in polyglot Prisma)
-        const hourlyMap = new Map<number, number>();
-        deletedLogs.forEach(log => {
-            const hour = new Date(log.createdAt).getHours();
-            hourlyMap.set(hour, (hourlyMap.get(hour) || 0) + 1);
-        });
-
-        const hourlyDeleted = Array.from({ length: 24 }, (_, i) => {
-            const h = (new Date().getHours() - i + 24) % 24; // Reverse from now? Or simple 0-23.
-            // Let's do simple 0-23 sorted
-            return { time: `${i}:00`, count: hourlyMap.get(i) || 0 };
-        });
 
 
         // 2. Suspicious IPs (Users created per IP in last 7 days)
@@ -163,38 +153,39 @@ export class AnalyticsService {
 
 
         // 3. Created vs Banned Trend (Last 7 Days)
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        const trendRaw = await this.prisma.$queryRaw`
+            WITH dates AS (
+                SELECT generate_series(
+                    CURRENT_DATE - INTERVAL '6 days',
+                    CURRENT_DATE,
+                    INTERVAL '1 day'
+                )::date as date
+            ),
+            created AS (
+                SELECT created_at::date as date, COUNT(*)::int as count
+                FROM users
+                WHERE created_at > CURRENT_DATE - INTERVAL '7 days'
+                GROUP BY 1
+            ),
+            banned AS (
+                SELECT created_at::date as date, COUNT(*)::int as count
+                FROM audit_logs
+                WHERE action = 'BAN_USER'
+                  AND created_at > CURRENT_DATE - INTERVAL '7 days'
+                GROUP BY 1
+            )
+            SELECT 
+                d.date::text as date,
+                COALESCE(c.count, 0) as created,
+                COALESCE(b.count, 0) as banned
+            FROM dates d
+            LEFT JOIN created c ON d.date = c.date
+            LEFT JOIN banned b ON d.date = b.date
+            ORDER BY d.date ASC
+        `;
 
-        const createdUsers = await this.prisma.user.groupBy({
-            by: ['createdAt'],
-            where: { createdAt: { gte: sevenDaysAgo } }
-        });
+        const bannedVsCreated = JSON.parse(JSON.stringify(trendRaw));
 
-        // Mocking banned counts as we don't have bannedAt field or Audit History easily accessible via groupBy
-        // But let's try to get AuditLogs for 'BAN_USER'
-        const bannedLogs = await this.prisma.auditLog.groupBy({
-            by: ['createdAt'],
-            where: { action: 'BAN_USER', createdAt: { gte: sevenDaysAgo } }
-        });
-
-        // Group by Date String YYYY-MM-DD
-        const trendMap = new Map<string, { created: number, banned: number }>();
-
-        const process = (list: any[], key: 'created' | 'banned') => {
-            list.forEach(item => {
-                const day = new Date(item.createdAt).toISOString().split('T')[0];
-                if (!trendMap.has(day)) trendMap.set(day, { created: 0, banned: 0 });
-                trendMap.get(day)![key]++;
-            });
-        };
-
-        process(createdUsers, 'created');
-        process(bannedLogs, 'banned');
-
-        const bannedVsCreated = Array.from(trendMap.entries())
-            .sort((a, b) => a[0].localeCompare(b[0]))
-            .map(([date, stats]) => ({ date, ...stats }));
 
         return {
             hourlyDeleted,

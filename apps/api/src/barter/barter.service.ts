@@ -66,13 +66,35 @@ export class BarterService {
                     throw new ForbiddenException('You can only offer your own listings');
                 }
 
-                if (listing.quantity < item.quantity) {
+                if (listing.status !== 'active') {
+                    throw new BadRequestException(`Listing ${listing.title} is not active and cannot be offered`);
+                }
+
+                // Check "In-Trade" quantity: listing.quantity minus quantities already committed in PENDING or ACCEPTED offers
+                const committedQuantity = await this.prisma.barterOfferItem.aggregate({
+                    where: {
+                        offeredListingId: item.listingId,
+                        barterOffer: {
+                            buyerId: userId,
+                            status: { in: ['pending', 'accepted'] },
+                        },
+                    },
+                    _sum: {
+                        quantity: true,
+                    },
+                });
+
+                const totalCommitted = (committedQuantity._sum.quantity || 0);
+                const availableQuantity = listing.quantity - totalCommitted;
+
+                if (availableQuantity < item.quantity) {
                     throw new BadRequestException(
-                        `Insufficient quantity for listing ${item.listingId}`,
+                        `Insufficient available quantity for ${listing.title}. You have ${listing.quantity} total, but ${totalCommitted} units are already committed in other pending/accepted offers.`,
                     );
                 }
             }
         }
+
 
         // Create the offer
         const offer = await this.prisma.barterOffer.create({
@@ -321,12 +343,117 @@ export class BarterService {
             updated.listing.title,
         );
 
+        // Revalidate other pending offers involving these items
+        if (updated.items && updated.items.length > 0) {
+            for (const item of updated.items) {
+                await this.validateInTradeQuantities(item.offeredListingId, updated.buyerId);
+            }
+        }
+
         return {
             ...updated,
             offeredCashCents: updated.offeredCashCents ? Number(updated.offeredCashCents) : 0,
             conversationId: conversation.id, // Return for frontend navigation
         };
     }
+
+    /**
+     * Revalidates all pending offers that include a specific listing.
+     * If a pending offer now exceeds the available quantity (listing.quantity - other committed),
+     * it is automatically cancelled.
+     */
+    async validateInTradeQuantities(listingId: string, sellerId: string) {
+        const listing = await this.prisma.listing.findUnique({
+            where: { id: listingId },
+        });
+
+        if (!listing) return;
+
+        // 1. Handle offers where this listing is the TARGET (listingId matches BarterOffer.listingId)
+        if (listing.status !== 'active') {
+            const offersForListing = await this.prisma.barterOffer.findMany({
+                where: {
+                    listingId: listing.id,
+                    status: 'pending',
+                },
+            });
+
+            for (const offer of offersForListing) {
+                await this.prisma.barterOffer.update({
+                    where: { id: offer.id },
+                    data: { status: 'cancelled' },
+                });
+
+                await this.notificationsService.create(offer.buyerId, 'OFFER_CANCELLED', {
+                    title: 'Offer Cancelled',
+                    message: `Your offer for "${listing.title}" was automatically cancelled because the listing is no longer available.`,
+                    offerId: offer.id,
+                    listingId: offer.listingId,
+                });
+            }
+        }
+
+        // 2. Handle offers where this listing is being OFFERED as barter (listingId in BarterOfferItem)
+        const pendingOffersUsingItem = await this.prisma.barterOffer.findMany({
+            where: {
+                status: 'pending',
+                items: {
+                    some: { offeredListingId: listingId },
+                },
+            },
+            include: {
+                items: true,
+                buyer: { include: { profile: true } },
+                listing: true,
+            },
+        });
+
+        for (const offer of pendingOffersUsingItem) {
+            const offeredItem = offer.items.find(i => i.offeredListingId === listingId);
+            if (!offeredItem) continue;
+
+            // Calculate total committed quantity for this user and this listing (excluding current offer)
+            const committedQuantity = await this.prisma.barterOfferItem.aggregate({
+                where: {
+                    offeredListingId: listingId,
+                    barterOffer: {
+                        id: { not: offer.id },
+                        buyerId: offer.buyerId,
+                        status: { in: ['pending', 'accepted'] },
+                    },
+                },
+                _sum: {
+                    quantity: true,
+                },
+            });
+
+            const totalOtherCommitted = (committedQuantity._sum.quantity || 0);
+            const remainingAvailable = listing.quantity - totalOtherCommitted;
+
+            // If the listing is no longer active, or requested quantity exceeds remaining available
+            if (listing.status !== 'active' || remainingAvailable < offeredItem.quantity) {
+                // Auto-cancel this offer
+                await this.prisma.barterOffer.update({
+                    where: { id: offer.id },
+                    data: { status: 'cancelled' },
+                });
+
+                // Notify the buyer
+                const reason = listing.status !== 'active'
+                    ? `Item "${listing.title}" is no longer available.`
+                    : `You no longer have sufficient quantity of "${listing.title}" available for this trade.`;
+
+                await this.notificationsService.create(offer.buyerId, 'OFFER_CANCELLED', {
+                    title: 'Offer Auto-Cancelled',
+                    message: `Your offer for "${offer.listing.title}" was automatically cancelled. Reason: ${reason}`,
+                    offerId: offer.id,
+                    listingId: offer.listingId,
+                });
+            }
+        }
+    }
+
+
 
     async rejectOffer(id: string, userId: string) {
         const offer = await this.prisma.barterOffer.findUnique({
@@ -415,8 +542,36 @@ export class BarterService {
                 if (!listing || listing.sellerId !== userId) {
                     throw new ForbiddenException('You can only offer your own listings');
                 }
+
+                if (listing.status !== 'active') {
+                    throw new BadRequestException(`Listing ${listing.title} is not active and cannot be offered`);
+                }
+
+                // Check "In-Trade" quantity for counter-offer
+                const committedQuantity = await this.prisma.barterOfferItem.aggregate({
+                    where: {
+                        offeredListingId: item.listingId,
+                        barterOffer: {
+                            buyerId: userId,
+                            status: { in: ['pending', 'accepted'] },
+                        },
+                    },
+                    _sum: {
+                        quantity: true,
+                    },
+                });
+
+                const totalCommitted = (committedQuantity._sum.quantity || 0);
+                const availableQuantity = listing.quantity - totalCommitted;
+
+                if (availableQuantity < item.quantity) {
+                    throw new BadRequestException(
+                        `Insufficient available quantity for ${listing.title}. You have ${listing.quantity} total, but ${totalCommitted} units are already committed in other pending/accepted offers.`,
+                    );
+                }
             }
         }
+
 
         // Mark original offer as countered
         await this.prisma.barterOffer.update({
@@ -491,18 +646,24 @@ export class BarterService {
     async confirmTrade(offerId: string, userId: string) {
         const offer = await this.prisma.barterOffer.findUnique({
             where: { id: offerId },
+            include: { items: true },
         });
+
 
         if (!offer) {
             throw new NotFoundException('Offer not found');
         }
 
-        if (offer.status !== 'accepted') {
+        const validOffer = offer;
+
+        if (validOffer.status !== 'accepted') {
+
             throw new BadRequestException('Only accepted offers can be confirmed');
         }
 
-        const isSeller = offer.sellerId === userId;
-        const isBuyer = offer.buyerId === userId;
+        const isSeller = validOffer.sellerId === userId;
+        const isBuyer = validOffer.buyerId === userId;
+
 
         if (!isSeller && !isBuyer) {
             throw new ForbiddenException('You are not involved in this trade');
@@ -526,7 +687,67 @@ export class BarterService {
             const now = new Date();
             const receiptAvailableAt = new Date(now.getTime() + 24 * 60 * 60 * 1000); // +24 hours
             updateData.receiptAvailableAt = receiptAvailableAt;
+
+            // Atomic quantity reduction and status updates using a transaction
+            return await this.prisma.$transaction(async (tx) => {
+                const updatedOffer = await tx.barterOffer.update({
+                    where: { id: offerId },
+                    data: updateData,
+                    include: {
+                        listing: true,
+                        items: {
+                            include: { offeredListing: true }
+                        },
+                        buyer: { include: { profile: true } },
+                        seller: { include: { profile: true } },
+                    },
+                });
+
+                // 1. Update target listing (the one the offer was made for)
+                // Note: For now we assume quantity 1 for the main listing in a swap, 
+                // but we should ideally handle quantity if the model supports it per trade.
+                // Looking at schema, BarterOffer doesn't have a quantity field directly, 
+                // it's an offer for the whole listing (or 1 unit of it).
+                // Let's assume 1 unit for the main listing.
+                const newTargetQuantity = Math.max(0, updatedOffer.listing.quantity - 1);
+                await tx.listing.update({
+                    where: { id: updatedOffer.listingId },
+                    data: {
+                        quantity: newTargetQuantity,
+                        status: newTargetQuantity === 0 ? 'sold' : updatedOffer.listing.status
+                    }
+                });
+
+                // 2. Update offered listings
+                for (const item of updatedOffer.items) {
+                    const newOfferedQuantity = Math.max(0, item.offeredListing.quantity - item.quantity);
+                    await tx.listing.update({
+                        where: { id: item.offeredListingId },
+                        data: {
+                            quantity: newOfferedQuantity,
+                            status: newOfferedQuantity === 0 ? 'sold' : item.offeredListing.status
+                        }
+                    });
+                }
+
+                // 3. Revalidate other pending offers since quantities changed
+            });
+
+            // Revalidate outside transaction to avoid potential deadlocks/wait
+            await this.validateInTradeQuantities(validOffer.listingId, validOffer.sellerId);
+            if (validOffer.items) {
+                for (const item of validOffer.items) {
+                    await this.validateInTradeQuantities(item.offeredListingId, validOffer.buyerId);
+                }
+            }
+
+
+
+
+            // Fetch the final state to return
+            return this.getOffer(offerId, userId);
         }
+
 
         const updated = await this.prisma.barterOffer.update({
             where: { id: offerId },
@@ -554,6 +775,7 @@ export class BarterService {
             offeredCashCents: updated.offeredCashCents ? Number(updated.offeredCashCents) : 0,
         };
     }
+
 
     async getReceipt(offerId: string, userId: string) {
         const offer = await this.prisma.barterOffer.findUnique({

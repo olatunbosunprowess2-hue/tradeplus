@@ -7,7 +7,7 @@ dotenv.config({ path: 'apps/api/.env' });
 const prisma = new PrismaClient({
     datasources: {
         db: {
-            url: 'postgresql://user:password@localhost:5432/tradeplus?schema=public',
+            url: 'postgresql://user:password@localhost:5432/barterwave?schema=public',
         },
     },
 });
@@ -17,10 +17,10 @@ async function main() {
     const hashedPassword = await argon2.hash('password123');
 
     const adminUser = await prisma.user.upsert({
-        where: { email: 'admin@tradeplus.com' },
+        where: { email: 'admin@barterwave.com' },
         update: { role: 'admin', passwordHash: hashedPassword },
         create: {
-            email: 'admin@tradeplus.com',
+            email: 'admin@barterwave.com',
             passwordHash: hashedPassword,
             role: 'admin',
             profile: {

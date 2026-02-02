@@ -65,7 +65,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
                 const fs = require('fs');
                 const path = require('path');
                 // Use absolute path to ensure we find the file
-                const logPath = 'C:/Users/PC/Desktop/TradePlus/TradePlus/backend_error.log';
+                const logPath = 'C:/Users/PC/Desktop/BarterWave/BarterWave/backend_error.log';
                 const logEntry = `\n[${new Date().toISOString()}] ${request.method} ${request.url}\nUser: ${JSON.stringify((request as any).user)}\nBody: ${JSON.stringify(request.body)}\nException: ${JSON.stringify(exception, Object.getOwnPropertyNames(exception))}\nStack: ${(exception as any).stack}\n`;
                 fs.appendFileSync(logPath, logEntry);
             } catch (e) {

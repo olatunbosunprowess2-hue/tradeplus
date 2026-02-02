@@ -58,6 +58,14 @@ export class UpdateProfileDto {
     @IsOptional()
     locationAddress?: string;
 
+    @IsString()
+    @IsOptional()
+    city?: string;
+
+    @IsString()
+    @IsOptional()
+    state?: string;
+
     @IsNumber()
     @IsOptional()
     locationLat?: number;

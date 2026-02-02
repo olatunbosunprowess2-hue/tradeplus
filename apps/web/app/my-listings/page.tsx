@@ -6,6 +6,10 @@ import { useAuthStore } from '@/lib/auth-store';
 import { apiClient } from '@/lib/api-client';
 import ListingCard from '@/components/ListingCard';
 import Link from 'next/link';
+import { DistressBoostModal, SpotlightModal } from '@/components/PaywallModal';
+import { initializePayment, redirectToPaystack } from '@/lib/payments-api';
+import { toast } from 'react-hot-toast';
+import { Check, Sparkles } from 'lucide-react';
 
 interface Listing {
     id: string;
@@ -15,6 +19,10 @@ interface Listing {
     images: { url: string }[];
     status: string;
     createdAt: string;
+    isDistressSale?: boolean;
+    isFeatured?: boolean;
+    spotlightExpiry?: string;
+    isCrossListed?: boolean;
     _count?: { views: number };
 }
 
@@ -24,6 +32,11 @@ export default function MyListingsPage() {
     const [listings, setListings] = useState<Listing[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [filter, setFilter] = useState<'all' | 'active' | 'sold' | 'draft'>('all');
+
+    // Promote modal state
+    const [promoteModal, setPromoteModal] = useState<'distress' | 'spotlight' | null>(null);
+    const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
+    const [isPaymentLoading, setIsPaymentLoading] = useState(false);
 
     useEffect(() => {
         if (!isAuthenticated) {
@@ -60,6 +73,45 @@ export default function MyListingsPage() {
     };
 
     const counts = getStatusCounts();
+
+    // Handle Promote button click
+    const handlePromote = (listing: Listing) => {
+        setSelectedListingId(listing.id);
+        if (listing.isDistressSale) {
+            setPromoteModal('distress');
+        } else {
+            setPromoteModal('spotlight');
+        }
+    };
+
+    // Handle payment selection
+    const handlePaywallSelect = async (optionId: string, currency: 'NGN' | 'USD') => {
+        if (!selectedListingId) return;
+
+        setIsPaymentLoading(true);
+        try {
+            const result = await initializePayment(optionId as any, selectedListingId, currency);
+            redirectToPaystack(result.authorizationUrl);
+        } catch (error) {
+            console.error('Payment initialization failed:', error);
+            toast.error('Failed to initialize payment. Please try again.');
+        } finally {
+            setIsPaymentLoading(false);
+        }
+    };
+
+    const handleModalClose = () => {
+        setPromoteModal(null);
+        setSelectedListingId(null);
+    };
+
+    // Check if listing is already boosted
+    const isAlreadyBoosted = (listing: Listing): boolean => {
+        if (listing.isDistressSale) {
+            return !!listing.isCrossListed;
+        }
+        return !!(listing.isFeatured || (listing.spotlightExpiry && new Date(listing.spotlightExpiry) > new Date()));
+    };
 
     if (isLoading) {
         return (
@@ -104,8 +156,8 @@ export default function MyListingsPage() {
                             key={tab.key}
                             onClick={() => setFilter(tab.key as any)}
                             className={`flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm transition-all ${filter === tab.key
-                                    ? 'bg-blue-600 text-white shadow-sm'
-                                    : 'text-gray-600 hover:bg-gray-50'
+                                ? 'bg-blue-600 text-white shadow-sm'
+                                : 'text-gray-600 hover:bg-gray-50'
                                 }`}
                         >
                             {tab.label}
@@ -145,19 +197,68 @@ export default function MyListingsPage() {
                         {filteredListings.map((listing) => (
                             <div key={listing.id} className="relative">
                                 <ListingCard listing={listing as any} />
+
+                                {/* Status Badge */}
                                 {listing.status !== 'active' && (
                                     <div className={`absolute top-2 left-2 px-2 py-1 rounded-lg text-xs font-bold ${listing.status === 'sold' ? 'bg-green-500 text-white' :
-                                            listing.status === 'draft' ? 'bg-yellow-500 text-white' :
-                                                'bg-gray-500 text-white'
+                                        listing.status === 'draft' ? 'bg-yellow-500 text-white' :
+                                            'bg-gray-500 text-white'
                                         }`}>
                                         {listing.status.toUpperCase()}
                                     </div>
+                                )}
+
+                                {listing.status === 'active' && (
+                                    <button
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            handlePromote(listing);
+                                        }}
+                                        disabled={!!isAlreadyBoosted(listing)}
+                                        className={`absolute bottom-3 left-3 right-3 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all duration-300 shadow-xl overflow-hidden group/btn ${isAlreadyBoosted(listing)
+                                            ? 'bg-emerald-500 text-white cursor-default shadow-emerald-100'
+                                            : 'bg-slate-900 text-white hover:bg-slate-800 hover:scale-[1.02] active:scale-[0.98]'
+                                            }`}
+                                    >
+                                        {!isAlreadyBoosted(listing) && (
+                                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite] transition-transform" />
+                                        )}
+
+                                        {isAlreadyBoosted(listing) ? (
+                                            <>
+                                                <div className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center">
+                                                    <Check className="w-2.5 h-2.5" />
+                                                </div>
+                                                ACTIVE BOOST
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Sparkles className="w-3.5 h-3.5 text-amber-400 group-hover/btn:rotate-12 transition-transform" />
+                                                BOOST VISIBILITY
+                                            </>
+                                        )}
+                                    </button>
                                 )}
                             </div>
                         ))}
                     </div>
                 )}
             </div>
+
+            {/* Promote Modals */}
+            <DistressBoostModal
+                isOpen={promoteModal === 'distress'}
+                onClose={handleModalClose}
+                onSelectOption={handlePaywallSelect}
+                isLoading={isPaymentLoading}
+            />
+            <SpotlightModal
+                isOpen={promoteModal === 'spotlight'}
+                onClose={handleModalClose}
+                onSelectOption={handlePaywallSelect}
+                isLoading={isPaymentLoading}
+            />
         </div>
     );
 }

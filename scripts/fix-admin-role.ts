@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 async function main() {
     console.log('🔧 Fixing Admin Role...');
 
-    const email = 'admin@tradeplus.com';
+    const email = 'admin@barterwave.com';
     const user = await prisma.user.findUnique({ where: { email } });
 
     if (!user) {

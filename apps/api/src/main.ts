@@ -6,6 +6,9 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { json, urlencoded } from 'express';
 import helmet from 'helmet';
 import compression from 'compression';
+import cookieParser from 'cookie-parser';
+import * as Sentry from '@sentry/node';
+import { nodeProfilingIntegration } from '@sentry/profiling-node';
 
 /**
  * Bootstrap Function
@@ -20,6 +23,18 @@ import compression from 'compression';
 };
 
 async function bootstrap() {
+  // Initialize Sentry
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN, // Set this in .env
+    integrations: [
+      nodeProfilingIntegration(),
+    ],
+    // Performance Monitoring
+    tracesSampleRate: 1.0, //  Capture 100% of the transactions
+    // Set sampling rate for profiling - this is relative to tracesSampleRate
+    profilesSampleRate: 1.0,
+  });
+
   // Create the NestJS application instance
   const app = await NestFactory.create(AppModule);
 
@@ -27,9 +42,12 @@ async function bootstrap() {
   // Compresses response bodies for all requests (reduces bandwidth by 70-90%)
   app.use(compression());
 
-  // Increase body size limit for image uploads
-  app.use(json({ limit: '50mb' }));
-  app.use(urlencoded({ extended: true, limit: '50mb' }));
+  // COOKIE PARSER
+  app.use(cookieParser());
+
+  // Increase body size limit for large media uploads
+  app.use(json({ limit: '100mb' }));
+  app.use(urlencoded({ extended: true, limit: '100mb' }));
 
   // HELMET SECURITY HEADERS
   // Comprehensive security headers protection
@@ -78,9 +96,22 @@ async function bootstrap() {
   // CORS (Cross-Origin Resource Sharing)
   // Allows the frontend (running on a different port) to communicate with the API
   // In production, this is restricted to your actual frontend domain
+  // Allow local network IPs for mobile testing (172.x.x.x and 192.168.x.x)
   const allowedOrigins = process.env.NODE_ENV === 'production'
     ? [process.env.FRONTEND_URL || 'https://barterwave.com']
-    : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://127.0.0.1:3000', 'http://127.0.0.1:3002'];
+    : [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'http://localhost:3002',
+      'http://127.0.0.1:3000',
+      'http://127.0.0.1:3002',
+      // Local network and tunnels for mobile testing
+      /^http:\/\/10\.\d+\.\d+\.\d+:3000$/,
+      /^http:\/\/172\.(1[6-9]|2\d|3[01])\.\d+\.\d+:3000$/, // Full 172.16.x.x - 172.31.x.x range
+      /^http:\/\/192\.168\.\d+\.\d+:3000$/,
+      /\.loca\.lt$/, // Allow all localtunnel subdomains
+      /\.trycloudflare\.com$/, // Allow all Cloudflare quick tunnels
+    ];
 
   app.enableCors({
     origin: allowedOrigins,

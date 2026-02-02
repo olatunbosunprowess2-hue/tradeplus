@@ -27,7 +27,7 @@ function useDebounce<T>(value: T, delay: number): T {
 }
 
 export default function Navbar() {
-  const { user, isAuthenticated, _hasHydrated, refreshProfile } = useAuthStore();
+  const { user, isAuthenticated, _hasHydrated } = useAuthStore();
   const { getItemCount } = useCartStore();
   const { unreadCount, fetchUnreadCount } = useNotificationsStore();
   const [searchQuery, setSearchQuery] = useState('');
@@ -83,15 +83,6 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  // Periodic profile refresh for real-time suspension detection
-  useEffect(() => {
-    if (_hasHydrated && isAuthenticated) {
-      refreshProfile();
-      const profileInterval = setInterval(() => refreshProfile(), 30000);
-      return () => clearInterval(profileInterval);
-    }
-  }, [_hasHydrated, isAuthenticated, refreshProfile]);
 
   useEffect(() => {
     // Only fetch notifications after hydration is complete and user is authenticated
@@ -243,41 +234,7 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Professional Suspension Banner - Attention-grabbing design */}
-      {_hasHydrated && isAuthenticated && user?.status === 'suspended' && (
-        <div className="bg-gradient-to-r from-red-900 via-red-800 to-red-900 text-white fixed top-0 left-0 right-0 z-[60] shadow-2xl border-b-2 border-red-500/50">
-          <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between py-3.5 gap-4">
-              {/* Left: Alert with pulsing animation */}
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-white/30 rounded-full animate-ping" />
-                  <div className="relative bg-white/20 rounded-full p-2">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                  </div>
-                </div>
-                <div>
-                  <p className="font-bold text-sm tracking-wide">⛔ ACCOUNT SUSPENDED</p>
-                  <p className="text-xs text-red-200 mt-0.5">Your account access is restricted. Submit an appeal to restore full access.</p>
-                </div>
-              </div>
-              {/* Right: Professional CTA button */}
-              <Link
-                href="/appeals"
-                className="flex items-center gap-2 bg-white text-red-900 text-sm font-bold px-5 py-2.5 rounded-lg hover:bg-red-50 transition-all shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 whitespace-nowrap"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-                Submit Appeal
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
-      <nav className={`bg-gradient-to-r from-purple-100 via-pink-100 to-orange-100 backdrop-blur-xl border-b sticky z-50 transition-all duration-300 ${_hasHydrated && isAuthenticated && user?.status === 'suspended' ? 'top-[68px]' : 'top-0'} ${isScrolled ? 'border-purple-200/50 shadow-sm' : 'border-transparent'
+      <nav className={`bg-white/80 backdrop-blur-xl border-b sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'border-gray-200 shadow-sm' : 'border-transparent'
         }`}>
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16 gap-4">
