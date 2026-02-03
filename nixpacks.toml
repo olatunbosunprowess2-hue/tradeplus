@@ -1,15 +1,11 @@
 [phases.setup]
-aptPkgs = ["curl"]
+aptPkgs = ["openssl", "ca-certificates"]
 
 [phases.install]
-cmds = ["cd apps/web && npm install --legacy-peer-deps"]
+cmds = ["npm ci --legacy-peer-deps"]
 
 [phases.build]
-cmds = ["cd apps/web && npm run build"]
+cmds = ["npm run db:generate", "npm run build:api"]
 
 [start]
-cmd = "cd apps/web && node .next/standalone/apps/web/server.js"
-
-[variables]
-NODE_ENV = "production"
-PORT = "3000"
+cmd = "node apps/api/dist/main"
