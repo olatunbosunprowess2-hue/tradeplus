@@ -1,8 +1,15 @@
+[phases.setup]
+aptPkgs = ["curl"]
+
 [phases.install]
-cmds = ["npm install --legacy-peer-deps"]
+cmds = ["cd apps/web && npm install --legacy-peer-deps"]
 
 [phases.build]
-cmds = ["npm run build --workspace=apps/web"]
+cmds = ["cd apps/web && npm run build"]
 
 [start]
-cmd = "npm run start --workspace=apps/web"
+cmd = "cd apps/web && node .next/standalone/apps/web/server.js"
+
+[variables]
+NODE_ENV = "production"
+PORT = "3000"

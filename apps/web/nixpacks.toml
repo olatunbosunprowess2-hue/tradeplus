@@ -1,12 +1,23 @@
+# Nixpacks configuration for BarterWave Web (Next.js)
+# This is used by Railway for building and deploying
+
+[phases.setup]
+aptPkgs = []
+
 [phases.install]
 cmds = ["npm install --legacy-peer-deps"]
 
 [phases.build]
 cmds = [
     "npm run build",
-    "cp -r public .next/standalone/",
-    "cp -r .next/static .next/standalone/.next/"
+    "cp -r public .next/standalone/apps/web/public",
+    "mkdir -p .next/standalone/apps/web/.next",
+    "cp -r .next/static .next/standalone/apps/web/.next/static"
 ]
 
 [start]
-cmd = "node .next/standalone/server.js"
+cmd = "node .next/standalone/apps/web/server.js"
+
+[variables]
+NODE_ENV = "production"
+HOSTNAME = "0.0.0.0"
