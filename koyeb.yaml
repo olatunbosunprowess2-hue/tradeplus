@@ -1,0 +1,36 @@
+name: tradeplus
+services:
+  - name: tradeplus
+    type: web
+    ports:
+      - port: 3333
+        protocol: http
+    routes:
+      - path: /
+        port: 3333
+    regions:
+      - par
+    source:
+      git:
+        repository: github.com/olatunbosunprowess2-hue/tradeplus
+        branch: main
+        builder: nixpacks
+    health_checks:
+      - http:
+          path: /api/health
+          port: 3333
+    env:
+      - key: DATABASE_URL
+        value: postgresql://postgres:855981Pro@db.ueblqvobbpoukuyjoxwe.supabase.co:5432/postgres
+      - key: FRONTEND_URL
+        value: https://tradeplus-web.vercel.app
+      - key: JWT_SECRET
+        value: supersecret
+      - key: NODE_ENV
+        value: production
+      - key: NPM_CONFIG_LEGACY_PEER_DEPS
+        value: "true"
+      - key: NPM_CONFIG_PRODUCTION
+        value: "false"
+      - key: PORT
+        value: "3333"
