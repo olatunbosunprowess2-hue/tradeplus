@@ -1,9 +1,0 @@
-type: web
-name: tradeplus
-buildpack:
-  build_command: npm run heroku-postbuild
-  run_command: npm start
-env:
-  NODE_ENV: production
-  NPM_CONFIG_LEGACY_PEER_DEPS: "true"
-  NPM_CONFIG_PRODUCTION: "false"
