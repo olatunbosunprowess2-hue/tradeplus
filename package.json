@@ -20,6 +20,7 @@
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "db:seed": "tsx prisma/seed.ts",
+    "db:generate": "prisma generate",
     "heroku-postbuild": "npm run db:generate && npm run build:api"
   },
   "devDependencies": {
