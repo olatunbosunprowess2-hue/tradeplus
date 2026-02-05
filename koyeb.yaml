@@ -14,7 +14,8 @@ services:
       git:
         repository: github.com/olatunbosunprowess2-hue/tradeplus
         branch: main
-        builder: nixpacks
+        dockerfile:
+          path: Dockerfile
     health_checks:
       - http:
           path: /api/health
