@@ -22,11 +22,14 @@ COPY prisma ./prisma/
 # Install all dependencies (including devDependencies for build)
 RUN npm install --legacy-peer-deps
 
+# Install pinned Prisma CLI to match @prisma/client version
+RUN npm install -g prisma@5.22.0
+
 # Copy the rest of the source code
 COPY apps/api ./apps/api/
 
 # Generate Prisma client
-RUN npx prisma generate
+RUN prisma generate
 
 # Build the NestJS application
 RUN npm run build --workspace=apps/api
@@ -49,7 +52,8 @@ RUN npm install --omit=dev --legacy-peer-deps
 
 # Copy Prisma schema and generate client
 COPY prisma ./prisma/
-RUN npx prisma generate
+RUN npm install -g prisma@5.22.0
+RUN prisma generate
 
 # Copy built application from builder stage
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
