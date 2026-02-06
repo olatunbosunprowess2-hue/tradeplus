@@ -1,10 +1,11 @@
-import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { Module, NestModule, MiddlewareConsumer, Logger } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
+import * as Joi from 'joi';
 import { SentryInterceptor } from './common/interceptors/sentry.interceptor';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
@@ -40,6 +41,34 @@ import { PaymentsModule } from './payments/payments.module';
     imports: [
         ConfigModule.forRoot({
             isGlobal: true,
+            // Joi validation schema for environment variables
+            // App will NOT start if required variables are missing
+            validationSchema: Joi.object({
+                // Required variables - app will fail to start without these
+                DATABASE_URL: Joi.string().required().description('PostgreSQL connection URL'),
+                JWT_SECRET: Joi.string().required().description('Secret key for JWT signing'),
+
+                // Optional with defaults
+                PORT: Joi.number().default(3333).description('Server port'),
+                NODE_ENV: Joi.string().valid('development', 'production', 'test').default('development'),
+                FRONTEND_URL: Joi.string().default('http://localhost:3000'),
+
+                // JWT configuration
+                JWT_EXPIRES_IN: Joi.string().default('15m'),
+                JWT_REFRESH_EXPIRES_IN: Joi.string().default('7d'),
+                JWT_REFRESH_SECRET: Joi.string().optional(),
+
+                // Optional services
+                SENTRY_DSN: Joi.string().optional(),
+                SMTP_HOST: Joi.string().optional(),
+                SMTP_PORT: Joi.number().optional(),
+                SMTP_USER: Joi.string().optional(),
+                SMTP_PASS: Joi.string().optional(),
+            }),
+            validationOptions: {
+                abortEarly: false, // Show all validation errors at once
+                allowUnknown: true, // Allow extra env vars
+            },
         }),
         ThrottlerModule.forRoot([{
             ttl: 60000, // 60 seconds

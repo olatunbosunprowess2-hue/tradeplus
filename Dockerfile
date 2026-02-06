@@ -1,49 +1,60 @@
 # =====================================================
-# Multi-stage Dockerfile for BarterWave NestJS API
+# Production-Grade Dockerfile for BarterWave NestJS API
+# =====================================================
+# Features:
+# - Multi-stage build for optimized image size
+# - Locked Node.js and Prisma versions
+# - Automated migrations on startup
+# - Health check endpoint
 # =====================================================
 
-# Stage 1: Build Stage
-FROM node:20-alpine AS builder
+# Lock Node.js version for reproducibility
+FROM node:20.20.0-alpine AS builder
 
-# Install OpenSSL for Prisma
+# Install OpenSSL for Prisma and build tools
 RUN apk add --no-cache openssl
 
 WORKDIR /app
 
-# Copy root package files
+# Copy package files for dependency caching
 COPY package.json ./
-
-# Copy workspace package files
 COPY apps/api/package.json ./apps/api/
 
-# Copy prisma schema for generate
+# Copy Prisma schema (needed for client generation)
 COPY prisma ./prisma/
 
 # Install all dependencies (including devDependencies for build)
+# Using --legacy-peer-deps to handle peer dependency conflicts
 RUN npm install --legacy-peer-deps
 
-# Install pinned Prisma CLI to match @prisma/client version
+# Install pinned Prisma CLI (must match @prisma/client version in package.json)
+# This prevents version drift that could break migrations
 RUN npm install -g prisma@5.22.0
 
-# Copy the API source code
+# Copy API source code
 COPY apps/api ./apps/api/
 
 # Generate Prisma client
 RUN prisma generate
 
-# Build the NestJS application by running directly in the api directory
+# Build the application
 WORKDIR /app/apps/api
 RUN npm run build
 
-# Verify build output exists
-RUN ls -la dist/ && ls -la dist/src/main.js
+# Verify build artifacts exist (fail fast if build is broken)
+RUN ls -la dist/src/main.js || (echo "Build verification failed!" && exit 1)
 
 # =====================================================
-# Stage 2: Production Stage
-FROM node:20-alpine AS production
+# Production Stage - Minimal runtime image
+# =====================================================
+FROM node:20.20.0-alpine AS production
 
 # Install OpenSSL for Prisma runtime
 RUN apk add --no-cache openssl
+
+# Create non-root user for security
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nestjs -u 1001
 
 WORKDIR /app
 
@@ -51,30 +62,40 @@ WORKDIR /app
 COPY package.json ./
 COPY apps/api/package.json ./apps/api/
 
-# Install only production dependencies
+# Install production dependencies only
 RUN npm install --omit=dev --legacy-peer-deps
 
-# Copy Prisma schema and generate client
-COPY prisma ./prisma/
+# Install Prisma CLI for migrations (pinned version)
 RUN npm install -g prisma@5.22.0
+
+# Copy Prisma schema and migrations (needed for migrate deploy)
+COPY prisma ./prisma/
+
+# Generate Prisma client for production
 RUN prisma generate
 
 # Copy built application from builder stage
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 
-# Copy node_modules from apps/api (for workspace dependencies)
+# Copy node_modules from builder (includes workspace dependencies)
 COPY --from=builder /app/node_modules ./node_modules
 
-# Set environment variables
+# Set ownership to non-root user
+RUN chown -R nestjs:nodejs /app
+
+# Switch to non-root user
+USER nestjs
+
+# Environment configuration
 ENV NODE_ENV=production
 ENV PORT=3333
 
-# Expose the port
+# Expose the application port
 EXPOSE 3333
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+# Health check - verify API is responding
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:3333/api/health || exit 1
 
-# Start the application
-CMD ["node", "apps/api/dist/src/main.js"]
+# Start with production script (runs migrations first)
+CMD ["node", "apps/api/dist/src/start-production.js"]

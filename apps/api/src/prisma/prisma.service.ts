@@ -1,27 +1,61 @@
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
 /**
  * PrismaService
  * 
  * This service extends PrismaClient and provides database access throughout the application.
- * It implements soft delete functionality to prevent accidental data loss.
- * 
- * Soft Delete: Instead of permanently removing records, we mark them as deleted with a timestamp.
- * This allows data recovery and maintains audit trails.
+ * It implements:
+ * - Soft delete functionality to prevent accidental data loss
+ * - Connection retry with exponential backoff for production resilience
+ * - Detailed logging for database connection status
  */
 @Injectable()
 export class PrismaService
     extends PrismaClient
     implements OnModuleInit, OnModuleDestroy {
 
+    private readonly logger = new Logger('PrismaService');
+    private readonly MAX_RETRIES = 5;
+    private readonly INITIAL_DELAY_MS = 2000;
+
+    /**
+     * Connect to database with retry logic
+     * Uses exponential backoff: 2s, 4s, 8s, 16s, 32s
+     */
+    private async connectWithRetry(attempt = 1): Promise<void> {
+        try {
+            this.logger.log(`Attempting database connection (attempt ${attempt}/${this.MAX_RETRIES})...`);
+            await this.$connect();
+            this.logger.log('✅ Database connection established successfully');
+        } catch (error) {
+            const isLastAttempt = attempt >= this.MAX_RETRIES;
+            const delay = this.INITIAL_DELAY_MS * Math.pow(2, attempt - 1);
+
+            this.logger.error(
+                `❌ Database connection failed (attempt ${attempt}/${this.MAX_RETRIES}): ${error.message}`
+            );
+
+            if (isLastAttempt) {
+                this.logger.error(
+                    '🚨 All database connection attempts exhausted. Please check DATABASE_URL and database availability.'
+                );
+                throw new Error(`Failed to connect to database after ${this.MAX_RETRIES} attempts: ${error.message}`);
+            }
+
+            this.logger.warn(`Retrying in ${delay / 1000} seconds...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+            return this.connectWithRetry(attempt + 1);
+        }
+    }
+
     /**
      * Called when the module is initialized
-     * Sets up database connection and soft delete middleware
+     * Sets up database connection with retry and soft delete middleware
      */
     async onModuleInit() {
-        // Establish connection to the database
-        await this.$connect();
+        // Establish connection with retry logic
+        await this.connectWithRetry();
 
         // Soft Delete Middleware
         // This intercepts database queries and modifies them to handle soft deletes
@@ -86,6 +120,8 @@ export class PrismaService
      * Cleanly closes database connection
      */
     async onModuleDestroy() {
+        this.logger.log('Closing database connection...');
         await this.$disconnect();
+        this.logger.log('Database connection closed');
     }
 }

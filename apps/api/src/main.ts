@@ -121,11 +121,21 @@ async function bootstrap() {
   });
 
   // Start the server
-  const port = process.env.PORT || 3333;
-  await app.listen(port);
-  console.log(`Application is running on: ${await app.getUrl()}`);
-  console.log(`Swagger documentation available at: ${await app.getUrl()}/api/docs`);
+  // Bind to 0.0.0.0 for container compatibility (required for Koyeb, Docker, etc.)
+  const port = parseInt(process.env.PORT || '3333', 10);
+  const host = '0.0.0.0';
+
+  await app.listen(port, host);
+
+  console.log(`🚀 Application is running on: http://${host}:${port}`);
+  console.log(`📚 Swagger documentation available at: http://${host}:${port}/api/docs`);
+  console.log(`🏥 Health check available at: http://${host}:${port}/api/health`);
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
 }
 
 // Start the application
-bootstrap();
+bootstrap().catch((error) => {
+  console.error('❌ Failed to start application:', error);
+  process.exit(1);
+});
+
