@@ -19,7 +19,15 @@ export const apiClient = axios.create({
 apiClient.interceptors.request.use((config) => {
     // 1. URL Construction
     if (config.url && !config.url.startsWith('http')) {
-        const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333/api';
+        let rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333/api';
+
+        // Ensure API URL ends with /api to prevent common configuration errors
+        if (!rawApiUrl.endsWith('/api')) {
+            // Remove trailing slash if present before appending /api
+            rawApiUrl = rawApiUrl.endsWith('/') ? rawApiUrl.slice(0, -1) : rawApiUrl;
+            rawApiUrl += '/api';
+        }
+
         const base = rawApiUrl.startsWith('http') ? rawApiUrl :
             (typeof window !== 'undefined' ? window.location.origin + rawApiUrl : rawApiUrl);
 
