@@ -25,14 +25,18 @@ RUN npm install --legacy-peer-deps
 # Install pinned Prisma CLI to match @prisma/client version
 RUN npm install -g prisma@5.22.0
 
-# Copy the rest of the source code
+# Copy the API source code
 COPY apps/api ./apps/api/
 
 # Generate Prisma client
 RUN prisma generate
 
-# Build the NestJS application
-RUN npm run build --workspace=apps/api
+# Build the NestJS application by running directly in the api directory
+WORKDIR /app/apps/api
+RUN npm run build
+
+# Verify build output exists
+RUN ls -la dist/ && ls -la dist/main.js
 
 # =====================================================
 # Stage 2: Production Stage
@@ -58,6 +62,9 @@ RUN prisma generate
 # Copy built application from builder stage
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 
+# Copy node_modules from apps/api (for workspace dependencies)
+COPY --from=builder /app/node_modules ./node_modules
+
 # Set environment variables
 ENV NODE_ENV=production
 ENV PORT=3333
@@ -70,4 +77,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:3333/api/health || exit 1
 
 # Start the application
-CMD ["node", "apps/api/dist/main"]
+CMD ["node", "apps/api/dist/main.js"]
