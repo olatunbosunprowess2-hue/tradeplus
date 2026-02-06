@@ -36,7 +36,7 @@ WORKDIR /app/apps/api
 RUN npm run build
 
 # Verify build output exists
-RUN ls -la dist/ && ls -la dist/main.js
+RUN ls -la dist/ && ls -la dist/src/main.js
 
 # =====================================================
 # Stage 2: Production Stage
@@ -77,4 +77,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:3333/api/health || exit 1
 
 # Start the application
-CMD ["node", "apps/api/dist/main.js"]
+CMD ["node", "apps/api/dist/src/main.js"]
