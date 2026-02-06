@@ -132,7 +132,12 @@ export const useAuthStore = create<AuthState>()(
                     console.warn('Google OAuth not configured. Set NEXT_PUBLIC_GOOGLE_CLIENT_ID in environment.');
 
                     // For development, redirect to backend OAuth endpoint if available
-                    const backendOAuthUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333/api'}/auth/google`;
+                    let baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333/api';
+                    if (!baseUrl.endsWith('/api')) {
+                        baseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+                        baseUrl += '/api';
+                    }
+                    const backendOAuthUrl = `${baseUrl}/auth/google`;
                     window.location.href = backendOAuthUrl;
                     return;
                 }
