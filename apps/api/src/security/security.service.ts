@@ -39,10 +39,14 @@ export class SecurityService {
      */
     @Cron('*/15 * * * *')
     async runSecurityChecks() {
-        this.logger.log('Running Security Detection Jobs...');
-        await this.detectAccountFlooding();
-        await this.detectAdFlooding();
-        await this.detectDeviceSharing();
+        try {
+            this.logger.log('Running Security Detection Jobs...');
+            await this.detectAccountFlooding();
+            await this.detectAdFlooding();
+            await this.detectDeviceSharing();
+        } catch (error) {
+            this.logger.warn(`Skipping security checks due to error (DB might be down): ${error.message}`);
+        }
     }
 
     // Rule 1: Same IP creates > 3 accounts in 24h
