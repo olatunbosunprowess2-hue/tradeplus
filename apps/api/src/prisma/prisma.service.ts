@@ -19,14 +19,21 @@ export class PrismaService
     private readonly MAX_RETRIES = 5;
     private readonly INITIAL_DELAY_MS = 2000;
 
+    // Track connection status for potential lazy reconnection
+    private isConnected = false;
+
     /**
      * Connect to database with retry logic
      * Uses exponential backoff: 2s, 4s, 8s, 16s, 32s
+     * 
+     * IMPORTANT: This method is NON-BLOCKING to allow container startup
+     * even when the database is temporarily unreachable.
      */
     private async connectWithRetry(attempt = 1): Promise<void> {
         try {
             this.logger.log(`Attempting database connection (attempt ${attempt}/${this.MAX_RETRIES})...`);
             await this.$connect();
+            this.isConnected = true;
             this.logger.log('✅ Database connection established successfully');
         } catch (error) {
             const isLastAttempt = attempt >= this.MAX_RETRIES;
@@ -37,10 +44,20 @@ export class PrismaService
             );
 
             if (isLastAttempt) {
+                // CRITICAL: Do NOT throw here! Allow the app to start.
+                // The database might become available later, and queries will
+                // trigger connection errors on demand instead of crashing startup.
                 this.logger.error(
-                    '🚨 All database connection attempts exhausted. Please check DATABASE_URL and database availability.'
+                    '🚨 All database connection attempts exhausted. App will start in DEGRADED MODE.'
                 );
-                throw new Error(`Failed to connect to database after ${this.MAX_RETRIES} attempts: ${error.message}`);
+                this.logger.error(
+                    '⚠️ Database operations will fail until the database becomes available.'
+                );
+                this.logger.error(
+                    'Please check: DATABASE_URL, database status, network connectivity.'
+                );
+                // Do NOT throw - let the app start
+                return;
             }
 
             this.logger.warn(`Retrying in ${delay / 1000} seconds...`);
