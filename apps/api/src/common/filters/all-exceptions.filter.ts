@@ -56,21 +56,22 @@ export class AllExceptionsFilter implements ExceptionFilter {
         };
 
         // Log critical errors for monitoring
-        // In production, you would send these to a logging service like Sentry or DataDog
+        // In production, errors are logged to stdout/stderr which is captured by the container runtime
         if (status === HttpStatus.INTERNAL_SERVER_ERROR) {
-            console.error('Internal Server Error:', exception);
-
-            // Write to error log file
-            try {
-                const fs = require('fs');
-                const path = require('path');
-                // Use absolute path to ensure we find the file
-                const logPath = 'C:/Users/PC/Desktop/BarterWave/BarterWave/backend_error.log';
-                const logEntry = `\n[${new Date().toISOString()}] ${request.method} ${request.url}\nUser: ${JSON.stringify((request as any).user)}\nBody: ${JSON.stringify(request.body)}\nException: ${JSON.stringify(exception, Object.getOwnPropertyNames(exception))}\nStack: ${(exception as any).stack}\n`;
-                fs.appendFileSync(logPath, logEntry);
-            } catch (e) {
-                console.error('Failed to write to error log:', e);
-            }
+            const logEntry = {
+                timestamp: new Date().toISOString(),
+                type: 'INTERNAL_SERVER_ERROR',
+                method: request.method,
+                url: request.url,
+                user: (request as any).user?.id || 'anonymous',
+                body: request.body,
+                error: exception instanceof Error ? {
+                    name: exception.name,
+                    message: exception.message,
+                    stack: exception.stack,
+                } : String(exception),
+            };
+            console.error('Internal Server Error:', JSON.stringify(logEntry, null, 2));
         }
 
         // Send the formatted error response to the client
