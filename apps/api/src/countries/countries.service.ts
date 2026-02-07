@@ -9,14 +9,21 @@ export class CountriesService implements OnModuleInit {
     constructor(private prisma: PrismaService) { }
 
     async onModuleInit() {
-        // Ensure countries are populated on startup if count is suspiciously low
-        // We expect ~240 countries. If less than 200, sync them.
-        const count = await this.prisma.country.count();
-        this.logger.log(`🌍 Current country count in DB: ${count}`);
+        try {
+            // Ensure countries are populated on startup if count is suspiciously low
+            // We expect ~240 countries. If less than 200, sync them.
+            const count = await this.prisma.country.count();
+            this.logger.log(`🌍 Current country count in DB: ${count}`);
 
-        if (count < 200) {
-            this.logger.log('🌍 Populating/Updating country list from library...');
-            await this.syncCountries();
+            if (count < 200) {
+                this.logger.log('🌍 Populating/Updating country list from library...');
+                await this.syncCountries();
+            }
+        } catch (error) {
+            // Don't crash the app if database is unavailable
+            // Countries will be synced lazily when findAll() is called
+            this.logger.warn(`⚠️ Could not check/sync countries at startup: ${error.message}`);
+            this.logger.warn('Countries will be synced on first request instead.');
         }
     }
 
