@@ -49,8 +49,17 @@ function main() {
     const migrationsSuccess = runMigrations();
 
     if (!migrationsSuccess) {
-        logger.error('Exiting due to migration failure');
-        process.exit(1);
+        // IMPORTANT: Don't exit! Allow the app to start even if migrations fail.
+        // This handles cases where:
+        // 1. Database is temporarily unreachable during container startup
+        // 2. Network connectivity issues between Koyeb and Supabase
+        // 3. Database is paused (Supabase free tier)
+        // 
+        // The app should still work if the schema is already up-to-date.
+        // If schema is out of sync, you'll see Prisma errors in runtime logs.
+        logger.warn('Migrations failed, but continuing with application startup...');
+        logger.warn('If you see Prisma errors, please run migrations manually:');
+        logger.warn('  npx prisma migrate deploy');
     }
 
     // Step 2: Start the application
