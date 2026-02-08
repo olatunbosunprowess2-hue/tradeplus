@@ -48,15 +48,14 @@ export default function GoogleCallbackPage() {
                 success('Successfully signed in with Google!');
 
                 // Redirect after brief delay
-                setTimeout(() => {
-                    const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
-                    if (redirectUrl) {
-                        sessionStorage.removeItem('redirectAfterLogin');
-                        router.push(redirectUrl);
-                    } else {
-                        router.push('/listings');
-                    }
-                }, 1000);
+                // Redirect immediately
+                const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
+                if (redirectUrl) {
+                    sessionStorage.removeItem('redirectAfterLogin');
+                    router.push(redirectUrl);
+                } else {
+                    router.push('/listings');
+                }
             } catch (err: any) {
                 console.error('Google callback error:', err);
                 setStatus('error');

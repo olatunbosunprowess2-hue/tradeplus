@@ -192,7 +192,7 @@ export default function SideMenu({ className = '' }: SideMenuProps) {
                 {/* Header */}
                 <div className="bg-blue-600 text-white p-4 shrink-0">
                     <div className="flex justify-between items-start mb-4">
-                        <h2 className="text-lg font-bold">Menu</h2>
+                        {/* h2 removed */}
                         <button
                             onClick={() => setIsOpen(false)}
                             className="p-1 hover:bg-white/20 rounded-lg transition"
