@@ -64,6 +64,11 @@ import { PaymentsModule } from './payments/payments.module';
                 SMTP_PORT: Joi.number().optional(),
                 SMTP_USER: Joi.string().optional(),
                 SMTP_PASS: Joi.string().optional(),
+
+                // Cloudinary Configuration
+                CLOUDINARY_CLOUD_NAME: Joi.string().required().description('Cloudinary Cloud Name'),
+                CLOUDINARY_API_KEY: Joi.string().required().description('Cloudinary API Key'),
+                CLOUDINARY_API_SECRET: Joi.string().required().description('Cloudinary API Secret'),
             }),
             validationOptions: {
                 abortEarly: false, // Show all validation errors at once

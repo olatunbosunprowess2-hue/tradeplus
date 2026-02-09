@@ -13,6 +13,10 @@ import { AuditService } from '../audit/audit.service';
 
 @Injectable()
 export class AdminService {
+    private sidebarStatsCache: { data: any; lastUpdated: number } | null = null;
+    private statsCache: { data: any; lastUpdated: number } | null = null;
+    private readonly CACHE_TTL = 60 * 1000; // 60 seconds
+
     constructor(
         private prisma: PrismaService,
         private notificationsService: NotificationsService,
@@ -481,6 +485,11 @@ export class AdminService {
 
 
     async getStats() {
+        // Check cache
+        if (this.statsCache && Date.now() - this.statsCache.lastUpdated < this.CACHE_TTL) {
+            return this.statsCache.data;
+        }
+
         const [
             totalUsers,
             activeUsers,
@@ -505,7 +514,7 @@ export class AdminService {
             this.prisma.user.count({ where: { verificationStatus: 'PENDING' } }),
         ]);
 
-        return {
+        const data = {
             users: {
                 total: totalUsers,
                 active: activeUsers,
@@ -525,9 +534,22 @@ export class AdminService {
                 open: openReports,
             },
         };
+
+        // Update cache
+        this.statsCache = {
+            data,
+            lastUpdated: Date.now(),
+        };
+
+        return data;
     }
 
     async getSidebarCounts() {
+        // Check cache
+        if (this.sidebarStatsCache && Date.now() - this.sidebarStatsCache.lastUpdated < this.CACHE_TTL) {
+            return this.sidebarStatsCache.data;
+        }
+
         const [
             pendingVerifications,
             suspendedUsers,
@@ -573,7 +595,7 @@ export class AdminService {
         // Extract count from raw query result
         const multiReportedCount = (multiReportedUsers as any[])?.[0]?.count || 0;
 
-        return {
+        const data = {
             users: pendingVerifications + multiReportedCount, // Users needing attention
             listings: suspendedListings,
             reviews: flaggedReviews,
@@ -594,6 +616,14 @@ export class AdminService {
                 multiReportedUsers: multiReportedCount,
             }
         };
+
+        // Update cache
+        this.sidebarStatsCache = {
+            data,
+            lastUpdated: Date.now(),
+        };
+
+        return data;
     }
 
     async getConversationMessages(conversationId: string) {

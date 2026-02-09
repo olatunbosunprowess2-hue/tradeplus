@@ -2,10 +2,13 @@ import { Controller, Post, UseInterceptors, UploadedFile, Req, BadRequestExcepti
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerConfig } from '../common/configs/multer.config';
 import { ApiTags, ApiConsumes, ApiBody, ApiOperation } from '@nestjs/swagger';
+import { CloudinaryService } from './cloudinary/cloudinary.service';
 
 @ApiTags('Uploads')
 @Controller('uploads')
 export class UploadsController {
+    constructor(private readonly cloudinaryService: CloudinaryService) { }
+
     @Post('image')
     @ApiOperation({ summary: 'Upload a single image file' })
     @UseInterceptors(FileInterceptor('file', multerConfig))
@@ -21,16 +24,17 @@ export class UploadsController {
             },
         },
     })
-    uploadImage(@UploadedFile() file: Express.Multer.File, @Req() req) {
+    async uploadImage(@UploadedFile() file: Express.Multer.File) {
         if (!file) {
             throw new BadRequestException('File upload failed or no file provided');
         }
 
-        // Construct public URL
-        const protocol = req.protocol;
-        const host = req.get('host');
-        const url = `${protocol}://${host}/uploads/${file.filename}`;
-
-        return { url };
+        try {
+            const result = await this.cloudinaryService.uploadImage(file);
+            return { url: result.url };
+        } catch (error) {
+            console.error('Upload failed:', error);
+            throw new BadRequestException('Failed to upload image to cloud storage');
+        }
     }
 }
