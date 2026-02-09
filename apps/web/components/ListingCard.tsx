@@ -156,12 +156,23 @@ export default function ListingCard({ listing }: ListingCardProps) {
                         />
                     )}
 
-                    {/* Distress Sale Badge - Top left */}
-                    {listing.isDistressSale && (
-                        <div className="absolute top-2 left-2 z-10">
+                    {/* Badges Container - Top Left */}
+                    <div className="absolute top-2 left-2 z-10 flex flex-col gap-1 items-start">
+                        {/* Distress Sale Badge */}
+                        {listing.isDistressSale && (
                             <DistressBadge size="sm" />
-                        </div>
-                    )}
+                        )}
+
+                        {/* Verified Seller Badge - Moved to image */}
+                        {(listing.seller?.verified || listing.seller?.isVerified) && (
+                            <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-white/90 backdrop-blur-sm text-blue-700 text-[10px] font-bold shadow-sm border border-blue-100">
+                                <svg className="w-3 h-3 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                </svg>
+                                Verified
+                            </span>
+                        )}
+                    </div>
 
                     {/* Bookmark Button - Always visible, top-right */}
                     <div
@@ -262,11 +273,6 @@ export default function ListingCard({ listing }: ListingCardProps) {
                         {/* Premium Badge - Twitter/Instagram style */}
                         {listing.seller?.tier === 'premium' && (
                             <PremiumBadge size="sm" />
-                        )}
-                        {(listing.seller?.verified || listing.seller?.isVerified) && (
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-medium flex-shrink-0">
-                                ✓ Verified ID
-                            </span>
                         )}
                     </div>
 

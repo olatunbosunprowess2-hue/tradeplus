@@ -19,7 +19,7 @@ interface Region {
     countryId: number;
 }
 
-export default function SearchFilters() {
+export default function SearchFilters({ onApply }: { onApply?: () => void }) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const pathname = usePathname();
@@ -150,6 +150,11 @@ export default function SearchFilters() {
         if (isDistressSale) params.set('isDistressSale', 'true');
 
         router.push(`/listings?${params.toString()}`);
+
+        // Close mobile drawer if callback provided
+        if (onApply) {
+            onApply();
+        }
     };
 
     const clearFilters = () => {
@@ -165,6 +170,11 @@ export default function SearchFilters() {
 
         // Redirect but keep the countryId lock
         router.push(`/listings?countryId=${countryId}`);
+
+        // Close mobile drawer if callback provided
+        if (onApply) {
+            onApply();
+        }
     };
 
 
@@ -321,7 +331,7 @@ export default function SearchFilters() {
                 {activeCountry && (
                     <div className="mt-4 mb-2">
                         <div className="flex items-center gap-3 px-3 py-2.5 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center shadow-sm">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-sm">
                                 <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
                                 </svg>

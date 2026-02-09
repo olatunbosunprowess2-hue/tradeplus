@@ -202,7 +202,7 @@ function DistressContent() {
 
                         {showMobileFilters && (
                             <div className="mb-4">
-                                <SearchFilters />
+                                <SearchFilters onApply={() => setShowMobileFilters(false)} />
                             </div>
                         )}
                     </div>

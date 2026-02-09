@@ -231,7 +231,7 @@ function ListingsContent() {
 
                         {showMobileFilters && (
                             <div className="mb-3 bg-white rounded-xl shadow-sm border border-gray-100 p-3">
-                                <SearchFilters />
+                                <SearchFilters onApply={() => setShowMobileFilters(false)} />
                             </div>
                         )}
                     </div>

@@ -20,6 +20,8 @@
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed:prod": "cross-env SEED_MODE=production tsx prisma/seed.ts",
+    "db:seed:dev": "cross-env SEED_MODE=development tsx prisma/seed.ts",
     "db:generate": "prisma generate",
     "heroku-postbuild": "npm run db:generate && npm run build:api"
   },
@@ -27,6 +29,7 @@
     "@types/node": "^20.10.0",
     "@types/react": "^19.2.0",
     "concurrently": "^8.2.2",
+    "cross-env": "^10.1.0",
     "prisma": "^5.7.0",
     "tsx": "^4.7.0",
     "typescript": "~5.9.2"

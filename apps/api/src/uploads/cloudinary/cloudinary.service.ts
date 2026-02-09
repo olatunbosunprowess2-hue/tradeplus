@@ -13,10 +13,14 @@ export class CloudinaryService {
         return new Promise((resolve, reject) => {
             // If file has a path (diskStorage), upload from path
             if (file.path) {
+                // Determine folder based on environment
+                const nodeEnv = this.configService.get('NODE_ENV');
+                const folder = nodeEnv === 'production' ? 'barterwave_prod' : 'barterwave_dev';
+
                 cloudinary.uploader.upload(
                     file.path,
                     {
-                        folder: this.configService.get('CLOUDINARY_FOLDER') || 'barterwave',
+                        folder,
                         use_filename: true,
                         unique_filename: true,
                     },
