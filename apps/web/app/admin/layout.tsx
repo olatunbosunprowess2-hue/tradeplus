@@ -40,9 +40,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
 
     return (
-        <div className="flex min-h-screen bg-gray-50 print:bg-white relative">
-            {/* Mobile Header */}
-            <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 z-30 flex items-center px-4 justify-between shadow-sm">
+        <div className="flex flex-col md:flex-row min-h-screen bg-gray-50 print:bg-white relative">
+            {/* Mobile Header - scrolls with content */}
+            <div className="md:hidden h-14 bg-white border-b border-gray-200 flex items-center px-4 justify-between shadow-sm shrink-0">
                 <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                     Admin Panel
                 </h2>
@@ -80,7 +80,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
 
             {/* Main Content */}
-            <main className="flex-1 p-4 md:p-8 mt-16 md:mt-0 print:p-0 print:w-full print:mt-0 overflow-x-hidden">
+            <main className="flex-1 p-4 md:p-8 print:p-0 print:w-full overflow-x-hidden">
                 {children}
             </main>
         </div>
