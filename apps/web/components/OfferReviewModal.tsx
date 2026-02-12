@@ -37,7 +37,7 @@ export default function OfferReviewModal({
                     <div>
                         <h2 className="text-2xl font-bold text-gray-900">Review Offer</h2>
                         <p className="text-sm text-gray-500 mt-1">
-                            Received from <span className="font-semibold text-blue-600">{offer.buyer.profile?.displayName || offer.buyer.name || offer.buyer.email}</span>
+                            Received from <span className="font-semibold text-blue-600">{offer.buyer?.profile?.displayName || offer.buyer?.name || offer.buyer?.email || 'Unknown Buyer'}</span>
                         </p>
                     </div>
                     <button

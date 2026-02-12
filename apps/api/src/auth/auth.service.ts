@@ -122,27 +122,38 @@ export class AuthService {
         }
 
         // Verify password
-        const isPasswordValid = await argon2.verify(
-            user.passwordHash,
-            dto.password,
-        );
+        let isPasswordValid = false;
+        try {
+            isPasswordValid = await argon2.verify(
+                user.passwordHash,
+                dto.password,
+            );
+        } catch (err) {
+            console.error('[Login] argon2.verify error:', err);
+            throw new UnauthorizedException('Invalid credentials');
+        }
 
         if (!isPasswordValid) {
             // Increment failed attempts
-            const failedAttempts = user.failedLoginAttempts + 1;
-            const isLockoutTriggered = failedAttempts >= 5;
+            try {
+                const failedAttempts = (user.failedLoginAttempts || 0) + 1;
+                const isLockoutTriggered = failedAttempts >= 5;
 
-            await this.prisma.user.update({
-                where: { id: user.id },
-                data: {
-                    failedLoginAttempts: failedAttempts,
-                    lockoutUntil: isLockoutTriggered
-                        ? new Date(Date.now() + 15 * 60 * 1000) // 15 mins
-                        : user.lockoutUntil
-                }
-            });
+                await this.prisma.user.update({
+                    where: { id: user.id },
+                    data: {
+                        failedLoginAttempts: failedAttempts,
+                        lockoutUntil: isLockoutTriggered
+                            ? new Date(Date.now() + 15 * 60 * 1000) // 15 mins
+                            : user.lockoutUntil
+                    }
+                });
+            } catch (updateErr) {
+                console.error('[Login] Prisma update error:', updateErr);
+                // Continue to throw Unauthorized even if update fails
+            }
 
-            if (isLockoutTriggered) {
+            if ((user.failedLoginAttempts || 0) + 1 >= 5) {
                 throw new UnauthorizedException('Too many failed attempts. Account locked for 15 minutes.');
             }
 
@@ -514,6 +525,50 @@ export class AuthService {
         } catch (error) {
             throw new UnauthorizedException('Invalid or expired reset token');
         }
+    }
+
+    // ========================================================================
+    // CHANGE PASSWORD (Authenticated)
+    // ========================================================================
+    async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<{ message: string }> {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+            include: { profile: true },
+        });
+
+        if (!user) {
+            throw new UnauthorizedException('User not found');
+        }
+
+        // Social-only accounts can't change password
+        if (!user.passwordHash) {
+            throw new UnauthorizedException('Cannot change password for social login accounts. Please use the linked social provider.');
+        }
+
+        // Verify current password
+        const isCurrentValid = await argon2.verify(user.passwordHash, currentPassword);
+        if (!isCurrentValid) {
+            throw new UnauthorizedException('Current password is incorrect');
+        }
+
+        // Hash new password and update
+        const passwordHash = await argon2.hash(newPassword);
+        await this.prisma.user.update({
+            where: { id: userId },
+            data: {
+                passwordHash,
+                failedLoginAttempts: 0,
+                lockoutUntil: null,
+            },
+        });
+
+        // Send email notification (fire-and-forget)
+        this.emailService.sendPasswordChanged(
+            user.email,
+            user.profile?.displayName || '',
+        ).catch(err => console.error('Failed to send password changed email:', err));
+
+        return { message: 'Password changed successfully.' };
     }
 
     // ========================================================================

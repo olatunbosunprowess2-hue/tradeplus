@@ -99,14 +99,14 @@ export default function AdminReviewsPage() {
                                     <div>
                                         <div className="flex items-center gap-3 mb-2">
                                             <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold">
-                                                {review.reviewer.profile?.displayName?.[0] || review.reviewer.email[0].toUpperCase()}
+                                                {review.reviewer?.profile?.displayName?.[0] || review.reviewer?.email?.[0]?.toUpperCase() || '?'}
                                             </div>
                                             <div>
                                                 <p className="font-semibold text-gray-900">
-                                                    {review.reviewer.profile?.displayName || review.reviewer.email}
+                                                    {review.reviewer?.profile?.displayName || review.reviewer?.email || 'Unknown'}
                                                 </p>
                                                 <p className="text-sm text-gray-500">
-                                                    Reviewing: {review.reviewee.profile?.displayName || review.reviewee.email}
+                                                    Reviewing: {review.reviewee?.profile?.displayName || review.reviewee?.email || 'Unknown'}
                                                 </p>
                                             </div>
                                         </div>

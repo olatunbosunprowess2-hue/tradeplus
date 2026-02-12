@@ -75,6 +75,12 @@ apiClient.interceptors.response.use(
 
         // If 401 and we haven't retried yet, try to refresh token
         if (error.response?.status === 401 && !originalRequest._retry) {
+            // CRITICAL: NEVER retry refresh on login or register routes
+            // This prevents the "credential error -> refresh loop -> 500 masking" bug
+            if (originalRequest.url?.includes('/auth/login') || originalRequest.url?.includes('/auth/register')) {
+                return Promise.reject(error);
+            }
+
             originalRequest._retry = true;
 
             // Prevent infinite loops if refresh endpoint itself returns 401

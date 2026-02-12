@@ -108,23 +108,23 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ isOpen, onClose, offer }) =
                             <div className="flex justify-between">
                                 <span className="text-gray-500">Recipient (Buyer)</span>
                                 <div className="text-right">
-                                    <p className="font-bold text-gray-900">{offer.buyer.profile?.displayName || offer.buyer.email}</p>
-                                    <p className="text-xs text-gray-500">{offer.buyer.id.slice(0, 8)}...</p>
+                                    <p className="font-bold text-gray-900">{offer.buyer?.profile?.displayName || offer.buyer?.email || 'Unknown Buyer'}</p>
+                                    <p className="text-xs text-gray-500">{offer.buyer?.id?.slice(0, 8) || offer.buyerId?.slice(0, 8) || 'N/A'}...</p>
                                 </div>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-gray-500">Sender (Seller)</span>
                                 <div className="text-right">
-                                    <p className="font-bold text-gray-900">{offer.seller.profile?.displayName || offer.seller.email}</p>
-                                    <p className="text-xs text-gray-500">{offer.seller.id.slice(0, 8)}...</p>
+                                    <p className="font-bold text-gray-900">{offer.seller?.profile?.displayName || offer.seller?.email || 'Unknown Seller'}</p>
+                                    <p className="text-xs text-gray-500">{offer.seller?.id?.slice(0, 8) || offer.sellerId?.slice(0, 8) || 'N/A'}...</p>
                                 </div>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-gray-500">Items Swapped</span>
                                 <div className="text-right max-w-[60%]">
-                                    <p className="font-medium text-gray-900">{offer.listing.title}</p>
-                                    {offer.items.map(item => (
-                                        <p key={item.id} className="text-xs text-gray-600">+ {item.offeredListing.title}</p>
+                                    <p className="font-medium text-gray-900">{offer.listing?.title || 'Unknown Listing'}</p>
+                                    {(offer.items || []).map(item => (
+                                        <p key={item.id} className="text-xs text-gray-600">+ {item.offeredListing?.title || 'Unknown Item'}</p>
                                     ))}
                                 </div>
                             </div>

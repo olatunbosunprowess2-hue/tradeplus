@@ -27,54 +27,84 @@ export class AllExceptionsFilter implements ExceptionFilter {
      * @param host - Provides access to request/response objects
      */
     catch(exception: unknown, host: ArgumentsHost) {
-        // Get the HTTP context (request/response objects)
-        const ctx = host.switchToHttp();
-        const response = ctx.getResponse<Response>();
-        const request = ctx.getRequest();
+        try {
+            // Get the HTTP context (request/response objects)
+            const ctx = host.switchToHttp();
+            const response = ctx.getResponse<Response>();
+            const request = ctx.getRequest();
 
-        // Determine the HTTP status code
-        // If it's a known HttpException, use its status code
-        // Otherwise, default to 500 (Internal Server Error)
-        const status =
-            exception instanceof HttpException
-                ? exception.getStatus()
+            // Determine if it's an HttpException (duck typing for robustness)
+            const isHttpException =
+                exception instanceof HttpException ||
+                (typeof exception === 'object' && exception !== null && 'getStatus' in exception && 'getResponse' in exception);
+
+            // Determine the HTTP status code
+            const status = isHttpException
+                ? (exception as any).getStatus()
                 : HttpStatus.INTERNAL_SERVER_ERROR;
 
-        // Extract the error message
-        const message =
-            exception instanceof HttpException
-                ? exception.getResponse()
+            // Extract the error message
+            const rawMessage = isHttpException
+                ? (exception as any).getResponse()
                 : 'Internal server error';
 
-        // Create a standardized error response
-        const errorResponse = {
-            statusCode: status,                    // HTTP status code (e.g., 400, 404, 500)
-            timestamp: new Date().toISOString(),   // When the error occurred
-            path: request.url,                     // Which endpoint was called
-            method: request.method,                // HTTP method (GET, POST, etc.)
-            message: typeof message === 'string' ? message : (message as any).message || message,
-        };
+            // Log non-HTTP exceptions for debugging
+            if (!isHttpException) {
+                console.error('Non-HTTP exception caught in global filter:', exception);
+            }
 
-        // Log critical errors for monitoring
-        // In production, errors are logged to stdout/stderr which is captured by the container runtime
-        if (status === HttpStatus.INTERNAL_SERVER_ERROR) {
-            const logEntry = {
+            // Standardize the message
+            let message = 'Internal server error';
+            if (typeof rawMessage === 'string') {
+                message = rawMessage;
+            } else if (typeof rawMessage === 'object' && rawMessage !== null) {
+                message = (rawMessage as any).message || JSON.stringify(rawMessage);
+            }
+
+            // Create a standardized error response
+            const errorResponse = {
+                statusCode: status,
                 timestamp: new Date().toISOString(),
-                type: 'INTERNAL_SERVER_ERROR',
+                path: request.url,
                 method: request.method,
-                url: request.url,
-                user: (request as any).user?.id || 'anonymous',
-                body: request.body,
-                error: exception instanceof Error ? {
-                    name: exception.name,
-                    message: exception.message,
-                    stack: exception.stack,
-                } : String(exception),
+                message: message,
             };
-            console.error('Internal Server Error:', JSON.stringify(logEntry, null, 2));
-        }
 
-        // Send the formatted error response to the client
-        response.status(status).json(errorResponse);
+            // Log critical errors for monitoring
+            if (status === HttpStatus.INTERNAL_SERVER_ERROR) {
+                try {
+                    const logEntry = {
+                        timestamp: new Date().toISOString(),
+                        type: 'INTERNAL_SERVER_ERROR',
+                        method: request.method,
+                        url: request.url,
+                        user: (request as any).user?.id || 'anonymous',
+                        body: request.body,
+                        error: exception instanceof Error ? {
+                            name: exception.name,
+                            message: exception.message,
+                            stack: exception.stack,
+                        } : String(exception),
+                    };
+                    console.error('Internal Server Error:', JSON.stringify(logEntry, null, 2));
+                } catch (logErr) {
+                    console.error('Critical error in AllExceptionsFilter logging:', logErr);
+                    console.error('Original exception:', exception);
+                }
+            }
+
+            // Send the formatted error response to the client
+            response.status(status).json(errorResponse);
+        } catch (filterError) {
+            // Last resort: the filter itself crashed
+            console.error('FATAL: AllExceptionsFilter CRASHED:', filterError);
+            const ctx = host.switchToHttp();
+            const response = ctx.getResponse<Response>();
+            response.status(500).json({
+                statusCode: 500,
+                message: 'Internal server error (filter failed)',
+                timestamp: new Date().toISOString()
+            });
+        }
     }
 }

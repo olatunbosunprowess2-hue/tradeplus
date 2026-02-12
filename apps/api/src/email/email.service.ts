@@ -888,6 +888,43 @@ export class EmailService {
     }
 
     // ========================================================================
+    // PASSWORD CHANGED NOTIFICATION
+    // ========================================================================
+
+    async sendPasswordChanged(email: string, name: string): Promise<boolean> {
+        return this.send({
+            to: email,
+            subject: '🔒 BarterWave - Password Changed',
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <h1 style="color: #1E40AF; margin: 0;">BarterWave</h1>
+                    </div>
+                    
+                    <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 12px; padding: 20px; text-align: center;">
+                        <span style="font-size: 48px;">🔒</span>
+                        <h2 style="color: #166534; margin: 10px 0;">Password Changed Successfully</h2>
+                    </div>
+                    
+                    <p style="color: #4B5563; line-height: 1.6; margin-top: 20px;">
+                        Hi${name ? ` ${name}` : ''}, your BarterWave account password was just changed.
+                    </p>
+                    
+                    <div style="background: #FEF3C7; border: 1px solid #FDE68A; border-radius: 8px; padding: 16px; margin: 16px 0;">
+                        <p style="color: #92400E; font-weight: bold; margin: 0 0 8px 0;">⚠️ Wasn't you?</p>
+                        <p style="color: #78350F; margin: 0;">If you did not make this change, please reset your password immediately and contact our support team.</p>
+                    </div>
+                    
+                    <p style="color: #9CA3AF; font-size: 12px; margin-top: 30px;">
+                        © ${new Date().getFullYear()} BarterWave. All rights reserved.
+                    </p>
+                </div>
+            `,
+            text: `Hi${name ? ` ${name}` : ''}, your BarterWave password was changed. If this wasn't you, reset your password immediately.`,
+        });
+    }
+
+    // ========================================================================
     // AGGRESSIVE BOOST EMAIL TEMPLATE
     // ========================================================================
 

@@ -12,8 +12,9 @@ export class ReportsService {
 
     async create(userId: string, createReportDto: CreateReportDto) {
         // Validate that at least one of listingId or reportedUserId is provided
-        if (!createReportDto.listingId && !createReportDto.reportedUserId) {
-            throw new BadRequestException('Report must target either a listing or a user');
+        // Validate that at least one target is provided
+        if (!createReportDto.listingId && !createReportDto.reportedUserId && !createReportDto.communityPostId) {
+            throw new BadRequestException('Report must target a listing, a user, or a community post');
         }
 
         // Get seller info if listing is reported
@@ -39,11 +40,33 @@ export class ReportsService {
             }
         }
 
+        // Handle Community Post Report
+        if (createReportDto.communityPostId) {
+            const post = await this.prisma.communityPost.findUnique({
+                where: { id: createReportDto.communityPostId },
+                select: { authorId: true, content: true }
+            });
+
+            // Notify post author
+            if (post?.authorId) {
+                await this.notificationsService.create(
+                    post.authorId,
+                    'POST_REPORTED',
+                    {
+                        postId: createReportDto.communityPostId,
+                        postSnippet: post.content.substring(0, 50) + '...',
+                        message: 'One of your community posts has been reported. Our team is reviewing it.'
+                    }
+                );
+            }
+        }
+
         const report = await this.prisma.report.create({
             data: {
                 reporterId: userId,
                 reason: `${createReportDto.reason}: ${createReportDto.description}`,
                 listingId: createReportDto.listingId,
+                communityPostId: createReportDto.communityPostId,
                 reportedUserId: createReportDto.reportedUserId,
                 evidenceImages: createReportDto.evidenceImages || [],
             },
@@ -78,7 +101,7 @@ export class ReportsService {
                     reportId: report.id,
                     reason: createReportDto.reason,
                     reporterId: userId,
-                    message: `New report: ${createReportDto.reason}${createReportDto.listingId ? ' - Listing reported' : ' - User reported'}`
+                    message: `New report: ${createReportDto.reason}${createReportDto.listingId ? ' - Listing' : createReportDto.communityPostId ? ' - Post' : ' - User'}`
                 }
             );
         }

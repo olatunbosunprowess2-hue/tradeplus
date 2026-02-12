@@ -17,6 +17,8 @@ interface MakeOfferModalProps {
         allowCash?: boolean;
         allowBarter?: boolean;
         allowCashPlusBarter?: boolean;
+        downpaymentCents?: number;
+        currencyCode?: string;
     };
     onSubmit: (offerData: {
         offerType: 'cash' | 'barter' | 'both';
@@ -76,6 +78,16 @@ export default function MakeOfferModal({ isOpen, onClose, listing, onSubmit }: M
         }
     }, [isOpen, listing]);
 
+    // Enforce downpayment rules
+    useEffect(() => {
+        if (isOpen && listing.downpaymentCents && listing.downpaymentCents > 0) {
+            // Cannot be barter-only if downpayment is required
+            if (offerType === 'barter') {
+                setOfferType('both');
+            }
+        }
+    }, [isOpen, listing, offerType]);
+
     if (!isOpen) return null;
 
     const toggleListingSelection = (listingId: string) => {
@@ -106,6 +118,15 @@ export default function MakeOfferModal({ isOpen, onClose, listing, onSubmit }: M
             parsedCashAmount = parseFloat(cashAmount);
             if (isNaN(parsedCashAmount)) {
                 alert('Please enter a valid cash amount');
+                return;
+            }
+        }
+
+        // Validate Downpayment
+        if (listing.downpaymentCents && listing.downpaymentCents > 0) {
+            const cashCents = parsedCashAmount ? Math.round(parsedCashAmount * 100) : 0;
+            if (cashCents < listing.downpaymentCents) {
+                alert(`This listing requires a minimum downpayment of ${(listing.currencyCode || 'NGN')} ${(listing.downpaymentCents / 100).toLocaleString()}. Please increase your cash offer.`);
                 return;
             }
         }
@@ -164,6 +185,21 @@ export default function MakeOfferModal({ isOpen, onClose, listing, onSubmit }: M
                         </div>
                     </div>
 
+                    {/* Downpayment Warning */}
+                    {listing.downpaymentCents && listing.downpaymentCents > 0 && (
+                        <div className="bg-amber-50 border border-amber-200 p-3 rounded-xl flex gap-3 items-start animate-in fade-in slide-in-from-top-2">
+                            <span className="text-xl">💰</span>
+                            <div>
+                                <p className="text-sm font-bold text-gray-900">
+                                    Downpayment Required
+                                </p>
+                                <p className="text-xs text-amber-800 mt-0.5">
+                                    The seller requires a minimum of <strong>{listing.currencyCode} {(listing.downpaymentCents / 100).toLocaleString()}</strong> paid upfront.
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
                     <form onSubmit={handleSubmit} className="space-y-5">
                         {/* Offer Type Selection */}
                         <div>
@@ -187,7 +223,7 @@ export default function MakeOfferModal({ isOpen, onClose, listing, onSubmit }: M
                                         )}
                                     </button>
                                 )}
-                                {listing.allowBarter && (
+                                {listing.allowBarter && (!listing.downpaymentCents || listing.downpaymentCents === 0) && (
                                     <button
                                         type="button"
                                         onClick={() => setOfferType('barter')}
@@ -382,7 +418,7 @@ export default function MakeOfferModal({ isOpen, onClose, listing, onSubmit }: M
                         </div>
                     </form>
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }

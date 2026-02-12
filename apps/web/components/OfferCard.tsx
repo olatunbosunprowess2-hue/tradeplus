@@ -46,10 +46,10 @@ export default function OfferCard({ offer, type, onAccept, onReject, onCounter, 
         return offer.status.charAt(0).toUpperCase() + offer.status.slice(1);
     };
 
-    const buyerName = offer.buyer.profile?.displayName || offer.buyer.email;
-    const sellerName = offer.seller.profile?.displayName || offer.seller.email;
-    const buyerLocation = offer.buyer.profile?.region?.name || 'Unknown Location';
-    const sellerLocation = offer.seller.profile?.region?.name || 'Unknown Location';
+    const buyerName = offer.buyer?.profile?.displayName || offer.buyer?.email || 'Unknown Buyer';
+    const sellerName = offer.seller?.profile?.displayName || offer.seller?.email || 'Unknown Seller';
+    const buyerLocation = offer.buyer?.profile?.region?.name || 'Unknown Location';
+    const sellerLocation = offer.seller?.profile?.region?.name || 'Unknown Location';
 
     const hasCash = (offer.offeredCashCents || 0) > 0;
     const hasItems = (offer.items || []).length > 0;

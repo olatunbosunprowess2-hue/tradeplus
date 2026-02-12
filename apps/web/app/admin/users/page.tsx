@@ -233,6 +233,37 @@ export default function AdminUsersPage() {
                                                 >
                                                     View Details
                                                 </button>
+                                                {user.verificationStatus === 'VERIFIED' ? (
+                                                    <button
+                                                        onClick={async () => {
+                                                            try {
+                                                                await adminApi.toggleUserVerification(user.id, false);
+                                                                addToast('success', 'User verification removed');
+                                                                fetchUsers();
+                                                            } catch (e: any) {
+                                                                addToast('error', e.response?.data?.message || 'Failed to unverify user');
+                                                            }
+                                                        }}
+                                                        className="text-gray-600 hover:text-gray-700 text-sm font-medium"
+                                                    >
+                                                        Unverify
+                                                    </button>
+                                                ) : (
+                                                    <button
+                                                        onClick={async () => {
+                                                            try {
+                                                                await adminApi.toggleUserVerification(user.id, true);
+                                                                addToast('success', 'User verified successfully');
+                                                                fetchUsers();
+                                                            } catch (e: any) {
+                                                                addToast('error', e.response?.data?.message || 'Failed to verify user');
+                                                            }
+                                                        }}
+                                                        className="text-indigo-600 hover:text-indigo-700 text-sm font-medium"
+                                                    >
+                                                        Verify
+                                                    </button>
+                                                )}
                                                 {user.status === 'active' ? (
                                                     <button
                                                         onClick={() => openStatusModal(user.id, 'suspended')}

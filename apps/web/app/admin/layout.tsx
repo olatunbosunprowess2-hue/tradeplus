@@ -43,12 +43,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="flex flex-col md:flex-row min-h-screen bg-gray-50 print:bg-white relative">
             {/* Mobile Header - scrolls with content */}
             <div className="md:hidden h-14 bg-white border-b border-gray-200 flex items-center px-4 justify-between shadow-sm shrink-0">
-                <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                    Admin Panel
-                </h2>
                 <button
                     onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                    className="p-2 -mr-2 text-gray-600 hover:text-gray-900 focus:outline-none"
+                    className="p-2 -ml-2 text-gray-600 hover:text-gray-900 focus:outline-none"
                     aria-label="Toggle Sidebar"
                 >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -59,6 +56,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         )}
                     </svg>
                 </button>
+                <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                    Admin Panel
+                </h2>
             </div>
 
             {/* Mobile Backdrop */}

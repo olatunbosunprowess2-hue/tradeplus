@@ -1,4 +1,4 @@
-import { Controller, Get, Body, Patch, UseGuards, Request, UseInterceptors, UploadedFiles, Query } from '@nestjs/common';
+import { Controller, Get, Body, Patch, UseGuards, Request, UseInterceptors, UploadedFiles, Query, Param } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -34,6 +34,11 @@ export class UsersController {
     @Get('profile')
     getProfile(@Request() req) {
         return this.usersService.findOne(req.user.id);
+    }
+
+    @Get(':id')
+    getPublicProfile(@Param('id') id: string) {
+        return this.usersService.findPublicProfile(id);
     }
 
     @UseGuards(JwtAuthGuard)

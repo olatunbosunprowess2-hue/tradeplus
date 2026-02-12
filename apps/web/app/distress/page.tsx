@@ -121,14 +121,14 @@ function DistressContent() {
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
             {/* Distress Sale Banner */}
-            <div className="bg-gradient-to-r from-red-600 to-orange-600 text-white py-8 mb-6">
+            <div className="bg-gradient-to-r from-red-600 to-orange-600 text-white py-4 md:py-8 mb-6">
                 <div className="container mx-auto px-4 max-w-7xl">
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
                         <div>
-                            <h1 className="text-3xl font-bold flex items-center gap-2 mb-2">
-                                <span className="text-4xl">🔥</span> Distress Sales
+                            <h1 className="text-xl md:text-3xl font-bold flex items-center justify-center md:justify-start gap-2 mb-2">
+                                <span className="text-2xl md:text-4xl">🔥</span> Distress Sales
                             </h1>
-                            <p className="text-red-100 max-w-2xl text-lg">
+                            <p className="text-red-100 max-w-2xl text-sm md:text-lg">
                                 Urgent deals requiring quick cash. Prices are significantly dropped for immediate sale.
                                 Secure payments only via Escrow.
                             </p>

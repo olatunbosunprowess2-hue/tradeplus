@@ -19,6 +19,7 @@ export interface SidebarCounts {
     appeals: number;
     disputes: number;
     security: number;
+    pendingBrands: number;
     breakdown: {
         pendingVerifications: number;
         suspendedUsers: number;
@@ -102,4 +103,12 @@ export const adminApi = {
 
     deleteReportedListing: (reportId: string, adminMessage?: string) =>
         apiClient.delete(`/reports/${reportId}/delete-listing`, { data: { adminMessage } }),
+
+    // Trades
+    getTrades: (query?: { status?: string; downpaymentStatus?: string; search?: string; page?: number; limit?: number }) =>
+        apiClient.get('/admin/trades', { params: query }),
+
+    // User Verification Toggle
+    toggleUserVerification: (id: string, verified: boolean) =>
+        apiClient.patch(`/admin/users/${id}/verify`, { verified }),
 };

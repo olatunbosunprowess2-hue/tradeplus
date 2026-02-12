@@ -273,7 +273,7 @@ export default function Navbar() {
             </div>
 
             {/* Right Side Actions */}
-            <div className="flex items-center gap-1">
+            <div className={`flex items-center gap-1 ${['/admin', '/offers', '/sales', '/messages'].some(path => pathname.startsWith(path)) ? 'hidden md:flex' : 'flex'}`}>
               {/* Notifications Icon */}
               <IconButton
                 href="/notifications"

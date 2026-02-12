@@ -166,36 +166,60 @@ async function seedDevelopment() {
     const adminRole = await prisma.role.findUnique({ where: { name: 'super_admin' } });
     await prisma.user.upsert({
         where: { email: 'admin@barterwave.com' },
-        update: { role: 'admin', roleId: adminRole?.id },
+        update: {
+            role: 'admin',
+            roleId: adminRole?.id,
+            firstName: 'Admin',
+            lastName: 'User',
+            city: 'Lagos',
+            state: 'Lagos',
+            locationAddress: 'Ikoyi, Lagos, Nigeria',
+        },
         create: {
             id: USERS.ADMIN,
             email: 'admin@barterwave.com',
             passwordHash: hashedPassword,
             role: 'admin',
             roleId: adminRole?.id,
+            firstName: 'Admin',
+            lastName: 'User',
+            city: 'Lagos',
+            state: 'Lagos',
+            locationAddress: 'Ikoyi, Lagos, Nigeria',
             profile: { create: { displayName: 'Admin User', bio: 'System Administrator' } },
         },
     });
 
     // Mock Users
     const users = [
-        { id: USERS.JOHN, email: 'john@example.com', name: 'John Doe', bio: 'Tech enthusiast' },
-        { id: USERS.SARAH, email: 'sarah@example.com', name: 'Sarah Smith', bio: 'Fashion blogger' },
-        { id: USERS.MIKE, email: 'mike@example.com', name: 'Mike Johnson', bio: 'Fitness collector' },
-        { id: USERS.FIXIT, email: 'fixit@example.com', name: 'FixIt Pro', bio: 'Plumbing Services' },
-        { id: USERS.DEV, email: 'dev@example.com', name: 'CodeMaster', bio: 'Web Dev' },
-        { id: USERS.MUSIC, email: 'music@example.com', name: 'Melody Music', bio: 'Music Lessons' },
+        { id: USERS.JOHN, email: 'john@example.com', firstName: 'John', lastName: 'Doe', name: 'John Doe', bio: 'Tech enthusiast', city: 'Lagos', state: 'Lagos', address: 'Victoria Island, Lagos, Nigeria' },
+        { id: USERS.SARAH, email: 'sarah@example.com', firstName: 'Sarah', lastName: 'Smith', name: 'Sarah Smith', bio: 'Fashion blogger', city: 'Abuja', state: 'FCT', address: 'Wuse 2, Abuja, Nigeria' },
+        { id: USERS.MIKE, email: 'mike@example.com', firstName: 'Mike', lastName: 'Johnson', name: 'Mike Johnson', bio: 'Fitness collector', city: 'Port Harcourt', state: 'Rivers', address: 'GRA, Port Harcourt, Nigeria' },
+        { id: USERS.FIXIT, email: 'fixit@example.com', firstName: 'Felix', lastName: 'Okafor', name: 'FixIt Pro', bio: 'Plumbing Services', city: 'Ibadan', state: 'Oyo', address: 'Bodija, Ibadan, Nigeria' },
+        { id: USERS.DEV, email: 'dev@example.com', firstName: 'David', lastName: 'Eze', name: 'CodeMaster', bio: 'Web Dev', city: 'Lagos', state: 'Lagos', address: 'Lekki Phase 1, Lagos, Nigeria' },
+        { id: USERS.MUSIC, email: 'music@example.com', firstName: 'Melody', lastName: 'Nwosu', name: 'Melody Music', bio: 'Music Lessons', city: 'Enugu', state: 'Enugu', address: 'Independence Layout, Enugu, Nigeria' },
     ];
 
     for (const u of users) {
         await prisma.user.upsert({
             where: { id: u.id },
-            update: {},
+            update: {
+                firstName: u.firstName,
+                lastName: u.lastName,
+                city: u.city,
+                state: u.state,
+                locationAddress: u.address,
+            },
             create: {
                 id: u.id,
                 email: u.email,
                 passwordHash: hashedPassword,
                 role: 'user',
+                firstName: u.firstName,
+                lastName: u.lastName,
+                city: u.city,
+                state: u.state,
+                locationAddress: u.address,
                 profile: { create: { displayName: u.name, bio: u.bio } },
             },
         });

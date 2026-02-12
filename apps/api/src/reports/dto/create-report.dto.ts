@@ -22,6 +22,12 @@ export class CreateReportDto {
     @ValidateIf((o) => !o.listingId || o.reportedUserId)
     reportedUserId?: string;
 
+    @IsString()
+    @IsOptional()
+    @Transform(({ value }) => value === "" ? null : value)
+    @ValidateIf((o) => !o.listingId && !o.reportedUserId)
+    communityPostId?: string;
+
     @IsArray()
     @IsString({ each: true })
     @IsOptional()

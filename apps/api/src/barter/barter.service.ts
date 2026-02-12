@@ -39,6 +39,17 @@ export class BarterService {
             throw new BadRequestException('This listing does not accept barter offers');
         }
 
+        // Validate Downpayment (Verified Brand Requirement)
+        if (targetListing.downpaymentCents && targetListing.downpaymentCents > BigInt(0)) {
+            const offeredCash = dto.offeredCashCents ? BigInt(Math.round(dto.offeredCashCents)) : BigInt(0);
+            if (offeredCash < targetListing.downpaymentCents) {
+                const requiredAmount = Number(targetListing.downpaymentCents) / 100;
+                throw new BadRequestException(
+                    `This listing requires a minimum downpayment of ${targetListing.currencyCode} ${requiredAmount.toLocaleString()}. Your cash offer must meet this amount.`
+                );
+            }
+        }
+
         // Check if user has already made 2 or more offers for this listing
         const existingOffersCount = await this.prisma.barterOffer.count({
             where: {
@@ -122,6 +133,7 @@ export class BarterService {
                     },
                 },
                 buyer: { include: { profile: true } },
+                seller: { include: { profile: true } },
                 items: {
                     include: {
                         offeredListing: {
@@ -220,6 +232,7 @@ export class BarterService {
                     },
                 },
                 buyer: { include: { profile: true } },
+                seller: { include: { profile: true } },
                 items: {
                     include: {
                         offeredListing: {
@@ -307,7 +320,13 @@ export class BarterService {
 
         const updated = await this.prisma.barterOffer.update({
             where: { id },
-            data: { status: 'accepted' },
+            data: {
+                status: 'accepted',
+                // If listing has a downpayment, start the downpayment flow
+                ...(offer.listing.downpaymentCents && Number(offer.listing.downpaymentCents) > 0
+                    ? { downpaymentStatus: 'awaiting_payment' }
+                    : {}),
+            },
             include: {
                 listing: {
                     include: {
@@ -316,6 +335,7 @@ export class BarterService {
                     },
                 },
                 buyer: { include: { profile: true } },
+                seller: { include: { profile: true } },
                 items: {
                     include: {
                         offeredListing: {
@@ -483,6 +503,7 @@ export class BarterService {
                     },
                 },
                 buyer: { include: { profile: true } },
+                seller: { include: { profile: true } },
                 items: {
                     include: {
                         offeredListing: {
@@ -605,6 +626,7 @@ export class BarterService {
                     },
                 },
                 buyer: { include: { profile: true } },
+                seller: { include: { profile: true } },
                 items: {
                     include: {
                         offeredListing: {
@@ -760,6 +782,7 @@ export class BarterService {
                     },
                 },
                 buyer: { include: { profile: true } },
+                seller: { include: { profile: true } },
                 items: {
                     include: {
                         offeredListing: {
@@ -788,6 +811,7 @@ export class BarterService {
                     },
                 },
                 buyer: { include: { profile: true } },
+                seller: { include: { profile: true } },
                 items: {
                     include: {
                         offeredListing: {
@@ -838,6 +862,150 @@ export class BarterService {
         return {
             ...offer,
             offeredCashCents: offer.offeredCashCents ? Number(offer.offeredCashCents) : 0,
+        };
+    }
+
+    // =====================
+    // DOWNPAYMENT TRACKING
+    // =====================
+
+    async markDownpaymentPaid(offerId: string, userId: string) {
+        const offer = await this.prisma.barterOffer.findUnique({
+            where: { id: offerId },
+            include: {
+                listing: {
+                    include: {
+                        seller: { include: { profile: true } },
+                        images: { orderBy: { sortOrder: 'asc' }, take: 1 },
+                    },
+                },
+                buyer: { include: { profile: true } },
+                seller: { include: { profile: true } },
+            },
+        });
+
+        if (!offer) {
+            throw new NotFoundException('Offer not found');
+        }
+
+        if (offer.buyerId !== userId) {
+            throw new ForbiddenException('Only the buyer can mark a downpayment as paid');
+        }
+
+        if (offer.status !== 'accepted') {
+            throw new BadRequestException('Offer must be accepted before marking payment');
+        }
+
+        if (offer.downpaymentStatus !== 'awaiting_payment') {
+            throw new BadRequestException(`Downpayment is currently '${offer.downpaymentStatus}', expected 'awaiting_payment'`);
+        }
+
+        const updated = await this.prisma.barterOffer.update({
+            where: { id: offerId },
+            data: {
+                downpaymentStatus: 'paid',
+                downpaymentPaidAt: new Date(),
+            },
+            include: {
+                listing: {
+                    include: {
+                        seller: { include: { profile: true } },
+                        images: { orderBy: { sortOrder: 'asc' }, take: 1 },
+                    },
+                },
+                buyer: { include: { profile: true } },
+                seller: { include: { profile: true } },
+                items: {
+                    include: {
+                        offeredListing: {
+                            include: { images: { orderBy: { sortOrder: 'asc' }, take: 1 } },
+                        },
+                    },
+                },
+            },
+        });
+
+        // Notify seller that buyer marked payment as sent
+        await this.notificationsService.create(updated.sellerId, 'DOWNPAYMENT_PAID', {
+            title: 'Downpayment Sent 💰',
+            message: `${updated.buyer?.profile?.displayName || updated.buyer?.email || 'Buyer'} has marked the downpayment as paid for "${updated.listing.title}". Please confirm receipt.`,
+            offerId: updated.id,
+            listingId: updated.listingId,
+        });
+
+        return {
+            ...updated,
+            offeredCashCents: updated.offeredCashCents ? Number(updated.offeredCashCents) : 0,
+        };
+    }
+
+    async confirmDownpaymentReceipt(offerId: string, userId: string) {
+        const offer = await this.prisma.barterOffer.findUnique({
+            where: { id: offerId },
+            include: {
+                listing: {
+                    include: {
+                        seller: { include: { profile: true } },
+                        images: { orderBy: { sortOrder: 'asc' }, take: 1 },
+                    },
+                },
+                buyer: { include: { profile: true } },
+                seller: { include: { profile: true } },
+            },
+        });
+
+        if (!offer) {
+            throw new NotFoundException('Offer not found');
+        }
+
+        if (offer.sellerId !== userId) {
+            throw new ForbiddenException('Only the seller can confirm downpayment receipt');
+        }
+
+        if (offer.status !== 'accepted') {
+            throw new BadRequestException('Offer must be accepted before confirming receipt');
+        }
+
+        if (offer.downpaymentStatus !== 'paid') {
+            throw new BadRequestException(`Downpayment is currently '${offer.downpaymentStatus}', expected 'paid'`);
+        }
+
+        const updated = await this.prisma.barterOffer.update({
+            where: { id: offerId },
+            data: {
+                downpaymentStatus: 'confirmed',
+                downpaymentConfirmedAt: new Date(),
+            },
+            include: {
+                listing: {
+                    include: {
+                        seller: { include: { profile: true } },
+                        images: { orderBy: { sortOrder: 'asc' }, take: 1 },
+                    },
+                },
+                buyer: { include: { profile: true } },
+                seller: { include: { profile: true } },
+                items: {
+                    include: {
+                        offeredListing: {
+                            include: { images: { orderBy: { sortOrder: 'asc' }, take: 1 } },
+                        },
+                    },
+                },
+            },
+        });
+
+        // Notify buyer that seller confirmed receipt
+        await this.notificationsService.create(updated.buyerId, 'DOWNPAYMENT_CONFIRMED', {
+            title: 'Downpayment Confirmed ✅',
+            message: `${updated.seller?.profile?.displayName || updated.seller?.email || 'Seller'} has confirmed receiving your downpayment for "${updated.listing.title}".`,
+            offerId: updated.id,
+            listingId: updated.listingId,
+        });
+
+        return {
+            ...updated,
+            offeredCashCents: updated.offeredCashCents ? Number(updated.offeredCashCents) : 0,
         };
     }
 }

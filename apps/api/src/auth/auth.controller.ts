@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, UseGuards, Request, Query, Res, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Request, Query, Res, HttpStatus, UnauthorizedException } from '@nestjs/common';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -79,7 +79,7 @@ export class AuthController {
         const refreshToken = bodyRefreshToken || req.cookies['refresh_token'];
 
         if (!refreshToken) {
-            throw new Error('No refresh token found');
+            throw new UnauthorizedException('No refresh token found. Please login.');
         }
 
         const result = await this.authService.refreshTokens(refreshToken);
@@ -202,6 +202,26 @@ export class AuthController {
         @Body('newPassword') newPassword: string,
     ) {
         return this.authService.resetPassword(token, newPassword);
+    }
+
+    /**
+     * Change password (authenticated)
+     * POST /api/auth/change-password
+     */
+    @Post('change-password')
+    @UseGuards(JwtAuthGuard)
+    async changePassword(
+        @Request() req: any,
+        @Body('currentPassword') currentPassword: string,
+        @Body('newPassword') newPassword: string,
+    ) {
+        if (!currentPassword || !newPassword) {
+            return { statusCode: 400, message: 'Both currentPassword and newPassword are required.' };
+        }
+        if (newPassword.length < 8) {
+            return { statusCode: 400, message: 'New password must be at least 8 characters.' };
+        }
+        return this.authService.changePassword(req.user.sub, currentPassword, newPassword);
     }
 
     // ========================================================================

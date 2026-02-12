@@ -110,8 +110,47 @@ export class UsersService {
         }
 
         const { passwordHash, ...result } = user;
-        // Map RBAC role name to Flattened role if needed, or just return
         return result;
+    }
+
+    async findPublicProfile(id: string) {
+        const user = await this.prisma.user.findUnique({
+            where: { id },
+            select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+                role: true,
+                isVerified: true,
+                verificationStatus: true,
+                brandVerificationStatus: true,
+                brandName: true,
+                createdAt: true,
+                locationAddress: true,
+                city: true,
+                state: true,
+                brandPhysicalAddress: true,
+                averageRating: true,
+                totalReviews: true,
+                profile: {
+                    select: {
+                        displayName: true,
+                        avatarUrl: true,
+                        bio: true,
+                        responseRate: true,
+                        country: true,
+                        region: true,
+                    }
+                }
+            }
+        });
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        return user;
     }
 
     async updateProfile(userId: string, dto: UpdateProfileDto) {

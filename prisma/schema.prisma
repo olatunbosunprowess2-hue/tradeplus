@@ -69,6 +69,12 @@ model User {
   disputesFiled    Dispute[] @relation("DisputeReporter")
   disputesResolved Dispute[] @relation("DisputeResolver")
 
+  // Community Feed
+  communityPosts    CommunityPost[]
+  postComments      PostComment[]
+  postOffers        PostOffer[]
+  savedPosts        SavedPost[]
+
   // OAuth fields
   googleId      String? @unique @map("google_id")
   
@@ -107,6 +113,24 @@ model User {
   boostNotificationCount24h Int       @default(0) @map("boost_notification_count_24h")
   boostNotificationResetAt  DateTime? @map("boost_notification_reset_at") @db.Timestamptz
 
+  // Brand Verification Fields
+  brandVerificationStatus  String    @default("NONE") @map("brand_verification_status") // NONE, PENDING, VERIFIED_BRAND, REJECTED
+  brandName                String?   @map("brand_name")
+  brandWebsite             String?   @map("brand_website")
+  brandInstagram           String?   @map("brand_instagram")
+  brandPhysicalAddress     String?   @map("brand_physical_address")
+  brandPhoneNumber         String?   @map("brand_phone_number")
+  brandWhatsApp            String?   @map("brand_whatsapp")
+  brandApplicationNote     String?   @map("brand_application_note")
+  brandProofUrls           String[]  @default([]) @map("brand_proof_urls")
+  brandVerifiedAt          DateTime? @map("brand_verified_at") @db.Timestamptz
+  brandRejectionReason     String?   @map("brand_rejection_reason")
+
+  // Seller Bank Details (only revealed at payment stage)
+  bankAccountName          String?   @map("bank_account_name")
+  bankAccountNumber        String?   @map("bank_account_number")
+  bankProvider             String?   @map("bank_provider")
+
   deletedAt     DateTime? @map("deleted_at") @db.Timestamptz
 
   @@map("users")
@@ -116,6 +140,7 @@ model User {
   @@index([status])
   @@index([phoneNumber])
   @@index([boostNotificationCount24h]) // Fast spam filtering for boost targeting
+  @@index([brandVerificationStatus])
 }
 
 
@@ -231,7 +256,8 @@ model Listing {
   barterPreferencesOnly Boolean   @default(false) @map("barter_preferences_only")
   
   quantity              Int       @default(1)
-  status                String    @default("active") // 'active','paused','sold','removed'
+  isAvailable           Boolean   @default(true) @map("is_available") // For SERVICE listings: false = "Fully Booked"
+  status                String    @default("active") // 'active','paused','sold','removed','traded'
   views                 Int       @default(0)
   shippingMeetInPerson  Boolean   @default(true) @map("shipping_meet_in_person")
   shippingShipItem      Boolean   @default(false) @map("shipping_ship_item")
@@ -259,6 +285,10 @@ model Listing {
   isDistressSale        Boolean   @default(false) @map("is_distress_sale")
   distressReason        String?   @map("distress_reason") // 'urgent_cash', 'relocating', 'clearing_stock'
   distressExpiresAt     DateTime? @map("distress_expires_at") @db.Timestamptz
+
+  // Downpayment
+  downpaymentCents    BigInt?   @map("downpayment_cents")
+  downpaymentCurrency String?   @map("downpayment_currency") @db.Char(3)
 
   // Monetization/Boost Fields
   isCrossListed         Boolean   @default(false) @map("is_cross_listed")
@@ -309,6 +339,11 @@ model BarterOffer {
   receiptGeneratedAt      DateTime? @map("receipt_generated_at") @db.Timestamptz
   receiptNumber           String?   @map("receipt_number")
   disputeStatus           String    @default("none") @map("dispute_status") // 'none', 'opened', 'resolved'
+
+  // Downpayment Tracking
+  downpaymentStatus      String    @default("none") @map("downpayment_status") // 'none', 'awaiting_payment', 'paid', 'confirmed'
+  downpaymentPaidAt      DateTime? @map("downpayment_paid_at") @db.Timestamptz
+  downpaymentConfirmedAt DateTime? @map("downpayment_confirmed_at") @db.Timestamptz
 
   createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt         DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
@@ -534,6 +569,8 @@ model Report {
   listing           Listing?  @relation(fields: [listingId], references: [id])
   messageId         String?   @map("message_id") @db.Uuid
   message           Message?  @relation(fields: [messageId], references: [id])
+  communityPostId   String?   @map("community_post_id") @db.Uuid
+  communityPost     CommunityPost? @relation(fields: [communityPostId], references: [id])
   reason            String
   status            String    @default("open") // 'open','in_review','resolved','dismissed'
   evidenceImages    String[]  @default([]) @map("evidence_images")
@@ -790,4 +827,82 @@ model Purchase {
   @@index([userId])
   @@index([paystackRef])
   @@index([status])
+}
+
+// WAITLIST — Marketing list for premium features
+
+model Waitlist {
+  id        String   @id @default(uuid()) @db.Uuid
+  email     String   @unique
+  name      String?
+  source    String   @default("brand_feature") // Which feature they signed up for
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("waitlist")
+  @@index([createdAt])
+}
+
+// COMMUNITY FEED
+
+model CommunityPost {
+  id        String   @id @default(uuid()) @db.Uuid
+  authorId  String   @map("author_id") @db.Uuid
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content   String   @db.Text
+  hashtags  String[] @default([])
+  images    String[] @default([])
+  status    String   @default("active") // 'active', 'hidden', 'deleted'
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  comments  PostComment[]
+  offers    PostOffer[]
+  reports   Report[]
+  savedBy   SavedPost[]
+
+  @@map("community_posts")
+  @@index([authorId])
+  @@index([status, createdAt])
+  @@index([createdAt])
+}
+
+model PostComment {
+  id        String        @id @default(uuid()) @db.Uuid
+  postId    String        @map("post_id") @db.Uuid
+  post      CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String        @map("author_id") @db.Uuid
+  author    User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content   String        @db.Text
+  createdAt DateTime      @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("post_comments")
+  @@index([postId, createdAt])
+}
+
+model PostOffer {
+  id        String        @id @default(uuid()) @db.Uuid
+  postId    String        @map("post_id") @db.Uuid
+  post      CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  offererId String        @map("offerer_id") @db.Uuid
+  offerer   User          @relation(fields: [offererId], references: [id], onDelete: Cascade)
+  message   String        @db.Text
+  status    String        @default("pending") // 'pending', 'accepted', 'rejected'
+  createdAt DateTime      @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("post_offers")
+  @@index([postId])
+  @@index([offererId])
+}
+
+model SavedPost {
+  id        String        @id @default(uuid()) @db.Uuid
+  userId    String        @map("user_id") @db.Uuid
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId    String        @map("post_id") @db.Uuid
+  post      CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime      @default(now()) @map("created_at") @db.Timestamptz
+
+  @@unique([userId, postId])
+  @@map("saved_posts")
+  @@index([userId])
 }

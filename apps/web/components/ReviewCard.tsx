@@ -33,9 +33,9 @@ export default function ReviewCard({ review, onUpdate }: ReviewCardProps) {
     const { addToast } = useToastStore();
     const [showActions, setShowActions] = useState(false);
 
-    const isOwnReview = user?.id === review.reviewer.id;
-    const reviewerName = review.reviewer.profile?.displayName || review.reviewer.email.split('@')[0];
-    const reviewerAvatar = review.reviewer.profile?.avatarUrl;
+    const isOwnReview = user?.id === review.reviewer?.id;
+    const reviewerName = review.reviewer?.profile?.displayName || review.reviewer?.email?.split('@')[0] || 'Unknown';
+    const reviewerAvatar = review.reviewer?.profile?.avatarUrl;
 
     const handleFlag = async () => {
         try {

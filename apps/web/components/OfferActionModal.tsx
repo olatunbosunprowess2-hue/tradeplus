@@ -22,7 +22,7 @@ export default function OfferActionModal({
     if (!isOpen || !offer) return null;
 
     const isAccept = action === 'accept';
-    const buyerName = offer.buyer.profile?.displayName || offer.buyer.email;
+    const buyerName = offer.buyer?.profile?.displayName || offer.buyer?.email || 'Unknown Buyer';
     const cashAmount = offer.offeredCashCents ? (offer.offeredCashCents / 100).toLocaleString() : '0';
     const hasItems = (offer.items || []).length > 0;
     const itemsText = offer.items?.map(item => item.offeredListing?.title).join(', ');
@@ -119,8 +119,8 @@ export default function OfferActionModal({
                         onClick={onConfirm}
                         disabled={isProcessing}
                         className={`px-6 py-3 rounded-xl font-bold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg ${isAccept
-                                ? 'bg-green-600 hover:bg-green-700 shadow-green-200'
-                                : 'bg-red-600 hover:bg-red-700 shadow-red-200'
+                            ? 'bg-green-600 hover:bg-green-700 shadow-green-200'
+                            : 'bg-red-600 hover:bg-red-700 shadow-red-200'
                             }`}
                     >
                         {isProcessing ? (

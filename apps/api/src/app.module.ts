@@ -36,6 +36,8 @@ import { DisputesModule } from './disputes/disputes.module';
 import { CategoriesModule } from './categories/categories.module';
 import { MonetizationModule } from './monetization/monetization.module';
 import { PaymentsModule } from './payments/payments.module';
+import { BrandVerificationModule } from './brand-verification/brand-verification.module';
+import { CommunityPostsModule } from './community-posts/community-posts.module';
 
 @Module({
     imports: [
@@ -64,6 +66,7 @@ import { PaymentsModule } from './payments/payments.module';
                 SMTP_PORT: Joi.number().optional(),
                 SMTP_USER: Joi.string().optional(),
                 SMTP_PASS: Joi.string().optional(),
+                ADMIN_EMAIL: Joi.string().optional().description('Admin email for brand application alerts'),
 
                 // Cloudinary Configuration
                 CLOUDINARY_CLOUD_NAME: Joi.string().required().description('Cloudinary Cloud Name'),
@@ -115,6 +118,8 @@ import { PaymentsModule } from './payments/payments.module';
         CategoriesModule,
         MonetizationModule,
         PaymentsModule,
+        BrandVerificationModule,
+        CommunityPostsModule,
     ],
     providers: [
         {

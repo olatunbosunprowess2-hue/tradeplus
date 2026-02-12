@@ -64,12 +64,16 @@ export default function CreateListingPage() {
         currency: 'NGN',
         paymentMethod: 'cash' as 'cash' | 'barter' | 'both',
         quantity: 1,
+        isAvailable: true,
         isDistressSale: false,
         distressReason: '',
         barterPreference1: '',
         barterPreference2: '',
+        barterPreference1: '',
+        barterPreference2: '',
         barterPreference3: '',
         barterPreferencesOnly: false,
+        downpaymentCents: '', // Added downpayment field
     });
 
     // Media
@@ -216,6 +220,17 @@ export default function CreateListingPage() {
             }
             form.append('currencyCode', formData.currency);
             form.append('quantity', formData.quantity.toString());
+
+            // Downpayment (Verified Brands only)
+            if (user?.brandVerificationStatus === 'VERIFIED_BRAND' && formData.downpaymentCents && parseFloat(formData.downpaymentCents) > 0) {
+                form.append('downpaymentCents', (parseFloat(formData.downpaymentCents) * 100).toString());
+                form.append('downpaymentCurrency', formData.currency);
+            }
+
+            // Service availability
+            if (formData.type === 'SERVICE') {
+                form.append('isAvailable', formData.isAvailable.toString());
+            }
 
             // Payment Methods
             const allowCash = formData.paymentMethod === 'cash' || formData.paymentMethod === 'both';
@@ -380,7 +395,7 @@ export default function CreateListingPage() {
                                             }`}
                                     >
                                         <span className="text-3xl mb-3 block">📦</span>
-                                        <h3 className="font-bold text-gray-900">Physical Item</h3>
+                                        <h3 className="font-bold text-gray-900">Product</h3>
                                         <p className="text-sm text-gray-500 mt-1">Gadgets, Clothes, Cars...</p>
                                     </button>
 
@@ -456,17 +471,37 @@ export default function CreateListingPage() {
                                             </select>
                                         </div>
                                     )}
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-2">Quantity</label>
-                                        <input
-                                            type="number"
-                                            min="1"
-                                            value={formData.quantity}
-                                            onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 1 })}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
-                                        />
-                                    </div>
+                                    {formData.type === 'PHYSICAL' && (
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-2">Quantity</label>
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                value={formData.quantity}
+                                                onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 1 })}
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                    )}
                                 </div>
+
+                                {/* Availability Toggle for Services */}
+                                {formData.type === 'SERVICE' && (
+                                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                                        <div className="flex justify-between items-center">
+                                            <div>
+                                                <h3 className="font-bold text-gray-900">Available for Booking</h3>
+                                                <p className="text-xs text-gray-600 mt-1">Toggle off when you're fully booked or unavailable</p>
+                                            </div>
+                                            <div
+                                                onClick={() => setFormData(p => ({ ...p, isAvailable: !p.isAvailable }))}
+                                                className={`w-12 h-6 rounded-full p-1 cursor-pointer transition-colors ${formData.isAvailable ? 'bg-green-500' : 'bg-gray-300'}`}
+                                            >
+                                                <div className={`bg-white w-4 h-4 rounded-full shadow-sm transition-transform ${formData.isAvailable ? 'translate-x-6' : 'translate-x-0'}`} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         )}
 
@@ -569,6 +604,46 @@ export default function CreateListingPage() {
                                     </div>
                                 </div>
 
+                                {/* Verified Brand Downpayment Option */}
+                                {user?.brandVerificationStatus === 'VERIFIED_BRAND' && !formData.isDistressSale && (
+                                    <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl mt-4">
+                                        <div className="flex items-start gap-3">
+                                            <span className="text-xl">💰</span>
+                                            <div className="flex-1">
+                                                <h3 className="font-bold text-gray-900">Enable Downpayment?</h3>
+                                                <p className="text-xs text-gray-600 mt-1">
+                                                    As a verified brand, you can require a partial downpayment.
+                                                </p>
+                                                <div className="mt-3">
+                                                    <label className="block text-sm font-bold text-gray-700 mb-2">Downpayment Amount</label>
+                                                    <div className="relative">
+                                                        <span className="absolute left-3 top-3 text-gray-500">{formData.currency}</span>
+                                                        <input
+                                                            type="number"
+                                                            placeholder="0.00"
+                                                            value={formData.downpaymentCents || ''}
+                                                            onChange={(e) => {
+                                                                // prevent downpayment > price
+                                                                const val = parseFloat(e.target.value);
+                                                                const price = parseFloat(formData.priceCents);
+                                                                if (val > price) {
+                                                                    toast.error('Downpayment cannot exceed listing price');
+                                                                    return;
+                                                                }
+                                                                setFormData({ ...formData, downpaymentCents: e.target.value })
+                                                            }}
+                                                            className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500"
+                                                        />
+                                                    </div>
+                                                    <p className="text-xs text-amber-700 mt-2">
+                                                        Buyers will be required to pay this amount upfront.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {!formData.isDistressSale && (
                                     <div>
                                         <label className="block text-sm font-bold text-gray-700 mb-3">Accept Payment Via</label>
@@ -640,6 +715,6 @@ export default function CreateListingPage() {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }

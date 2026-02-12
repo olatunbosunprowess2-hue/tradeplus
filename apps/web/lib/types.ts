@@ -37,6 +37,15 @@ export interface User {
     idDocumentBackUrl?: string;
     faceVerificationUrl?: string;
     rejectionReason?: string;
+
+    // Brand Verification Fields
+    brandVerificationStatus?: 'NONE' | 'PENDING' | 'VERIFIED_BRAND' | 'REJECTED';
+    brandName?: string;
+    brandPhysicalAddress?: string;
+    brandPhoneNumber?: string;
+    brandWhatsApp?: string;
+    brandProofUrls?: string[];
+    brandVerifiedAt?: string;
     locationLat?: number;
     locationLng?: number;
     locationAddress?: string;
@@ -100,6 +109,7 @@ export interface Listing {
     allowCashPlusBarter: boolean;
     preferredBarterNotes?: string;
     quantity: number;
+    isAvailable?: boolean;
     status: string;
     shippingMeetInPerson: boolean;
     shippingShipItem: boolean;
@@ -112,6 +122,10 @@ export interface Listing {
     isDistressSale?: boolean;
     distressReason?: string;
     distressExpiresAt?: string;
+
+    // Downpayment
+    downpaymentCents?: number;
+    downpaymentCurrency?: string;
 
     // Barter Preferences
     barterPreference1?: string;
@@ -150,6 +164,11 @@ export interface BarterOffer {
     receiptGeneratedAt?: string;
     receiptNumber?: string;
     disputeStatus: 'none' | 'opened' | 'resolved';
+
+    // Downpayment Tracking
+    downpaymentStatus: 'none' | 'awaiting_payment' | 'paid' | 'confirmed';
+    downpaymentPaidAt?: string;
+    downpaymentConfirmedAt?: string;
 
     createdAt: string;
     updatedAt: string;
@@ -219,4 +238,55 @@ export interface Report {
     resolvedAt?: string;
     resolvedByAdminId?: string;
     resolvedByAdmin?: User;
+}
+
+// Community Feed Types
+export interface PostAuthor {
+    id: string;
+    firstName?: string;
+    lastName?: string;
+    isVerified: boolean;
+    verificationStatus: string;
+    brandVerificationStatus?: string;
+    brandName?: string;
+    profile?: {
+        displayName?: string;
+        avatarUrl?: string;
+    };
+}
+
+export interface CommunityPost {
+    id: string;
+    authorId: string;
+    author: PostAuthor;
+    content: string;
+    hashtags: string[];
+    images: string[];
+    status: string;
+    createdAt: string;
+    updatedAt: string;
+    _count: {
+        comments: number;
+        offers: number;
+    };
+    isSaved?: boolean;
+}
+
+export interface PostComment {
+    id: string;
+    postId: string;
+    authorId: string;
+    author: PostAuthor;
+    content: string;
+    createdAt: string;
+}
+
+export interface PostOffer {
+    id: string;
+    postId: string;
+    offererId: string;
+    offerer: PostAuthor;
+    message: string;
+    status: string;
+    createdAt: string;
 }

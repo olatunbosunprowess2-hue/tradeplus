@@ -51,5 +51,15 @@ export const offersApi = {
     counter: async (id: string, data: CounterOfferDto) => {
         const response = await apiClient.post<BarterOffer>(`/barter/offers/${id}/counter`, data);
         return response.data;
-    }
+    },
+
+    markPaid: async (id: string) => {
+        const response = await apiClient.patch<BarterOffer>(`/barter/offers/${id}/mark-paid`);
+        return response.data;
+    },
+
+    confirmReceipt: async (id: string) => {
+        const response = await apiClient.patch<BarterOffer>(`/barter/offers/${id}/confirm-receipt`);
+        return response.data;
+    },
 };

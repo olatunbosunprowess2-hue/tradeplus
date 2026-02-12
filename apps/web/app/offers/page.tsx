@@ -7,6 +7,7 @@ import { useAuthStore } from '@/lib/auth-store';
 import { useMessagesStore } from '@/lib/messages-store';
 import { BarterOffer } from '@/lib/types';
 import OfferCard from '@/components/OfferCard';
+import DownpaymentTracker from '@/components/DownpaymentTracker';
 import CounterOfferModal from '@/components/CounterOfferModal';
 import OfferActionModal from '@/components/OfferActionModal';
 import toast from 'react-hot-toast';
@@ -85,14 +86,14 @@ export default function OffersPage() {
         if (!user) return;
         const participantId = offer.buyerId === user.id ? offer.sellerId : offer.buyerId;
         const participantName = offer.buyerId === user.id
-            ? (offer.seller.profile?.displayName || offer.seller.email)
-            : (offer.buyer.profile?.displayName || offer.buyer.email);
+            ? (offer.seller?.profile?.displayName || offer.seller?.email || 'Unknown')
+            : (offer.buyer?.profile?.displayName || offer.buyer?.email || 'Unknown');
 
         // Create or get conversation
         createConversation(participantId, participantName, undefined, {
             id: offer.listingId,
-            title: offer.listing.title,
-            image: offer.listing.images[0]?.url || '',
+            title: offer.listing?.title || 'Listing',
+            image: offer.listing?.images?.[0]?.url || '',
         });
 
         // Navigate to chat
@@ -119,13 +120,13 @@ export default function OffersPage() {
             const listing = selectedOffer.listing;
 
             createConversation(
-                buyer.id,
-                buyer.profile?.displayName || buyer.email,
-                buyer.profile?.avatarUrl,
+                buyer?.id || selectedOffer.buyerId,
+                buyer?.profile?.displayName || buyer?.email || 'Unknown',
+                buyer?.profile?.avatarUrl,
                 {
-                    id: listing.id,
-                    title: listing.title,
-                    image: listing.images[0]?.url || ''
+                    id: listing?.id || selectedOffer.listingId,
+                    title: listing?.title || 'Listing',
+                    image: listing?.images?.[0]?.url || ''
                 }
             );
 
@@ -194,15 +195,23 @@ export default function OffersPage() {
             return (
                 <div className="space-y-4">
                     {receivedOffers.map((offer) => (
-                        <OfferCard
-                            key={offer.id}
-                            offer={offer}
-                            type="received"
-                            onAccept={handleAccept}
-                            onReject={handleReject}
-                            onCounter={handleCounter}
-                            onMessage={handleMessage}
-                        />
+                        <div key={offer.id}>
+                            <OfferCard
+                                offer={offer}
+                                type="received"
+                                onAccept={handleAccept}
+                                onReject={handleReject}
+                                onCounter={handleCounter}
+                                onMessage={handleMessage}
+                            />
+                            {offer.status === 'accepted' && offer.downpaymentStatus && offer.downpaymentStatus !== 'none' && user && (
+                                <DownpaymentTracker
+                                    offer={offer}
+                                    currentUserId={user.id}
+                                    onUpdate={() => fetchOffers()}
+                                />
+                            )}
+                        </div>
                     ))}
                 </div>
             );
@@ -232,12 +241,20 @@ export default function OffersPage() {
             return (
                 <div className="space-y-4">
                     {sentOffers.map((offer) => (
-                        <OfferCard
-                            key={offer.id}
-                            offer={offer}
-                            type="sent"
-                            onMessage={handleMessage}
-                        />
+                        <div key={offer.id}>
+                            <OfferCard
+                                offer={offer}
+                                type="sent"
+                                onMessage={handleMessage}
+                            />
+                            {offer.status === 'accepted' && offer.downpaymentStatus && offer.downpaymentStatus !== 'none' && user && (
+                                <DownpaymentTracker
+                                    offer={offer}
+                                    currentUserId={user.id}
+                                    onUpdate={() => fetchOffers()}
+                                />
+                            )}
+                        </div>
                     ))}
                 </div>
             );

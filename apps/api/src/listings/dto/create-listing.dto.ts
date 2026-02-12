@@ -45,6 +45,16 @@ export class CreateListingDto {
     @IsOptional()
     currencyCode?: string;
 
+    @IsNumber()
+    @Min(0)
+    @IsOptional()
+    @Type(() => Number)
+    downpaymentCents?: number;
+
+    @IsString()
+    @IsOptional()
+    downpaymentCurrency?: string;
+
     @IsBoolean()
     @Transform(({ value }) => value === 'true' || value === true)
     allowCash: boolean;
@@ -85,6 +95,11 @@ export class CreateListingDto {
     @IsOptional()
     @Type(() => Number)
     quantity?: number;
+
+    @IsBoolean()
+    @IsOptional()
+    @Transform(({ value }) => value === 'true' || value === true)
+    isAvailable?: boolean;
 
     @IsBoolean()
     @IsOptional()

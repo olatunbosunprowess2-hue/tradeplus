@@ -113,4 +113,27 @@ export class AdminController {
     removeSpotlight(@Param('id') id: string, @Request() req) {
         return this.adminService.removeSpotlight(id, req.user.id);
     }
+
+    // =====================
+    // TRADE MONITORING
+    // =====================
+
+    @Get('trades')
+    getTrades(@Query() query: { status?: string; downpaymentStatus?: string; search?: string; page?: number; limit?: number }) {
+        return this.adminService.getTrades(query);
+    }
+
+    // =====================
+    // USER VERIFICATION TOGGLE
+    // =====================
+
+    @Patch('users/:id/verify')
+    @UseGuards(RolesGuard)
+    @RequireRole('moderator')
+    toggleUserVerification(
+        @Param('id') id: string,
+        @Body() body: { verified: boolean },
+    ) {
+        return this.adminService.toggleUserVerification(id, body.verified);
+    }
 }

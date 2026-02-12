@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/auth-store';
 import { canAccessAdminPanel } from '@/lib/rbac';
 import { useNotificationsStore } from '@/lib/notifications-store';
@@ -9,9 +9,11 @@ import { useEffect, useState } from 'react';
 
 export default function MobileBottomNav() {
     const pathname = usePathname();
+    const router = useRouter();
     const { isAuthenticated, user, _hasHydrated } = useAuthStore();
     const { unreadCount, fetchUnreadCount } = useNotificationsStore();
     const [isMounted, setIsMounted] = useState(false);
+    const [showSellSheet, setShowSellSheet] = useState(false);
 
     // Ensure component is mounted before rendering
     useEffect(() => {
@@ -40,6 +42,17 @@ export default function MobileBottomNav() {
 
     // Only show for authenticated users
     if (!isAuthenticated) return null;
+
+    const isVerified = user?.isVerified;
+
+    const handleSellClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (isVerified) {
+            setShowSellSheet(true);
+        } else {
+            router.push('/listings/create');
+        }
+    };
 
     const navItems = [
         {
@@ -110,58 +123,127 @@ export default function MobileBottomNav() {
     }
 
     return (
-        <nav
-            className="md:hidden fixed left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-gray-200/50 z-[9999] shadow-lg shadow-black/5 print:hidden"
-            style={{ bottom: '0px' }}
-        >
-            {/* Gradient top border */}
-            <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />
+        <>
+            <nav
+                className="md:hidden fixed left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-gray-200/50 z-[9999] shadow-lg shadow-black/5 print:hidden"
+                style={{ bottom: '0px' }}
+            >
+                {/* Gradient top border */}
+                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />
 
-            <div className="flex justify-around items-center h-16 px-2 max-w-lg mx-auto">
-                {navItems.map((item) => {
-                    const isActive = pathname === item.href;
+                <div className="flex justify-around items-center h-16 px-2 max-w-lg mx-auto">
+                    {navItems.map((item) => {
+                        const isActive = pathname === item.href;
 
-                    if (item.primary) {
+                        if (item.primary) {
+                            return (
+                                <button
+                                    key={item.href}
+                                    onClick={handleSellClick}
+                                    className="flex flex-col items-center justify-center -mt-6"
+                                >
+                                    <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all hover:scale-105 active:scale-95">
+                                        {item.icon}
+                                    </div>
+                                    <span className="text-xs mt-1.5 font-medium text-gray-500">{item.label}</span>
+                                </button>
+                            );
+                        }
+
                         return (
                             <Link
                                 key={item.href}
                                 href={item.href}
-                                className="flex flex-col items-center justify-center -mt-6"
+                                className={`flex flex-col items-center justify-center flex-1 h-full py-2 transition-all relative ${isActive
+                                    ? 'text-blue-600'
+                                    : 'text-gray-400 hover:text-gray-600'
+                                    }`}
                             >
-                                <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all hover:scale-105 active:scale-95">
+                                {/* Active indicator */}
+                                {isActive && (
+                                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full" />
+                                )}
+                                <div className={`transition-transform ${isActive ? 'scale-110' : ''}`}>
                                     {item.icon}
                                 </div>
-                                <span className="text-xs mt-1.5 font-medium text-gray-500">{item.label}</span>
+                                <span className={`text-[10px] mt-1 font-medium ${isActive ? 'font-semibold' : ''}`}>
+                                    {item.label}
+                                </span>
                             </Link>
                         );
-                    }
+                    })}
+                </div>
 
-                    return (
-                        <Link
-                            key={item.href}
-                            href={item.href}
-                            className={`flex flex-col items-center justify-center flex-1 h-full py-2 transition-all relative ${isActive
-                                ? 'text-blue-600'
-                                : 'text-gray-400 hover:text-gray-600'
-                                }`}
-                        >
-                            {/* Active indicator */}
-                            {isActive && (
-                                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full" />
-                            )}
-                            <div className={`transition-transform ${isActive ? 'scale-110' : ''}`}>
-                                {item.icon}
+                {/* Safe area spacer for devices with home indicator */}
+                <div className="h-safe-area-inset-bottom" />
+            </nav>
+
+            {/* Sell Action Sheet */}
+            {showSellSheet && (
+                <>
+                    <div className="fixed inset-0 bg-black/40 z-[10000] animate-in fade-in duration-150" onClick={() => setShowSellSheet(false)} />
+                    <div className="fixed bottom-0 left-0 right-0 z-[10001] animate-in slide-in-from-bottom duration-200">
+                        <div className="bg-white rounded-t-3xl shadow-2xl max-w-lg mx-auto overflow-hidden">
+                            {/* Handle */}
+                            <div className="flex justify-center pt-3 pb-1">
+                                <div className="w-10 h-1 bg-gray-300 rounded-full" />
                             </div>
-                            <span className={`text-[10px] mt-1 font-medium ${isActive ? 'font-semibold' : ''}`}>
-                                {item.label}
-                            </span>
-                        </Link>
-                    );
-                })}
-            </div>
 
-            {/* Safe area spacer for devices with home indicator */}
-            <div className="h-safe-area-inset-bottom" />
-        </nav>
+                            <div className="px-6 pt-2 pb-3">
+                                <h3 className="text-lg font-bold text-gray-900 text-center">What would you like to post?</h3>
+                            </div>
+
+                            <div className="px-4 pb-4 space-y-2">
+                                <button
+                                    onClick={() => { setShowSellSheet(false); router.push('/listings/create'); }}
+                                    className="w-full flex items-center gap-4 p-4 rounded-2xl bg-blue-50 border border-blue-100 hover:bg-blue-100 transition text-left"
+                                >
+                                    <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                                        <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                        </svg>
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="font-bold text-gray-900">Sell on Market</div>
+                                        <div className="text-sm text-gray-500">List an item or service for sale/trade</div>
+                                    </div>
+                                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+
+                                <button
+                                    onClick={() => { setShowSellSheet(false); router.push('/listings?tab=community&create=true'); }}
+                                    className="w-full flex items-center gap-4 p-4 rounded-2xl bg-purple-50 border border-purple-100 hover:bg-purple-100 transition text-left"
+                                >
+                                    <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                                        <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+                                        </svg>
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="font-bold text-gray-900">Post to Community</div>
+                                        <div className="text-sm text-gray-500">Share with the community feed</div>
+                                    </div>
+                                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <button
+                                onClick={() => setShowSellSheet(false)}
+                                className="w-full py-4 text-gray-500 text-sm font-medium border-t border-gray-100 hover:bg-gray-50 transition"
+                            >
+                                Cancel
+                            </button>
+
+                            {/* Safe area */}
+                            <div className="h-safe-area-inset-bottom bg-white" />
+                        </div>
+                    </div>
+                </>
+            )}
+        </>
     );
 }

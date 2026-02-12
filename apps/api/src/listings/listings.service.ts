@@ -98,7 +98,10 @@ export class ListingsService {
                 sellerId: userId,
                 priceCents: dto.priceCents ? BigInt(Math.round(dto.priceCents)) : null,
                 currencyCode: dto.currencyCode || 'USD',
-                quantity: dto.quantity || 1,
+                downpaymentCents: dto.downpaymentCents ? BigInt(Math.round(dto.downpaymentCents)) : null,
+                downpaymentCurrency: dto.downpaymentCurrency || null,
+                quantity: dto.type === 'SERVICE' ? 1 : (dto.quantity || 1),
+                isAvailable: dto.type === 'SERVICE' ? (dto.isAvailable ?? true) : true,
                 shippingMeetInPerson: dto.shippingMeetInPerson ?? true,
                 shippingShipItem: dto.shippingShipItem ?? false,
                 // Default to seller's location if not provided
@@ -161,6 +164,7 @@ export class ListingsService {
             return {
                 ...listing,
                 priceCents: listing.priceCents ? Number(listing.priceCents) : null,
+                downpaymentCents: listing.downpaymentCents ? Number(listing.downpaymentCents) : null,
             };
         } catch (error) {
             console.error('Error in ListingsService.create:', error);
@@ -271,6 +275,8 @@ export class ListingsService {
                     description: true,
                     priceCents: true,
                     currencyCode: true,
+                    downpaymentCents: true,
+                    downpaymentCurrency: true,
                     type: true,
                     condition: true,
                     status: true,
@@ -280,6 +286,7 @@ export class ListingsService {
                     allowBarter: true,
                     allowCashPlusBarter: true,
                     quantity: true,
+                    isAvailable: true,
                     isDistressSale: true,
                     isCrossListed: true,
                     isFeatured: true,
@@ -307,6 +314,10 @@ export class ListingsService {
                             isVerified: true,
                             locationAddress: true,
                             tier: true,
+                            brandVerificationStatus: true,
+                            brandName: true,
+                            brandPhysicalAddress: true,
+                            brandWhatsApp: true,
                             profile: {
                                 select: {
                                     displayName: true,
@@ -334,6 +345,7 @@ export class ListingsService {
             data: listings.map((listing) => ({
                 ...listing,
                 priceCents: listing.priceCents ? Number(listing.priceCents) : null,
+                downpaymentCents: (listing as any).downpaymentCents ? Number((listing as any).downpaymentCents) : null,
                 // Ensure images array structure matches expected DTO
                 images: listing.images || []
             })),
@@ -376,6 +388,7 @@ export class ListingsService {
         return {
             ...listing,
             priceCents: listing.priceCents ? Number(listing.priceCents) : null,
+            downpaymentCents: listing.downpaymentCents ? Number(listing.downpaymentCents) : null,
         };
     }
 
@@ -432,7 +445,7 @@ export class ListingsService {
             throw new ForbiddenException('You can only update your own listings');
         }
 
-        const { imageUrls, priceCents, status, ...listingData } = dto;
+        const { imageUrls, priceCents, downpaymentCents, status, ...listingData } = dto;
 
         // Handle image updates
         if (imageUrls) {
@@ -456,8 +469,17 @@ export class ListingsService {
         if (priceCents !== undefined) {
             updateData.priceCents = priceCents ? BigInt(priceCents) : null;
         }
+        if (downpaymentCents !== undefined) {
+            updateData.downpaymentCents = downpaymentCents ? BigInt(downpaymentCents) : null;
+        }
         if (status) {
             updateData.status = status;
+        }
+
+        // Auto-TRADED: If product quantity reaches 0, auto-mark as traded
+        if (listing.type === 'PHYSICAL' && updateData.quantity !== undefined && updateData.quantity <= 0) {
+            updateData.status = 'traded';
+            updateData.quantity = 0;
         }
 
         const updated = await this.prisma.listing.update({
@@ -491,6 +513,7 @@ export class ListingsService {
         return {
             ...updated,
             priceCents: updated.priceCents ? Number(updated.priceCents) : null,
+            downpaymentCents: updated.downpaymentCents ? Number(updated.downpaymentCents) : null,
         };
 
     }

@@ -67,6 +67,18 @@ export class BarterController {
     }
 
     @UseGuards(VerifiedUserGuard)
+    @Patch('offers/:id/mark-paid')
+    markDownpaymentPaid(@Request() req, @Param('id') id: string) {
+        return this.barterService.markDownpaymentPaid(id, req.user.id);
+    }
+
+    @UseGuards(VerifiedUserGuard)
+    @Patch('offers/:id/confirm-receipt')
+    confirmDownpaymentReceipt(@Request() req, @Param('id') id: string) {
+        return this.barterService.confirmDownpaymentReceipt(id, req.user.id);
+    }
+
+    @UseGuards(VerifiedUserGuard)
     @Post('offers/:id/receipt')
     getReceipt(@Request() req, @Param('id') id: string) {
         return this.barterService.getReceipt(id, req.user.id);

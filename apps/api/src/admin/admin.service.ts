@@ -560,6 +560,7 @@ export class AdminService {
             openDisputes,
             blockedIps,
             multiReportedUsers,
+            pendingBrands,
         ] = await Promise.all([
             // Users: Pending identity verifications
             this.prisma.user.count({ where: { verificationStatus: 'PENDING' } }),
@@ -590,6 +591,8 @@ export class AdminService {
                     WHERE l.seller_id = u.id
                 ) >= 2
             `,
+            // Brands: Pending brand verification applications
+            this.prisma.user.count({ where: { brandVerificationStatus: 'PENDING' } }),
         ]);
 
         // Extract count from raw query result
@@ -603,6 +606,7 @@ export class AdminService {
             appeals: pendingAppeals,
             disputes: openDisputes,
             security: blockedIps,
+            pendingBrands,
             // Detailed breakdown for dashboard if needed
             breakdown: {
                 pendingVerifications,
@@ -857,5 +861,107 @@ export class AdminService {
         );
 
         return { success: true, message: 'Spotlight removed from listing' };
+    }
+
+    // =====================
+    // TRADE MONITORING
+    // =====================
+
+    async getTrades(query: {
+        status?: string;
+        downpaymentStatus?: string;
+        search?: string;
+        page?: number;
+        limit?: number;
+    }) {
+        const page = query.page || 1;
+        const limit = query.limit || 20;
+        const skip = (page - 1) * limit;
+
+        const where: any = {};
+
+        if (query.status) {
+            where.status = query.status;
+        }
+
+        if (query.downpaymentStatus) {
+            where.downpaymentStatus = query.downpaymentStatus;
+        }
+
+        if (query.search) {
+            where.OR = [
+                { listing: { title: { contains: query.search, mode: 'insensitive' } } },
+                { buyer: { email: { contains: query.search, mode: 'insensitive' } } },
+                { seller: { email: { contains: query.search, mode: 'insensitive' } } },
+                { buyer: { profile: { displayName: { contains: query.search, mode: 'insensitive' } } } },
+                { seller: { profile: { displayName: { contains: query.search, mode: 'insensitive' } } } },
+            ];
+        }
+
+        const [trades, total] = await Promise.all([
+            this.prisma.barterOffer.findMany({
+                where,
+                skip,
+                take: limit,
+                orderBy: { createdAt: 'desc' },
+                include: {
+                    listing: {
+                        include: {
+                            images: { orderBy: { sortOrder: 'asc' }, take: 1 },
+                        },
+                    },
+                    buyer: { include: { profile: true } },
+                    seller: { include: { profile: true } },
+                    items: {
+                        include: {
+                            offeredListing: {
+                                include: { images: { orderBy: { sortOrder: 'asc' }, take: 1 } },
+                            },
+                        },
+                    },
+                },
+            }),
+            this.prisma.barterOffer.count({ where }),
+        ]);
+
+        return {
+            data: trades.map(t => ({
+                ...t,
+                offeredCashCents: t.offeredCashCents ? Number(t.offeredCashCents) : 0,
+            })),
+            meta: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit),
+            },
+        };
+    }
+
+    // =====================
+    // USER VERIFICATION TOGGLE
+    // =====================
+
+    async toggleUserVerification(userId: string, verified: boolean) {
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        const updated = await this.prisma.user.update({
+            where: { id: userId },
+            data: {
+                isVerified: verified,
+                verificationStatus: verified ? 'VERIFIED' : 'NONE',
+            },
+            include: { profile: true },
+        });
+
+        return {
+            id: updated.id,
+            email: updated.email,
+            isVerified: updated.isVerified,
+            verificationStatus: updated.verificationStatus,
+        };
     }
 }

@@ -140,6 +140,30 @@ export default function AdminSidebar() {
             ),
         },
         {
+            name: 'Brands',
+            href: '/admin/brands',
+            countKey: 'pendingBrands' as keyof SidebarCounts,
+            tooltip: 'Pending brand verification applications',
+            urgent: true,
+            minRole: PERMISSIONS.MANAGE_USERS,
+            icon: (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                </svg>
+            ),
+        },
+        {
+            name: 'Trade Monitor',
+            href: '/admin/trades',
+            countKey: null,
+            minRole: PERMISSIONS.VIEW_DISPUTES,
+            icon: (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                </svg>
+            ),
+        },
+        {
             name: 'Analytics',
             href: '/admin/analytics',
             countKey: null,
