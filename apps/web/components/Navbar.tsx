@@ -188,7 +188,7 @@ export default function Navbar() {
   const Logo = () => (
     <Link href="/listings" className="flex items-center gap-2.5 group shrink-0">
       {/* Logo Icon */}
-      <div className="relative w-10 h-10">
+      <div className="relative w-8 h-8">
         <img
           src="/logo-transparent.png"
           alt="BarterWave"
@@ -196,7 +196,7 @@ export default function Navbar() {
         />
       </div>
       {/* Logo Text */}
-      <span className="text-xl font-bold font-display">
+      <span className="text-lg font-bold font-display">
         <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">Barter</span>
         <span className="text-gray-900">Wave</span>
       </span>
@@ -237,7 +237,7 @@ export default function Navbar() {
       <nav className={`bg-white/80 backdrop-blur-xl border-b sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'border-gray-200 shadow-sm' : 'border-transparent'
         }`}>
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16 gap-4">
+          <div className="flex items-center justify-between h-12 gap-4">
             {/* Logo */}
             <Logo />
 
