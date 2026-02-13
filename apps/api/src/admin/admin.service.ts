@@ -209,7 +209,8 @@ export class AdminService {
                 'VERIFICATION_APPROVED',
                 {
                     message: 'Your identity verification has been approved! You can now list items and trade.',
-                    timestamp: new Date()
+                    timestamp: new Date(),
+                    link: '/profile',
                 }
             );
 
@@ -231,7 +232,8 @@ export class AdminService {
                 'VERIFICATION_REJECTED',
                 {
                     message: `Your verification was rejected. Reason: ${dto.rejectionReason || 'Documents did not meet requirements.'}`,
-                    timestamp: new Date()
+                    timestamp: new Date(),
+                    link: '/profile',
                 }
             );
 
@@ -258,7 +260,8 @@ export class AdminService {
                     'USER_SUSPENDED',
                     {
                         message: adminMessage || defaultMessage,
-                        timestamp: new Date()
+                        timestamp: new Date(),
+                        link: '/profile',
                     }
                 );
 
@@ -275,7 +278,8 @@ export class AdminService {
                     'USER_BANNED',
                     {
                         message: adminMessage || defaultMessage,
-                        timestamp: new Date()
+                        timestamp: new Date(),
+                        link: '/profile',
                     }
                 );
             } else if (dto.status === 'active' && (previousStatus === 'suspended' || previousStatus === 'banned')) {
@@ -286,7 +290,8 @@ export class AdminService {
                     'SUSPENSION_REMOVED',
                     {
                         message: reactivationMessage,
-                        timestamp: new Date()
+                        timestamp: new Date(),
+                        link: '/profile',
                     }
                 );
             }

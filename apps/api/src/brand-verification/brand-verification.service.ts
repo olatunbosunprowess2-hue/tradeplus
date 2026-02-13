@@ -253,6 +253,19 @@ export class BrandVerificationService {
             text: `Your brand "${user.brandName}" has been verified on BarterWave! You now have access to premium features.`,
         });
 
+        // Create in-app notification
+        await this.prisma.notification.create({
+            data: {
+                userId: user.id,
+                type: 'VERIFICATION_APPROVED',
+                data: {
+                    message: 'Congratulations! Your brand has been verified.',
+                    brandName: user.brandName,
+                    approvedAt: new Date().toISOString(),
+                },
+            },
+        });
+
         this.logger.log(`Brand approved: user ${userId} by admin ${adminId}`);
         return { message: 'Brand approved successfully' };
     }
@@ -312,6 +325,20 @@ export class BrandVerificationService {
                 </div>
             `,
             text: `Brand verification update: Your application was not approved. Reason: ${dto.reason}. Reapply at ${this.configService.get('FRONTEND_URL') || 'http://localhost:3000'}/brand-apply`,
+        });
+
+        // Create in-app notification
+        await this.prisma.notification.create({
+            data: {
+                userId: user.id,
+                type: 'VERIFICATION_REJECTED',
+                data: {
+                    message: `Brand application rejected: ${dto.reason}`,
+                    reason: dto.reason,
+                    rejectedAt: new Date().toISOString(),
+                    userEmail: user.email, // Helpful for linking if needed
+                },
+            },
         });
 
         this.logger.log(`Brand rejected: user ${userId} by admin ${adminId}. Reason: ${dto.reason}`);
@@ -456,10 +483,10 @@ export class BrandVerificationService {
                 await this.prisma.notification.create({
                     data: {
                         userId: admin.id,
-                        type: 'brand_application',
+                        type: 'VERIFICATION_REQUEST',
                         data: {
                             brandName,
-                            applicantEmail: userEmail,
+                            userEmail: userEmail, // Changed from applicantEmail to match frontend
                             applicantId: userId,
                             message: `New brand application: ${brandName}`,
                         },

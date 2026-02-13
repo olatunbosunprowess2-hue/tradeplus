@@ -149,7 +149,8 @@ export default function SearchFilters({ onApply }: { onApply?: () => void }) {
         if (regionId) params.set('regionId', regionId);
         if (isDistressSale) params.set('isDistressSale', 'true');
 
-        router.push(`/listings?${params.toString()}`);
+        const targetPath = pathname === '/' ? '/listings' : pathname;
+        router.push(`${targetPath}?${params.toString()}`);
 
         // Close mobile drawer if callback provided
         if (onApply) {
@@ -169,7 +170,8 @@ export default function SearchFilters({ onApply }: { onApply?: () => void }) {
         setIsDistressSale(false);
 
         // Redirect but keep the countryId lock
-        router.push(`/listings?countryId=${countryId}`);
+        const targetPath = pathname === '/' ? '/listings' : pathname;
+        router.push(`${targetPath}?countryId=${countryId}`);
 
         // Close mobile drawer if callback provided
         if (onApply) {

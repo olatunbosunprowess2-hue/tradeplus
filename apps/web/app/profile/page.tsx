@@ -9,7 +9,7 @@ import ReviewList from '@/components/ReviewList';
 import apiClient from '@/lib/api-client';
 import toast from 'react-hot-toast';
 import { DistressBoostModal, SpotlightModal } from '@/components/PaywallModal';
-import { initializePayment, redirectToPaystack, useSpotlightCredit } from '@/lib/payments-api';
+import { initializePayment, redirectToPaystack, useSpotlightCredit, PurchaseType } from '@/lib/payments-api';
 import { Check, Sparkles, Pencil } from 'lucide-react';
 import { EditPostModal } from '@/components/home/PostCard';
 import { CommunityPost } from '@/lib/types';
@@ -42,6 +42,135 @@ export default function ProfilePage() {
     const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
     const [isPaymentLoading, setIsPaymentLoading] = useState(false);
     const [editingPost, setEditingPost] = useState<CommunityPost | null>(null);
+    const [activeTab, setActiveTab] = useState<'listings' | 'reviews' | 'posts'>('listings');
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
+    const [listings, setListings] = useState<Listing[]>([]);
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    useEffect(() => {
+        if (isMounted && !isAuthenticated) {
+            router.push('/login');
+        }
+    }, [isMounted, isAuthenticated, router]);
+
+    // Fetch listings
+    useEffect(() => {
+        const fetchListings = async () => {
+            if (!user) return;
+            try {
+                setLoading(true);
+                const response = await apiClient.get(`/listings?sellerId=${user.id}&page=${page}&limit=12&includeAll=true`);
+                if (page === 1) {
+                    setListings(response.data.data || response.data);
+                } else {
+                    setListings(prev => [...prev, ...(response.data.data || response.data)]);
+                }
+                setTotalPages(response.data.meta?.totalPages || 1);
+            } catch (error) {
+                console.error('Failed to fetch listings:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchListings();
+    }, [user, page]);
+
+    // Helper functions
+    const formatPrice = (cents: number | null, currency: string) => {
+        if (!cents) return 'Free / Barter';
+        return new Intl.NumberFormat('en-NG', { style: 'currency', currency: currency || 'NGN' }).format(cents / 100);
+    };
+
+    const isAlreadyBoosted = (listing: Listing) => {
+        if (listing.isDistressSale) return 'distress';
+        if (listing.spotlightExpiry && new Date(listing.spotlightExpiry) > new Date()) return 'spotlight';
+        if (listing.isFeatured) return 'featured';
+        return null;
+    };
+
+    const handlePromote = (listing: Listing) => {
+        setSelectedListingId(listing.id);
+        setPromoteModal('spotlight');
+    };
+
+    const handleMarkAsSold = async (listingId: string) => {
+        try {
+            await apiClient.patch(`/listings/${listingId}`, { status: 'sold' });
+            setListings(prev => prev.map(l => l.id === listingId ? { ...l, status: 'sold' } : l));
+            toast.success('Listing marked as sold!');
+        } catch (error) {
+            toast.error('Failed to update listing');
+        }
+    };
+
+    const handleReactivate = async (listingId: string) => {
+        try {
+            await apiClient.patch(`/listings/${listingId}`, { status: 'active' });
+            setListings(prev => prev.map(l => l.id === listingId ? { ...l, status: 'active' } : l));
+            toast.success('Listing reactivated!');
+        } catch (error) {
+            toast.error('Failed to reactivate listing');
+        }
+    };
+
+    const handleDelete = async (listingId: string) => {
+        if (!confirm('Are you sure you want to delete this listing?')) return;
+        try {
+            await apiClient.delete(`/listings/${listingId}`);
+            setListings(prev => prev.filter(l => l.id !== listingId));
+            toast.success('Listing deleted');
+        } catch (error) {
+            toast.error('Failed to delete listing');
+        }
+    };
+
+    const handleModalClose = () => {
+        setPromoteModal(null);
+        setSelectedListingId(null);
+        setIsPaymentLoading(false);
+    };
+
+    const handlePaywallSelect = async (type: string, currency: 'NGN' | 'USD' = 'NGN') => {
+        if (!selectedListingId) return;
+        setIsPaymentLoading(true);
+        try {
+            const result = await initializePayment(type as PurchaseType, selectedListingId, currency);
+            if (result?.authorizationUrl) {
+                redirectToPaystack(result.authorizationUrl);
+            }
+        } catch (error) {
+            toast.error('Payment initialization failed');
+        } finally {
+            setIsPaymentLoading(false);
+        }
+    };
+
+    const handleUseCredit = async () => {
+        if (!selectedListingId) return;
+        setIsPaymentLoading(true);
+        try {
+            await useSpotlightCredit(selectedListingId);
+            toast.success('Spotlight applied!');
+            handleModalClose();
+            // Refresh listing
+            setListings(prev => prev.map(l =>
+                l.id === selectedListingId
+                    ? { ...l, spotlightExpiry: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() }
+                    : l
+            ));
+        } catch (error) {
+            toast.error('Failed to apply spotlight');
+        } finally {
+            setIsPaymentLoading(false);
+        }
+    };
 
     // Fetch user posts
     useEffect(() => {

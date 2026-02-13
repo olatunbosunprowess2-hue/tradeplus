@@ -252,6 +252,7 @@ export class DisputesService {
         await this.notificationsService.create(dispute.reporterId, 'DISPUTE_RESOLVED', {
             disputeId: dispute.id,
             resolution,
+            orderId: dispute.orderId,
         });
 
         return updated;

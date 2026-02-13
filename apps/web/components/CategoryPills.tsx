@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { apiClient } from '@/lib/api-client';
 
 interface Category {
@@ -24,6 +24,8 @@ export default function CategoryPills() {
             .catch(err => console.error('Failed to fetch categories:', err));
     }, []);
 
+    const pathname = usePathname();
+    // ...
     const handleCategoryClick = (categoryId: string) => {
         const params = new URLSearchParams(searchParams.toString());
         if (categoryId === '') {
@@ -33,7 +35,10 @@ export default function CategoryPills() {
         }
         // Reset page when category changes
         params.delete('page');
-        router.push(`/listings?${params.toString()}`);
+
+        // If on home page, go to listings. Else stay on current page (e.g. distress)
+        const targetPath = pathname === '/' ? '/listings' : pathname;
+        router.push(`${targetPath}?${params.toString()}`);
     };
 
     const allCategories = [{ id: 0, name: 'All', slug: 'all' }, ...categories];

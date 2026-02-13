@@ -304,6 +304,7 @@ model Listing {
   @@index([priceCents])
   @@index([createdAt])
   @@index([title])
+  @@index([isDistressSale])
 }
 
 model ListingImage {
@@ -672,6 +673,7 @@ model Dispute {
   @@index([reporterId])
   @@index([status])
   @@index([createdAt])
+  @@index([status, createdAt])
 }
 
 
@@ -864,6 +866,7 @@ model CommunityPost {
   @@index([authorId])
   @@index([status, createdAt])
   @@index([createdAt])
+  @@index([status])
 }
 
 model PostComment {

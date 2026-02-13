@@ -330,13 +330,16 @@ export class ListingsService {
                         }
                     }
                 },
-                // Order by: Featured/Spotlight items first, then premium sellers, then newest
-                orderBy: [
-                    { isFeatured: 'desc' },
-                    { spotlightExpiry: { sort: 'desc', nulls: 'last' } },
-                    { seller: { tier: 'desc' } },  // Premium sellers above free users
-                    { createdAt: 'desc' },
-                ],
+                // OPTIMIZATION: Use simpler sort for distress page to avoid expensive joins
+                // For distress sales, we just want the newest ones first
+                orderBy: (isDistressSale !== undefined && String(isDistressSale) === 'true')
+                    ? [{ createdAt: 'desc' }]
+                    : [
+                        { isFeatured: 'desc' },
+                        { spotlightExpiry: { sort: 'desc', nulls: 'last' } },
+                        { seller: { tier: 'desc' } },  // Premium sellers above free users
+                        { createdAt: 'desc' },
+                    ],
             }),
             this.prisma.listing.count({ where }),
         ]);

@@ -55,7 +55,8 @@ export class ReportsService {
                     {
                         postId: createReportDto.communityPostId,
                         postSnippet: post.content.substring(0, 50) + '...',
-                        message: 'One of your community posts has been reported. Our team is reviewing it.'
+                        message: 'One of your community posts has been reported. Our team is reviewing it.',
+                        link: '/community',
                     }
                 );
             }
@@ -78,7 +79,8 @@ export class ReportsService {
             'REPORT_SUBMITTED',
             {
                 reportId: report.id,
-                message: 'Your report has been submitted successfully. Our team will review it shortly and take appropriate action.'
+                message: 'Your report has been submitted successfully. Our team will review it shortly and take appropriate action.',
+                link: '/community', // Or profile, assuming reporter cares about their reports status
             }
         );
 
@@ -185,7 +187,8 @@ export class ReportsService {
             {
                 reportId: report.id,
                 message: notificationMessage,
-                adminResponse: true
+                adminResponse: true,
+                link: '/community', // Or typically wherever the report center is
             }
         );
 

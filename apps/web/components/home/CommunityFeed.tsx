@@ -58,6 +58,7 @@ export default function CommunityFeed() {
         isFetchingNextPage,
         isLoading,
         isError,
+        error,
     } = useInfiniteQuery({
         queryKey: ['community-posts', debouncedSearch],
         queryFn: async ({ pageParam = 1 }) => {
@@ -158,8 +159,12 @@ export default function CommunityFeed() {
             {/* Error State */}
             {isError && (
                 <div className="text-center py-8">
-                    <p className="text-red-500 text-sm mb-2">Failed to load posts</p>
-                    <button onClick={() => queryClient.invalidateQueries({ queryKey: ['community-posts'] })} className="text-blue-600 text-sm font-medium">
+                    <p className="text-red-500 text-sm mb-2">
+                        {(error as any)?.response?.status === 504
+                            ? 'Server timed out. Please try again.'
+                            : (error as any)?.message || 'Failed to load posts'}
+                    </p>
+                    <button onClick={() => queryClient.invalidateQueries({ queryKey: ['community-posts'] })} className="text-blue-600 text-sm font-medium hover:underline">
                         Try again
                     </button>
                 </div>

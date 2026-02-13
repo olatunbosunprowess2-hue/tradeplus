@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { useAuthStore } from '@/lib/auth-store';
+import { useToastStore } from '@/lib/toast-store';
 import apiClient from '@/lib/api-client';
 
 interface CreatePostModalProps {
@@ -72,8 +73,10 @@ export default function CreatePostModal({ isOpen, onClose, onCreated }: CreatePo
             setImages([]);
             onCreated();
             onClose();
-        } catch (err) {
+            useToastStore.getState().success('Post created successfully!');
+        } catch (err: any) {
             console.error('Failed to create post:', err);
+            useToastStore.getState().error(err.response?.data?.message || 'Failed to create post. Please try again.');
         }
         setSubmitting(false);
     };
