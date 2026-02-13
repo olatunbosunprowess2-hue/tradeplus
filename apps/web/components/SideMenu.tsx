@@ -186,7 +186,7 @@ export default function SideMenu({ className = '' }: SideMenuProps) {
 
             {/* Side Drawer */}
             <div
-                className={`fixed top-0 right-0 bottom-0 w-80 max-w-[85vw] bg-white shadow-2xl z-[9999] transform transition-transform duration-300 ease-out flex flex-col ${isOpen ? 'translate-x-0' : 'translate-x-full'
+                className={`fixed top-0 right-0 bottom-0 w-64 max-w-[65vw] bg-white shadow-2xl z-[9999] transform transition-transform duration-300 ease-out flex flex-col ${isOpen ? 'translate-x-0' : 'translate-x-full'
                     }`}
             >
                 {/* Header */}

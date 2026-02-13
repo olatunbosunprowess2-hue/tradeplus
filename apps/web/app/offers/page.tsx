@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import SideMenu from '@/components/SideMenu';
 import { useOffersStore } from '@/lib/offers-store';
 import { useAuthStore } from '@/lib/auth-store';
 import { useMessagesStore } from '@/lib/messages-store';
@@ -394,36 +395,34 @@ export default function OffersPage() {
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white pb-20">
-            {/* Page Header */}
-            <div className="container mx-auto px-4 max-w-4xl pt-5 pb-3">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-md">
-                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                        </svg>
-                    </div>
-                    <div>
-                        <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                            Trade Offers
-                        </h1>
-                        <p className="text-xs text-gray-500">Manage your trade offers and barter deals</p>
-                    </div>
-                </div>
+            {/* Mobile Header */}
+            <div className="md:hidden h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 shadow-sm">
+                <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                    Offers
+                </h1>
+                <SideMenu />
+            </div>
+
+            {/* Desktop Header */}
+            <div className="hidden md:block container mx-auto px-4 max-w-4xl pt-5 pb-3 border-b border-gray-200">
+                <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                    Offers
+                </h1>
             </div>
 
             <div className="container mx-auto px-4 py-6 max-w-4xl">
                 {/* Tabs */}
-                <div className="flex gap-2 mb-6 bg-white p-1.5 rounded-2xl shadow-md border border-gray-100">
+                <div className="flex gap-1.5 mb-6 bg-white p-1 rounded-2xl shadow-md border border-gray-100">
                     <button
                         onClick={() => setActiveTab('received')}
-                        className={`flex-1 py-3 px-4 rounded-xl font-semibold text-sm transition-all ${activeTab === 'received'
+                        className={`flex-1 py-2.5 px-3 rounded-xl font-semibold text-sm transition-all ${activeTab === 'received'
                             ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg'
                             : 'text-gray-600 hover:bg-gray-50'
                             }`}
                     >
-                        📥 Received
+                        Received
                         {receivedOffers.length > 0 && (
-                            <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-bold ${activeTab === 'received' ? 'bg-white text-purple-600' : 'bg-purple-50 text-purple-600'
+                            <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-xs font-bold ${activeTab === 'received' ? 'bg-white text-purple-600' : 'bg-purple-50 text-purple-600'
                                 }`}>
                                 {receivedOffers.length}
                             </span>
@@ -431,14 +430,14 @@ export default function OffersPage() {
                     </button>
                     <button
                         onClick={() => setActiveTab('sent')}
-                        className={`flex-1 py-3 px-4 rounded-xl font-semibold text-sm transition-all ${activeTab === 'sent'
+                        className={`flex-1 py-2.5 px-3 rounded-xl font-semibold text-sm transition-all ${activeTab === 'sent'
                             ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg'
                             : 'text-gray-600 hover:bg-gray-50'
                             }`}
                     >
-                        📤 Sent
+                        Sent
                         {sentOffers.length > 0 && (
-                            <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-bold ${activeTab === 'sent' ? 'bg-white text-purple-600' : 'bg-purple-50 text-purple-600'
+                            <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-xs font-bold ${activeTab === 'sent' ? 'bg-white text-purple-600' : 'bg-purple-50 text-purple-600'
                                 }`}>
                                 {sentOffers.length}
                             </span>
@@ -446,26 +445,26 @@ export default function OffersPage() {
                     </button>
                     <button
                         onClick={() => setActiveTab('community')}
-                        className={`flex-1 py-3 px-4 rounded-xl font-semibold text-sm transition-all ${activeTab === 'community'
+                        className={`flex-1 py-2.5 px-3 rounded-xl font-semibold text-sm transition-all ${activeTab === 'community'
                             ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg'
                             : 'text-gray-600 hover:bg-gray-50'
                             }`}
                     >
-                        🏷️ Community
+                        Community
                         {communityOffers.length > 0 && (
-                            <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-bold ${activeTab === 'community' ? 'bg-white text-purple-600' : 'bg-purple-50 text-purple-600'}`}>
+                            <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-xs font-bold ${activeTab === 'community' ? 'bg-white text-purple-600' : 'bg-purple-50 text-purple-600'}`}>
                                 {communityOffers.length}
                             </span>
                         )}
                     </button>
                     <button
                         onClick={() => setActiveTab('history')}
-                        className={`flex-1 py-3 px-4 rounded-xl font-semibold text-sm transition-all ${activeTab === 'history'
+                        className={`flex-1 py-2.5 px-3 rounded-xl font-semibold text-sm transition-all ${activeTab === 'history'
                             ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg'
                             : 'text-gray-600 hover:bg-gray-50'
                             }`}
                     >
-                        📜 History
+                        History
                     </button>
                 </div>
 

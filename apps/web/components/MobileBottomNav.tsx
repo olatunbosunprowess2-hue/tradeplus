@@ -140,12 +140,14 @@ export default function MobileBottomNav() {
                                 <button
                                     key={item.href}
                                     onClick={handleSellClick}
-                                    className="flex flex-col items-center justify-center -mt-6"
+                                    className="flex flex-col items-center justify-center -mt-4"
                                 >
-                                    <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all hover:scale-105 active:scale-95">
-                                        {item.icon}
+                                    <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all hover:scale-105 active:scale-95">
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+                                        </svg>
                                     </div>
-                                    <span className="text-xs mt-1.5 font-medium text-gray-500">{item.label}</span>
+                                    <span className="text-[10px] mt-1 font-medium text-gray-500">{item.label}</span>
                                 </button>
                             );
                         }

@@ -5,7 +5,7 @@ import { useAuthStore } from '@/lib/auth-store';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useEffect } from 'react';
-import Image from 'next/image';
+import SideMenu from '@/components/SideMenu';
 
 export default function MessagesPage() {
     const router = useRouter();
@@ -59,30 +59,26 @@ export default function MessagesPage() {
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white pb-20">
-            {/* Page Header */}
-            <div className="container mx-auto px-4 max-w-4xl pt-5 pb-3">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-md">
-                            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                                Messages
-                            </h1>
-                            <p className="text-xs text-gray-500">
-                                {totalUnread > 0 ? `${totalUnread} unread` : 'All caught up! 🎉'}
-                            </p>
-                        </div>
-                    </div>
+            {/* Mobile Header */}
+            <div className="md:hidden h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 shadow-sm">
+                <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                    Messages
+                </h1>
+                <div className="flex items-center gap-2">
                     {totalUnread > 0 && (
-                        <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold min-w-[24px] h-6 rounded-full flex items-center justify-center px-2 shadow-md">
+                        <div className="bg-red-500 text-white text-xs font-bold min-w-[20px] h-5 rounded-full flex items-center justify-center px-1.5">
                             {totalUnread}
                         </div>
                     )}
+                    <SideMenu />
                 </div>
+            </div>
+
+            {/* Desktop Header */}
+            <div className="hidden md:block container mx-auto px-4 max-w-4xl pt-5 pb-3 border-b border-gray-200">
+                <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                    Messages
+                </h1>
             </div>
 
             <div className="container mx-auto px-4 py-6 max-w-4xl">
@@ -110,26 +106,16 @@ export default function MessagesPage() {
                             <Link
                                 key={conversation.id}
                                 href={`/messages/${conversation.participantId}`}
-                                className="block bg-white rounded-2xl shadow-sm border border-gray-200 p-4 hover:shadow-lg hover:border-blue-300 transition-all duration-200 hover:-translate-y-0.5"
+                                className="block bg-white rounded-xl border border-gray-100 p-3 hover:bg-gray-50 transition-all duration-150"
                             >
-                                <div className="flex gap-4">
-                                    {/* Avatar */}
+                                <div className="flex items-center gap-3">
+                                    {/* Initial avatar */}
                                     <div className="relative flex-shrink-0">
-                                        {conversation.participantAvatar ? (
-                                            <Image
-                                                src={conversation.participantAvatar}
-                                                alt={conversation.participantName}
-                                                width={56}
-                                                height={56}
-                                                className="rounded-full object-cover ring-2 ring-white shadow-md"
-                                            />
-                                        ) : (
-                                            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-md ring-2 ring-white">
-                                                {conversation.participantName.charAt(0)}
-                                            </div>
-                                        )}
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm ${conversation.unreadCount > 0 ? 'bg-gradient-to-br from-blue-600 to-indigo-600' : 'bg-gray-400'}`}>
+                                            {conversation.participantName.charAt(0)}
+                                        </div>
                                         {conversation.unreadCount > 0 && (
-                                            <div className="absolute -top-1 -right-1 bg-gradient-to-br from-red-500 to-rose-600 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-lg ring-2 ring-white">
+                                            <div className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
                                                 {conversation.unreadCount}
                                             </div>
                                         )}
@@ -137,68 +123,36 @@ export default function MessagesPage() {
 
                                     {/* Content */}
                                     <div className="flex-1 min-w-0">
-                                        <div className="flex justify-between items-start mb-2">
-                                            <h3 className={`font-bold text-lg truncate ${conversation.unreadCount > 0 ? 'text-blue-600' : 'text-gray-900'
-                                                }`}>
+                                        <div className="flex justify-between items-center">
+                                            <h3 className={`font-semibold text-sm truncate ${conversation.unreadCount > 0 ? 'text-gray-900' : 'text-gray-700'}`}>
                                                 {conversation.participantName}
                                             </h3>
                                             {conversation.lastMessage && (
-                                                <span className="text-xs text-gray-500 ml-2 flex-shrink-0 font-medium">
+                                                <span className="text-[11px] text-gray-400 ml-2 flex-shrink-0">
                                                     {getTimeAgo(conversation.lastMessage.timestamp)}
                                                 </span>
                                             )}
                                         </div>
 
-                                        {/* Listing Context */}
+                                        {/* Listing Context — text only */}
                                         {conversation.listingContext && (
-                                            <div className="flex items-center gap-2 mb-2 p-2 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
-                                                <div className="relative flex-shrink-0">
-                                                    <Image
-                                                        src={conversation.listingContext.image}
-                                                        alt={conversation.listingContext.title}
-                                                        width={40}
-                                                        height={40}
-                                                        className="rounded-lg object-cover shadow-sm ring-1 ring-blue-200"
-                                                    />
-                                                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center shadow-sm">
-                                                        <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                                        </svg>
-                                                    </div>
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center gap-1.5">
-                                                        <span className="text-xs font-bold text-blue-700 uppercase tracking-wide">Trade</span>
-                                                        <svg className="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                                                        </svg>
-                                                    </div>
-                                                    <span className="text-xs text-gray-700 font-medium truncate block">
-                                                        {conversation.listingContext.title}
-                                                    </span>
-                                                </div>
-                                            </div>
+                                            <p className="text-xs text-blue-600 truncate mt-0.5">
+                                                Re: {conversation.listingContext.title}
+                                            </p>
                                         )}
 
                                         {/* Last Message */}
                                         {conversation.lastMessage ? (
-                                            <p className={`text-sm truncate ${conversation.unreadCount > 0 ? 'font-semibold text-gray-900' : 'text-gray-600'
-                                                }`}>
-                                                {conversation.lastMessage.senderId === 'user-1' && 'You: '}
+                                            <p className={`text-xs truncate mt-0.5 ${conversation.unreadCount > 0 ? 'font-medium text-gray-800' : 'text-gray-500'}`}>
                                                 {conversation.lastMessage.content}
                                             </p>
                                         ) : (
-                                            <p className="text-sm text-gray-500 italic">No messages yet</p>
+                                            <p className="text-xs text-gray-400 italic mt-0.5">No messages yet</p>
                                         )}
                                     </div>
 
                                     {/* Arrow */}
-                                    <svg
-                                        className="w-5 h-5 text-gray-400 flex-shrink-0 mt-2"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
+                                    <svg className="w-4 h-4 text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                     </svg>
                                 </div>

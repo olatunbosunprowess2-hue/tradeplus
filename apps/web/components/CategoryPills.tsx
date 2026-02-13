@@ -44,14 +44,14 @@ export default function CategoryPills() {
                 <h2 className="text-lg font-semibold text-gray-900">Categories</h2>
             </div>
 
-            {/* Mobile View */}
-            <div className="md:hidden flex flex-wrap gap-1.5">
+            {/* Mobile View — horizontal scroll so See All stays inline */}
+            <div className="md:hidden flex gap-1.5 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1">
                 {(isExpanded ? allCategories : allCategories.slice(0, 4)).map((category) => (
                     <button
                         key={category.id}
                         onClick={() => handleCategoryClick(category.id === 0 ? '' : category.id.toString())}
                         className={`
-                            whitespace-nowrap px-2.5 py-1.5 rounded-full text-xs font-medium transition-all
+                            whitespace-nowrap px-2.5 py-1.5 rounded-full text-xs font-medium transition-all shrink-0
                             ${(category.id === 0 ? currentCategoryId === '' : currentCategoryId === category.id.toString())
                                 ? 'bg-gray-900 text-white shadow-md'
                                 : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
@@ -64,7 +64,7 @@ export default function CategoryPills() {
                 {!isExpanded && allCategories.length > 4 && (
                     <button
                         onClick={() => setIsExpanded(true)}
-                        className="whitespace-nowrap px-2.5 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-blue-600 border border-gray-200 hover:bg-gray-200 transition-all"
+                        className="whitespace-nowrap px-2.5 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-blue-600 border border-gray-200 hover:bg-gray-200 transition-all shrink-0"
                     >
                         See All
                     </button>
@@ -72,7 +72,7 @@ export default function CategoryPills() {
                 {isExpanded && (
                     <button
                         onClick={() => setIsExpanded(false)}
-                        className="whitespace-nowrap px-2.5 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200 transition-all"
+                        className="whitespace-nowrap px-2.5 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200 transition-all shrink-0"
                     >
                         Show Less
                     </button>

@@ -185,7 +185,7 @@ export default function Navbar() {
   }
 
   // Hide navbar on mobile for pages that have their own mobile headers
-  const hideOnMobile = pathname.startsWith('/messages') || pathname.startsWith('/admin');
+  const hideOnMobile = pathname.startsWith('/messages') || pathname.startsWith('/admin') || pathname.startsWith('/offers');
 
   // Logo Component
   const Logo = () => (

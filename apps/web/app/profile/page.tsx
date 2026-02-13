@@ -10,7 +10,9 @@ import apiClient from '@/lib/api-client';
 import toast from 'react-hot-toast';
 import { DistressBoostModal, SpotlightModal } from '@/components/PaywallModal';
 import { initializePayment, redirectToPaystack, useSpotlightCredit } from '@/lib/payments-api';
-import { Check, Sparkles } from 'lucide-react';
+import { Check, Sparkles, Pencil } from 'lucide-react';
+import { EditPostModal } from '@/components/home/PostCard';
+import { CommunityPost } from '@/lib/types';
 
 interface Listing {
     id: string;
@@ -32,164 +34,63 @@ interface Listing {
 export default function ProfilePage() {
     const { user, isAuthenticated } = useAuthStore();
     const router = useRouter();
-    const [activeTab, setActiveTab] = useState<'listings' | 'reviews'>('listings');
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [isMounted, setIsMounted] = useState(false);
-    const [listings, setListings] = useState<Listing[]>([]);
-    const [page, setPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
-    const [loading, setLoading] = useState(true);
-
-    // Promote modal state
+    const [posts, setPosts] = useState<any[]>([]);
+    const [postsPage, setPostsPage] = useState(1);
+    const [postsTotalPages, setPostsTotalPages] = useState(1);
+    const [postsLoading, setPostsLoading] = useState(false);
     const [promoteModal, setPromoteModal] = useState<'distress' | 'spotlight' | null>(null);
     const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
     const [isPaymentLoading, setIsPaymentLoading] = useState(false);
+    const [editingPost, setEditingPost] = useState<CommunityPost | null>(null);
 
-
+    // Fetch user posts
     useEffect(() => {
-        setIsMounted(true);
-    }, []);
-
-    useEffect(() => {
-        if (isMounted && !isAuthenticated) {
-            router.push('/login');
-        }
-    }, [isMounted, isAuthenticated, router]);
-
-    // Fetch user listings
-    useEffect(() => {
-        const fetchListings = async () => {
-            if (user) {
+        const fetchPosts = async () => {
+            if (user && activeTab === 'posts') {
                 try {
-                    setLoading(true);
-                    const response = await apiClient.get(`/listings/my-listings?page=${page}&limit=10`);
-                    if (page === 1) {
-                        setListings(response.data.data);
+                    setPostsLoading(true);
+                    const response = await apiClient.get(`/community-posts/user/my-posts?page=${postsPage}&limit=10`);
+                    if (postsPage === 1) {
+                        setPosts(response.data.data);
                     } else {
-                        setListings(prev => [...prev, ...response.data.data]);
+                        setPosts(prev => [...prev, ...response.data.data]);
                     }
-                    setTotalPages(response.data.meta.totalPages);
+                    setPostsTotalPages(response.data.meta.totalPages);
                 } catch (error) {
-                    console.error('Failed to fetch listings:', error);
+                    console.error('Failed to fetch posts:', error);
                 } finally {
-                    setLoading(false);
+                    setPostsLoading(false);
                 }
             }
         };
 
-        fetchListings();
-    }, [user, page]);
+        if (activeTab === 'posts') {
+            fetchPosts();
+        }
+    }, [user, postsPage, activeTab]);
 
-
-    const handleMarkAsSold = async (listingId: string) => {
+    const handleTogglePostStatus = async (postId: string, currentStatus: string) => {
+        const newStatus = currentStatus === 'active' ? 'resolved' : 'active';
         try {
-            await apiClient.patch(`/listings/${listingId}`, { status: 'sold' });
-            setListings(prev => prev.map(listing =>
-                listing.id === listingId ? { ...listing, status: 'sold' } : listing
-            ));
-            toast.success('Listing marked as sold');
+            await apiClient.patch(`/community-posts/${postId}`, { status: newStatus });
+            setPosts(prev => prev.map(p => p.id === postId ? { ...p, status: newStatus } : p));
+            toast.success(`Post marked as ${newStatus}`);
         } catch (error) {
-            console.error('Failed to mark as sold:', error);
-            toast.error('Failed to update listing');
+            console.error('Failed to update post status:', error);
+            toast.error('Failed to update status');
         }
     };
 
-    const handleReactivate = async (listingId: string) => {
+    const handleDeletePost = async (postId: string) => {
+        if (!confirm('Are you sure you want to delete this post?')) return;
         try {
-            await apiClient.patch(`/listings/${listingId}`, { status: 'active' });
-            setListings(prev => prev.map(listing =>
-                listing.id === listingId ? { ...listing, status: 'active' } : listing
-            ));
-            toast.success('Listing reactivated');
+            await apiClient.delete(`/community-posts/${postId}`);
+            setPosts(prev => prev.filter(p => p.id !== postId));
+            toast.success('Post deleted');
         } catch (error) {
-            console.error('Failed to reactivate:', error);
-            toast.error('Failed to update listing');
+            console.error('Failed to delete post:', error);
+            toast.error('Failed to delete post');
         }
-    };
-
-    const handleDelete = async (listingId: string) => {
-        if (!confirm('Are you sure you want to delete this listing? This action cannot be undone.')) {
-            return;
-        }
-
-        try {
-            await apiClient.delete(`/listings/${listingId}`);
-            setListings(prev => prev.filter(listing => listing.id !== listingId));
-            toast.success('Listing deleted successfully');
-        } catch (error) {
-            console.error('Failed to delete listing:', error);
-            toast.error('Failed to delete listing');
-        }
-    };
-
-    const formatPrice = (priceCents: number | null, currencyCode: string) => {
-        if (!priceCents) return 'Free';
-        const price = priceCents / 100;
-        if (currencyCode === 'NGN') {
-            return `₦${price.toLocaleString()}`;
-        }
-        return `${currencyCode} ${price.toLocaleString()}`;
-    };
-
-    // Handle Promote button click
-    const handlePromote = (listing: Listing) => {
-        setSelectedListingId(listing.id);
-        if (listing.isDistressSale) {
-            setPromoteModal('distress');
-        } else {
-            setPromoteModal('spotlight');
-        }
-    };
-
-    // Handle payment selection
-    const handlePaywallSelect = async (optionId: string, currency: 'NGN' | 'USD') => {
-        if (!selectedListingId) return;
-        setIsPaymentLoading(true);
-        try {
-            const result = await initializePayment(optionId as any, selectedListingId, currency);
-            redirectToPaystack(result.authorizationUrl);
-        } catch (error) {
-            console.error('Payment initialization failed:', error);
-            toast.error('Failed to initialize payment. Please try again.');
-        } finally {
-            setIsPaymentLoading(false);
-        }
-    };
-
-    const handleUseCredit = async (optionId: string) => {
-        if (!selectedListingId) return;
-
-        setIsPaymentLoading(true);
-        try {
-            const result = await useSpotlightCredit(selectedListingId);
-            if (result.success) {
-                toast.success(result.message);
-                // Refresh listings to show boosted status
-                const response = await apiClient.get(`/listings/my-listings?page=${page}&limit=10`);
-                setListings(response.data.data);
-                setPromoteModal(null);
-            } else {
-                toast.error(result.message);
-            }
-        } catch (error) {
-            console.error('Credit usage failed:', error);
-            toast.error('Failed to use credit. Please try again.');
-        } finally {
-            setIsPaymentLoading(false);
-        }
-    };
-
-    const handleModalClose = () => {
-        setPromoteModal(null);
-        setSelectedListingId(null);
-    };
-
-    // Check if listing is already boosted
-    const isAlreadyBoosted = (listing: Listing): boolean => {
-        if (listing.isDistressSale) {
-            return !!listing.isCrossListed;
-        }
-        return !!(listing.isFeatured || (listing.spotlightExpiry && new Date(listing.spotlightExpiry) > new Date()));
     };
 
     if (!isMounted || !user) return null;
@@ -275,18 +176,26 @@ export default function ProfilePage() {
                     </div>
 
                     {/* Tabs */}
-                    <div className="flex border-t border-gray-200 px-6">
+                    <div className="flex border-t border-gray-200 px-6 overflow-x-auto">
                         <button
                             onClick={() => setActiveTab('listings')}
-                            className={`px-6 py-4 font-medium text-sm border-b-2 transition ${activeTab === 'listings'
+                            className={`px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap ${activeTab === 'listings'
                                 ? 'border-blue-600 text-blue-600'
                                 : 'border-transparent text-gray-500 hover:text-gray-700'
                                 }`}>
                             My Listings ({listings.length})
                         </button>
                         <button
+                            onClick={() => setActiveTab('posts')}
+                            className={`px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap ${activeTab === 'posts'
+                                ? 'border-blue-600 text-blue-600'
+                                : 'border-transparent text-gray-500 hover:text-gray-700'
+                                }`}>
+                            My Posts
+                        </button>
+                        <button
                             onClick={() => setActiveTab('reviews')}
-                            className={`px-6 py-4 font-medium text-sm border-b-2 transition ${activeTab === 'reviews'
+                            className={`px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap ${activeTab === 'reviews'
                                 ? 'border-blue-600 text-blue-600'
                                 : 'border-transparent text-gray-500 hover:text-gray-700'
                                 }`}>
@@ -417,6 +326,125 @@ export default function ProfilePage() {
                         </div>
                     )}
 
+                    {activeTab === 'posts' && (
+                        <div className="flex flex-col gap-6">
+                            {postsLoading && postsPage === 1 ? (
+                                <div className="flex justify-center py-12">
+                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                                </div>
+                            ) : (
+                                <>
+                                    {posts.length === 0 ? (
+                                        <div className="text-center py-12 bg-white rounded-xl shadow-sm border border-gray-200">
+                                            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+                                                </svg>
+                                            </div>
+                                            <h3 className="text-lg font-bold text-gray-900 mb-2">No Posts Yet</h3>
+                                            <p className="text-gray-500 mb-6 max-w-sm mx-auto">
+                                                Share your thoughts, ask questions, or start a discussion with the community.
+                                            </p>
+                                            <Link href="/community" className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition">
+                                                Create Post
+                                            </Link>
+                                        </div>
+                                    ) : (
+                                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                            {posts.map((post) => (
+                                                <div key={post.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
+                                                    <div className="p-4 flex-1">
+                                                        <div className="flex items-center justify-between mb-3">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-xs text-gray-400">
+                                                                    {new Date(post.createdAt).toLocaleDateString()}
+                                                                </span>
+                                                                {post.status === 'resolved' ? (
+                                                                    <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[10px] font-bold border border-amber-200 uppercase tracking-wide">
+                                                                        Resolved
+                                                                    </span>
+                                                                ) : (
+                                                                    <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-200 uppercase tracking-wide">
+                                                                        Active
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <p className="text-gray-800 line-clamp-3 mb-4">{post.content}</p>
+                                                        {post.images && post.images.length > 0 && (
+                                                            <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden mb-4 relative">
+                                                                <img src={post.images[0]} alt="Post attachment" className="w-full h-full object-cover" />
+                                                                {post.images.length > 1 && (
+                                                                    <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-md font-bold">
+                                                                        +{post.images.length - 1} more
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                                                            <div className="flex items-center gap-1">
+                                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                                                </svg>
+                                                                {post._count?.comments || 0}
+                                                            </div>
+                                                            <div className="flex items-center gap-1">
+                                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                </svg>
+                                                                {post._count?.offers || 0}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="p-3 bg-gray-50 border-t border-gray-100 flex gap-2">
+                                                        <button
+                                                            onClick={() => handleTogglePostStatus(post.id, post.status)}
+                                                            className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold uppercase tracking-wide transition ${post.status === 'active'
+                                                                ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'
+                                                                : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                                                                }`}
+                                                        >
+                                                            {post.status === 'active' ? 'Mark Resolved' : 'Mark Active'}
+                                                        </button>
+                                                        <button
+                                                            onClick={() => setEditingPost(post)}
+                                                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                                                            title="Edit Post"
+                                                        >
+                                                            <Pencil className="w-4 h-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDeletePost(post.id)}
+                                                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+                                                            title="Delete Post"
+                                                        >
+                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {/* Load More Posts */}
+                                    {postsPage < postsTotalPages && (
+                                        <div className="flex justify-center mt-4">
+                                            <button
+                                                onClick={() => setPostsPage(p => p + 1)}
+                                                disabled={postsLoading}
+                                                className="px-6 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition"
+                                            >
+                                                {postsLoading ? 'Loading...' : 'Load More Posts'}
+                                            </button>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                        </div>
+                    )}
+
                     {activeTab === 'reviews' && (
                         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                             <h2 className="text-xl font-bold text-gray-900 mb-6">Reviews Received</h2>
@@ -432,6 +460,17 @@ export default function ProfilePage() {
             />
 
             {/* Promote Modals */}
+            {editingPost && (
+                <EditPostModal
+                    post={editingPost}
+                    onClose={() => setEditingPost(null)}
+                    onSaved={(updatedPost) => {
+                        setPosts(prev => prev.map(p => p.id === updatedPost.id ? updatedPost : p));
+                        setEditingPost(null);
+                        toast.success('Post updated successfully');
+                    }}
+                />
+            )}
             <DistressBoostModal
                 isOpen={promoteModal === 'distress'}
                 onClose={handleModalClose}
@@ -446,6 +485,6 @@ export default function ProfilePage() {
                 creditsAvailable={user?.spotlightCredits}
                 isLoading={isPaymentLoading}
             />
-        </div>
+        </div >
     );
 }

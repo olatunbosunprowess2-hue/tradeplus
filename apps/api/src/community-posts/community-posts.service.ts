@@ -18,7 +18,7 @@ export class CommunityPostsService {
         const limit = Math.min(Number(query.limit) || 15, 50);
         const skip = (page - 1) * limit;
 
-        const where: any = { status: 'active' };
+        const where: any = { status: { in: ['active', 'resolved'] } };
 
         if (query.search) {
             const term = query.search.trim();
@@ -165,6 +165,7 @@ export class CommunityPostsService {
                 : (dto.content.match(/#(\w+)/g) || []).map(t => t.slice(1));
         }
         if (dto.images !== undefined) data.images = dto.images;
+        if (dto.status !== undefined) data.status = dto.status;
 
         return this.prisma.communityPost.update({
             where: { id: postId },

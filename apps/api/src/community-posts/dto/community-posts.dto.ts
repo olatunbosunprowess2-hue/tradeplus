@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsArray, MaxLength } from 'class-validator';
+import { IsString, IsOptional, IsArray, MaxLength, IsIn } from 'class-validator';
 
 export class CreatePostDto {
     @IsString()
@@ -31,6 +31,11 @@ export class UpdatePostDto {
     @IsString({ each: true })
     @IsOptional()
     images?: string[];
+
+    @IsOptional()
+    @IsString()
+    @IsIn(['active', 'resolved'])
+    status?: string;
 }
 
 export class CreateCommentDto {
