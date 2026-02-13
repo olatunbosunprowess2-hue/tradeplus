@@ -40,22 +40,29 @@ export default function MessagesPage() {
 
     const totalUnread = conversations.reduce((sum, conv) => sum + conv.unreadCount, 0);
 
-    // Show loading while hydrating or if not authenticated
-    if (!_hasHydrated || !isAuthenticated) {
-        return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            </div>
-        );
-    }
+    // Loading State (Skeleton)
+    const LoadingSkeleton = () => (
+        <div className="space-y-3">
+            {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="bg-white rounded-xl border border-gray-100 p-3 animate-pulse">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-gray-200" />
+                        <div className="flex-1">
+                            <div className="flex justify-between items-center mb-2">
+                                <div className="h-4 bg-gray-200 rounded w-24" />
+                                <div className="h-3 bg-gray-200 rounded w-12" />
+                            </div>
+                            <div className="h-3 bg-gray-200 rounded w-3/4" />
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
 
-    if (isLoading && conversations.length === 0) {
-        return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            </div>
-        );
-    }
+    // Initial check only for redirect, don't block render
+    if (_hasHydrated && !isAuthenticated) return null; // Logic handled by useEffect
+
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white pb-20">
@@ -84,7 +91,9 @@ export default function MessagesPage() {
             <div className="container mx-auto px-4 py-6 max-w-4xl">
 
                 {/* Conversations List */}
-                {conversations.length === 0 ? (
+                {(!_hasHydrated || (isLoading && conversations.length === 0)) ? (
+                    <LoadingSkeleton />
+                ) : conversations.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-16 text-center">
                         <div className="w-20 h-20 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-full flex items-center justify-center mb-4 border-2 border-blue-100">
                             <span className="text-4xl">💬</span>

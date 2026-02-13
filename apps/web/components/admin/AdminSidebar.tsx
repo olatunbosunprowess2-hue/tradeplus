@@ -216,8 +216,8 @@ export default function AdminSidebar() {
         : 0;
 
     return (
-        <aside className="w-64 bg-white border-r border-gray-200 min-h-screen">
-            <div className="p-6">
+        <aside className="w-64 bg-white border-r border-gray-200 h-full flex flex-col relative">
+            <div className="p-6 shrink-0">
                 <div className="flex items-center justify-between">
                     <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                         Admin Panel
@@ -235,87 +235,89 @@ export default function AdminSidebar() {
                 )}
             </div>
 
-            <nav className="px-3">
-                {navItems.filter(item => {
-                    if (!user) return false;
-                    const requiredLevel = (item as any).minRole || 0;
-                    return hasRoleLevel(user, requiredLevel);
-                }).map((item) => {
-                    // Check if current path starts with item href (handles sub-pages like /admin/users/123)
-                    // For dashboard, exact match is usually better unless it has sub-pages
-                    const isActive = item.href === '/admin/dashboard'
-                        ? pathname === item.href
-                        : pathname.startsWith(item.href);
+            <div className="flex-1 overflow-y-auto px-3 pb-24 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+                <nav>
+                    {navItems.filter(item => {
+                        if (!user) return false;
+                        const requiredLevel = (item as any).minRole || 0;
+                        return hasRoleLevel(user, requiredLevel);
+                    }).map((item) => {
+                        // Check if current path starts with item href (handles sub-pages like /admin/users/123)
+                        // For dashboard, exact match is usually better unless it has sub-pages
+                        const isActive = item.href === '/admin/dashboard'
+                            ? pathname === item.href
+                            : pathname.startsWith(item.href);
 
-                    const count = item.countKey && counts ? (counts[item.countKey] as number) || 0 : 0;
-                    const showPulse = (item as any).urgent && count > 0;
+                        const count = item.countKey && counts ? (counts[item.countKey] as number) || 0 : 0;
+                        const showPulse = (item as any).urgent && count > 0;
 
-                    return (
-                        <Link
-                            key={item.href}
-                            href={item.href}
-                            title={(item as any).tooltip}
-                            className={`flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-all group ${isActive
-                                ? 'bg-blue-50 text-blue-600 font-medium'
-                                : 'text-gray-700 hover:bg-gray-50'
-                                } ${count > 0 && !isActive ? 'bg-red-50/50' : ''}`}
-                        >
-                            <span className={isActive ? 'text-blue-600' : (count > 0 ? 'text-red-500' : 'text-gray-400 group-hover:text-gray-600')}>
-                                {item.icon}
-                            </span>
-                            <span className="flex-1">{item.name}</span>
-                            {item.countKey && (
-                                <NotificationBadge count={count} pulse={showPulse} />
+                        return (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                title={(item as any).tooltip}
+                                className={`flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-all group ${isActive
+                                    ? 'bg-blue-50 text-blue-600 font-medium'
+                                    : 'text-gray-700 hover:bg-gray-50'
+                                    } ${count > 0 && !isActive ? 'bg-red-50/50' : ''}`}
+                            >
+                                <span className={isActive ? 'text-blue-600' : (count > 0 ? 'text-red-500' : 'text-gray-400 group-hover:text-gray-600')}>
+                                    {item.icon}
+                                </span>
+                                <span className="flex-1">{item.name}</span>
+                                {item.countKey && (
+                                    <NotificationBadge count={count} pulse={showPulse} />
+                                )}
+                            </Link>
+                        );
+                    })}
+                </nav>
+
+                {/* Summary section */}
+                {counts && counts.breakdown && (
+                    <div className="mt-4 p-3 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-200">
+                        <h4 className="text-xs font-bold text-gray-500 uppercase mb-2">Pending Actions</h4>
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                            {counts.breakdown.pendingVerifications > 0 && (
+                                <div className="flex items-center gap-1 text-orange-600">
+                                    <span className="w-2 h-2 rounded-full bg-orange-500"></span>
+                                    {counts.breakdown.pendingVerifications} verifications
+                                </div>
                             )}
-                        </Link>
-                    );
-                })}
-            </nav>
-
-            {/* Summary section */}
-            {counts && counts.breakdown && (
-                <div className="mx-3 mt-4 p-3 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-200">
-                    <h4 className="text-xs font-bold text-gray-500 uppercase mb-2">Pending Actions</h4>
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                        {counts.breakdown.pendingVerifications > 0 && (
-                            <div className="flex items-center gap-1 text-orange-600">
-                                <span className="w-2 h-2 rounded-full bg-orange-500"></span>
-                                {counts.breakdown.pendingVerifications} verifications
-                            </div>
-                        )}
-                        {counts.breakdown.flaggedReviews > 0 && (
-                            <div className="flex items-center gap-1 text-yellow-600">
-                                <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
-                                {counts.breakdown.flaggedReviews} reviews
-                            </div>
-                        )}
-                        {counts.breakdown.openReports > 0 && (
-                            <div className="flex items-center gap-1 text-red-600">
-                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                {counts.breakdown.openReports} reports
-                            </div>
-                        )}
-                        {counts.breakdown.pendingAppeals > 0 && (
-                            <div className="flex items-center gap-1 text-purple-600">
-                                <span className="w-2 h-2 rounded-full bg-purple-500"></span>
-                                {counts.breakdown.pendingAppeals} appeals
-                            </div>
-                        )}
-                        {counts.breakdown.openDisputes > 0 && (
-                            <div className="flex items-center gap-1 text-red-600">
-                                <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                                {counts.breakdown.openDisputes} disputes
-                            </div>
-                        )}
-                        {counts.breakdown.multiReportedUsers > 0 && (
-                            <div className="flex items-center gap-1 text-red-700 font-medium col-span-2">
-                                <span className="w-2 h-2 rounded-full bg-red-700 animate-pulse"></span>
-                                {counts.breakdown.multiReportedUsers} flagged user{counts.breakdown.multiReportedUsers > 1 ? 's' : ''}
-                            </div>
-                        )}
+                            {counts.breakdown.flaggedReviews > 0 && (
+                                <div className="flex items-center gap-1 text-yellow-600">
+                                    <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
+                                    {counts.breakdown.flaggedReviews} reviews
+                                </div>
+                            )}
+                            {counts.breakdown.openReports > 0 && (
+                                <div className="flex items-center gap-1 text-red-600">
+                                    <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                                    {counts.breakdown.openReports} reports
+                                </div>
+                            )}
+                            {counts.breakdown.pendingAppeals > 0 && (
+                                <div className="flex items-center gap-1 text-purple-600">
+                                    <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+                                    {counts.breakdown.pendingAppeals} appeals
+                                </div>
+                            )}
+                            {counts.breakdown.openDisputes > 0 && (
+                                <div className="flex items-center gap-1 text-red-600">
+                                    <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                                    {counts.breakdown.openDisputes} disputes
+                                </div>
+                            )}
+                            {counts.breakdown.multiReportedUsers > 0 && (
+                                <div className="flex items-center gap-1 text-red-700 font-medium col-span-2">
+                                    <span className="w-2 h-2 rounded-full bg-red-700 animate-pulse"></span>
+                                    {counts.breakdown.multiReportedUsers} flagged user{counts.breakdown.multiReportedUsers > 1 ? 's' : ''}
+                                </div>
+                            )}
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
 
             <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-200 bg-white">
                 <Link

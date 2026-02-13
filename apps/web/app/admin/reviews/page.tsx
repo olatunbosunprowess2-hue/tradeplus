@@ -46,7 +46,7 @@ export default function AdminReviewsPage() {
 
     const handleHide = async (id: string) => {
         try {
-            await reviewsApi.moderate(id, { isPublic: false });
+            await reviewsApi.moderate(id, { isPublic: false, flagged: false });
             addToast('success', 'Review hidden');
             fetchFlaggedReviews();
         } catch (error: any) {

@@ -206,6 +206,7 @@ export class BrandVerificationService {
                 brandVerificationStatus: 'VERIFIED_BRAND',
                 brandVerifiedAt: new Date(),
                 brandRejectionReason: null,
+                isVerified: true, // Instantly unlock sell panel and other verified features
             },
         });
 

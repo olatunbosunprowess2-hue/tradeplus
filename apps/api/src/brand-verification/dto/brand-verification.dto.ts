@@ -1,4 +1,5 @@
 import { IsString, IsEmail, IsOptional, IsUrl, MinLength, MaxLength } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class BrandApplyDto {
     @IsString()
@@ -9,6 +10,13 @@ export class BrandApplyDto {
     @IsOptional()
     @IsString()
     @MaxLength(500)
+    @Transform(({ value }) => {
+        if (!value) return value;
+        if (!/^https?:\/\//i.test(value)) {
+            return `https://${value}`;
+        }
+        return value;
+    })
     brandWebsite?: string;
 
     @IsOptional()

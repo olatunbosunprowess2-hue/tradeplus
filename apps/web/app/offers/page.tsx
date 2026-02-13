@@ -63,7 +63,30 @@ export default function OffersPage() {
         acceptOffer,
         rejectOffer,
         counterOffer,
+        isLoading,
     } = useOffersStore();
+
+    const OfferSkeleton = () => (
+        <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-white rounded-xl border border-gray-100 p-4 animate-pulse">
+                    <div className="flex items-start gap-4">
+                        <div className="w-16 h-16 bg-gray-200 rounded-lg" />
+                        <div className="flex-1">
+                            <div className="flex justify-between mb-2">
+                                <div className="h-4 bg-gray-200 rounded w-1/3" />
+                                <div className="h-6 bg-gray-200 rounded w-20" />
+                            </div>
+                            <div className="space-y-2">
+                                <div className="h-3 bg-gray-200 rounded w-1/2" />
+                                <div className="h-3 bg-gray-200 rounded w-2/3" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
 
     const { createConversation } = useMessagesStore();
 
@@ -86,14 +109,8 @@ export default function OffersPage() {
         }
     }, [fetchOffers, isAuthenticated]);
 
-    // Show loading while hydrating or if not authenticated
-    if (!_hasHydrated || !isAuthenticated) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            </div>
-        );
-    }
+    // Initial check only for redirect, don't block render
+    if (_hasHydrated && !isAuthenticated) return null; // Logic handled by useEffect
 
     const receivedOffers = user ? getReceivedOffers(user.id) : [];
     const sentOffers = user ? getSentOffers(user.id) : [];
@@ -208,6 +225,10 @@ export default function OffersPage() {
     };
 
     const renderContent = () => {
+        if (!_hasHydrated || isLoading) {
+            return <OfferSkeleton />;
+        }
+
         if (activeTab === 'received') {
             if (receivedOffers.length === 0) {
                 return (
@@ -300,8 +321,19 @@ export default function OffersPage() {
         if (activeTab === 'community') {
             if (loadingCommunity) {
                 return (
-                    <div className="flex items-center justify-center py-16">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+                    <div className="space-y-3">
+                        {[1, 2, 3].map((i) => (
+                            <div key={i} className="bg-white rounded-xl border border-gray-100 p-4 animate-pulse">
+                                <div className="flex items-start gap-3">
+                                    <div className="w-10 h-10 bg-gray-200 rounded-full" />
+                                    <div className="flex-1">
+                                        <div className="h-3 bg-gray-200 rounded w-1/4 mb-2" />
+                                        <div className="h-4 bg-gray-200 rounded w-1/2 mb-2" />
+                                        <div className="h-3 bg-gray-200 rounded w-3/4" />
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 );
             }
