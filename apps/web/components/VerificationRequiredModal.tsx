@@ -1,15 +1,3 @@
-import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/lib/auth-store';
-import { useEffect } from 'react';
-import Link from 'next/link';
-import BrandBadge from './BrandBadge';
-
-interface VerificationRequiredModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    title?: string;
-    message?: string;
-}
 
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/auth-store';
