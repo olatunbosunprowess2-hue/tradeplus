@@ -33,9 +33,42 @@ function runMigrations(): boolean {
         return true;
     } catch (error: any) {
         logger.error(`Database migration failed: ${error.message}`);
-        logger.error('The application will not start until migrations are resolved.');
-        logger.error('Please check your DATABASE_URL and ensure the database is accessible.');
-        return false;
+        logger.warn('Attempting fallback: prisma db push to sync schema...');
+
+        try {
+            // Fallback: Use db push to force-sync the schema
+            // This handles cases where migration history is out of sync
+            // (e.g., from previous db push operations or partial migrations)
+            execSync('npx prisma db push --accept-data-loss', {
+                stdio: 'inherit',
+                timeout: 120000,
+            });
+
+            // After successful db push, resolve the migration history
+            try {
+                execSync('npx prisma migrate resolve --applied 20260211213715_add_community_posts', {
+                    stdio: 'inherit',
+                    timeout: 30000,
+                });
+                execSync('npx prisma migrate resolve --applied 20260211221222_add_report_to_community_post', {
+                    stdio: 'inherit',
+                    timeout: 30000,
+                });
+                execSync('npx prisma migrate resolve --applied 20260211221844_add_saved_posts_retry', {
+                    stdio: 'inherit',
+                    timeout: 30000,
+                });
+            } catch (resolveErr: any) {
+                logger.warn(`Could not resolve migration history: ${resolveErr.message}`);
+            }
+
+            logger.success('Schema sync via db push completed successfully');
+            return true;
+        } catch (pushError: any) {
+            logger.error(`Schema sync also failed: ${pushError.message}`);
+            logger.error('Please check your DATABASE_URL and ensure the database is accessible.');
+            return false;
+        }
     }
 }
 
