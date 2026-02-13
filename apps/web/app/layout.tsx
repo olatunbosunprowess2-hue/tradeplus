@@ -89,6 +89,11 @@ export default function RootLayout({
       </head>
       <body className={`${inter.className} bg-slate-50`} suppressHydrationWarning>
         <Providers>
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `console.log("BarterWave v0.2.1 loaded - Status: Active");`,
+            }}
+          />
           <Navbar />
           <main className="pb-20 lg:pb-0">
             {children}
