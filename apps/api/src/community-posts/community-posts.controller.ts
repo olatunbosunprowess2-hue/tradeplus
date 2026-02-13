@@ -33,7 +33,12 @@ export class CommunityPostsController {
     @Get('user/my-posts')
     findMyPosts(@Request() req, @Query('page') page?: number, @Query('limit') limit?: number) {
         return this.postsService.findMyPosts(req.user.id, page, limit);
-        return this.postsService.findMyPosts(req.user.id, page, limit);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('user/my-offers')
+    getMyOffers(@Request() req) {
+        return this.postsService.getMyOffers(req.user.id);
     }
 
     @UseGuards(JwtAuthGuard)

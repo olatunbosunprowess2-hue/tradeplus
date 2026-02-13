@@ -184,6 +184,9 @@ export default function Navbar() {
     return null;
   }
 
+  // Hide navbar on mobile for pages that have their own mobile headers
+  const hideOnMobile = pathname.startsWith('/messages') || pathname.startsWith('/admin');
+
   // Logo Component
   const Logo = () => (
     <Link href="/listings" className="flex items-center gap-2.5 group shrink-0">
@@ -235,7 +238,7 @@ export default function Navbar() {
   return (
     <>
       <nav className={`bg-white/80 backdrop-blur-xl border-b sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'border-gray-200 shadow-sm' : 'border-transparent'
-        }`}>
+        } ${hideOnMobile ? 'hidden md:block' : ''}`}>
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-12 gap-4">
             {/* Logo */}

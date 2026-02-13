@@ -1,9 +1,10 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/auth-store';
 import apiClient from '@/lib/api-client';
+import { useMessagesStore } from '@/lib/messages-store';
 import type { CommunityPost, PostComment as PostCommentType, PostAuthor } from '@/lib/types';
 import { useRouter } from 'next/navigation';
 import { Share2, Bookmark, MoreVertical, MessageSquare, Send, Twitter, Facebook, Link as LinkIcon, CheckCircle2 } from 'lucide-react';
@@ -310,10 +311,11 @@ function CommentSection({ postId }: { postId: string }) {
 // ============================================================================
 // INLINE OFFER FORM
 // ============================================================================
-function OfferForm({ postId, onClose }: { postId: string; onClose: () => void }) {
+function OfferForm({ postId, postAuthor, onClose }: { postId: string; postAuthor: PostAuthor; onClose: () => void }) {
     const [message, setMessage] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
+    const { createConversation } = useMessagesStore();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -321,9 +323,24 @@ function OfferForm({ postId, onClose }: { postId: string; onClose: () => void })
         setSubmitting(true);
         try {
             await apiClient.post(`/community-posts/${postId}/offers`, { message: message.trim() });
+
+            // Create a message conversation with the post author
+            const authorName = postAuthor.profile?.displayName || postAuthor.brandName || [postAuthor.firstName, postAuthor.lastName].filter(Boolean).join(' ') || 'User';
+            const authorAvatar = postAuthor.profile?.avatarUrl;
+            createConversation(postAuthor.id, authorName, authorAvatar);
+
+            // Send the offer as a message
+            try {
+                const { sendMessage } = useMessagesStore.getState();
+                await sendMessage(postAuthor.id, `ðŸ·ï¸ Community Offer: ${message.trim()}`);
+            } catch { /* best-effort */ }
+
             setSubmitted(true);
+            toast.success('Offer sent! Check your messages.');
             setTimeout(onClose, 1500);
-        } catch { }
+        } catch {
+            toast.error('Failed to send offer. Please try again.');
+        }
         setSubmitting(false);
     };
 
@@ -565,7 +582,13 @@ export default function PostCard({ post: initialPost, onDelete, onUpdate, savedI
                 {/* ACTION BAR */}
                 <div className="flex items-center border-t border-gray-100 px-2">
                     <button
-                        onClick={() => { setShowOfferForm(!showOfferForm); setShowComments(false); }}
+                        onClick={() => {
+                            if (!user) {
+                                toast.error('Please log in to make an offer.');
+                                return;
+                            }
+                            setShowOfferForm(!showOfferForm); setShowComments(false);
+                        }}
                         className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium rounded-lg transition ${showOfferForm ? 'text-blue-700 bg-blue-50' : 'text-blue-600 hover:bg-blue-50'}`}
                     >
                         <svg className="w-[18px] h-[18px] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -586,7 +609,7 @@ export default function PostCard({ post: initialPost, onDelete, onUpdate, savedI
                 </div>
 
                 {/* EXPANDABLE SECTIONS */}
-                {showOfferForm && !isOwner && <OfferForm postId={post.id} onClose={() => setShowOfferForm(false)} />}
+                {showOfferForm && !isOwner && <OfferForm postId={post.id} postAuthor={author} onClose={() => setShowOfferForm(false)} />}
                 {showOfferForm && isOwner && (
                     <div className="border-t border-gray-100 px-4 py-3 text-sm text-gray-500 text-center bg-gray-50">
                         You can&apos;t make an offer on your own post.

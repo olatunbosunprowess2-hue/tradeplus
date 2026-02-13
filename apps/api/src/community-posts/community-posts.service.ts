@@ -382,4 +382,44 @@ export class CommunityPostsService {
         });
         return saved.map(s => s.postId);
     }
+
+    // ============================
+    // MY OFFERS (sent + received)
+    // ============================
+    async getMyOffers(userId: string) {
+        const offers = await this.prisma.postOffer.findMany({
+            where: {
+                OR: [
+                    { offererId: userId },
+                    { post: { authorId: userId } },
+                ],
+            },
+            include: {
+                offerer: {
+                    select: {
+                        id: true, firstName: true, lastName: true,
+                        isVerified: true,
+                        profile: { select: { displayName: true, avatarUrl: true } },
+                    },
+                },
+                post: {
+                    select: {
+                        id: true, content: true, authorId: true,
+                        author: {
+                            select: {
+                                id: true, firstName: true, lastName: true,
+                                profile: { select: { displayName: true, avatarUrl: true } },
+                            },
+                        },
+                    },
+                },
+            },
+            orderBy: { createdAt: 'desc' },
+        });
+
+        return offers.map(o => ({
+            ...o,
+            type: o.offererId === userId ? 'sent' : 'received',
+        }));
+    }
 }

@@ -6,13 +6,41 @@ import { useOffersStore } from '@/lib/offers-store';
 import { useAuthStore } from '@/lib/auth-store';
 import { useMessagesStore } from '@/lib/messages-store';
 import { BarterOffer } from '@/lib/types';
+import apiClient from '@/lib/api-client';
 import OfferCard from '@/components/OfferCard';
 import DownpaymentTracker from '@/components/DownpaymentTracker';
 import CounterOfferModal from '@/components/CounterOfferModal';
 import OfferActionModal from '@/components/OfferActionModal';
 import toast from 'react-hot-toast';
 
-type Tab = 'received' | 'sent' | 'history';
+type Tab = 'received' | 'sent' | 'history' | 'community';
+
+interface CommunityOffer {
+    id: string;
+    postId: string;
+    offererId: string;
+    message: string;
+    createdAt: string;
+    type: 'sent' | 'received';
+    offerer: {
+        id: string;
+        firstName: string;
+        lastName: string;
+        isVerified: boolean;
+        profile?: { displayName?: string; avatarUrl?: string };
+    };
+    post: {
+        id: string;
+        content: string;
+        authorId: string;
+        author: {
+            id: string;
+            firstName: string;
+            lastName: string;
+            profile?: { displayName?: string; avatarUrl?: string };
+        };
+    };
+}
 
 export default function OffersPage() {
     const router = useRouter();
@@ -23,6 +51,8 @@ export default function OffersPage() {
     const [isActionModalOpen, setIsActionModalOpen] = useState(false);
     const [actionType, setActionType] = useState<'accept' | 'reject'>('accept');
     const [isProcessingAction, setIsProcessingAction] = useState(false);
+    const [communityOffers, setCommunityOffers] = useState<CommunityOffer[]>([]);
+    const [loadingCommunity, setLoadingCommunity] = useState(false);
 
     const {
         fetchOffers,
@@ -46,6 +76,12 @@ export default function OffersPage() {
     useEffect(() => {
         if (isAuthenticated) {
             fetchOffers();
+            // Fetch community offers
+            setLoadingCommunity(true);
+            apiClient.get('/community-posts/user/my-offers')
+                .then(r => setCommunityOffers(r.data))
+                .catch(() => { })
+                .finally(() => setLoadingCommunity(false));
         }
     }, [fetchOffers, isAuthenticated]);
 
@@ -260,6 +296,73 @@ export default function OffersPage() {
             );
         }
 
+        if (activeTab === 'community') {
+            if (loadingCommunity) {
+                return (
+                    <div className="flex items-center justify-center py-16">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+                    </div>
+                );
+            }
+
+            if (communityOffers.length === 0) {
+                return (
+                    <div className="flex flex-col items-center justify-center py-16 text-center">
+                        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                            <span className="text-4xl">🏷️</span>
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">No community offers yet</h3>
+                        <p className="text-gray-600 max-w-md mb-6">
+                            Offers you make or receive on community posts will appear here.
+                        </p>
+                        <button
+                            onClick={() => router.push('/listings')}
+                            className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition"
+                        >
+                            Browse Community Feed
+                        </button>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="space-y-3">
+                    {communityOffers.map(offer => {
+                        const isSent = offer.type === 'sent';
+                        const otherPerson = isSent ? offer.post.author : offer.offerer;
+                        const otherName = otherPerson.profile?.displayName || [otherPerson.firstName, otherPerson.lastName].filter(Boolean).join(' ') || 'User';
+                        const otherAvatar = otherPerson.profile?.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${otherPerson.id}`;
+                        const postPreview = offer.post.content.length > 80 ? offer.post.content.slice(0, 80) + '...' : offer.post.content;
+
+                        return (
+                            <div key={offer.id} className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+                                <div className="flex items-start gap-3">
+                                    <img src={otherAvatar} alt={otherName} className="w-10 h-10 rounded-full object-cover border border-gray-100" />
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${isSent ? 'bg-blue-50 text-blue-600' : 'bg-green-50 text-green-600'}`}>
+                                                {isSent ? '📤 Sent' : '📥 Received'}
+                                            </span>
+                                            <span className="text-xs text-gray-400">{new Date(offer.createdAt).toLocaleDateString()}</span>
+                                        </div>
+                                        <p className="text-sm font-semibold text-gray-900">{isSent ? `You offered to ${otherName}` : `${otherName} offered you`}</p>
+                                        <p className="text-sm text-gray-700 mt-1 bg-gray-50 rounded-lg p-2 italic">&ldquo;{offer.message}&rdquo;</p>
+                                        <p className="text-xs text-gray-400 mt-1.5">On post: {postPreview}</p>
+                                        <button
+                                            onClick={() => router.push(`/messages/${otherPerson.id}`)}
+                                            className="mt-2 text-xs font-semibold text-purple-600 hover:text-purple-800 transition"
+                                        >
+                                            💬 Open Chat
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            );
+        }
+
         if (activeTab === 'history') {
             if (historyOffers.length === 0) {
                 return (
@@ -291,19 +394,19 @@ export default function OffersPage() {
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white pb-20">
-            {/* Hero Banner */}
-            <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white">
-                <div className="container mx-auto px-4 max-w-4xl py-8">
-                    <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                            </svg>
-                        </div>
-                        <div>
-                            <h1 className="text-2xl font-bold">Trade Offers</h1>
-                            <p className="text-purple-100">Manage your trade offers and barter deals</p>
-                        </div>
+            {/* Page Header */}
+            <div className="container mx-auto px-4 max-w-4xl pt-5 pb-3">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-md">
+                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                            Trade Offers
+                        </h1>
+                        <p className="text-xs text-gray-500">Manage your trade offers and barter deals</p>
                     </div>
                 </div>
             </div>
@@ -338,6 +441,20 @@ export default function OffersPage() {
                             <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-bold ${activeTab === 'sent' ? 'bg-white text-purple-600' : 'bg-purple-50 text-purple-600'
                                 }`}>
                                 {sentOffers.length}
+                            </span>
+                        )}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('community')}
+                        className={`flex-1 py-3 px-4 rounded-xl font-semibold text-sm transition-all ${activeTab === 'community'
+                            ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg'
+                            : 'text-gray-600 hover:bg-gray-50'
+                            }`}
+                    >
+                        🏷️ Community
+                        {communityOffers.length > 0 && (
+                            <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-bold ${activeTab === 'community' ? 'bg-white text-purple-600' : 'bg-purple-50 text-purple-600'}`}>
+                                {communityOffers.length}
                             </span>
                         )}
                     </button>

@@ -59,30 +59,29 @@ export default function MessagesPage() {
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white pb-20">
-            {/* Hero Banner */}
-            <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white">
-                <div className="container mx-auto px-4 max-w-4xl py-8">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                                <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <h1 className="text-2xl font-bold">Messages</h1>
-                                <p className="text-emerald-100">
-                                    {totalUnread > 0 ? `${totalUnread} unread message${totalUnread > 1 ? 's' : ''}` : 'All caught up! 🎉'}
-                                </p>
-                            </div>
+            {/* Page Header */}
+            <div className="container mx-auto px-4 max-w-4xl pt-5 pb-3">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-md">
+                            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
                         </div>
-                        {totalUnread > 0 && (
-                            <div className="bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-2 text-center">
-                                <div className="text-2xl font-bold">{totalUnread}</div>
-                                <div className="text-xs uppercase tracking-wide text-emerald-100">Unread</div>
-                            </div>
-                        )}
+                        <div>
+                            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                                Messages
+                            </h1>
+                            <p className="text-xs text-gray-500">
+                                {totalUnread > 0 ? `${totalUnread} unread` : 'All caught up! 🎉'}
+                            </p>
+                        </div>
                     </div>
+                    {totalUnread > 0 && (
+                        <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold min-w-[24px] h-6 rounded-full flex items-center justify-center px-2 shadow-md">
+                            {totalUnread}
+                        </div>
+                    )}
                 </div>
             </div>
 
