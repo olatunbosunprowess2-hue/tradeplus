@@ -11,7 +11,7 @@ import toast from 'react-hot-toast';
 import { DistressBoostModal, SpotlightModal } from '@/components/PaywallModal';
 import { initializePayment, redirectToPaystack, useSpotlightCredit, PurchaseType } from '@/lib/payments-api';
 import { Check, Sparkles, Pencil } from 'lucide-react';
-import { EditPostModal } from '@/components/home/PostCard';
+import EditPostModal from '@/components/home/EditPostModal';
 import { CommunityPost } from '@/lib/types';
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
