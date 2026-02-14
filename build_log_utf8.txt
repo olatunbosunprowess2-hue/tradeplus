@@ -1,0 +1,133 @@
+﻿
+> web@0.2.1 build
+> next build
+
+node.exe : ΓÜá `images.domains` is deprecated in 
+favor of `images.remotePatterns`. Please update 
+next.config.js to protect your application from 
+malicious users.
+At C:\Users\PC\AppData\Roaming\npm\npm.ps1:24 char:5
++     & "node$exe"  
+"$basedir/node_modules/npm/bin/npm-cli.js" $args
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (ΓÜá `i 
+   mages.dom...alicious users.:String) [], RemoteE  
+  xception
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+ΓÜá Warning: Next.js inferred your workspace root, 
+but it may not be correct.
+ We detected multiple lockfiles and selected the 
+directory of C:\Users\PC\package-lock.json as the 
+root directory.
+ To silence this warning, set `turbopack.root` in 
+your Next.js config, or consider removing one of 
+the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/con
+fig/next-config-js/turbopack#root-directory for 
+more information.
+ Detected additional lockfiles: 
+   * C:\Users\PC\Desktop\BarterWave\BarterWave\packa
+ge-lock.json
+
+ΓÜá Found lockfile missing swc dependencies, 
+patching...
+npm warn config ignoring workspace config at C:\User
+s\PC\Desktop\BarterWave\BarterWave\apps\web/.npmrc
+npm error code ENOWORKSPACES
+npm error This command does not support workspaces.
+npm error A complete log of this run can be found 
+in: C:\Users\PC\AppData\Local\npm-cache\_logs\2026-0
+2-14T21_17_00_841Z-debug-0.log
+npm warn config ignoring workspace config at C:\User
+s\PC\Desktop\BarterWave\BarterWave\apps\web/.npmrc
+npm error code ENOWORKSPACES
+npm error This command does not support workspaces.
+npm error A complete log of this run can be found 
+in: C:\Users\PC\AppData\Local\npm-cache\_logs\2026-0
+2-14T21_17_06_229Z-debug-0.log
+npm warn config ignoring workspace config at C:\User
+s\PC\Desktop\BarterWave\BarterWave\apps\web/.npmrc
+npm error code ENOWORKSPACES
+npm error This command does not support workspaces.
+npm error A complete log of this run can be found 
+in: C:\Users\PC\AppData\Local\npm-cache\_logs\2026-0
+2-14T21_17_09_818Z-debug-0.log
+npm warn config ignoring workspace config at C:\User
+s\PC\Desktop\BarterWave\BarterWave\apps\web/.npmrc
+npm error code ENOWORKSPACES
+npm error This command does not support workspaces.
+npm error A complete log of this run can be found 
+in: C:\Users\PC\AppData\Local\npm-cache\_logs\2026-0
+2-14T21_17_13_152Z-debug-0.log
+npm warn config ignoring workspace config at C:\User
+s\PC\Desktop\BarterWave\BarterWave\apps\web/.npmrc
+npm error code ENOWORKSPACES
+npm error This command does not support workspaces.
+npm error A complete log of this run can be found 
+in: C:\Users\PC\AppData\Local\npm-cache\_logs\2026-0
+2-14T21_17_17_948Z-debug-0.log
+npm warn config ignoring workspace config at C:\User
+s\PC\Desktop\BarterWave\BarterWave\apps\web/.npmrc
+npm error code ENOWORKSPACES
+npm error This command does not support workspaces.
+npm error A complete log of this run can be found 
+in: C:\Users\PC\AppData\Local\npm-cache\_logs\2026-0
+2-14T21_17_21_706Z-debug-0.log
+npm warn config ignoring workspace config at C:\User
+s\PC\Desktop\BarterWave\BarterWave\apps\web/.npmrc
+npm error code ENOWORKSPACES
+npm error This command does not support workspaces.
+npm error A complete log of this run can be found 
+in: C:\Users\PC\AppData\Local\npm-cache\_logs\2026-0
+2-14T21_17_25_231Z-debug-0.log
+Γ¿» Failed to patch lockfile, please try 
+uninstalling and reinstalling next in this workspace
+Error: Failed to get registry from "pnpm".
+    at ignore-listed frames {
+  [cause]: Error: Command failed: pnpm config get 
+registry 
+  npm warn config ignoring workspace config at C:\Us
+ers\PC\Desktop\BarterWave\BarterWave\apps\web/.npmrc
+  npm error code ENOWORKSPACES
+  npm error This command does not support 
+workspaces.
+  npm error A complete log of this run can be found 
+in: C:\Users\PC\AppData\Local\npm-cache\_logs\2026-0
+2-14T21_17_00_841Z-debug-0.log
+  
+      at ignore-listed frames {
+    status: 1,
+    signal: null,
+    output: [
+      null,
+      <Buffer >,
+      <Buffer 6e 70 6d 20 77 61 72 6e 20 63 6f 6e 
+66 69 67 20 69 67 6e 6f 72 69 6e 67 20 77 6f 72 6b 
+73 70 61 63 65 20 63 6f 6e 66 69 67 20 61 74 20 43 
+3a 5c 55 73 ... 267 more bytes>
+    ],
+    pid: 24112,
+    stdout: <Buffer >,
+    stderr: <Buffer 6e 70 6d 20 77 61 72 6e 20 63 
+6f 6e 66 69 67 20 69 67 6e 6f 72 69 6e 67 20 77 6f 
+72 6b 73 70 61 63 65 20 63 6f 6e 66 69 67 20 61 74 
+20 43 3a 5c 55 73 ... 267 more bytes>
+  }
+}
+Γ¿» Unable to acquire lock at C:\Users\PC\Desktop\Ba
+rterWave\BarterWave\apps\web\.next\lock, is another 
+instance of next build running?
+  Suggestion: If you intended to restart next build, terminate the other process, and then try again.
+npm error Lifecycle script `build` failed with 
+error:
+npm error code 1
+npm error path 
+C:\Users\PC\Desktop\BarterWave\BarterWave\apps\web
+npm error workspace web@0.2.1
+npm error location 
+C:\Users\PC\Desktop\BarterWave\BarterWave\apps\web
+npm error command failed
+npm error command C:\Windows\system32\cmd.exe /d /s 
+/c next build
