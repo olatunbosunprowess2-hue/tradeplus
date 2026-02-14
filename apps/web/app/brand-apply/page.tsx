@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuthStore } from '@/lib/auth-store';
 import apiClient from '@/lib/api-client';
 import Link from 'next/link';
-import { toast } from 'sonner';
+import { toast } from 'react-hot-toast';
 
 interface BrandStatus {
     brandVerificationStatus: string;
