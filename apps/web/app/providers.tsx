@@ -10,6 +10,10 @@ interface ProvidersProps {
   children: ReactNode;
 }
 
+import dynamic from 'next/dynamic';
+
+const ProfileCompletionModal = dynamic(() => import('@/components/ProfileCompletionModal'), { ssr: false });
+
 export function Providers({ children }: ProvidersProps): ReactNode {
   const [queryClient] = useState(
     () =>
@@ -27,6 +31,7 @@ export function Providers({ children }: ProvidersProps): ReactNode {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AuthSyncer />
+        <ProfileCompletionModal />
         {children}
       </ThemeProvider>
     </QueryClientProvider>

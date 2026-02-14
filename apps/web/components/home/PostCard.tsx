@@ -23,8 +23,37 @@ function getDisplayName(author: PostAuthor): string {
     return author.profile?.displayName || author.brandName || [author.firstName, author.lastName].filter(Boolean).join(' ') || 'Anonymous';
 }
 
-function getAvatarUrl(author: PostAuthor): string {
-    return author.profile?.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${author.id}`;
+function getAvatarUrl(author: PostAuthor): string | null {
+    return author.profile?.avatarUrl || null;
+}
+
+function AvatarPlaceholder({ name }: { name: string }) {
+    const initials = name
+        .split(' ')
+        .map(n => n[0])
+        .slice(0, 2)
+        .join('')
+        .toUpperCase();
+
+    const colors = [
+        'bg-red-100 text-red-600', 'bg-orange-100 text-orange-600', 'bg-amber-100 text-amber-600',
+        'bg-green-100 text-green-600', 'bg-emerald-100 text-emerald-600', 'bg-teal-100 text-teal-600',
+        'bg-cyan-100 text-cyan-600', 'bg-blue-100 text-blue-600', 'bg-indigo-100 text-indigo-600',
+        'bg-violet-100 text-violet-600', 'bg-purple-100 text-purple-600', 'bg-fuchsia-100 text-fuchsia-600',
+        'bg-pink-100 text-pink-600', 'bg-rose-100 text-rose-600',
+    ];
+
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const colorClass = colors[Math.abs(hash) % colors.length];
+
+    return (
+        <div className={`w-full h-full rounded-full flex items-center justify-center text-xs font-bold border border-gray-100 ${colorClass}`}>
+            {initials}
+        </div>
+    );
 }
 
 function timeAgo(dateStr: string): string {
@@ -233,13 +262,17 @@ export default function PostCard({ post: initialPost, onDelete, onUpdate, savedI
                 {/* HEADER */}
                 <div className="flex items-start gap-3 p-4 pb-2">
                     <Link href={`/profile/${author.id}`} className="shrink-0 relative w-10 h-10">
-                        <Image
-                            src={getAvatarUrl(author)}
-                            alt={getDisplayName(author)}
-                            fill
-                            className="rounded-full object-cover border border-gray-100 hover:opacity-80 transition"
-                            sizes="40px"
-                        />
+                        {getAvatarUrl(author) ? (
+                            <Image
+                                src={getAvatarUrl(author)!}
+                                alt={getDisplayName(author)}
+                                fill
+                                className="rounded-full object-cover border border-gray-100 hover:opacity-80 transition"
+                                sizes="40px"
+                            />
+                        ) : (
+                            <AvatarPlaceholder name={getDisplayName(author)} />
+                        )}
                     </Link>
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center flex-wrap gap-x-1">

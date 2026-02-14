@@ -181,16 +181,18 @@ export default function AdminBrandsPage() {
                 </button>
             </div>
 
+            {/* Reference to Lucide icons needed */}
+
             {/* Applications Tab */}
             {tab === 'applications' && (
                 <>
                     {/* Status Filter */}
-                    <div className="flex gap-2 mb-4">
+                    <div className="flex gap-2 mb-4 overflow-x-auto pb-2 scrollbar-hide">
                         {(['PENDING', 'VERIFIED_BRAND', 'REJECTED', 'all'] as StatusFilter[]).map(s => (
                             <button
                                 key={s}
                                 onClick={() => setStatusFilter(s)}
-                                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${statusFilter === s ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200'}`}
+                                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${statusFilter === s ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200'}`}
                             >
                                 {s === 'all' ? 'All' : s.replace('_', ' ')}
                             </button>
@@ -201,63 +203,103 @@ export default function AdminBrandsPage() {
                         <div className="text-center py-12 text-gray-400">Loading...</div>
                     ) : applications.length === 0 ? (
                         <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-                            <div className="text-4xl mb-4">ðŸ“­</div>
+                            <div className="text-4xl mb-4">📭</div>
                             <p className="text-gray-500">No brand applications found</p>
                         </div>
                     ) : (
-                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
-                            <table className="w-full text-sm">
-                                <thead className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
-                                    <tr>
-                                        <th className="text-left px-6 py-4 text-gray-500 font-medium">Brand / Applicant</th>
-                                        <th className="text-left px-6 py-4 text-gray-500 font-medium">Status</th>
-                                        <th className="text-left px-6 py-4 text-gray-500 font-medium">Website</th>
-                                        <th className="text-left px-6 py-4 text-gray-500 font-medium">Applied</th>
-                                        <th className="text-right px-6 py-4 text-gray-500 font-medium">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-                                    {applications.map(app => (
-                                        <tr key={app.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/40 dark:to-indigo-900/40 rounded-full flex items-center justify-center text-blue-700 dark:text-blue-300 font-bold text-lg shrink-0">
-                                                        {(app.brandName || app.firstName || '?')[0]?.toUpperCase()}
-                                                    </div>
-                                                    <div>
-                                                        <div className="font-bold text-gray-900 dark:text-white">{app.brandName || 'Unnamed Brand'}</div>
-                                                        <div className="text-xs text-gray-500">{app.firstName} {app.lastName} â€¢ {app.email}</div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <StatusBadge status={app.brandVerificationStatus} />
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                {app.brandWebsite ? (
-                                                    <a href={app.brandWebsite} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate max-w-[150px] block">
-                                                        {app.brandWebsite.replace(/^https?:\/\//, '')}
-                                                    </a>
-                                                ) : (
-                                                    <span className="text-gray-400">-</span>
-                                                )}
-                                            </td>
-                                            <td className="px-6 py-4 text-gray-500">
-                                                {new Date(app.createdAt).toLocaleDateString()}
-                                            </td>
-                                            <td className="px-6 py-4 text-right">
-                                                <button
-                                                    onClick={() => setSelectedApp(app)}
-                                                    className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-xs font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                                                >
-                                                    Review
-                                                </button>
-                                            </td>
+                        <>
+                            {/* Desktop Table View */}
+                            <div className="hidden md:block bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
+                                <table className="w-full text-sm">
+                                    <thead className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+                                        <tr>
+                                            <th className="text-left px-6 py-4 text-gray-500 font-medium">Brand / Applicant</th>
+                                            <th className="text-left px-6 py-4 text-gray-500 font-medium">Status</th>
+                                            <th className="text-left px-6 py-4 text-gray-500 font-medium">Website</th>
+                                            <th className="text-left px-6 py-4 text-gray-500 font-medium">Applied</th>
+                                            <th className="text-right px-6 py-4 text-gray-500 font-medium">Action</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                                        {applications.map(app => (
+                                            <tr key={app.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/40 dark:to-indigo-900/40 rounded-full flex items-center justify-center text-blue-700 dark:text-blue-300 font-bold text-lg shrink-0">
+                                                            {(app.brandName || app.firstName || '?')[0]?.toUpperCase()}
+                                                        </div>
+                                                        <div>
+                                                            <div className="font-bold text-gray-900 dark:text-white">{app.brandName || 'Unnamed Brand'}</div>
+                                                            <div className="text-xs text-gray-500">{app.firstName} {app.lastName} • {app.email}</div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <StatusBadge status={app.brandVerificationStatus} />
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    {app.brandWebsite ? (
+                                                        <a href={app.brandWebsite} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate max-w-[150px] block">
+                                                            {app.brandWebsite.replace(/^https?:\/\//, '')}
+                                                        </a>
+                                                    ) : (
+                                                        <span className="text-gray-400">-</span>
+                                                    )}
+                                                </td>
+                                                <td className="px-6 py-4 text-gray-500">
+                                                    {new Date(app.createdAt).toLocaleDateString()}
+                                                </td>
+                                                <td className="px-6 py-4 text-right">
+                                                    <button
+                                                        onClick={() => setSelectedApp(app)}
+                                                        className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors shadow-sm active:scale-95"
+                                                    >
+                                                        Review Application
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {/* Mobile Card View */}
+                            <div className="md:hidden space-y-3">
+                                {applications.map(app => (
+                                    <div key={app.id} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
+                                        <div className="flex justify-between items-start mb-3">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/40 dark:to-indigo-900/40 rounded-full flex items-center justify-center text-blue-700 dark:text-blue-300 font-bold text-lg shrink-0">
+                                                    {(app.brandName || app.firstName || '?')[0]?.toUpperCase()}
+                                                </div>
+                                                <div>
+                                                    <div className="font-bold text-gray-900 dark:text-white">{app.brandName || 'Unnamed Brand'}</div>
+                                                    <StatusBadge status={app.brandVerificationStatus} />
+                                                </div>
+                                            </div>
+                                            <span className="text-xs text-gray-400">{new Date(app.createdAt).toLocaleDateString()}</span>
+                                        </div>
+
+                                        <div className="text-xs text-gray-500 mb-4 px-1">
+                                            <div className="flex items-center gap-1 mb-1">
+                                                <span>👤</span> {app.firstName} {app.lastName}
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <span>📧</span> {app.email}
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            onClick={() => setSelectedApp(app)}
+                                            className="w-full py-2.5 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                                        >
+                                            <span>Review Application</span>
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </>
                     )}
                 </>
             )}
@@ -470,7 +512,12 @@ export default function AdminBrandsPage() {
                                                 disabled={actionLoading === selectedApp.id}
                                                 className="px-6 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold rounded-xl hover:shadow-lg hover:shadow-green-500/20 transition-all active:scale-[0.98]"
                                             >
-                                                {actionLoading === selectedApp.id ? 'Approving...' : 'âœ“ Approve Brand'}
+                                                {actionLoading === selectedApp.id ? 'Approving...' : (
+                                                    <span className="flex items-center gap-2">
+                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                                                        Approve Brand
+                                                    </span>
+                                                )}
                                             </button>
                                         </>
                                     )}
