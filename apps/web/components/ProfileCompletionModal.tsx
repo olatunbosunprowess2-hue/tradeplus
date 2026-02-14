@@ -37,12 +37,8 @@ export default function ProfileCompletionModal() {
             if (daysSinceDismissal < 3) return;
         }
 
-        // 5. Show modal with a small delay to not block initial render
-        const timer = setTimeout(() => {
-            setIsOpen(true);
-        }, 2000);
-
-        return () => clearTimeout(timer);
+        // 5. Show modal immediately
+        setIsOpen(true);
     }, [isAuthenticated, user]);
 
     const handleDismiss = () => {
@@ -71,7 +67,7 @@ export default function ProfileCompletionModal() {
             <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-5 duration-300">
 
                 {/* Header Image / Pattern */}
-                <div className="h-32 bg-gradient-to-br from-blue-600 to-indigo-700 relative overflow-hidden">
+                <div className="h-32 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 relative overflow-hidden">
                     <div className="absolute inset-0 opacity-20">
                         <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
                             <path d="M0 100 C 20 0 50 0 100 100 Z" fill="white" />

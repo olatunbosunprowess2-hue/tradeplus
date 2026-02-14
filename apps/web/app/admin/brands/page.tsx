@@ -324,7 +324,7 @@ export default function AdminBrandsPage() {
                         <div className="text-center py-12 text-gray-400">Loading...</div>
                     ) : waitlist.length === 0 ? (
                         <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-                            <div className="text-4xl mb-4">ðŸ“‹</div>
+                            <div className="text-4xl mb-4">📋</div>
                             <p className="text-gray-500">No waitlist entries yet</p>
                         </div>
                     ) : (
@@ -370,7 +370,7 @@ export default function AdminBrandsPage() {
                                     <h2 className="text-xl font-bold text-gray-900 dark:text-white">{selectedApp.brandName}</h2>
                                     <p className="text-sm text-gray-500 flex items-center gap-2">
                                         Applied by {selectedApp.firstName} {selectedApp.lastName}
-                                        <span className="text-gray-300">â€¢</span>
+                                        <span className="text-gray-300">•</span>
                                         {selectedApp.email}
                                     </p>
                                 </div>
@@ -413,7 +413,7 @@ export default function AdminBrandsPage() {
                                         <div className="text-gray-900 dark:text-white font-medium">{selectedApp.brandPhoneNumber}</div>
                                         {selectedApp.brandWhatsApp && (
                                             <div className="text-sm text-green-600 mt-1 flex items-center gap-1">
-                                                <span>ðŸ“±</span> {selectedApp.brandWhatsApp} (WA)
+                                                <span>📱</span> {selectedApp.brandWhatsApp} (WA)
                                             </div>
                                         )}
                                     </div>
