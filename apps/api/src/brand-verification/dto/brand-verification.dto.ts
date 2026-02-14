@@ -26,6 +26,26 @@ export class BrandApplyDto {
 
     @IsOptional()
     @IsString()
+    @MaxLength(200)
+    brandTwitter?: string;
+
+    @IsOptional()
+    @IsString()
+    @MaxLength(200)
+    brandLinkedin?: string;
+
+    @IsOptional()
+    @IsString()
+    @MaxLength(200)
+    brandFacebook?: string;
+
+    @IsOptional()
+    @IsString()
+    @MaxLength(200)
+    brandTiktok?: string;
+
+    @IsOptional()
+    @IsString()
     @MaxLength(500)
     brandPhysicalAddress?: string;
 

@@ -1,14 +1,20 @@
 ﻿'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { useAuthStore } from '@/lib/auth-store';
 import apiClient from '@/lib/api-client';
-import { useMessagesStore } from '@/lib/messages-store';
-import type { CommunityPost, PostComment as PostCommentType, PostAuthor } from '@/lib/types';
-import { useRouter } from 'next/navigation';
-import { Share2, Bookmark, MoreVertical, MessageSquare, Send, Twitter, Facebook, Link as LinkIcon, CheckCircle2 } from 'lucide-react';
+import type { CommunityPost, PostAuthor } from '@/lib/types';
+import { Share2, Bookmark, MoreVertical, Send, Twitter, Facebook, Link as LinkIcon, CheckCircle2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+
+// Lazy load heavy interactive components
+const ReportModal = dynamic(() => import('./ReportModal'), { ssr: false });
+const EditPostModal = dynamic(() => import('./EditPostModal'), { ssr: false });
+const OfferForm = dynamic(() => import('./OfferForm'), { ssr: false, loading: () => <div className="p-4 text-center text-sm text-gray-500">Loading offer form...</div> });
+const CommentSection = dynamic(() => import('./CommentSection'), { ssr: false, loading: () => <div className="p-4 text-center text-sm text-gray-500">Loading comments...</div> });
 
 // ============================================================================
 // HELPERS
@@ -160,263 +166,6 @@ function ShareButton({ title, text, url, postId }: { title: string; text: string
 }
 
 // ============================================================================
-// REPORT MODAL
-// ============================================================================
-function ReportModal({ postId, onClose }: { postId: string; onClose: () => void }) {
-    const [reason, setReason] = useState('');
-    const [submitting, setSubmitting] = useState(false);
-    const [submitted, setSubmitted] = useState(false);
-
-    const reasons = ['Spam', 'Harassment', 'Scam / Fraud', 'Inappropriate Content', 'Impersonation', 'Other'];
-
-    const handleSubmit = async () => {
-        if (!reason) return;
-
-        // GUEST CHECK: Prevent 401 logout
-        if (!useAuthStore.getState().user) {
-            alert('You must be logged in to report a post.');
-            onClose();
-            return;
-        }
-
-        setSubmitting(true);
-        try {
-            await apiClient.post('/reports', { reason: `Community Post: ${reason}`, reportedUserId: null, listingId: null, communityPostId: postId });
-            setSubmitted(true);
-            setTimeout(onClose, 1500);
-        } catch {
-            // fallback - just close
-            setSubmitted(true);
-            setTimeout(onClose, 1500);
-        }
-        setSubmitting(false);
-    };
-
-    return (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
-            <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl" onClick={e => e.stopPropagation()}>
-                {submitted ? (
-                    <div className="text-center py-4">
-                        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                            <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <p className="font-semibold text-gray-900">Report Submitted</p>
-                        <p className="text-sm text-gray-500 mt-1">Thank you. Our team will review this post.</p>
-                    </div>
-                ) : (
-                    <>
-                        <h3 className="text-lg font-bold text-gray-900 mb-4">Report Post</h3>
-                        <div className="space-y-2">
-                            {reasons.map(r => (
-                                <button
-                                    key={r}
-                                    onClick={() => setReason(r)}
-                                    className={`w-full text-left px-4 py-2.5 rounded-lg text-sm transition ${reason === r ? 'bg-red-50 text-red-700 ring-1 ring-red-200' : 'hover:bg-gray-50 text-gray-700'}`}
-                                >
-                                    {r}
-                                </button>
-                            ))}
-                        </div>
-                        <div className="flex gap-3 mt-5">
-                            <button onClick={onClose} className="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
-                            <button onClick={handleSubmit} disabled={!reason || submitting} className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50">
-                                {submitting ? 'Submitting...' : 'Submit Report'}
-                            </button>
-                        </div>
-                    </>
-                )}
-            </div>
-        </div>
-    );
-}
-
-// ============================================================================
-// INLINE COMMENT SECTION
-// ============================================================================
-function CommentSection({ postId }: { postId: string }) {
-    const user = useAuthStore(s => s.user);
-    const [comments, setComments] = useState<PostCommentType[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [newComment, setNewComment] = useState('');
-    const [submitting, setSubmitting] = useState(false);
-
-    useState(() => {
-        apiClient.get(`/community-posts/${postId}/comments`)
-            .then(r => setComments(r.data))
-            .catch(() => { })
-            .finally(() => setLoading(false));
-    });
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!newComment.trim() || submitting) return;
-        setSubmitting(true);
-        try {
-            const r = await apiClient.post(`/community-posts/${postId}/comments`, { content: newComment.trim() });
-            setComments(prev => [...prev, r.data]);
-            setNewComment('');
-        } catch { }
-        setSubmitting(false);
-    };
-
-    return (
-        <div className="border-t border-gray-100 bg-gray-50/50">
-            {loading ? (
-                <div className="px-4 py-3 text-sm text-gray-400">Loading comments...</div>
-            ) : (
-                <>
-                    <div className="max-h-60 overflow-y-auto">
-                        {comments.length === 0 && (
-                            <p className="px-4 py-3 text-sm text-gray-400">No comments yet. Be the first!</p>
-                        )}
-                        {comments.map(c => (
-                            <div key={c.id} className="px-4 py-2.5 flex gap-2.5">
-                                <Link href={`/profile/${c.authorId}`}>
-                                    <img src={getAvatarUrl(c.author)} alt="" className="w-7 h-7 rounded-full shrink-0 mt-0.5 hover:opacity-80 transition" />
-                                </Link>
-                                <div className="min-w-0">
-                                    <div className="flex items-center gap-1.5">
-                                        <Link href={`/profile/${c.authorId}`} className="text-xs font-semibold text-gray-900 hover:underline">
-                                            {getDisplayName(c.author)}
-                                        </Link>
-                                        {isVerified(c.author) && <VerifiedBadge />}
-                                        <span className="text-xs text-gray-400">{timeAgo(c.createdAt)}</span>
-                                    </div>
-                                    <p className="text-sm text-gray-700 mt-0.5">{c.content}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                    {user && (
-                        <form onSubmit={handleSubmit} className="flex items-center gap-2 px-4 py-2.5 border-t border-gray-100">
-                            <img src={user.profile?.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`} alt="" className="w-7 h-7 rounded-full shrink-0" />
-                            <input
-                                type="text"
-                                value={newComment}
-                                onChange={e => setNewComment(e.target.value)}
-                                placeholder="Write a comment..."
-                                className="flex-1 bg-white border border-gray-200 rounded-full px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
-                            />
-                            <button type="submit" disabled={!newComment.trim() || submitting} className="text-blue-600 font-semibold text-sm disabled:opacity-40">Post</button>
-                        </form>
-                    )}
-                </>
-            )}
-        </div>
-    );
-}
-
-// ============================================================================
-// INLINE OFFER FORM
-// ============================================================================
-function OfferForm({ postId, postAuthor, onClose }: { postId: string; postAuthor: PostAuthor; onClose: () => void }) {
-    const [message, setMessage] = useState('');
-    const [submitting, setSubmitting] = useState(false);
-    const [submitted, setSubmitted] = useState(false);
-    const { createConversation } = useMessagesStore();
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!message.trim()) return;
-        setSubmitting(true);
-        try {
-            await apiClient.post(`/community-posts/${postId}/offers`, { message: message.trim() });
-
-            // Create a message conversation with the post author
-            const authorName = postAuthor.profile?.displayName || postAuthor.brandName || [postAuthor.firstName, postAuthor.lastName].filter(Boolean).join(' ') || 'User';
-            const authorAvatar = postAuthor.profile?.avatarUrl;
-            createConversation(postAuthor.id, authorName, authorAvatar);
-
-            // Send the offer as a message
-            try {
-                const { sendMessage } = useMessagesStore.getState();
-                await sendMessage(postAuthor.id, `ðŸ·ï¸ Community Offer: ${message.trim()}`);
-            } catch { /* best-effort */ }
-
-            setSubmitted(true);
-            toast.success('Offer sent! Check your messages.');
-            setTimeout(onClose, 1500);
-        } catch {
-            toast.error('Failed to send offer. Please try again.');
-        }
-        setSubmitting(false);
-    };
-
-    if (submitted) {
-        return (
-            <div className="border-t border-blue-100 bg-blue-50 px-4 py-3 text-center">
-                <p className="text-sm font-medium text-blue-700">âœ… Offer sent! The poster has been notified.</p>
-            </div>
-        );
-    }
-
-    return (
-        <div className="border-t border-blue-100 bg-blue-50/50">
-            <form onSubmit={handleSubmit} className="px-4 py-3">
-                <p className="text-xs font-semibold text-blue-700 mb-2">Make an Offer â€” describe what you&apos;re willing to trade:</p>
-                <textarea
-                    value={message}
-                    onChange={e => setMessage(e.target.value)}
-                    placeholder="e.g. I have a PS5 controller I can trade for this..."
-                    className="w-full border border-blue-200 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-blue-400 bg-white"
-                    rows={2}
-                />
-                <div className="flex justify-end gap-2 mt-2">
-                    <button type="button" onClick={onClose} className="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-lg">Cancel</button>
-                    <button type="submit" disabled={!message.trim() || submitting} className="px-4 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50">
-                        {submitting ? 'Sending...' : 'Send Offer'}
-                    </button>
-                </div>
-            </form>
-        </div>
-    );
-}
-
-// ============================================================================
-// EDIT POST MODAL
-// ============================================================================
-export function EditPostModal({ post, onClose, onSaved }: { post: CommunityPost; onClose: () => void; onSaved: (p: CommunityPost) => void }) {
-    const [content, setContent] = useState(post.content);
-    const [submitting, setSubmitting] = useState(false);
-
-    const handleSave = async () => {
-        if (!content.trim()) return;
-        setSubmitting(true);
-        try {
-            const r = await apiClient.patch(`/community-posts/${post.id}`, { content: content.trim() });
-            onSaved(r.data);
-            onClose();
-        } catch { }
-        setSubmitting(false);
-    };
-
-    return (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
-            <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl" onClick={e => e.stopPropagation()}>
-                <h3 className="text-lg font-bold text-gray-900 mb-4">Edit Post</h3>
-                <textarea
-                    value={content}
-                    onChange={e => setContent(e.target.value)}
-                    className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[120px]"
-                    maxLength={2000}
-                />
-                <div className="flex justify-between items-center mt-3">
-                    <span className="text-xs text-gray-400">{content.length}/2000</span>
-                    <div className="flex gap-2">
-                        <button onClick={onClose} className="px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
-                        <button onClick={handleSave} disabled={!content.trim() || submitting} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
-                            {submitting ? 'Saving...' : 'Save'}
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-// ============================================================================
 // MAIN POST CARD
 // ============================================================================
 interface PostCardProps {
@@ -483,11 +232,13 @@ export default function PostCard({ post: initialPost, onDelete, onUpdate, savedI
             <div className={`bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden transition ${deleting ? 'opacity-50 pointer-events-none' : ''}`}>
                 {/* HEADER */}
                 <div className="flex items-start gap-3 p-4 pb-2">
-                    <Link href={`/profile/${author.id}`}>
-                        <img
+                    <Link href={`/profile/${author.id}`} className="shrink-0 relative w-10 h-10">
+                        <Image
                             src={getAvatarUrl(author)}
                             alt={getDisplayName(author)}
-                            className="w-10 h-10 rounded-full object-cover border border-gray-100 hover:opacity-80 transition"
+                            fill
+                            className="rounded-full object-cover border border-gray-100 hover:opacity-80 transition"
+                            sizes="40px"
                         />
                     </Link>
                     <div className="flex-1 min-w-0">
@@ -522,7 +273,7 @@ export default function PostCard({ post: initialPost, onDelete, onUpdate, savedI
                         <ShareButton
                             title={`Post by ${getDisplayName(author)}`}
                             text={post.content.substring(0, 100)}
-                            url={`${window.location.origin}/post/${post.id}`}
+                            url={`${typeof window !== 'undefined' ? window.location.origin : ''}/post/${post.id}`}
                             postId={post.id}
                         />
 
@@ -585,12 +336,15 @@ export default function PostCard({ post: initialPost, onDelete, onUpdate, savedI
                 {post.images.length > 0 && (
                     <div className={`px-4 pb-3 grid gap-1.5 ${post.images.length === 1 ? 'grid-cols-1' : post.images.length === 2 ? 'grid-cols-2' : 'grid-cols-2'}`}>
                         {post.images.slice(0, 4).map((img, i) => (
-                            <img
-                                key={i}
-                                src={img}
-                                alt={`Post image ${i + 1}`}
-                                className={`rounded-lg object-cover w-full ${post.images.length === 1 ? 'max-h-80' : 'h-40'}`}
-                            />
+                            <div key={i} className={`relative ${post.images.length === 1 ? 'h-80' : 'h-40'} w-full`}>
+                                <Image
+                                    src={img}
+                                    alt={`Post image ${i + 1}`}
+                                    fill
+                                    className="rounded-lg object-cover"
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                />
+                            </div>
                         ))}
                     </div>
                 )}

@@ -13,6 +13,7 @@ import { initializePayment, redirectToPaystack, useSpotlightCredit, PurchaseType
 import { Check, Sparkles, Pencil } from 'lucide-react';
 import { EditPostModal } from '@/components/home/PostCard';
 import { CommunityPost } from '@/lib/types';
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface Listing {
     id: string;
@@ -34,22 +35,18 @@ interface Listing {
 export default function ProfilePage() {
     const { user, isAuthenticated } = useAuthStore();
     const router = useRouter();
-    const [posts, setPosts] = useState<any[]>([]);
-    const [postsPage, setPostsPage] = useState(1);
-    const [postsTotalPages, setPostsTotalPages] = useState(1);
-    const [postsLoading, setPostsLoading] = useState(false);
+    const queryClient = useQueryClient();
+
+    // UI State
     const [promoteModal, setPromoteModal] = useState<'distress' | 'spotlight' | null>(null);
     const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
-    const [isPaymentLoading, setIsPaymentLoading] = useState(false);
-    const [editingPost, setEditingPost] = useState<CommunityPost | null>(null);
     const [activeTab, setActiveTab] = useState<'listings' | 'reviews' | 'posts'>('listings');
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editingPost, setEditingPost] = useState<CommunityPost | null>(null);
     const [isMounted, setIsMounted] = useState(false);
-    const [listings, setListings] = useState<Listing[]>([]);
-    const [page, setPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
-    const [loading, setLoading] = useState(true);
+    const [isPaymentLoading, setIsPaymentLoading] = useState(false);
 
+    // Initial Mount Check
     useEffect(() => {
         setIsMounted(true);
     }, []);
@@ -60,29 +57,114 @@ export default function ProfilePage() {
         }
     }, [isMounted, isAuthenticated, router]);
 
-    // Fetch listings
-    useEffect(() => {
-        const fetchListings = async () => {
-            if (!user) return;
-            try {
-                setLoading(true);
-                const response = await apiClient.get(`/listings?sellerId=${user.id}&page=${page}&limit=12&includeAll=true`);
-                if (page === 1) {
-                    setListings(response.data.data || response.data);
-                } else {
-                    setListings(prev => [...prev, ...(response.data.data || response.data)]);
-                }
-                setTotalPages(response.data.meta?.totalPages || 1);
-            } catch (error) {
-                console.error('Failed to fetch listings:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchListings();
-    }, [user, page]);
+    // ============================================================================
+    // QUERIES
+    // ============================================================================
 
-    // Helper functions
+    // Listings Query
+    const {
+        data: listingsData,
+        fetchNextPage: fetchNextListings,
+        hasNextPage: hasNextListings,
+        isFetchingNextPage: isFetchingNextListings,
+        isLoading: isListingsLoading
+    } = useInfiniteQuery({
+        queryKey: ['my-listings', user?.id],
+        queryFn: async ({ pageParam = 1 }) => {
+            const res = await apiClient.get(`/listings?sellerId=${user?.id}&page=${pageParam}&limit=12&includeAll=true`);
+            return res.data;
+        },
+        getNextPageParam: (lastPage) => {
+            const meta = lastPage.meta || { totalPages: 1, page: 1 };
+            const currentPage = meta.page || 1;
+            const totalPages = meta.totalPages || 1;
+            return currentPage < totalPages ? currentPage + 1 : undefined;
+        },
+        enabled: !!user && activeTab === 'listings',
+        initialPageParam: 1,
+        staleTime: 60 * 1000, // 1 minute stale time
+    });
+
+    const listings = listingsData?.pages.flatMap(page => page.data || page) || [];
+
+    // Posts Query
+    const {
+        data: postsData,
+        fetchNextPage: fetchNextPosts,
+        hasNextPage: hasNextPosts,
+        isFetchingNextPage: isFetchingNextPosts,
+        isLoading: isPostsLoading
+    } = useInfiniteQuery({
+        queryKey: ['my-posts', user?.id],
+        queryFn: async ({ pageParam = 1 }) => {
+            const res = await apiClient.get(`/community-posts/user/my-posts?page=${pageParam}&limit=10`);
+            return res.data;
+        },
+        getNextPageParam: (lastPage) => {
+            const meta = lastPage.meta || { totalPages: 1, page: 1 };
+            const currentPage = meta.page || meta.currentPage || 1;
+            const totalPages = meta.totalPages || 1;
+            return currentPage < totalPages ? currentPage + 1 : undefined;
+        },
+        enabled: !!user && activeTab === 'posts',
+        initialPageParam: 1,
+        staleTime: 60 * 1000,
+    });
+
+    const posts = postsData?.pages.flatMap(page => page.data || []) || [];
+
+    // ============================================================================
+    // MUTATIONS
+    // ============================================================================
+
+    const updateListingMutation = useMutation({
+        mutationFn: async ({ id, data }: { id: string, data: any }) => {
+            return apiClient.patch(`/listings/${id}`, data);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['my-listings'] });
+            toast.success('Listing updated successfully');
+        },
+        onError: () => toast.error('Failed to update listing'),
+    });
+
+    const deleteListingMutation = useMutation({
+        mutationFn: async (id: string) => {
+            return apiClient.delete(`/listings/${id}`);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['my-listings'] });
+            toast.success('Listing deleted');
+        },
+        onError: () => toast.error('Failed to delete listing'),
+    });
+
+    const updatePostMutation = useMutation({
+        mutationFn: async ({ id, data }: { id: string, data: any }) => {
+            return apiClient.patch(`/community-posts/${id}`, data);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['my-posts'] });
+            toast.success('Post updated');
+        },
+        onError: () => toast.error('Failed to update post'),
+    });
+
+    const deletePostMutation = useMutation({
+        mutationFn: async (id: string) => {
+            return apiClient.delete(`/community-posts/${id}`);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['my-posts'] });
+            toast.success('Post deleted');
+        },
+        onError: () => toast.error('Failed to delete post'),
+    });
+
+    // ============================================================================
+    // HANDLERS
+    // ============================================================================
+
     const formatPrice = (cents: number | null, currency: string) => {
         if (!cents) return 'Free / Barter';
         return new Intl.NumberFormat('en-NG', { style: 'currency', currency: currency || 'NGN' }).format(cents / 100);
@@ -100,35 +182,27 @@ export default function ProfilePage() {
         setPromoteModal('spotlight');
     };
 
-    const handleMarkAsSold = async (listingId: string) => {
-        try {
-            await apiClient.patch(`/listings/${listingId}`, { status: 'sold' });
-            setListings(prev => prev.map(l => l.id === listingId ? { ...l, status: 'sold' } : l));
-            toast.success('Listing marked as sold!');
-        } catch (error) {
-            toast.error('Failed to update listing');
-        }
+    const handleMarkAsSold = (listingId: string) => {
+        updateListingMutation.mutate({ id: listingId, data: { status: 'sold' } });
     };
 
-    const handleReactivate = async (listingId: string) => {
-        try {
-            await apiClient.patch(`/listings/${listingId}`, { status: 'active' });
-            setListings(prev => prev.map(l => l.id === listingId ? { ...l, status: 'active' } : l));
-            toast.success('Listing reactivated!');
-        } catch (error) {
-            toast.error('Failed to reactivate listing');
-        }
+    const handleReactivate = (listingId: string) => {
+        updateListingMutation.mutate({ id: listingId, data: { status: 'active' } });
     };
 
-    const handleDelete = async (listingId: string) => {
+    const handleDelete = (listingId: string) => {
         if (!confirm('Are you sure you want to delete this listing?')) return;
-        try {
-            await apiClient.delete(`/listings/${listingId}`);
-            setListings(prev => prev.filter(l => l.id !== listingId));
-            toast.success('Listing deleted');
-        } catch (error) {
-            toast.error('Failed to delete listing');
-        }
+        deleteListingMutation.mutate(listingId);
+    };
+
+    const handleTogglePostStatus = (postId: string, currentStatus: string) => {
+        const newStatus = currentStatus === 'active' ? 'resolved' : 'active';
+        updatePostMutation.mutate({ id: postId, data: { status: newStatus } });
+    };
+
+    const handleDeletePost = (postId: string) => {
+        if (!confirm('Are you sure you want to delete this post?')) return;
+        deletePostMutation.mutate(postId);
     };
 
     const handleModalClose = () => {
@@ -159,66 +233,12 @@ export default function ProfilePage() {
             await useSpotlightCredit(selectedListingId);
             toast.success('Spotlight applied!');
             handleModalClose();
-            // Refresh listing
-            setListings(prev => prev.map(l =>
-                l.id === selectedListingId
-                    ? { ...l, spotlightExpiry: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() }
-                    : l
-            ));
+            queryClient.invalidateQueries({ queryKey: ['my-listings'] });
+            // Optimistic update of user credits if needed, or invalidate user query
         } catch (error) {
             toast.error('Failed to apply spotlight');
         } finally {
             setIsPaymentLoading(false);
-        }
-    };
-
-    // Fetch user posts
-    useEffect(() => {
-        const fetchPosts = async () => {
-            if (user && activeTab === 'posts') {
-                try {
-                    setPostsLoading(true);
-                    const response = await apiClient.get(`/community-posts/user/my-posts?page=${postsPage}&limit=10`);
-                    if (postsPage === 1) {
-                        setPosts(response.data.data);
-                    } else {
-                        setPosts(prev => [...prev, ...response.data.data]);
-                    }
-                    setPostsTotalPages(response.data.meta.totalPages);
-                } catch (error) {
-                    console.error('Failed to fetch posts:', error);
-                } finally {
-                    setPostsLoading(false);
-                }
-            }
-        };
-
-        if (activeTab === 'posts') {
-            fetchPosts();
-        }
-    }, [user, postsPage, activeTab]);
-
-    const handleTogglePostStatus = async (postId: string, currentStatus: string) => {
-        const newStatus = currentStatus === 'active' ? 'resolved' : 'active';
-        try {
-            await apiClient.patch(`/community-posts/${postId}`, { status: newStatus });
-            setPosts(prev => prev.map(p => p.id === postId ? { ...p, status: newStatus } : p));
-            toast.success(`Post marked as ${newStatus}`);
-        } catch (error) {
-            console.error('Failed to update post status:', error);
-            toast.error('Failed to update status');
-        }
-    };
-
-    const handleDeletePost = async (postId: string) => {
-        if (!confirm('Are you sure you want to delete this post?')) return;
-        try {
-            await apiClient.delete(`/community-posts/${postId}`);
-            setPosts(prev => prev.filter(p => p.id !== postId));
-            toast.success('Post deleted');
-        } catch (error) {
-            console.error('Failed to delete post:', error);
-            toast.error('Failed to delete post');
         }
     };
 
@@ -337,16 +357,16 @@ export default function ProfilePage() {
                 <div className="mt-6">
                     {activeTab === 'listings' && (
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {loading ? (
+                            {isListingsLoading ? (
                                 <div className="col-span-full flex justify-center py-12">
                                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                                 </div>
                             ) : (
                                 <>
-                                    {listings.map((listing) => (
+                                    {listings.map((listing: Listing) => (
                                         <div key={listing.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden group">
                                             <div className="aspect-video bg-gray-100 relative">
-                                                {listing.images[0] ? (
+                                                {listing.images && listing.images[0] ? (
                                                     <img src={listing.images[0].url} alt={listing.title} className="w-full h-full object-cover" />
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -428,14 +448,14 @@ export default function ProfilePage() {
                                     ))}
 
                                     {/* Load More */}
-                                    {page < totalPages && (
+                                    {hasNextListings && (
                                         <div className="col-span-full flex justify-center mt-4">
                                             <button
-                                                onClick={() => setPage(p => p + 1)}
-                                                disabled={loading}
+                                                onClick={() => fetchNextListings()}
+                                                disabled={isFetchingNextListings}
                                                 className="px-6 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition"
                                             >
-                                                {loading ? 'Loading...' : 'Load More Listings'}
+                                                {isFetchingNextListings ? 'Loading...' : 'Load More Listings'}
                                             </button>
                                         </div>
                                     )}
@@ -457,7 +477,7 @@ export default function ProfilePage() {
 
                     {activeTab === 'posts' && (
                         <div className="flex flex-col gap-6">
-                            {postsLoading && postsPage === 1 ? (
+                            {isPostsLoading ? (
                                 <div className="flex justify-center py-12">
                                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                                 </div>
@@ -480,7 +500,7 @@ export default function ProfilePage() {
                                         </div>
                                     ) : (
                                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                            {posts.map((post) => (
+                                            {posts.map((post: any) => (
                                                 <div key={post.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
                                                     <div className="p-4 flex-1">
                                                         <div className="flex items-center justify-between mb-3">
@@ -558,14 +578,14 @@ export default function ProfilePage() {
                                     )}
 
                                     {/* Load More Posts */}
-                                    {postsPage < postsTotalPages && (
+                                    {hasNextPosts && (
                                         <div className="flex justify-center mt-4">
                                             <button
-                                                onClick={() => setPostsPage(p => p + 1)}
-                                                disabled={postsLoading}
+                                                onClick={() => fetchNextPosts()}
+                                                disabled={isFetchingNextPosts}
                                                 className="px-6 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition"
                                             >
-                                                {postsLoading ? 'Loading...' : 'Load More Posts'}
+                                                {isFetchingNextPosts ? 'Loading...' : 'Load More Posts'}
                                             </button>
                                         </div>
                                     )}
@@ -593,8 +613,8 @@ export default function ProfilePage() {
                 <EditPostModal
                     post={editingPost}
                     onClose={() => setEditingPost(null)}
-                    onSaved={(updatedPost) => {
-                        setPosts(prev => prev.map(p => p.id === updatedPost.id ? updatedPost : p));
+                    onSaved={() => {
+                        queryClient.invalidateQueries({ queryKey: ['my-posts'] });
                         setEditingPost(null);
                         toast.success('Post updated successfully');
                     }}

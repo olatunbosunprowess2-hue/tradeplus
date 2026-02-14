@@ -182,8 +182,8 @@ cd apps/web && npm run build
 
 ### Recommended Platforms
 - **Frontend**: Vercel, Netlify
-- **Backend**: Railway, Render, DigitalOcean
-- **Database**: Supabase, Railway, PlanetScale
+- **Backend**: Hosted on Koyeb
+- **Database**: Supabase, PlanetScale
 
 ---
 

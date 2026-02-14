@@ -1,13 +1,16 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { useAuthStore } from '@/lib/auth-store';
 import { useCartStore } from '@/lib/cart-store';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useNotificationsStore } from '@/lib/notifications-store';
 import { useEffect, useState } from 'react';
-import VerificationBlockModal from './VerificationBlockModal';
 import SideMenu from './SideMenu';
+
+const VerificationBlockModal = dynamic(() => import('./VerificationBlockModal'), { ssr: false });
 
 // Debounce hook for live search
 function useDebounce<T>(value: T, delay: number): T {
@@ -192,10 +195,13 @@ export default function Navbar() {
     <Link href="/listings" className="flex items-center gap-2.5 group shrink-0">
       {/* Logo Icon */}
       <div className="relative w-8 h-8">
-        <img
+        <Image
           src="/logo-transparent.png"
           alt="BarterWave"
-          className="w-full h-full object-contain group-hover:scale-105 transition-transform"
+          fill
+          className="object-contain group-hover:scale-105 transition-transform"
+          sizes="32px"
+          priority
         />
       </div>
       {/* Logo Text */}

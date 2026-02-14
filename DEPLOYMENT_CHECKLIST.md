@@ -21,8 +21,8 @@
 ### Hosting Setup
 - [ ] Choose hosting provider:
   - **Frontend**: Vercel (recommended), Netlify
-  - **Backend**: Railway, Render, DigitalOcean
-  - **Database**: Supabase, Railway, PlanetScale
+  - **Backend**: Koyeb, Render, DigitalOcean
+  - **Database**: Supabase, PlanetScale
 - [ ] Set up production database
 - [ ] Configure DNS records
 
@@ -121,6 +121,6 @@ npm run start
 | Domain | Namecheap, GoDaddy | ~$12/year |
 | Email | Zoho (free 5 users), Google Workspace | $0-6/user/mo |
 | Frontend | Vercel | Free tier available |
-| Backend | Railway | ~$5/month |
-| Database | Supabase, Railway | Free tier available |
+| Backend | Koyeb | ~$5/month |
+| Database | Supabase | Free tier available |
 | Payments | Paystack | 1.5% + ₦100 per txn |

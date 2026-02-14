@@ -8,24 +8,24 @@ const nextConfig = {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333/api',
   },
   images: {
-    domains: [
-      'ui-avatars.com',
-      'images.unsplash.com',
-      'placehold.co',
-      'localhost',
-      ...(process.env.NEXT_PUBLIC_API_URL
-        ? [new URL(process.env.NEXT_PUBLIC_API_URL).hostname]
-        : [])
+    'ui-avatars.com',
+    'images.unsplash.com',
+    'placehold.co',
+    'api.dicebear.com',
+    'localhost',
+    ...(process.env.NEXT_PUBLIC_API_URL
+      ? [new URL(process.env.NEXT_PUBLIC_API_URL).hostname]
+      : [])
     ],
   },
-  eslint: {
-    ignoreDuringBuilds: true,
+eslint: {
+  ignoreDuringBuilds: true,
   },
-  typescript: {
-    ignoreBuildErrors: true,
+typescript: {
+  ignoreBuildErrors: true,
   },
-  devIndicators: {
-    buildActivity: false,
+devIndicators: {
+  buildActivity: false,
     appIsrStatus: false,
   },
 }

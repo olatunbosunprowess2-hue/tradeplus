@@ -6,14 +6,19 @@ import { useBookmarksStore } from '@/lib/bookmarks-store';
 import { useAuthStore } from '@/lib/auth-store';
 import WantCard from '@/components/WantCard';
 import AddWantModal from '@/components/AddWantModal';
+import PostCard from '@/components/home/PostCard'; // Imported PostCard
+import apiClient from '@/lib/api-client'; // Imported apiClient
+import { CommunityPost } from '@/lib/types'; // Imported types
 import Link from 'next/link';
 
 export default function WantsPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState<'wants' | 'bookmarks'>('wants');
+    const [activeTab, setActiveTab] = useState<'wants' | 'bookmarks' | 'saved-posts'>('wants'); // Added saved-posts tab
     const wants = useWantsStore((state) => state.items);
     const bookmarks = useBookmarksStore((state) => state.bookmarks);
     const removeBookmark = useBookmarksStore((state) => state.removeBookmark);
+    const [savedPosts, setSavedPosts] = useState<CommunityPost[]>([]); // State for saved posts
+    const [loadingSavedPosts, setLoadingSavedPosts] = useState(false);
     const [mounted, setMounted] = useState(false);
 
     const fetchWants = useWantsStore((state) => state.fetchWants);
@@ -24,19 +29,46 @@ export default function WantsPage() {
         fetchWants();
     }, [fetchWants]);
 
+    // Fetch saved posts when tab is active
+    useEffect(() => {
+        if (activeTab === 'saved-posts' && savedPosts.length === 0) {
+            setLoadingSavedPosts(true);
+            apiClient.get('/community-posts/user/saved')
+                .then(r => setSavedPosts(r.data.data)) // Assuming paginated response structure
+                .catch(console.error)
+                .finally(() => setLoadingSavedPosts(false));
+        }
+    }, [activeTab]);
+
     if (!mounted) return null;
 
     const activeWants = wants.filter((i) => !i.isFulfilled);
     const fulfilledWants = wants.filter((i) => i.isFulfilled);
+
+    // Handlers for PostCard
+    const handlePostUpdated = (updatedPost: CommunityPost) => {
+        setSavedPosts(prev => prev.map(p => p.id === updatedPost.id ? updatedPost : p));
+    };
+
+    const handlePostDeleted = (id: string) => {
+        setSavedPosts(prev => prev.filter(p => p.id !== id));
+    };
+
+    // Allow unsaving directly from the list
+    const handleToggleSave = (id: string, saved: boolean) => {
+        if (!saved) {
+            setSavedPosts(prev => prev.filter(p => p.id !== id));
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
             <div className="container mx-auto px-4 py-8 max-w-7xl">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900 mb-2">My Wants & Bookmarks</h1>
+                        <h1 className="text-2xl font-bold text-gray-900 mb-2">My Bookmarks</h1>
                         <p className="text-gray-700 font-medium">
-                            Track items you're looking for and save interesting listings
+                            Track items you want, saving listings, and community posts.
                         </p>
                     </div>
 
@@ -45,16 +77,24 @@ export default function WantsPage() {
                             onClick={() => {
                                 const user = useAuthStore.getState().user;
                                 const url = `${window.location.origin}/share/${user?.id}/wants`;
+                                let shareContent = { title: 'BarterWave', text: 'Check this out!' };
 
-                                const shareContent = activeTab === 'wants'
-                                    ? {
+                                if (activeTab === 'wants') {
+                                    shareContent = {
                                         title: `${user?.profile?.displayName || 'My'} Wishlist 🎯`,
                                         text: `Hey! 👋 Check out my wishlist.`,
-                                    }
-                                    : {
+                                    };
+                                } else if (activeTab === 'bookmarks') {
+                                    shareContent = {
                                         title: `${user?.profile?.displayName || 'My'} Saved Items 💎`,
                                         text: `Found some amazing items! 🌟 Take a look at what caught my eye.`,
                                     };
+                                } else {
+                                    shareContent = {
+                                        title: `${user?.profile?.displayName || 'My'} Saved Posts 📌`,
+                                        text: `Interesting discussions and trades I'm following.`,
+                                    };
+                                }
 
                                 if (navigator.share) {
                                     navigator.share({
@@ -90,10 +130,10 @@ export default function WantsPage() {
                 </div>
 
                 {/* Tabs */}
-                <div className="flex gap-2 mb-6 border-b border-gray-200">
+                <div className="flex gap-2 mb-6 border-b border-gray-200 overflow-x-auto">
                     <button
                         onClick={() => setActiveTab('wants')}
-                        className={`px-6 py-3 font-bold transition-colors relative ${activeTab === 'wants'
+                        className={`px-6 py-3 font-bold transition-colors whitespace-nowrap relative ${activeTab === 'wants'
                             ? 'text-blue-600 border-b-2 border-blue-600'
                             : 'text-gray-600 hover:text-gray-900'
                             }`}
@@ -107,15 +147,29 @@ export default function WantsPage() {
                     </button>
                     <button
                         onClick={() => setActiveTab('bookmarks')}
-                        className={`px-6 py-3 font-bold transition-colors relative ${activeTab === 'bookmarks'
+                        className={`px-6 py-3 font-bold transition-colors whitespace-nowrap relative ${activeTab === 'bookmarks'
                             ? 'text-blue-600 border-b-2 border-blue-600'
                             : 'text-gray-600 hover:text-gray-900'
                             }`}
                     >
-                        Bookmarked Items
+                        Saved Listings
                         {bookmarks.length > 0 && (
                             <span className="ml-2 bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full text-xs font-bold">
                                 {bookmarks.length}
+                            </span>
+                        )}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('saved-posts')}
+                        className={`px-6 py-3 font-bold transition-colors whitespace-nowrap relative ${activeTab === 'saved-posts'
+                            ? 'text-blue-600 border-b-2 border-blue-600'
+                            : 'text-gray-600 hover:text-gray-900'
+                            }`}
+                    >
+                        Saved Posts
+                        {savedPosts.length > 0 && (
+                            <span className="ml-2 bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded-full text-xs font-bold">
+                                {savedPosts.length}
                             </span>
                         )}
                     </button>
@@ -236,6 +290,60 @@ export default function WantsPage() {
                                             </div>
                                         </Link>
                                     </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* Saved Posts Tab */}
+                {activeTab === 'saved-posts' && (
+                    <div className="max-w-2xl mx-auto">
+                        {loadingSavedPosts ? (
+                            <div className="space-y-4">
+                                {[1, 2, 3].map(i => (
+                                    <div key={i} className="bg-white rounded-xl border border-gray-100 p-4 animate-pulse">
+                                        <div className="flex items-center gap-3 mb-3">
+                                            <div className="w-10 h-10 bg-gray-200 rounded-full" />
+                                            <div>
+                                                <div className="h-3 w-24 bg-gray-200 rounded mb-1" />
+                                                <div className="h-2 w-16 bg-gray-100 rounded" />
+                                            </div>
+                                        </div>
+                                        <div className="h-3 w-full bg-gray-100 rounded mb-2" />
+                                        <div className="h-3 w-3/4 bg-gray-100 rounded" />
+                                    </div>
+                                ))}
+                            </div>
+                        ) : savedPosts.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-20 text-center">
+                                <div className="w-24 h-24 bg-emerald-50 rounded-full flex items-center justify-center mb-6">
+                                    <svg className="w-12 h-12 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                                    </svg>
+                                </div>
+                                <h2 className="text-xl font-bold text-gray-900 mb-2">No saved posts</h2>
+                                <p className="text-gray-600 font-medium max-w-md mb-8">
+                                    Save interesting posts from the Community Feed to read them later.
+                                </p>
+                                <Link
+                                    href="/listings?tab=community"
+                                    className="bg-emerald-600 text-white px-8 py-3 rounded-full font-bold hover:bg-emerald-700 transition-colors shadow-lg"
+                                >
+                                    Go to Community Feed
+                                </Link>
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                {savedPosts.map(post => (
+                                    <PostCard
+                                        key={post.id}
+                                        post={post}
+                                        onDelete={handlePostDeleted}
+                                        onUpdate={handlePostUpdated}
+                                        savedIds={savedPosts.map(p => p.id)}
+                                        onToggleSave={handleToggleSave}
+                                    />
                                 ))}
                             </div>
                         )}

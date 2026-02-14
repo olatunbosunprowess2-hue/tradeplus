@@ -384,6 +384,61 @@ export class CommunityPostsService {
         return saved.map(s => s.postId);
     }
 
+    async getSavedPosts(userId: string, page: number = 1, limit: number = 20) {
+        const skip = (page - 1) * limit;
+
+        const [savedPosts, total] = await Promise.all([
+            this.prisma.savedPost.findMany({
+                where: { userId },
+                include: {
+                    post: {
+                        include: {
+                            author: {
+                                select: {
+                                    id: true,
+                                    firstName: true,
+                                    lastName: true,
+                                    isVerified: true,
+                                    verificationStatus: true,
+                                    brandVerificationStatus: true,
+                                    brandName: true,
+                                    profile: {
+                                        select: { displayName: true, avatarUrl: true },
+                                    },
+                                },
+                            },
+                            _count: {
+                                select: {
+                                    comments: true,
+                                    offers: true,
+                                },
+                            },
+                        }
+                    }
+                },
+                orderBy: { createdAt: 'desc' },
+                skip,
+                take: limit,
+            }),
+            this.prisma.savedPost.count({ where: { userId } }),
+        ]);
+
+        const data = savedPosts.map(sp => ({
+            ...sp.post,
+            isSaved: true // By definition, these are saved
+        }));
+
+        return {
+            data,
+            meta: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit),
+            },
+        };
+    }
+
     // ============================
     // MY OFFERS (sent + received)
     // ============================

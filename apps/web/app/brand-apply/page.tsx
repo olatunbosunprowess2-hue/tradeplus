@@ -4,12 +4,17 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuthStore } from '@/lib/auth-store';
 import apiClient from '@/lib/api-client';
 import Link from 'next/link';
+import { toast } from 'sonner';
 
 interface BrandStatus {
     brandVerificationStatus: string;
     brandName: string | null;
     brandWebsite: string | null;
     brandInstagram: string | null;
+    brandTwitter: string | null;
+    brandLinkedin: string | null;
+    brandFacebook: string | null;
+    brandTiktok: string | null;
     brandPhysicalAddress: string | null;
     brandWhatsApp: string | null;
     brandApplicationNote: string | null;
@@ -37,6 +42,10 @@ export default function BrandApplyPage() {
         brandName: '',
         brandWebsite: '',
         brandInstagram: '',
+        brandTwitter: '',
+        brandLinkedin: '',
+        brandFacebook: '',
+        brandTiktok: '',
         brandPhysicalAddress: '',
         brandPhoneNumber: '',
         brandWhatsApp: '',
@@ -90,6 +99,10 @@ export default function BrandApplyPage() {
                             brandName: res.data.brandName || '',
                             brandWebsite: res.data.brandWebsite || '',
                             brandInstagram: res.data.brandInstagram || '',
+                            brandTwitter: res.data.brandTwitter || '',
+                            brandLinkedin: res.data.brandLinkedin || '',
+                            brandFacebook: res.data.brandFacebook || '',
+                            brandTiktok: res.data.brandTiktok || '',
                             brandPhysicalAddress: res.data.brandPhysicalAddress || '',
                             brandPhoneNumber: res.data.brandPhoneNumber || '',
                             brandWhatsApp: res.data.brandWhatsApp || '',
@@ -122,16 +135,29 @@ export default function BrandApplyPage() {
             setError('Please upload at least one proof document (photo, screenshot, or document)');
             return;
         }
+
+        // Auto-fix website URL if it starts with www.
+        let finalWebsite = form.brandWebsite.trim();
+        if (finalWebsite && finalWebsite.toLowerCase().startsWith('www.')) {
+            finalWebsite = 'https://' + finalWebsite;
+        }
+
         setSubmitting(true);
         setError('');
         try {
-            await apiClient.post('/brand-verification/apply', { ...form, brandProofUrls: proofUrls });
+            await apiClient.post('/brand-verification/apply', {
+                ...form,
+                brandWebsite: finalWebsite,
+                brandProofUrls: proofUrls
+            });
             setSuccess(true);
+            toast.success('Application submitted successfully!');
             // Refetch status
             const res = await apiClient.get('/brand-verification/status');
             setStatus(res.data);
         } catch (err: any) {
             setError(err.response?.data?.message || 'Failed to submit application');
+            toast.error(err.response?.data?.message || 'Failed to submit application');
         } finally {
             setSubmitting(false);
         }
@@ -146,11 +172,12 @@ export default function BrandApplyPage() {
         setWaitlistSubmitting(true);
         setWaitlistError('');
         try {
-            const res = await apiClient.post('/brand-verification/waitlist', {
+            await apiClient.post('/brand-verification/waitlist', {
                 email: waitlistEmail,
                 name: waitlistName || undefined,
             });
             setWaitlistSuccess(true);
+            toast.success('Joined waitlist successfully!');
         } catch (err: any) {
             setWaitlistError(err.response?.data?.message || 'Failed to join waitlist');
         } finally {
@@ -165,17 +192,18 @@ export default function BrandApplyPage() {
         if (status.brandVerificationStatus === 'PENDING') {
             return (
                 <div className="max-w-2xl mx-auto mb-8">
-                    <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-2xl p-8 text-center">
-                        <div className="text-5xl mb-4">⏳</div>
-                        <h2 className="text-2xl font-bold text-amber-800 dark:text-amber-200 mb-2">Application Under Review</h2>
-                        <p className="text-amber-700 dark:text-amber-300 mb-4">
+                    <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-2xl p-6 sm:p-8 text-center">
+                        <div className="text-4xl sm:text-5xl mb-4">⏳</div>
+                        <h2 className="text-xl sm:text-2xl font-bold text-amber-800 dark:text-amber-200 mb-2">Application Under Review</h2>
+                        <p className="text-amber-700 dark:text-amber-300 mb-4 max-w-lg mx-auto">
                             Your brand <strong>&ldquo;{status.brandName}&rdquo;</strong> is being reviewed by our team. We&apos;ll notify you once a decision is made.
                         </p>
-                        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 text-left text-sm text-gray-600 dark:text-gray-300 space-y-2">
-                            {status.brandWebsite && <p>🌐 {status.brandWebsite}</p>}
-                            {status.brandInstagram && <p>📸 {status.brandInstagram}</p>}
-                            {status.brandPhysicalAddress && <p>📍 {status.brandPhysicalAddress}</p>}
-                            {status.brandWhatsApp && <p>📱 {status.brandWhatsApp}</p>}
+                        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 text-left text-sm text-gray-600 dark:text-gray-300 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+                            {status.brandWebsite && <p className="truncate">🌐 {status.brandWebsite}</p>}
+                            {status.brandInstagram && <p className="truncate">📸 {status.brandInstagram}</p>}
+                            {status.brandTwitter && <p className="truncate">🐦 {status.brandTwitter}</p>}
+                            {status.brandLinkedin && <p className="truncate">💼 {status.brandLinkedin}</p>}
+                            {status.brandPhysicalAddress && <p className="col-span-1 sm:col-span-2 truncate">📍 {status.brandPhysicalAddress}</p>}
                         </div>
                     </div>
                 </div>
@@ -231,38 +259,38 @@ export default function BrandApplyPage() {
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
-            {/* Hero Section */}
-            <div className="relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-yellow-500/5" />
-                <div className="relative max-w-4xl mx-auto px-4 py-16 sm:py-24 text-center">
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-sm font-medium mb-6">
-                        <span>✦</span> Private Beta
+            {/* Compact Header Section */}
+            <div className="relative overflow-hidden mb-8">
+                <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-yellow-500/5 pointer-events-none" />
+                <div className="relative max-w-5xl mx-auto px-4 py-12 sm:py-16 text-center">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs font-medium mb-4">
+                        <span>✦</span> Official Verification
                     </div>
-                    <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 dark:text-white mb-4">
-                        Become a{' '}
+                    <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white mb-2">
+                        Get Verified on{' '}
                         <span className="bg-gradient-to-r from-amber-500 to-yellow-400 bg-clip-text text-transparent">
-                            Verified Brand
+                            BarterWave
                         </span>
                     </h1>
-                    <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                        Unlock premium features: cash top-ups, downpayment tracking, direct buyer contact, and the exclusive Verified Brand badge on all your listings.
+                    <p className="text-base text-gray-600 dark:text-gray-300 max-w-xl mx-auto">
+                        Build trust, unlock cash payments, and get premium selling tools.
                     </p>
                 </div>
             </div>
 
             <div className="max-w-4xl mx-auto px-4 pb-20">
-                {/* Features Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
+                {/* Compact Features Grid */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10">
                     {[
-                        { icon: '✦', title: 'Verified Badge', desc: 'Gold badge on all listings builds buyer trust' },
-                        { icon: '💰', title: 'Cash Top-ups', desc: 'Accept cash alongside barter trades' },
-                        { icon: '🔒', title: 'Escrow Tracking', desc: 'Downpayment logging with full audit trail' },
-                        { icon: '📱', title: 'Direct Contact', desc: 'WhatsApp link for buyers to reach you' },
+                        { icon: '✦', title: 'Verified Badge', desc: 'Build buyer trust' },
+                        { icon: '💰', title: 'Cash Up', desc: 'Accept cash & barter' },
+                        { icon: '🔒', title: 'Escrow', desc: 'Secure downpayments' },
+                        { icon: '📱', title: 'Direct Chat', desc: 'WhatsApp contact' },
                     ].map((f, i) => (
-                        <div key={i} className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700 shadow-sm">
-                            <div className="text-2xl mb-2">{f.icon}</div>
-                            <h3 className="font-bold text-gray-900 dark:text-white mb-1">{f.title}</h3>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">{f.desc}</p>
+                        <div key={i} className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 shadow-sm text-center">
+                            <div className="text-xl mb-1">{f.icon}</div>
+                            <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-0.5">{f.title}</h3>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 leading-tight">{f.desc}</p>
                         </div>
                     ))}
                 </div>
@@ -273,10 +301,13 @@ export default function BrandApplyPage() {
                 {/* Application Form */}
                 {!loading && showForm && (
                     <div className="max-w-2xl mx-auto">
-                        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8">
-                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                                {status?.brandVerificationStatus === 'REJECTED' ? 'Reapply for Verification' : 'Apply for Brand Verification'}
-                            </h2>
+                        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 sm:p-8">
+                            <div className="mb-6 pb-4 border-b border-gray-100 dark:border-gray-700">
+                                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                                    {status?.brandVerificationStatus === 'REJECTED' ? 'Reapply for Verification' : 'Brand Application Form'}
+                                </h2>
+                                <p className="text-sm text-gray-500 mt-1">Please provide accurate details to avoid rejection.</p>
+                            </div>
 
                             {success ? (
                                 <div className="text-center py-8">
@@ -285,124 +316,180 @@ export default function BrandApplyPage() {
                                     <p className="text-gray-500">We&apos;ll review your application and get back to you soon.</p>
                                 </div>
                             ) : (
-                                <form onSubmit={handleSubmit} className="space-y-5">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                            Brand Name <span className="text-red-500">*</span>
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={form.brandName}
-                                            onChange={e => setForm({ ...form, brandName: e.target.value })}
-                                            placeholder="e.g., Nike Nigeria"
-                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
-                                            required
-                                        />
+                                <form onSubmit={handleSubmit} className="space-y-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                        <div className="md:col-span-2">
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                Brand Name <span className="text-red-500">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={form.brandName}
+                                                onChange={e => setForm({ ...form, brandName: e.target.value })}
+                                                placeholder="e.g., Nike Nigeria"
+                                                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
+                                                required
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                Website
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={form.brandWebsite}
+                                                onChange={e => setForm({ ...form, brandWebsite: e.target.value })}
+                                                placeholder="yourbrand.com"
+                                                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                Physical Address <span className="text-red-500">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={form.brandPhysicalAddress}
+                                                onChange={e => setForm({ ...form, brandPhysicalAddress: e.target.value })}
+                                                placeholder="City, State"
+                                                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
+                                                required
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                Phone Number <span className="text-red-500">*</span>
+                                            </label>
+                                            <input
+                                                type="tel"
+                                                value={form.brandPhoneNumber}
+                                                onChange={e => setForm({ ...form, brandPhoneNumber: e.target.value })}
+                                                placeholder="+234..."
+                                                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
+                                                required
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                WhatsApp <span className="text-gray-400 text-xs font-normal">(Optional)</span>
+                                            </label>
+                                            <input
+                                                type="tel"
+                                                value={form.brandWhatsApp}
+                                                onChange={e => setForm({ ...form, brandWhatsApp: e.target.value })}
+                                                placeholder="For chat button"
+                                                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Social Media Section */}
+                                    <div className="pt-4 border-t border-gray-100 dark:border-gray-700">
+                                        <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Social Media Handles (Optional)</h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <div className="relative">
+                                                    <span className="absolute left-3 top-2.5 text-gray-400">📸</span>
+                                                    <input
+                                                        type="text"
+                                                        value={form.brandInstagram}
+                                                        onChange={e => setForm({ ...form, brandInstagram: e.target.value })}
+                                                        placeholder="Instagram (e.g. @nike)"
+                                                        className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div className="relative">
+                                                    <span className="absolute left-3 top-2.5 text-gray-400">🐦</span>
+                                                    <input
+                                                        type="text"
+                                                        value={form.brandTwitter}
+                                                        onChange={e => setForm({ ...form, brandTwitter: e.target.value })}
+                                                        placeholder="X (Twitter)"
+                                                        className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div className="relative">
+                                                    <span className="absolute left-3 top-2.5 text-gray-400">💼</span>
+                                                    <input
+                                                        type="text"
+                                                        value={form.brandLinkedin}
+                                                        onChange={e => setForm({ ...form, brandLinkedin: e.target.value })}
+                                                        placeholder="LinkedIn URL"
+                                                        className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div className="relative">
+                                                    <span className="absolute left-3 top-2.5 text-gray-400">📘</span>
+                                                    <input
+                                                        type="text"
+                                                        value={form.brandFacebook}
+                                                        onChange={e => setForm({ ...form, brandFacebook: e.target.value })}
+                                                        placeholder="Facebook URL"
+                                                        className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div className="relative">
+                                                    <span className="absolute left-3 top-2.5 text-gray-400">🎵</span>
+                                                    <input
+                                                        type="text"
+                                                        value={form.brandTiktok}
+                                                        onChange={e => setForm({ ...form, brandTiktok: e.target.value })}
+                                                        placeholder="TikTok Handle"
+                                                        className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                            Website
-                                        </label>
-                                        <input
-                                            type="url"
-                                            value={form.brandWebsite}
-                                            onChange={e => setForm({ ...form, brandWebsite: e.target.value })}
-                                            placeholder="https://yourbrand.com"
-                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                            Instagram Handle
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={form.brandInstagram}
-                                            onChange={e => setForm({ ...form, brandInstagram: e.target.value })}
-                                            placeholder="@yourbrand"
-                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                            Physical Address <span className="text-red-500">*</span>
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={form.brandPhysicalAddress}
-                                            onChange={e => setForm({ ...form, brandPhysicalAddress: e.target.value })}
-                                            placeholder="Shop 5, Ikeja City Mall, Lagos"
-                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
-                                            required
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                            Business Phone Number <span className="text-red-500">*</span>
-                                        </label>
-                                        <input
-                                            type="tel"
-                                            value={form.brandPhoneNumber}
-                                            onChange={e => setForm({ ...form, brandPhoneNumber: e.target.value })}
-                                            placeholder="+234 800 000 0000"
-                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
-                                            required
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                            WhatsApp Number <span className="text-gray-400 text-xs font-normal">(Optional, for chat button)</span>
-                                        </label>
-                                        <input
-                                            type="tel"
-                                            value={form.brandWhatsApp}
-                                            onChange={e => setForm({ ...form, brandWhatsApp: e.target.value })}
-                                            placeholder="Same as phone number if empty"
-                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                            Why should we verify your brand?
+                                            Application Note
                                         </label>
                                         <textarea
                                             value={form.brandApplicationNote}
                                             onChange={e => setForm({ ...form, brandApplicationNote: e.target.value })}
-                                            placeholder="Tell us about your brand, what you sell, and why you'd like to be verified..."
-                                            rows={4}
-                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all resize-none"
+                                            placeholder="Tell us about your brand..."
+                                            rows={3}
+                                            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all resize-none"
                                         />
                                     </div>
 
-                                    {/* Proof Upload — MANDATORY */}
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    {/* Proof Upload */}
+                                    <div className="bg-amber-50 dark:bg-amber-900/10 p-4 rounded-xl border border-amber-100 dark:border-amber-800">
+                                        <label className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-1">
                                             Proof of Brand Identity <span className="text-red-500">*</span>
                                         </label>
                                         <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-                                            Upload photos, documents, or social media screenshots that prove you own this brand (e.g., business registration, storefront photo, verified social media page).
+                                            Upload photos, documents, or screenshots proving ownership. Max 5 files.
                                         </p>
 
                                         {/* Uploaded Proof Thumbnails */}
                                         {proofUrls.length > 0 && (
-                                            <div className="flex flex-wrap gap-3 mb-3">
+                                            <div className="flex flex-wrap gap-2 mb-3">
                                                 {proofUrls.map((url, i) => (
                                                     <div key={i} className="relative group">
                                                         <img
                                                             src={url}
                                                             alt={`Proof ${i + 1}`}
-                                                            className="w-20 h-20 rounded-xl object-cover border-2 border-amber-200 dark:border-amber-700 shadow-sm"
+                                                            className="w-16 h-16 rounded-lg object-cover border border-amber-200 dark:border-amber-700 shadow-sm"
                                                         />
                                                         <button
                                                             type="button"
                                                             onClick={() => removeProof(i)}
-                                                            className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                                                            className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
                                                         >
                                                             ✕
                                                         </button>
@@ -424,15 +511,15 @@ export default function BrandApplyPage() {
                                                 />
                                                 <label
                                                     htmlFor="proof-upload"
-                                                    className={`flex items-center justify-center gap-2 w-full py-3 border-2 border-dashed rounded-xl cursor-pointer transition-all text-sm font-medium ${uploading
+                                                    className={`inline-flex items-center gap-2 px-4 py-2 border border-dashed rounded-lg cursor-pointer transition-all text-sm font-medium ${uploading
                                                         ? 'border-amber-300 bg-amber-50 text-amber-600 cursor-wait'
-                                                        : 'border-gray-300 dark:border-gray-600 hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/10 text-gray-500 dark:text-gray-400 hover:text-amber-600'
+                                                        : 'border-gray-300 dark:border-gray-600 hover:border-amber-400 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:text-amber-600'
                                                         }`}
                                                 >
                                                     {uploading ? (
-                                                        <><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-amber-600" /> Uploading...</>
+                                                        <><div className="animate-spin rounded-full h-3 w-3 border-b-2 border-amber-600" /> Uploading...</>
                                                     ) : (
-                                                        <><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg> Upload Proof ({proofUrls.length}/5)</>
+                                                        <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg> Add Proof</>
                                                     )}
                                                 </label>
                                             </div>
@@ -440,7 +527,7 @@ export default function BrandApplyPage() {
                                     </div>
 
                                     {error && (
-                                        <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm p-3 rounded-lg">
+                                        <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm p-3 rounded-lg text-center">
                                             {error}
                                         </div>
                                     )}
@@ -448,9 +535,9 @@ export default function BrandApplyPage() {
                                     <button
                                         type="submit"
                                         disabled={submitting}
-                                        className="w-full py-3.5 bg-gradient-to-r from-amber-500 to-yellow-400 text-white font-bold rounded-xl shadow-lg hover:shadow-xl disabled:opacity-60 transition-all text-lg"
+                                        className="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-600 hover:to-yellow-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl disabled:opacity-60 transition-all"
                                     >
-                                        {submitting ? 'Submitting...' : '✦ Submit Application'}
+                                        {submitting ? 'Submitting...' : 'Submit Application'}
                                     </button>
                                 </form>
                             )}
@@ -460,17 +547,17 @@ export default function BrandApplyPage() {
 
                 {/* Not logged in prompt */}
                 {!loading && !isAuthenticated && (
-                    <div className="max-w-2xl mx-auto mb-12">
-                        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-2xl p-8 text-center">
-                            <h3 className="text-xl font-bold text-blue-800 dark:text-blue-200 mb-2">
+                    <div className="max-w-xl mx-auto mb-12">
+                        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-2xl p-6 text-center">
+                            <h3 className="text-lg font-bold text-blue-800 dark:text-blue-200 mb-1">
                                 Sign in to Apply
                             </h3>
-                            <p className="text-blue-600 dark:text-blue-300 mb-4">
+                            <p className="text-sm text-blue-600 dark:text-blue-300 mb-4">
                                 You need a BarterWave account to apply for brand verification.
                             </p>
                             <Link
                                 href="/login"
-                                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl shadow hover:bg-blue-700 transition-all"
+                                className="inline-flex items-center gap-2 px-6 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg shadow hover:bg-blue-700 transition-all"
                             >
                                 Sign In →
                             </Link>
@@ -479,55 +566,48 @@ export default function BrandApplyPage() {
                 )}
 
                 {/* Waitlist Section */}
-                <div className="max-w-2xl mx-auto mt-12">
-                    <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-2xl p-8 border border-gray-200 dark:border-gray-600">
-                        <div className="text-center mb-6">
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                                Not a Brand Yet?
-                            </h2>
-                            <p className="text-gray-500 dark:text-gray-400">
-                                Join our waitlist to be notified when premium features become available to everyone.
+                <div className="max-w-2xl mx-auto mt-12 pt-8 border-t border-gray-100 dark:border-gray-800">
+                    <div className="text-center mb-6">
+                        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+                            Not a Brand Yet?
+                        </h2>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                            Join our waitlist to be notified when premium features become available to everyone.
+                        </p>
+                    </div>
+
+                    {waitlistSuccess ? (
+                        <div className="text-center py-2">
+                            <p className="text-green-600 dark:text-green-400 font-medium bg-green-50 dark:bg-green-900/20 inline-block px-4 py-1 rounded-full text-sm">
+                                ✅ You&apos;re on the waitlist!
                             </p>
                         </div>
-
-                        {waitlistSuccess ? (
-                            <div className="text-center py-4">
-                                <div className="text-3xl mb-2">🎉</div>
-                                <p className="text-green-600 dark:text-green-400 font-medium">
-                                    You&apos;re on the waitlist! We&apos;ll keep you posted.
-                                </p>
-                            </div>
-                        ) : (
-                            <form onSubmit={handleWaitlist} className="flex flex-col sm:flex-row gap-3">
-                                <input
-                                    type="text"
-                                    value={waitlistName}
-                                    onChange={e => setWaitlistName(e.target.value)}
-                                    placeholder="Your name"
-                                    className="flex-1 px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                                />
-                                <input
-                                    type="email"
-                                    value={waitlistEmail}
-                                    onChange={e => setWaitlistEmail(e.target.value)}
-                                    placeholder="your@email.com"
-                                    required
-                                    className="flex-1 px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                                />
-                                <button
-                                    type="submit"
-                                    disabled={waitlistSubmitting}
-                                    className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl shadow hover:bg-blue-700 disabled:opacity-60 transition-all whitespace-nowrap"
-                                >
-                                    {waitlistSubmitting ? '...' : 'Join Waitlist'}
-                                </button>
-                            </form>
-                        )}
-
-                        {waitlistError && (
-                            <p className="text-red-500 text-sm mt-2 text-center">{waitlistError}</p>
-                        )}
-                    </div>
+                    ) : (
+                        <form onSubmit={handleWaitlist} className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto">
+                            <input
+                                type="text"
+                                value={waitlistName}
+                                onChange={e => setWaitlistName(e.target.value)}
+                                placeholder="Name (Optional)"
+                                className="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500"
+                            />
+                            <input
+                                type="email"
+                                value={waitlistEmail}
+                                onChange={e => setWaitlistEmail(e.target.value)}
+                                placeholder="your@email.com"
+                                required
+                                className="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500"
+                            />
+                            <button
+                                type="submit"
+                                disabled={waitlistSubmitting}
+                                className="px-6 py-2.5 bg-gray-900 dark:bg-gray-700 text-white font-medium rounded-lg hover:bg-black dark:hover:bg-gray-600 disabled:opacity-60 transition-all whitespace-nowrap text-sm"
+                            >
+                                {waitlistSubmitting ? '...' : 'Join Waitlist'}
+                            </button>
+                        </form>
+                    )}
                 </div>
             </div>
         </div>

@@ -48,6 +48,12 @@ export class CommunityPostsController {
     }
 
     @UseGuards(JwtAuthGuard)
+    @Get('user/saved')
+    getSavedPosts(@Request() req, @Query('page') page?: number, @Query('limit') limit?: number) {
+        return this.postsService.getSavedPosts(req.user.id, page, limit);
+    }
+
+    @UseGuards(JwtAuthGuard)
     @Post(':id/save')
     savePost(@Request() req, @Param('id') id: string) {
         return this.postsService.savePost(req.user.id, id);
