@@ -104,8 +104,34 @@ apiClient.interceptors.response.use(
             }
 
             try {
-                // Call refresh endpoint - cookies are sent automatically
-                await apiClient.post('/auth/refresh');
+                // 1. Get stored refresh token
+                let storedRefreshToken = null;
+                if (typeof window !== 'undefined') {
+                    const rememberMe = localStorage.getItem('rememberMe') === 'true';
+                    const storage = rememberMe ? localStorage : sessionStorage;
+                    storedRefreshToken = storage.getItem('refreshToken') ||
+                        (rememberMe ? sessionStorage.getItem('refreshToken') : localStorage.getItem('refreshToken'));
+                }
+
+                // 2. Call refresh endpoint with token in body (fallback for missing cookies)
+                // We access the raw response to get data
+                const response = await apiClient.post('/auth/refresh', { refreshToken: storedRefreshToken });
+                const { accessToken, refreshToken } = response.data;
+
+                // 3. Update local storage with new tokens
+                if (typeof window !== 'undefined' && accessToken) {
+                    const rememberMe = localStorage.getItem('rememberMe') === 'true';
+                    const storage = rememberMe ? localStorage : sessionStorage;
+
+                    storage.setItem('accessToken', accessToken);
+                    if (refreshToken) {
+                        storage.setItem('refreshToken', refreshToken);
+                    }
+                }
+
+                // 4. Update authorization header for the retry
+                apiClient.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+                originalRequest.headers['Authorization'] = `Bearer ${accessToken}`;
 
                 // Retry the original request
                 return apiClient(originalRequest);

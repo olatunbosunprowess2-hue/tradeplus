@@ -143,7 +143,7 @@ function ShareButton({ title, text, url, postId }: { title: string; text: string
                             Copy Link
                         </button>
 
-                        {typeof navigator !== 'undefined' && navigator.share && (
+                        {typeof navigator !== 'undefined' && (navigator as any).share && (
                             <button
                                 onClick={handleNativeShare}
                                 className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-blue-600 hover:bg-blue-50 transition-colors"

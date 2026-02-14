@@ -69,8 +69,6 @@ export default function CreateListingPage() {
         distressReason: '',
         barterPreference1: '',
         barterPreference2: '',
-        barterPreference1: '',
-        barterPreference2: '',
         barterPreference3: '',
         barterPreferencesOnly: false,
         downpaymentCents: '', // Added downpayment field
