@@ -194,7 +194,7 @@ export class EmailService {
 
     async sendPasswordReset(email: string, resetToken: string): Promise<boolean> {
         const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
-        const resetLink = `${frontendUrl}/auth/reset-password?token=${resetToken}`;
+        const resetLink = `${frontendUrl}/reset-password?token=${resetToken}`;
 
         return this.send({
             to: email,

@@ -190,78 +190,84 @@ export class ListingsService {
 
         const skip = (page - 1) * limit;
 
-        const where: any = {
-            status: 'active',
-        };
+        // Use AND array to combine mutually exclusive groups of conditions
+        const andConditions: any[] = [
+            { status: 'active' }
+        ];
 
         if (sellerId) {
-            where.sellerId = sellerId;
+            andConditions.push({ sellerId });
         }
 
         if (categoryId) {
-            where.categoryId = categoryId;
+            andConditions.push({ categoryId });
         }
 
         if (condition) {
-            where.condition = condition;
+            andConditions.push({ condition });
         }
 
         if (query.type) {
-            where.type = query.type;
+            andConditions.push({ type: query.type });
         }
 
         // Distress Sale Filter
-        // By default, exclude distress sales from normal listings (it's a pro feature)
-        // EXCEPT: Include cross-listed distress items (paid boost) in normal feed
-        // Only show ALL distress sales when explicitly requested (e.g., from /distress page)
         if (isDistressSale !== undefined && String(isDistressSale) === 'true') {
             // /distress page: Show only distress sales
-            where.isDistressSale = true;
+            andConditions.push({ isDistressSale: true });
         } else {
             // Normal listings: Show non-distress OR cross-listed distress items
-            where.OR = [
-                ...(where.OR || []),
-                { isDistressSale: false },
-                { isDistressSale: true, isCrossListed: true }, // Paid cross-list boost
-            ];
+            andConditions.push({
+                OR: [
+                    { isDistressSale: false },
+                    { isDistressSale: true, isCrossListed: true }, // Paid cross-list boost
+                ]
+            });
         }
 
         if (search) {
             const terms = search.trim().split(/\s+/).filter(t => t.length > 0).join(' & ');
-
-            where.OR = [
-                { title: { search: terms } },
-                { description: { search: terms } },
-                // Fallback for substring matching for shorter queries
-                { title: { contains: search, mode: 'insensitive' } },
-            ];
+            andConditions.push({
+                OR: [
+                    { title: { search: terms } },
+                    { description: { search: terms } },
+                    // Fallback for substring matching for shorter queries
+                    { title: { contains: search, mode: 'insensitive' } },
+                ]
+            });
         }
 
         if (paymentMode === 'cash') {
-            where.allowCash = true;
+            andConditions.push({ allowCash: true });
         } else if (paymentMode === 'barter') {
-            where.allowBarter = true;
+            andConditions.push({ allowBarter: true });
         } else if (paymentMode === 'cash_plus_barter') {
-            where.allowCashPlusBarter = true;
+            andConditions.push({ allowCashPlusBarter: true });
         }
 
         if (minPrice !== undefined || maxPrice !== undefined) {
-            where.priceCents = {};
+            const priceFilter: any = {};
             if (minPrice !== undefined) {
-                where.priceCents.gte = BigInt(minPrice);
+                priceFilter.gte = BigInt(minPrice);
             }
             if (maxPrice !== undefined) {
-                where.priceCents.lte = BigInt(maxPrice);
+                priceFilter.lte = BigInt(maxPrice);
             }
+            andConditions.push({ priceCents: priceFilter });
         }
 
         if (countryId) {
-            where.countryId = countryId;
+            andConditions.push({ countryId });
         }
 
         if (regionId) {
-            where.regionId = regionId;
+            andConditions.push({ regionId });
         }
+
+        const where: any = {
+            AND: andConditions
+        };
+
 
         const [listings, total] = await Promise.all([
             this.prisma.listing.findMany({

@@ -83,6 +83,17 @@ export const useAuthStore = create<AuthState>()(
             // EMAIL/PASSWORD LOGIN
             // ================================================================
             login: async (email: string, password: string, rememberMe: boolean = false) => {
+                // CRITICAL: Clear any existing session data BEFORE attempting login
+                // This prevents "Account Crossover" where an old token is sent with the login request
+                if (typeof window !== 'undefined') {
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('refreshToken');
+                    localStorage.removeItem('auth-storage');
+                    sessionStorage.removeItem('accessToken');
+                    sessionStorage.removeItem('refreshToken');
+                    sessionStorage.removeItem('auth-storage');
+                }
+
                 const response = await apiClient.post<AuthResponse>('/auth/login', {
                     email,
                     password,

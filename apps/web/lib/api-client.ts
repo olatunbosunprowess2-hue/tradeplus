@@ -39,7 +39,11 @@ apiClient.interceptors.request.use((config) => {
 
     // 2. Token Injection (Manual fallback for cross-origin tunnels where cookies are blocked)
     // Check the correct storage based on rememberMe setting
-    if (typeof window !== 'undefined') {
+    // Check the correct storage based on rememberMe setting
+    // Skip for auth endpoints to prevent sending stale tokens
+    const isAuthRequest = config.url?.includes('/auth/login') || config.url?.includes('/auth/register');
+
+    if (typeof window !== 'undefined' && !isAuthRequest) {
         const rememberMe = localStorage.getItem('rememberMe') === 'true';
         const storage = rememberMe ? localStorage : sessionStorage;
         // Try the preferred storage first, then fallback to the other
