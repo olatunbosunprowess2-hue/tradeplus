@@ -368,15 +368,71 @@ export class BrandVerificationService {
     async revokeBrand(userId: string, adminId: string) {
         const user = await this.prisma.user.findUnique({ where: { id: userId } });
         if (!user) throw new NotFoundException('User not found');
-        if (user.brandVerificationStatus !== 'VERIFIED_BRAND') {
-            throw new BadRequestException('User is not a verified brand');
-        }
+
+        // Allow revoking even if status is not strictly VERIFIED_BRAND (e.g. cleanup)
+        // if (user.brandVerificationStatus !== 'VERIFIED_BRAND') {
+        //    throw new BadRequestException('User is not a verified brand');
+        // }
 
         await this.prisma.user.update({
             where: { id: userId },
             data: {
                 brandVerificationStatus: 'NONE',
                 brandVerifiedAt: null,
+                isVerified: false, // CRITICAL: Remove verified status regarding sell panel access
+            },
+        });
+
+        // Send revocation email
+        await this.emailService.send({
+            to: user.email,
+            subject: '⚠️ Brand Verification Revoked — BarterWave',
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <h1 style="color: #1E40AF; margin: 0;">BarterWave</h1>
+                    </div>
+                    
+                    <h2 style="color: #DC2626;">Brand Verification Revoked</h2>
+                    
+                    <p style="color: #4B5563; line-height: 1.6;">
+                        Hi${user.firstName ? ` ${user.firstName}` : ''}, your brand verification status on BarterWave has been revoked by an administrator.
+                    </p>
+                    
+                    <p style="color: #4B5563; line-height: 1.6;">
+                        This means you no longer have access to verified brand features like the cash sell panel and verified badge.
+                    </p>
+
+                    <p style="color: #4B5563; line-height: 1.6;">
+                        If you believe this is a mistake or have questions, please contact support.
+                    </p>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="mailto:support@barterwave.com" 
+                           style="background: #4B5563; 
+                                  color: white; 
+                                  padding: 14px 28px; 
+                                  text-decoration: none; 
+                                  border-radius: 8px; 
+                                  font-weight: bold;
+                                  display: inline-block;">
+                            Contact Support →
+                        </a>
+                    </div>
+                </div>
+            `,
+            text: `Your brand verification on BarterWave has been revoked. You no longer have access to verified features. Contact support if you believe this is an error.`,
+        });
+
+        // Create in-app notification
+        await this.prisma.notification.create({
+            data: {
+                userId: user.id,
+                type: 'admin_alert', // Using generic alert type for now as VERIFICATION_REVOKED might not exist in enum
+                data: {
+                    message: 'Your brand verification has been revoked.',
+                    revokedAt: new Date().toISOString(),
+                },
             },
         });
 

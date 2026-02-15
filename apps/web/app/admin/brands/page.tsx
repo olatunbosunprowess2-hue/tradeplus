@@ -43,6 +43,13 @@ export default function AdminBrandsPage() {
     const [totalWaitlist, setTotalWaitlist] = useState(0);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState<string | null>(null);
+    // Confirmation Modal State
+    const [confirmAction, setConfirmAction] = useState<{
+        type: 'APPROVE' | 'REVOKE';
+        userId: string;
+        title: string;
+        message: string;
+    } | null>(null);
 
     // Modal State
     const [selectedApp, setSelectedApp] = useState<BrandApplication | null>(null);
@@ -83,15 +90,40 @@ export default function AdminBrandsPage() {
         }
     };
 
-    const handleApprove = async (userId: string) => {
-        if (!confirm('Approve this brand? This will instantly unlock the sell panel.')) return;
+    const handleApproveClick = (userId: string) => {
+        setConfirmAction({
+            type: 'APPROVE',
+            userId,
+            title: 'Approve Brand?',
+            message: 'This will instantly unlock the sell panel and verified features for this user.',
+        });
+    };
+
+    const handleRevokeClick = (userId: string) => {
+        setConfirmAction({
+            type: 'REVOKE',
+            userId,
+            title: 'Revoke Verification?',
+            message: 'Are you sure? This will remove the verified badge and disable access to the sell panel.',
+        });
+    };
+
+    const executeConfirmAction = async () => {
+        if (!confirmAction) return;
+        const { type, userId } = confirmAction;
         setActionLoading(userId);
+        setConfirmAction(null); // Close modal
+
         try {
-            await apiClient.patch(`/brand-verification/admin/${userId}/approve`);
+            if (type === 'APPROVE') {
+                await apiClient.patch(`/brand-verification/admin/${userId}/approve`);
+            } else {
+                await apiClient.patch(`/brand-verification/admin/${userId}/revoke`);
+            }
             fetchApplications();
             setSelectedApp(null);
         } catch (err: any) {
-            alert(err.response?.data?.message || 'Failed to approve');
+            alert(err.response?.data?.message || 'Failed to execute action');
         } finally {
             setActionLoading(null);
         }
@@ -110,20 +142,6 @@ export default function AdminBrandsPage() {
             setShowRejectInput(false);
         } catch (err: any) {
             alert(err.response?.data?.message || 'Failed to reject');
-        } finally {
-            setActionLoading(null);
-        }
-    };
-
-    const handleRevoke = async (userId: string) => {
-        if (!confirm('Are you sure you want to revoke this brand verification?')) return;
-        setActionLoading(userId);
-        try {
-            await apiClient.patch(`/brand-verification/admin/${userId}/revoke`);
-            fetchApplications();
-            setSelectedApp(null);
-        } catch (err: any) {
-            alert(err.response?.data?.message || 'Failed to revoke');
         } finally {
             setActionLoading(null);
         }
@@ -157,7 +175,7 @@ export default function AdminBrandsPage() {
     };
 
     return (
-        <div className="p-6 max-w-7xl mx-auto">
+        <div className="p-6 max-w-7xl mx-auto pb-20"> {/* pb-20 for mobile nav clearance */}
             <div className="flex items-center justify-between mb-6">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Brand Verification</h1>
@@ -356,21 +374,20 @@ export default function AdminBrandsPage() {
                 </>
             )}
 
-            {/* Application Detail Modal */}
+            {/* Application Detail Modal - Mobile Optimized */}
             {selectedApp && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
-                        {/* Header */}
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 animate-in fade-in duration-200 p-0 sm:p-4">
+                    <div className="bg-white sm:rounded-2xl rounded-t-2xl shadow-2xl w-full max-w-xl max-h-[90dvh] h-[90dvh] sm:h-auto sm:max-h-[85vh] overflow-hidden flex flex-col animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-200">
                         {/* Header - Compact */}
-                        <div className="p-4 border-b border-gray-100 flex items-start justify-between bg-gray-50/50">
+                        <div className="p-4 border-b border-gray-100 flex items-start justify-between bg-gray-50/80 sticky top-0 z-10 backdrop-blur-md">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-yellow-300 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-sm">
+                                <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-yellow-300 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-sm shrink-0">
                                     {(selectedApp.brandName || '?')[0]?.toUpperCase()}
                                 </div>
-                                <div>
-                                    <h2 className="text-lg font-bold text-gray-900 leading-tight">{selectedApp.brandName}</h2>
-                                    <p className="text-xs text-gray-500 flex items-center gap-1.5 mt-0.5">
-                                        Applied by {selectedApp.firstName} {selectedApp.lastName}
+                                <div className="min-w-0">
+                                    <h2 className="text-lg font-bold text-gray-900 leading-tight truncate">{selectedApp.brandName}</h2>
+                                    <p className="text-xs text-gray-500 flex items-center gap-1.5 mt-0.5 truncate">
+                                        {selectedApp.firstName} {selectedApp.lastName}
                                         <span className="text-gray-300">•</span>
                                         {selectedApp.email}
                                     </p>
@@ -378,14 +395,14 @@ export default function AdminBrandsPage() {
                             </div>
                             <button
                                 onClick={() => { setSelectedApp(null); setShowRejectInput(false); }}
-                                className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+                                className="p-2 -mr-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
                             >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                             </button>
                         </div>
 
-                        {/* Scrollable Content - Compact */}
-                        <div className="flex-1 overflow-y-auto p-4 space-y-5">
+                        {/* Scrollable Content */}
+                        <div className="flex-1 overflow-y-auto p-4 space-y-5 overscroll-contain">
                             {/* Status Banner */}
                             <div className="flex items-center justify-between">
                                 <StatusBadge status={selectedApp.brandVerificationStatus} />
@@ -465,8 +482,8 @@ export default function AdminBrandsPage() {
                             )}
                         </div>
 
-                        {/* Footer Actions - Compact */}
-                        <div className="p-4 border-t border-gray-100 bg-white flex justify-end gap-3 sticky bottom-0 z-10">
+                        {/* Footer Actions - Sticky & Safe Area */}
+                        <div className="p-4 border-t border-gray-100 bg-white flex justify-end gap-3 sticky bottom-0 z-20 pb-8">
                             {showRejectInput ? (
                                 <div className="flex-1 flex gap-2 animate-in slide-in-from-bottom-2 duration-200">
                                     <input
@@ -479,14 +496,14 @@ export default function AdminBrandsPage() {
                                     />
                                     <button
                                         onClick={() => setShowRejectInput(false)}
-                                        className="px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors font-medium"
+                                        className="px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors font-medium whitespace-nowrap"
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         onClick={handleReject}
                                         disabled={!rejectReason.trim()}
-                                        className="px-4 py-2 bg-red-600 text-white text-sm font-bold rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors shadow-sm"
+                                        className="px-4 py-2 bg-red-600 text-white text-sm font-bold rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors shadow-sm whitespace-nowrap"
                                     >
                                         Reject
                                     </button>
@@ -509,18 +526,23 @@ export default function AdminBrandsPage() {
                                                 Reject
                                             </button>
                                             <button
-                                                onClick={() => handleApprove(selectedApp.id)}
+                                                onClick={() => handleApproveClick(selectedApp.id)}
                                                 disabled={actionLoading === selectedApp.id}
-                                                className="px-5 py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition-all active:scale-[0.98] shadow-sm hover:shadow text-sm"
+                                                className="px-5 py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition-all active:scale-[0.98] shadow-sm hover:shadow text-sm flex items-center gap-2"
                                             >
-                                                {actionLoading === selectedApp.id ? '...' : 'Approve'}
+                                                {actionLoading === selectedApp.id ? '...' : (
+                                                    <>
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                                                        Approve
+                                                    </>
+                                                )}
                                             </button>
                                         </>
                                     )}
 
                                     {selectedApp.brandVerificationStatus === 'VERIFIED_BRAND' && (
                                         <button
-                                            onClick={() => handleRevoke(selectedApp.id)}
+                                            onClick={() => handleRevokeClick(selectedApp.id)}
                                             className="px-4 py-2 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 transition-colors shadow-sm text-sm"
                                         >
                                             Revoke
@@ -528,6 +550,31 @@ export default function AdminBrandsPage() {
                                     )}
                                 </>
                             )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Confirmation Modal */}
+            {confirmAction && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4 animate-in fade-in duration-200">
+                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 animate-in zoom-in-95 duration-200">
+                        <h3 className="text-lg font-bold text-gray-900 mb-2">{confirmAction.title}</h3>
+                        <p className="text-gray-500 text-sm mb-6">{confirmAction.message}</p>
+                        <div className="flex gap-3 justify-end">
+                            <button
+                                onClick={() => setConfirmAction(null)}
+                                className="px-4 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded-lg transition-colors text-sm"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={executeConfirmAction}
+                                className={`px-4 py-2 text-white font-bold rounded-lg shadow-sm text-sm ${confirmAction.type === 'APPROVE' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'
+                                    }`}
+                            >
+                                Confirm
+                            </button>
                         </div>
                     </div>
                 </div>
