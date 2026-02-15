@@ -166,9 +166,23 @@ export default function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section className="py-24 bg-white relative">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
+      <section className="py-20 bg-white relative overflow-hidden">
+        {/* Background Decorative Image */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div
+            className="absolute inset-0 opacity-[0.15]"
+            style={{
+              backgroundImage: 'url(/community-walking.png)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          />
+          {/* Gradient Overlay for Text Readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-white via-white/90 to-white" />
+        </div>
+
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center mb-12">
             <span className="inline-block px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 text-sm font-semibold mb-4">
               How It Works
             </span>
@@ -180,53 +194,125 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-6 max-w-3xl mx-auto">
             {/* Cash Card */}
-            <div className="group relative bg-white rounded-3xl p-8 card-hover border border-gray-100">
-              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="group relative bg-white/80 backdrop-blur-sm rounded-2xl p-6 card-hover border border-gray-100 shadow-sm hover:shadow-md transition-all">
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="relative">
-                <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-emerald-500/25 group-hover:scale-110 transition-transform">
-                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-emerald-500/25 group-hover:scale-110 transition-transform">
+                  <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-3 font-display">Pay with Cash</h3>
-                <p className="text-gray-600 leading-relaxed">
-                  Traditional buying and selling with secure payment options. Simple, fast, and reliable for everyday transactions.
+                <h3 className="text-xl font-bold text-gray-900 mb-2 font-display">Pay with Cash</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  Traditional buying and selling with secure payment options. Simple, fast, and reliable.
                 </p>
               </div>
             </div>
 
             {/* Barter Card */}
-            <div className="group relative bg-white rounded-3xl p-8 card-hover border border-gray-100">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="group relative bg-white/80 backdrop-blur-sm rounded-2xl p-6 card-hover border border-gray-100 shadow-sm hover:shadow-md transition-all">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="relative">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-purple-500/25 group-hover:scale-110 transition-transform">
-                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-purple-500/25 group-hover:scale-110 transition-transform">
+                  <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                   </svg>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-3 font-display">Trade Items</h3>
-                <p className="text-gray-600 leading-relaxed">
-                  Exchange your items for others without spending money. The modern barter system for smart traders.
+                <h3 className="text-xl font-bold text-gray-900 mb-2 font-display">Trade Items</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  Exchange your items for others without spending money. The modern barter system.
                 </p>
               </div>
             </div>
 
             {/* Hybrid Card */}
-            <div className="group relative bg-white rounded-3xl p-8 card-hover border border-gray-100">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="group relative bg-white/80 backdrop-blur-sm rounded-2xl p-6 card-hover border border-gray-100 shadow-sm hover:shadow-md transition-all">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="relative">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-500/25 group-hover:scale-110 transition-transform">
-                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-blue-500/25 group-hover:scale-110 transition-transform">
+                  <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-3 font-display">Hybrid Deals</h3>
-                <p className="text-gray-600 leading-relaxed">
-                  Combine cash and items for ultimate flexibility. Get creative with your trades and maximize value!
+                <h3 className="text-xl font-bold text-gray-900 mb-2 font-display">Hybrid Deals</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  Combine cash and items for ultimate flexibility. Get creative and maximize value!
                 </p>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Community Section - NEW */}
+      <section className="py-24 bg-gray-50 relative overflow-hidden">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col lg:flex-row items-center gap-16">
+            <div className="lg:w-1/2 relative">
+              <div className="absolute inset-0 bg-blue-600/10 rounded-3xl transform rotate-3 scale-105" />
+              <img
+                src="/community-connection.png"
+                alt="Community Collaboration"
+                className="relative rounded-3xl shadow-2xl w-full object-cover aspect-[4/3]"
+              />
+              {/* Floating Badge */}
+              <div className="absolute -bottom-6 -right-6 bg-white p-4 rounded-xl shadow-xl animate-float-delayed">
+                <div className="flex items-center gap-3">
+                  <div className="flex -space-x-3">
+                    <div className="w-10 h-10 rounded-full bg-blue-100 border-2 border-white flex items-center justify-center text-xs font-bold text-blue-600">JD</div>
+                    <div className="w-10 h-10 rounded-full bg-purple-100 border-2 border-white flex items-center justify-center text-xs font-bold text-purple-600">AS</div>
+                    <div className="w-10 h-10 rounded-full bg-green-100 border-2 border-white flex items-center justify-center text-xs font-bold text-green-600">+2k</div>
+                  </div>
+                  <div className="text-sm font-bold text-gray-900">
+                    Active Traders
+                    <span className="block text-xs font-normal text-gray-500">Online now</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:w-1/2">
+              <span className="inline-block px-4 py-1.5 rounded-full bg-blue-100 text-blue-700 text-sm font-semibold mb-6">
+                Community Driven
+              </span>
+              <h2 className="text-h2 text-gray-900 mb-6 font-display">
+                Trading is Better <span className="gradient-text">Together</span>
+              </h2>
+              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+                Unlock opportunities you won't find on the feed. Join discussions, find trading partners, and discover the power of community collaboration.
+              </p>
+
+              <div className="space-y-6 mb-10">
+                {[
+                  { title: 'Community Feed', desc: 'Share tips, ask questions, and showcase your best finds.' },
+                  { title: 'Direct Collaboration', desc: 'Connect with serious traders for bulk deals and partnerships.' },
+                  { title: 'Unlock Trades', desc: 'Find specific items you need by posting requests to the community.' },
+                ].map((item, i) => (
+                  <div key={i} className="flex gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+                      <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-gray-900 mb-1">{item.title}</h4>
+                      <p className="text-gray-600 text-sm">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <Link
+                href="/listings?tab=community"
+                className="inline-flex items-center justify-center gap-2 bg-gray-900 text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 hover:bg-gray-800 hover:scale-105 shadow-lg"
+              >
+                <span>Join the Discussion</span>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </Link>
             </div>
           </div>
         </div>
@@ -280,34 +366,46 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Trust Section */}
-      <section className="py-24 bg-white">
-        <div className="container mx-auto px-4">
+      {/* Trust Section - Sleek Minimalist Design */}
+      <section className="py-24 relative overflow-hidden bg-gray-900">
+        {/* Full Opacity High-Res Background Image */}
+        <div
+          className="absolute inset-0 z-0"
+          style={{
+            backgroundImage: 'url(/community-walking.png)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+        {/* Professional Dark Overlay for High Contrast */}
+        <div className="absolute inset-0 bg-gray-900/50 z-[1]" />
+
+        <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 text-sm font-semibold mb-4">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md text-emerald-300 text-sm font-semibold mb-4 border border-white/20 shadow-lg">
               Why Choose Us
             </span>
-            <h2 className="text-h1 text-gray-900 mb-4 font-display">
-              Built for <span className="gradient-text">Your Safety</span>
+            <h2 className="text-h1 text-white mb-4 font-display drop-shadow-xl">
+              Built for <span className="text-blue-400">Your Safety</span>
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-100 max-w-2xl mx-auto font-medium drop-shadow-md">
               We prioritize your safety and convenience above everything else
             </p>
           </div>
 
-          <div className="grid md:grid-cols-4 gap-6 max-w-6xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 max-w-6xl mx-auto">
             {[
               { icon: '🔒', title: 'Secure Transactions', desc: 'End-to-end encrypted payments' },
               { icon: '⚡', title: 'Lightning Fast', desc: 'List and trade in seconds' },
               { icon: '✅', title: 'Verified Users', desc: 'Identity verification required' },
               { icon: '🎧', title: '24/7 Support', desc: 'Always here to help you' },
             ].map((feature, i) => (
-              <div key={i} className="group text-center p-6 rounded-2xl hover:bg-gray-50 transition-all">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl group-hover:scale-110 transition-transform">
+              <div key={i} className="group text-center transition-all duration-300 transform hover:-translate-y-1">
+                <div className="text-4xl md:text-5xl mb-6 drop-shadow-2xl group-hover:scale-110 transition-transform">
                   {feature.icon}
                 </div>
-                <h4 className="font-bold text-gray-900 mb-2 font-display">{feature.title}</h4>
-                <p className="text-gray-600 text-sm">{feature.desc}</p>
+                <h4 className="font-bold text-white mb-2 font-display text-lg drop-shadow-lg">{feature.title}</h4>
+                <p className="text-gray-200 text-xs md:text-sm leading-relaxed font-medium drop-shadow-md">{feature.desc}</p>
               </div>
             ))}
           </div>
