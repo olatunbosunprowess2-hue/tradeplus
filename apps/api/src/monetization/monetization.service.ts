@@ -19,6 +19,12 @@ export interface ListingLimitResult {
     currentCount: number;
 }
 
+export interface CommunityLimitResult {
+    allowed: boolean;
+    remaining: number;
+    isPremium: boolean;
+}
+
 @Injectable()
 export class MonetizationService {
     constructor(
@@ -131,6 +137,92 @@ export class MonetizationService {
             isPremium,
             currentCount,
         };
+    }
+
+    /**
+     * Check if user can create a community post
+     */
+    async checkCommunityPostLimit(userId: string): Promise<CommunityLimitResult> {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+            select: { tier: true, dailyPostCount: true, dailyPostResetAt: true },
+        });
+
+        if (!user) return { allowed: false, remaining: 0, isPremium: false };
+        if (user.tier === 'premium') return { allowed: true, remaining: 999, isPremium: true };
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        let currentCount = user.dailyPostCount;
+        if (!user.dailyPostResetAt || user.dailyPostResetAt < today) {
+            await this.prisma.user.update({
+                where: { id: userId },
+                data: { dailyPostCount: 0, dailyPostResetAt: new Date() },
+            });
+            currentCount = 0;
+        }
+
+        const limit = 5; // Can be moved to LIMITS.FREE_DAILY_POSTS
+        const remaining = Math.max(0, limit - currentCount);
+        return {
+            allowed: currentCount < limit,
+            remaining,
+            isPremium: false,
+        };
+    }
+
+    /**
+     * Increment daily post count
+     */
+    async incrementPostCount(userId: string): Promise<void> {
+        await this.prisma.user.update({
+            where: { id: userId },
+            data: { dailyPostCount: { increment: 1 } },
+        });
+    }
+
+    /**
+     * Check if user can make a community offer
+     */
+    async checkCommunityOfferLimit(userId: string): Promise<CommunityLimitResult> {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+            select: { tier: true, dailyOfferCount: true, dailyOfferResetAt: true },
+        });
+
+        if (!user) return { allowed: false, remaining: 0, isPremium: false };
+        if (user.tier === 'premium') return { allowed: true, remaining: 999, isPremium: true };
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        let currentCount = user.dailyOfferCount;
+        if (!user.dailyOfferResetAt || user.dailyOfferResetAt < today) {
+            await this.prisma.user.update({
+                where: { id: userId },
+                data: { dailyOfferCount: 0, dailyOfferResetAt: new Date() },
+            });
+            currentCount = 0;
+        }
+
+        const limit = 5; // Can be moved to LIMITS.FREE_DAILY_OFFERS
+        const remaining = Math.max(0, limit - currentCount);
+        return {
+            allowed: currentCount < limit,
+            remaining,
+            isPremium: false,
+        };
+    }
+
+    /**
+     * Increment daily offer count
+     */
+    async incrementOfferCount(userId: string): Promise<void> {
+        await this.prisma.user.update({
+            where: { id: userId },
+            data: { dailyOfferCount: { increment: 1 } },
+        });
     }
 
     /**

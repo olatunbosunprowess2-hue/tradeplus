@@ -10,6 +10,7 @@ export interface Message {
     content: string;
     timestamp: number;
     read: boolean;
+    readAt?: number;
     type: 'text' | 'image' | 'listing' | 'system';
     listingId?: string;
     listingTitle?: string;
@@ -30,6 +31,7 @@ export interface Conversation {
         timestamp: number;
         senderId: string;
         read: boolean;
+        readAt?: number;
     };
     unreadCount: number;
     listingContext?: {

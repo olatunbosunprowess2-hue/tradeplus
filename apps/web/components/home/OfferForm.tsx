@@ -5,11 +5,15 @@ import apiClient from '@/lib/api-client';
 import { useMessagesStore } from '@/lib/messages-store';
 import type { PostAuthor } from '@/lib/types';
 import toast from 'react-hot-toast';
+import { OfferLimitModal } from '@/components/PaywallModal';
+import { initializePayment, redirectToPaystack, PurchaseType } from '@/lib/payments-api';
 
 export default function OfferForm({ postId, postAuthor, onClose }: { postId: string; postAuthor: PostAuthor; onClose: () => void }) {
     const [message, setMessage] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
+    const [showLimitModal, setShowLimitModal] = useState(false);
+    const [isPaymentLoading, setIsPaymentLoading] = useState(false);
     const { createConversation } = useMessagesStore();
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -33,10 +37,31 @@ export default function OfferForm({ postId, postAuthor, onClose }: { postId: str
             setSubmitted(true);
             toast.success('Offer sent! Check your messages.');
             setTimeout(onClose, 1500);
-        } catch {
-            toast.error('Failed to send offer. Please try again.');
+        } catch (err: any) {
+            console.error('Failed to send offer:', err);
+            const errorMsg = err.response?.data?.message || err.message || '';
+
+            if (errorMsg.includes('DAILY_OFFER_LIMIT_REACHED')) {
+                setShowLimitModal(true);
+            } else {
+                toast.error(errorMsg || 'Failed to send offer. Please try again.');
+            }
         }
         setSubmitting(false);
+    };
+
+    const handlePaywallSelect = async (type: string, currency: 'NGN' | 'USD' = 'NGN') => {
+        setIsPaymentLoading(true);
+        try {
+            const result = await initializePayment(type as PurchaseType, undefined, currency);
+            if (result?.authorizationUrl) {
+                redirectToPaystack(result.authorizationUrl);
+            }
+        } catch (error) {
+            toast.error('Payment initialization failed');
+        } finally {
+            setIsPaymentLoading(false);
+        }
     };
 
     if (submitted) {
@@ -65,6 +90,13 @@ export default function OfferForm({ postId, postAuthor, onClose }: { postId: str
                     </button>
                 </div>
             </form>
+
+            <OfferLimitModal
+                isOpen={showLimitModal}
+                onClose={() => setShowLimitModal(false)}
+                onSelectOption={handlePaywallSelect}
+                isLoading={isPaymentLoading}
+            />
         </div>
     );
 }

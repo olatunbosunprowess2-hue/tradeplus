@@ -57,6 +57,7 @@ export class MessagesService {
                     timestamp: lastMessage.createdAt.getTime(),
                     senderId: lastMessage.senderId,
                     read: lastMessage.isRead,
+                    readAt: lastMessage.readAt ? lastMessage.readAt.getTime() : undefined,
                 } : undefined,
                 unreadCount,
                 listingContext: conv.listing ? {
@@ -91,6 +92,7 @@ export class MessagesService {
             content: msg.body,
             timestamp: msg.createdAt.getTime(),
             read: msg.isRead,
+            readAt: msg.readAt ? msg.readAt.getTime() : undefined,
             type: msg.messageType,
             mediaUrl: msg.mediaUrl,
             mediaType: msg.mediaType,
@@ -223,7 +225,10 @@ export class MessagesService {
                 senderId: { not: userId }, // Mark messages sent by others as read
                 isRead: false,
             },
-            data: { isRead: true },
+            data: {
+                isRead: true,
+                readAt: new Date()
+            },
         });
     }
 

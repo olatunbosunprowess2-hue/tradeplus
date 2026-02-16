@@ -104,6 +104,13 @@ model User {
   chatPassExpiry      DateTime? @map("chat_pass_expiry") @db.Timestamptz
   dailyChatCount      Int       @default(0) @map("daily_chat_count")
   dailyChatResetAt    DateTime? @map("daily_chat_reset_at") @db.Timestamptz
+
+  // Daily Limits for Free Users
+  dailyPostCount      Int       @default(0) @map("daily_post_count")
+  dailyPostResetAt    DateTime? @map("daily_post_reset_at") @db.Timestamptz
+  dailyOfferCount     Int       @default(0) @map("daily_offer_count")
+  dailyOfferResetAt   DateTime? @map("daily_offer_reset_at") @db.Timestamptz
+
   spotlightCredits    Int       @default(0) @map("spotlight_credits")
   subscriptions       Subscription[]
   purchases           Purchase[]
@@ -206,6 +213,7 @@ model Country {
   regions   Region[]
   listings  Listing[]
   profiles  UserProfile[]
+  communityPosts CommunityPost[]
 
   @@map("countries")
 }
@@ -543,6 +551,7 @@ model Message {
   mediaUrl       String?      @map("media_url")
   mediaType      String?      @map("media_type") // 'image', 'video'
   isRead         Boolean      @default(false) @map("is_read")
+  readAt         DateTime?    @map("read_at") @db.Timestamptz
   createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz
   reports        Report[]
 
@@ -859,6 +868,11 @@ model CommunityPost {
   hashtags  String[] @default([])
   images    String[] @default([])
   status    String   @default("active") // 'active', 'hidden', 'deleted'
+  
+  // Location
+  countryId Int?      @map("country_id")
+  country   Country?  @relation(fields: [countryId], references: [id])
+
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 

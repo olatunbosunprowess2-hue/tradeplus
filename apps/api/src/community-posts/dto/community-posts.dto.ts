@@ -60,4 +60,7 @@ export class QueryPostsDto {
 
     @IsOptional()
     limit?: number;
+
+    @IsOptional()
+    countryId?: number;
 }

@@ -9,7 +9,7 @@ import { io, Socket } from 'socket.io-client';
 import Link from 'next/link';
 import Image from 'next/image';
 import ReportModal from '@/components/ReportModal';
-import { ChatLimitModal } from '@/components/PaywallModal';
+import { ChatLimitModal, FirstChatModal } from '@/components/PaywallModal';
 import { checkChatLimit, initializePayment, redirectToPaystack } from '@/lib/payments-api';
 import toast from 'react-hot-toast';
 
@@ -42,6 +42,7 @@ export default function ChatPage() {
     const [filePreview, setFilePreview] = useState<string | null>(null);
     const [showReportModal, setShowReportModal] = useState(false);
     const [showChatLimitModal, setShowChatLimitModal] = useState(false);
+    const [showFirstChatModal, setShowFirstChatModal] = useState(false);
     const [isPaymentLoading, setIsPaymentLoading] = useState(false);
     const socketRef = useRef<Socket | null>(null);
 
@@ -82,8 +83,17 @@ export default function ChatPage() {
         if (conversationId && !conversationId.startsWith('temp-')) {
             fetchMessages(conversationId);
             markAsRead(conversationId);
+
+            // Check if this is the first message in the conversation
+            if (messages.length === 0 && !isLoading) {
+                const hasShownModal = localStorage.getItem(`first_chat_${participantId}`);
+                if (!hasShownModal) {
+                    setShowFirstChatModal(true);
+                    localStorage.setItem(`first_chat_${participantId}`, 'true');
+                }
+            }
         }
-    }, [conversationId]);
+    }, [conversationId, messages.length, isLoading]);
 
     // Polling for new messages every 5 seconds
     useEffect(() => {
@@ -439,9 +449,16 @@ export default function ChatPage() {
                                                     {getTimeDisplay(message.timestamp)}
                                                 </p>
                                                 {isOwn && (
-                                                    <svg className={`w-3 h-3 ${message.read ? 'text-blue-200' : 'text-blue-300'}`} fill="currentColor" viewBox="0 0 20 20">
-                                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                                    </svg>
+                                                    <div className="flex items-center gap-1">
+                                                        <svg className={`w-3 h-3 ${message.read ? 'text-blue-200' : 'text-blue-300'}`} fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                                        </svg>
+                                                        {message.read && user?.tier === 'premium' && message.readAt && (
+                                                            <span className="text-[9px] text-blue-100 font-medium">
+                                                                Seen {new Date(message.readAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 )}
                                             </div>
                                         </div>
@@ -569,6 +586,10 @@ export default function ChatPage() {
                 onClose={() => setShowChatLimitModal(false)}
                 onSelectOption={handleChatPaywallSelect}
                 isLoading={isPaymentLoading}
+            />
+            <FirstChatModal
+                isOpen={showFirstChatModal}
+                onClose={() => setShowFirstChatModal(false)}
             />
         </div>
     );

@@ -2,12 +2,14 @@ import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/commo
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { CreatePostDto, UpdatePostDto, CreateCommentDto, CreatePostOfferDto, QueryPostsDto } from './dto/community-posts.dto';
+import { MonetizationService } from '../monetization/monetization.service';
 
 @Injectable()
 export class CommunityPostsService {
     constructor(
         private prisma: PrismaService,
         private notifications: NotificationsService,
+        private monetization: MonetizationService,
     ) { }
 
     // ============================
@@ -19,6 +21,10 @@ export class CommunityPostsService {
         const skip = (page - 1) * limit;
 
         const where: any = { status: { in: ['active', 'resolved'] } };
+
+        if (query.countryId) {
+            where.countryId = Number(query.countryId);
+        }
 
         if (query.search) {
             const term = query.search.trim();
@@ -129,17 +135,30 @@ export class CommunityPostsService {
     // CREATE
     // ============================
     async create(userId: string, dto: CreatePostDto) {
+        // Check daily post limit via MonetizationService
+        const limitCheck = await this.monetization.checkCommunityPostLimit(userId);
+        if (!limitCheck.allowed) {
+            throw new Error('DAILY_POST_LIMIT_REACHED');
+        }
+
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+            include: { profile: true }
+        });
+        if (!user) throw new NotFoundException('User not found');
+
         // Extract hashtags from content if not provided
         const hashtags = dto.hashtags?.length
             ? dto.hashtags
             : (dto.content.match(/#(\w+)/g) || []).map(t => t.slice(1));
 
-        return this.prisma.communityPost.create({
+        const post = await this.prisma.communityPost.create({
             data: {
                 authorId: userId,
                 content: dto.content,
                 hashtags,
                 images: dto.images || [],
+                countryId: user.profile?.countryId
             },
             include: {
                 author: {
@@ -159,6 +178,12 @@ export class CommunityPostsService {
                 _count: { select: { comments: true, offers: true } },
             },
         });
+
+        if (user.tier === 'free') {
+            await this.monetization.incrementPostCount(userId);
+        }
+
+        return post;
     }
 
     // ============================
@@ -311,6 +336,17 @@ export class CommunityPostsService {
     // OFFERS
     // ============================
     async makeOffer(userId: string, postId: string, dto: CreatePostOfferDto) {
+        // Check daily offer limit via MonetizationService
+        const limitCheck = await this.monetization.checkCommunityOfferLimit(userId);
+        if (!limitCheck.allowed) {
+            throw new Error('DAILY_OFFER_LIMIT_REACHED');
+        }
+
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId }
+        });
+        if (!user) throw new NotFoundException('User not found');
+
         const post = await this.prisma.communityPost.findUnique({ where: { id: postId } });
         if (!post) throw new NotFoundException('Post not found');
         if (post.authorId === userId) throw new ForbiddenException('You cannot make an offer on your own post');
@@ -331,6 +367,10 @@ export class CommunityPostsService {
                 },
             },
         });
+
+        if (user.tier === 'free') {
+            await this.monetization.incrementOfferCount(userId);
+        }
 
         // Notify post author
         const offerer = await this.prisma.user.findUnique({

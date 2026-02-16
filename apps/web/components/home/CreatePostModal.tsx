@@ -4,6 +4,8 @@ import { useState, useRef } from 'react';
 import { useAuthStore } from '@/lib/auth-store';
 import { useToastStore } from '@/lib/toast-store';
 import apiClient from '@/lib/api-client';
+import { PostLimitModal } from '@/components/PaywallModal';
+import { initializePayment, redirectToPaystack, PurchaseType } from '@/lib/payments-api';
 
 interface CreatePostModalProps {
     isOpen: boolean;
@@ -17,6 +19,8 @@ export default function CreatePostModal({ isOpen, onClose, onCreated }: CreatePo
     const [images, setImages] = useState<string[]>([]);
     const [uploading, setUploading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
+    const [showLimitModal, setShowLimitModal] = useState(false);
+    const [isPaymentLoading, setIsPaymentLoading] = useState(false);
     const fileRef = useRef<HTMLInputElement>(null);
 
     if (!isOpen) return null;
@@ -98,9 +102,29 @@ export default function CreatePostModal({ isOpen, onClose, onCreated }: CreatePo
             useToastStore.getState().success('Post created successfully!');
         } catch (err: any) {
             console.error('Failed to create post:', err);
-            useToastStore.getState().error(err.response?.data?.message || 'Failed to create post. Please try again.');
+            const errorMsg = err.response?.data?.message || err.message || '';
+
+            if (errorMsg.includes('DAILY_POST_LIMIT_REACHED')) {
+                setShowLimitModal(true);
+            } else {
+                useToastStore.getState().error(errorMsg || 'Failed to create post. Please try again.');
+            }
         } finally {
             setSubmitting(false);
+        }
+    };
+
+    const handlePaywallSelect = async (type: string, currency: 'NGN' | 'USD' = 'NGN') => {
+        setIsPaymentLoading(true);
+        try {
+            const result = await initializePayment(type as PurchaseType, undefined, currency);
+            if (result?.authorizationUrl) {
+                redirectToPaystack(result.authorizationUrl);
+            }
+        } catch (error) {
+            useToastStore.getState().error('Payment initialization failed');
+        } finally {
+            setIsPaymentLoading(false);
         }
     };
 
@@ -173,8 +197,8 @@ export default function CreatePostModal({ isOpen, onClose, onCreated }: CreatePo
                                 onClick={() => fileRef.current?.click()}
                                 disabled={images.length >= 4 || uploading}
                                 className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${images.length >= 4
-                                        ? 'opacity-50 cursor-not-allowed bg-gray-100 text-gray-400'
-                                        : 'hover:bg-blue-50 text-gray-600 hover:text-blue-600'
+                                    ? 'opacity-50 cursor-not-allowed bg-gray-100 text-gray-400'
+                                    : 'hover:bg-blue-50 text-gray-600 hover:text-blue-600'
                                     }`}
                                 title="Add photos"
                             >
@@ -206,6 +230,13 @@ export default function CreatePostModal({ isOpen, onClose, onCreated }: CreatePo
                     </button>
                 </div>
             </div>
+
+            <PostLimitModal
+                isOpen={showLimitModal}
+                onClose={() => setShowLimitModal(false)}
+                onSelectOption={handlePaywallSelect}
+                isLoading={isPaymentLoading}
+            />
         </div>
     );
 }

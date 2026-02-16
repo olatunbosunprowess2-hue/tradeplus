@@ -284,6 +284,8 @@ export default function PaywallModal({
                                         {[
                                             { icon: <Check className="text-green-500" />, text: "Unlimited active listings (No cap)" },
                                             { icon: <Check className="text-green-500" />, text: "Unlimited chat initiations" },
+                                            { icon: <Check className="text-green-500" />, text: "Unlimited Community Posts & Offers" },
+                                            { icon: <Check className="text-green-500" />, text: "Read Receipts (Seen status)" },
                                             { icon: <Check className="text-green-500" />, text: "Verified Crown Badge on profile" },
                                             { icon: <Check className="text-green-500" />, text: "Search results priority (Top placement)" },
                                             { icon: <Check className="text-green-500" />, text: "50% Discount on all Boosts" },
@@ -495,5 +497,106 @@ export function SpotlightModal({
             showPremiumUpsell={true}
             isLoading={isLoading}
         />
+    );
+}
+export function PostLimitModal({
+    isOpen,
+    onClose,
+    onSelectOption,
+    isLoading,
+}: {
+    isOpen: boolean;
+    onClose: () => void;
+    onSelectOption: (type: string, currency: 'NGN' | 'USD') => void;
+    isLoading?: boolean;
+}) {
+    return (
+        <PaywallModal
+            isOpen={isOpen}
+            onClose={onClose}
+            title="Post more in Community"
+            subtitle="Free users are limited to 5 posts per day. Upgrade to Empire Status for unlimited posting."
+            headerGradient="from-blue-600 to-indigo-600"
+            options={[]}
+            onSelectOption={onSelectOption}
+            showPremiumUpsell={true}
+            isLoading={isLoading}
+        />
+    );
+}
+
+export function OfferLimitModal({
+    isOpen,
+    onClose,
+    onSelectOption,
+    isLoading,
+}: {
+    isOpen: boolean;
+    onClose: () => void;
+    onSelectOption: (type: string, currency: 'NGN' | 'USD') => void;
+    isLoading?: boolean;
+}) {
+    return (
+        <PaywallModal
+            isOpen={isOpen}
+            onClose={onClose}
+            title="Make more offers"
+            subtitle="Free users are limited to 5 offers per day. Upgrade to Empire Status for unlimited offers."
+            headerGradient="from-amber-600 to-orange-600"
+            options={[]}
+            onSelectOption={onSelectOption}
+            showPremiumUpsell={true}
+            isLoading={isLoading}
+        />
+    );
+}
+
+export function FirstChatModal({
+    isOpen,
+    onClose,
+}: {
+    isOpen: boolean;
+    onClose: () => void;
+}) {
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+                <div className="bg-gradient-to-br from-blue-600 to-indigo-600 p-8 text-white text-center">
+                    <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Users className="w-10 h-10" />
+                    </div>
+                    <h2 className="text-2xl font-bold mb-2">Safe Trading</h2>
+                    <p className="text-blue-100 text-sm">You're about to start a conversation with a fellow BarterWave member.</p>
+                </div>
+                <div className="p-6 space-y-4">
+                    <div className="flex gap-4 items-start">
+                        <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center shrink-0">
+                            <ShieldCheck className="w-5 h-5 text-green-600" />
+                        </div>
+                        <div>
+                            <p className="font-bold text-slate-900 text-sm">Stay on Platform</p>
+                            <p className="text-xs text-slate-500">Keep chats on BarterWave for your protection and trade history.</p>
+                        </div>
+                    </div>
+                    <div className="flex gap-4 items-start">
+                        <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+                            <Target className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div>
+                            <p className="font-bold text-slate-900 text-sm">Be Clear</p>
+                            <p className="text-xs text-slate-500">Discuss trade details, conditions, and meeting spots clearly.</p>
+                        </div>
+                    </div>
+                    <button
+                        onClick={onClose}
+                        className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 transition-colors mt-4"
+                    >
+                        Got it, Let's Chat!
+                    </button>
+                </div>
+            </div>
+        </div>
     );
 }
