@@ -29,17 +29,28 @@ export default function ListingClient({ listing: initialListing }: ListingClient
     const { user, isAuthenticated } = useAuthStore();
 
     // Sanitize listing URLs to enforce HTTPS in production
+    // Also handle fallback if API URL was localhost in production
+    const sanitizeUrl = (url?: string): string => {
+        if (!url) return '';
+        // In production, if URL points to localhost API, rewrite it to live API
+        if (process.env.NODE_ENV === 'production' && url.includes('localhost:3333')) {
+            return url.replace('http://localhost:3333/api', 'https://unhappy-marijo-barterwave-f6a20928.koyeb.app/api')
+                .replace('http://localhost:3333', 'https://unhappy-marijo-barterwave-f6a20928.koyeb.app');
+        }
+        // Force HTTPS for non-localhost
+        if (url.startsWith('http:') && !url.includes('localhost')) {
+            return url.replace('http:', 'https:');
+        }
+        return url;
+    };
+
     const listing = {
         ...initialListing,
         images: initialListing.images?.map(img => ({
             ...img,
-            url: (img.url?.startsWith('http:') && !img.url?.includes('localhost'))
-                ? img.url.replace('http:', 'https:')
-                : img.url
+            url: sanitizeUrl(img.url)
         })) || [],
-        videoUrl: (initialListing.videoUrl?.startsWith('http:') && !initialListing.videoUrl?.includes('localhost'))
-            ? initialListing.videoUrl.replace('http:', 'https:')
-            : initialListing.videoUrl
+        videoUrl: initialListing.videoUrl ? sanitizeUrl(initialListing.videoUrl) : undefined
     };
 
     const listingId = listing.id;

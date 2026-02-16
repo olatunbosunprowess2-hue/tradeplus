@@ -21,6 +21,11 @@ apiClient.interceptors.request.use((config) => {
     if (config.url) {
         let rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333/api';
 
+        // ROBUST PRODUCTION FALLBACK
+        if (process.env.NODE_ENV === 'production' && rawApiUrl.includes('localhost')) {
+            rawApiUrl = 'https://unhappy-marijo-barterwave-f6a20928.koyeb.app/api';
+        }
+
         // FORCE HTTPS for production/live environments
         if (!rawApiUrl.includes('localhost') && rawApiUrl.startsWith('http:')) {
             rawApiUrl = rawApiUrl.replace('http:', 'https:');

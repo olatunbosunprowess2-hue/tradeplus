@@ -22,6 +22,11 @@ async function getListing(id: string): Promise<Listing | null> {
     try {
         let apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333/api';
 
+        // ROBUST PRODUCTION FALLBACK: If Vercel build defaulted to localhost, force the known live backend
+        if (process.env.NODE_ENV === 'production' && apiUrl.includes('localhost')) {
+            apiUrl = 'https://unhappy-marijo-barterwave-f6a20928.koyeb.app/api';
+        }
+
         // FORCE HTTPS for production/live environments (server-side)
         if (!apiUrl.includes('localhost') && apiUrl.startsWith('http:')) {
             apiUrl = apiUrl.replace('http:', 'https:');
