@@ -35,3 +35,9 @@ services:
         value: "false"
       - key: PORT
         value: "3333"
+      - key: CLOUDINARY_CLOUD_NAME
+        value: diw6hacrd
+      - key: CLOUDINARY_API_KEY
+        value: "572684465831296"
+      - key: CLOUDINARY_API_SECRET
+        value: im2XOD2TtDoDbem0pd23L9pQ4-k
