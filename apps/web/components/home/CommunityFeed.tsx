@@ -220,13 +220,15 @@ export default function CommunityFeed() {
             {/* FAB */}
             <button
                 onClick={() => setShowCreateModal(true)}
-                className="fixed bottom-24 right-5 px-6 py-3.5 bg-blue-600 text-white rounded-3xl shadow-xl flex items-center gap-2.5 hover:bg-blue-700 hover:scale-105 active:scale-95 transition-all z-40 group"
-                title="Create Post"
+                className="fixed bottom-24 right-5 px-4 py-2 bg-blue-600 text-white rounded-lg shadow-xl flex items-center gap-2.5 hover:bg-blue-700 hover:scale-105 active:scale-95 transition-all z-40 group"
+                title="Add Post"
             >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-                </svg>
-                <span className="font-bold text-sm tracking-wide">Create</span>
+                <div className="bg-white/20 p-1 rounded-sm">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+                    </svg>
+                </div>
+                <span className="font-bold text-xs uppercase tracking-tight">Add Post</span>
             </button>
 
             {/* Create Post Modal */}
