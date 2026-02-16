@@ -18,23 +18,33 @@ export const apiClient = axios.create({
  */
 apiClient.interceptors.request.use((config) => {
     // 1. URL Construction
-    if (config.url && !config.url.startsWith('http')) {
+    if (config.url) {
         let rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333/api';
 
-        // Ensure API URL ends with /api to prevent common configuration errors
-        if (!rawApiUrl.endsWith('/api')) {
-            // Remove trailing slash if present before appending /api
-            rawApiUrl = rawApiUrl.endsWith('/') ? rawApiUrl.slice(0, -1) : rawApiUrl;
-            rawApiUrl += '/api';
+        // FORCE HTTPS for production/live environments
+        if (!rawApiUrl.includes('localhost') && rawApiUrl.startsWith('http:')) {
+            rawApiUrl = rawApiUrl.replace('http:', 'https:');
         }
 
-        const base = rawApiUrl.startsWith('http') ? rawApiUrl :
-            (typeof window !== 'undefined' ? window.location.origin + rawApiUrl : rawApiUrl);
+        // Handle relative URLs
+        if (!config.url.startsWith('http')) {
+            // Ensure API URL ends with /api
+            if (!rawApiUrl.endsWith('/api')) {
+                rawApiUrl = rawApiUrl.endsWith('/') ? rawApiUrl.slice(0, -1) : rawApiUrl;
+                rawApiUrl += '/api';
+            }
 
-        const normalizedBase = base.endsWith('/') ? base : `${base}/`;
-        const relativeUrl = config.url.startsWith('/') ? config.url.substring(1) : config.url;
+            const base = rawApiUrl.startsWith('http') ? rawApiUrl :
+                (typeof window !== 'undefined' ? window.location.origin + rawApiUrl : rawApiUrl);
 
-        config.url = normalizedBase + relativeUrl;
+            const normalizedBase = base.endsWith('/') ? base : `${base}/`;
+            const relativeUrl = config.url.startsWith('/') ? config.url.substring(1) : config.url;
+
+            config.url = normalizedBase + relativeUrl;
+        } else if (!config.url.includes('localhost') && config.url.startsWith('http:')) {
+            // Upgrade absolute URLs to HTTPS if not localhost
+            config.url = config.url.replace('http:', 'https:');
+        }
     }
 
     // 2. Token Injection (Manual fallback for cross-origin tunnels where cookies are blocked)

@@ -380,7 +380,22 @@ export class ListingsService {
     async findOne(id: string) {
         // Validate UUID format to prevent 500 errors from Prisma
         const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+        // Log to file for deep tracing
+        try {
+            const fs = require('fs');
+            const logPath = 'C:/Users/PC/Desktop/BarterWave/BarterWave/debug_api.log';
+            fs.appendFileSync(logPath, `\n[${new Date().toISOString()}] findOne called for ID: ${id}`);
+        } catch (e) {
+            console.error('Failed to write debug log:', e);
+        }
+
         if (!uuidRegex.test(id)) {
+            try {
+                const fs = require('fs');
+                const logPath = 'C:/Users/PC/Desktop/BarterWave/BarterWave/debug_api.log';
+                fs.appendFileSync(logPath, `\n[${new Date().toISOString()}] findOne: Invalid UUID format: ${id}`);
+            } catch (e) { }
             throw new NotFoundException('Invalid listing ID format');
         }
 
@@ -408,209 +423,228 @@ export class ListingsService {
             });
 
             if (!listing) {
+                try {
+                    const fs = require('fs');
+                    const logPath = 'C:/Users/PC/Desktop/BarterWave/BarterWave/debug_api.log';
+                    fs.appendFileSync(logPath, `\n[${new Date().toISOString()}] findOne: Listing not found in DB: ${id}`);
+                } catch (e) { }
                 throw new NotFoundException('Listing not found');
             }
 
-            return {
+            const result = {
                 ...listing,
                 priceCents: listing.priceCents ? Number(listing.priceCents) : null,
                 downpaymentCents: listing.downpaymentCents ? Number(listing.downpaymentCents) : null,
             };
+
+            try {
+                const fs = require('fs');
+                const logPath = 'C:/Users/PC/Desktop/BarterWave/BarterWave/debug_api.log';
+                fs.appendFileSync(logPath, `\n[${new Date().toISOString()}] findOne: Successfully returning listing: ${listing.title}`);
+            } catch (e) { }
+
+            return result;
         } catch (error) {
+            try {
+                const fs = require('fs');
+                const logPath = 'C:/Users/PC/Desktop/BarterWave/BarterWave/debug_api.log';
+                fs.appendFileSync(logPath, `\n[${new Date().toISOString()}] findOne ERROR for ${id}: ${error.message}\n${error.stack}`);
+            } catch (e) { }
+
             if (error instanceof NotFoundException) throw error;
             console.error(`[ERROR] Unexpected failure in findOne(${id}):`, error);
             throw error;
         }
     }
-
+}
     async findByUser(userId: string, page: number = 1, limit: number = 10) {
-        const skip = (page - 1) * limit;
-        const where = {
-            sellerId: userId,
-            status: {
-                not: 'removed',
-            },
-        };
+    const skip = (page - 1) * limit;
+    const where = {
+        sellerId: userId,
+        status: {
+            not: 'removed',
+        },
+    };
 
-        const [listings, total] = await Promise.all([
-            this.prisma.listing.findMany({
-                where,
-                include: {
-                    category: true,
-                    images: {
-                        orderBy: { sortOrder: 'asc' },
-                    },
-                },
-                skip,
-                take: limit,
-                orderBy: { createdAt: 'desc' },
-            }),
-            this.prisma.listing.count({ where })
-        ]);
-
-        return {
-            data: listings.map((listing) => ({
-                ...listing,
-                priceCents: listing.priceCents ? Number(listing.priceCents) : null,
-            })),
-            meta: {
-                total,
-                page,
-                limit,
-                totalPages: Math.ceil(total / limit)
-            }
-        };
-    }
-
-
-    async update(id: string, userId: string, dto: UpdateListingDto) {
-        const listing = await this.prisma.listing.findUnique({
-            where: { id },
-        });
-
-        if (!listing) {
-            throw new NotFoundException('Listing not found');
-        }
-
-        if (listing.sellerId !== userId) {
-            throw new ForbiddenException('You can only update your own listings');
-        }
-
-        const { imageUrls, priceCents, downpaymentCents, status, ...listingData } = dto;
-
-        // Handle image updates
-        if (imageUrls) {
-            // Delete existing images
-            await this.prisma.listingImage.deleteMany({
-                where: { listingId: id },
-            });
-
-            // Create new images
-            await this.prisma.listingImage.createMany({
-                data: imageUrls.map((url, index) => ({
-                    listingId: id,
-                    url,
-                    sortOrder: index,
-                })),
-            });
-        }
-
-        // Prepare update data
-        const updateData: any = { ...listingData };
-        if (priceCents !== undefined) {
-            updateData.priceCents = priceCents ? BigInt(priceCents) : null;
-        }
-        if (downpaymentCents !== undefined) {
-            updateData.downpaymentCents = downpaymentCents ? BigInt(downpaymentCents) : null;
-        }
-        if (status) {
-            updateData.status = status;
-        }
-
-        // Auto-TRADED: If product quantity reaches 0, auto-mark as traded
-        if (listing.type === 'PHYSICAL' && updateData.quantity !== undefined && updateData.quantity <= 0) {
-            updateData.status = 'traded';
-            updateData.quantity = 0;
-        }
-
-        const updated = await this.prisma.listing.update({
-            where: { id },
-            data: updateData,
+    const [listings, total] = await Promise.all([
+        this.prisma.listing.findMany({
+            where,
             include: {
-                seller: {
-                    include: {
-                        profile: {
-                            include: {
-                                country: true,
-                                region: true,
-                            },
-                        },
-                    },
-                },
                 category: true,
                 images: {
                     orderBy: { sortOrder: 'asc' },
                 },
-                country: true,
-                region: true,
             },
+            skip,
+            take: limit,
+            orderBy: { createdAt: 'desc' },
+        }),
+        this.prisma.listing.count({ where })
+    ]);
+
+    return {
+        data: listings.map((listing) => ({
+            ...listing,
+            priceCents: listing.priceCents ? Number(listing.priceCents) : null,
+        })),
+        meta: {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit)
+        }
+    };
+}
+
+
+    async update(id: string, userId: string, dto: UpdateListingDto) {
+    const listing = await this.prisma.listing.findUnique({
+        where: { id },
+    });
+
+    if (!listing) {
+        throw new NotFoundException('Listing not found');
+    }
+
+    if (listing.sellerId !== userId) {
+        throw new ForbiddenException('You can only update your own listings');
+    }
+
+    const { imageUrls, priceCents, downpaymentCents, status, ...listingData } = dto;
+
+    // Handle image updates
+    if (imageUrls) {
+        // Delete existing images
+        await this.prisma.listingImage.deleteMany({
+            where: { listingId: id },
         });
 
-        // Revalidate pending barter offers if status or quantity changed
-        if (updateData.status || updateData.quantity !== undefined) {
-            await this.barterService.validateInTradeQuantities(id, userId);
-        }
-
-        return {
-            ...updated,
-            priceCents: updated.priceCents ? Number(updated.priceCents) : null,
-            downpaymentCents: updated.downpaymentCents ? Number(updated.downpaymentCents) : null,
-        };
-
+        // Create new images
+        await this.prisma.listingImage.createMany({
+            data: imageUrls.map((url, index) => ({
+                listingId: id,
+                url,
+                sortOrder: index,
+            })),
+        });
     }
+
+    // Prepare update data
+    const updateData: any = { ...listingData };
+    if (priceCents !== undefined) {
+        updateData.priceCents = priceCents ? BigInt(priceCents) : null;
+    }
+    if (downpaymentCents !== undefined) {
+        updateData.downpaymentCents = downpaymentCents ? BigInt(downpaymentCents) : null;
+    }
+    if (status) {
+        updateData.status = status;
+    }
+
+    // Auto-TRADED: If product quantity reaches 0, auto-mark as traded
+    if (listing.type === 'PHYSICAL' && updateData.quantity !== undefined && updateData.quantity <= 0) {
+        updateData.status = 'traded';
+        updateData.quantity = 0;
+    }
+
+    const updated = await this.prisma.listing.update({
+        where: { id },
+        data: updateData,
+        include: {
+            seller: {
+                include: {
+                    profile: {
+                        include: {
+                            country: true,
+                            region: true,
+                        },
+                    },
+                },
+            },
+            category: true,
+            images: {
+                orderBy: { sortOrder: 'asc' },
+            },
+            country: true,
+            region: true,
+        },
+    });
+
+    // Revalidate pending barter offers if status or quantity changed
+    if (updateData.status || updateData.quantity !== undefined) {
+        await this.barterService.validateInTradeQuantities(id, userId);
+    }
+
+    return {
+        ...updated,
+        priceCents: updated.priceCents ? Number(updated.priceCents) : null,
+        downpaymentCents: updated.downpaymentCents ? Number(updated.downpaymentCents) : null,
+    };
+
+}
 
     async remove(id: string, userId: string) {
-        const listing = await this.prisma.listing.findUnique({
-            where: { id },
-        });
+    const listing = await this.prisma.listing.findUnique({
+        where: { id },
+    });
 
-        if (!listing) {
-            throw new NotFoundException('Listing not found');
-        }
-
-        if (listing.sellerId !== userId) {
-            throw new ForbiddenException('You can only delete your own listings');
-        }
-
-        const deleted = await this.prisma.listing.update({
-            where: { id },
-            data: { status: 'removed', deletedAt: new Date() },
-        });
-
-        // Revalidate pending barter offers (they should be cancelled since status is no longer active)
-        await this.barterService.validateInTradeQuantities(id, userId);
-
-        return { message: 'Listing deleted successfully' };
+    if (!listing) {
+        throw new NotFoundException('Listing not found');
     }
+
+    if (listing.sellerId !== userId) {
+        throw new ForbiddenException('You can only delete your own listings');
+    }
+
+    const deleted = await this.prisma.listing.update({
+        where: { id },
+        data: { status: 'removed', deletedAt: new Date() },
+    });
+
+    // Revalidate pending barter offers (they should be cancelled since status is no longer active)
+    await this.barterService.validateInTradeQuantities(id, userId);
+
+    return { message: 'Listing deleted successfully' };
+}
 
     /**
      * Record a listing view for a user (used for Aggressive Boost targeting)
      */
-    async recordView(listingId: string, userId: string): Promise<void> {
-        // Verify listing exists
-        const listing = await this.prisma.listing.findUnique({
-            where: { id: listingId },
-            select: { id: true, sellerId: true, categoryId: true },
-        });
+    async recordView(listingId: string, userId: string): Promise < void> {
+    // Verify listing exists
+    const listing = await this.prisma.listing.findUnique({
+        where: { id: listingId },
+        select: { id: true, sellerId: true, categoryId: true },
+    });
 
-        if (!listing) {
-            throw new NotFoundException('Listing not found');
-        }
+    if(!listing) {
+        throw new NotFoundException('Listing not found');
+    }
 
         // Don't record views of own listings
-        if (listing.sellerId === userId) {
-            return;
-        }
+        if(listing.sellerId === userId) {
+    return;
+}
 
-        // Upsert the view - update timestamp if exists, create if new
-        await this.prisma.recentlyViewed.upsert({
-            where: {
-                userId_listingId: {
-                    userId,
-                    listingId,
-                },
-            },
-            update: {
-                viewedAt: new Date(),
-            },
-            create: {
-                userId,
-                listingId,
-                viewedAt: new Date(),
-            },
-        });
+// Upsert the view - update timestamp if exists, create if new
+await this.prisma.recentlyViewed.upsert({
+    where: {
+        userId_listingId: {
+            userId,
+            listingId,
+        },
+    },
+    update: {
+        viewedAt: new Date(),
+    },
+    create: {
+        userId,
+        listingId,
+        viewedAt: new Date(),
+    },
+});
 
-        console.log(`📋 [VIEW TRACKED] User ${userId.slice(0, 8)}... viewed listing ${listingId.slice(0, 8)}... (category: ${listing.categoryId})`);
+console.log(`📋 [VIEW TRACKED] User ${userId.slice(0, 8)}... viewed listing ${listingId.slice(0, 8)}... (category: ${listing.categoryId})`);
     }
 
 }

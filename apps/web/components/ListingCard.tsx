@@ -54,7 +54,18 @@ interface ListingCardProps {
     };
 }
 
-export default function ListingCard({ listing }: ListingCardProps) {
+export default function ListingCard({ listing: initialListing }: ListingCardProps) {
+    // Sanitize listing URLs to enforce HTTPS in production
+    const listing = {
+        ...initialListing,
+        images: initialListing.images?.map(img => ({
+            ...img,
+            url: (img.url?.startsWith('http:') && !img.url?.includes('localhost'))
+                ? img.url.replace('http:', 'https:')
+                : img.url
+        })) || []
+    };
+
     const bookmarkData: BookmarkedListing = {
         id: listing.id,
         title: listing.title,
@@ -125,6 +136,13 @@ export default function ListingCard({ listing }: ListingCardProps) {
     // Determine if this is an urgent/distress item that needs special styling
     const isUrgentItem = listing.isDistressSale;
 
+    // Safeguard against undefined/missing IDs
+    const isValidId = listing.id && listing.id !== 'undefined';
+
+    if (!isValidId) {
+        console.warn('[ListingCard] Rendering listing with missing or invalid ID:', listing.title);
+    }
+
     return (
         <div className={`rounded-2xl shadow-md overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group relative ${isUrgentItem
             ? 'bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-400 ring-2 ring-red-200 animate-pulse-subtle'
@@ -136,7 +154,76 @@ export default function ListingCard({ listing }: ListingCardProps) {
                 : 'bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100'
                 } transition-opacity`} />
 
-            <Link href={`/listings/${listing.id}`} className="block">
+            {/* Discount Badge - Show if originalPriceCents exists */}
+            {listing.originalPriceCents && listing.priceCents && listing.originalPriceCents > listing.priceCents && (
+                <DiscountBadge
+                    percentage={Math.round(((listing.originalPriceCents - listing.priceCents) / listing.originalPriceCents) * 100)}
+                />
+            )}
+
+            {/* Badges Container - Top Left */}
+            <div className="absolute top-2 left-2 z-10 flex flex-col gap-1 items-start">
+                {/* Distress Sale Badge */}
+                {listing.isDistressSale && (
+                    <DistressBadge size="sm" />
+                )}
+
+                {/* Verified Seller Badge */}
+                {(listing.seller?.verified || listing.seller?.isVerified) && (
+                    <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-white/90 backdrop-blur-sm text-blue-700 text-[10px] font-bold shadow-sm border border-blue-100">
+                        <svg className="w-3 h-3 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        Verified ID
+                    </span>
+                )}
+
+                {/* Verified Brand Badge */}
+                {listing.seller?.brandVerificationStatus === 'VERIFIED_BRAND' && (
+                    <BrandBadge size="xs" />
+                )}
+
+                {/* Fully Booked Badge for Services */}
+                {listing.type === 'SERVICE' && listing.isAvailable === false && (
+                    <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-red-500/90 backdrop-blur-sm text-white text-[10px] font-bold shadow-sm">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
+                        Fully Booked
+                    </span>
+                )}
+
+                {/* Sold Out Badge for Products */}
+                {listing.type === 'PHYSICAL' && (listing.quantity === 0 || listing.status === 'traded') && (
+                    <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-gray-700/90 backdrop-blur-sm text-white text-[10px] font-bold shadow-sm">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                        Sold Out
+                    </span>
+                )}
+            </div>
+
+            {/* Bookmark Button */}
+            <div
+                className="absolute top-2 right-2 z-10"
+                onClick={(e) => e.preventDefault()}
+            >
+                <BookmarkButton listing={bookmarkData} />
+            </div>
+
+            {/* Link Wrapper or Div if ID invalid */}
+            {isValidId ? (
+                <Link href={`/listings/${listing.id}`} className="block h-full">
+                    {renderCardContent()}
+                </Link>
+            ) : (
+                <div className="block cursor-not-allowed opacity-75 h-full">
+                    {renderCardContent()}
+                </div>
+            )}
+        </div>
+    );
+
+    function renderCardContent() {
+        return (
+            <>
                 {/* Image Section */}
                 <div className="relative">
                     {listing.images?.[0] ? (
@@ -154,100 +241,38 @@ export default function ListingCard({ listing }: ListingCardProps) {
                         </div>
                     )}
 
-                    {/* Discount Badge - Show if originalPriceCents exists */}
-                    {listing.originalPriceCents && listing.priceCents && listing.originalPriceCents > listing.priceCents && (
-                        <DiscountBadge
-                            percentage={Math.round(((listing.originalPriceCents - listing.priceCents) / listing.originalPriceCents) * 100)}
-                        />
-                    )}
-
-                    {/* Badges Container - Top Left */}
-                    <div className="absolute top-2 left-2 z-10 flex flex-col gap-1 items-start">
-                        {/* Distress Sale Badge */}
-                        {listing.isDistressSale && (
-                            <DistressBadge size="sm" />
-                        )}
-
-                        {/* Verified Seller Badge - Moved to image */}
-                        {(listing.seller?.verified || listing.seller?.isVerified) && (
-                            <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-white/90 backdrop-blur-sm text-blue-700 text-[10px] font-bold shadow-sm border border-blue-100">
-                                <svg className="w-3 h-3 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                </svg>
-                                Verified ID
-                            </span>
-                        )}
-
-                        {/* Verified Brand Badge */}
-                        {listing.seller?.brandVerificationStatus === 'VERIFIED_BRAND' && (
-                            <BrandBadge size="xs" />
-                        )}
-
-
-
-                        {/* Fully Booked Badge for Services */}
-                        {listing.type === 'SERVICE' && listing.isAvailable === false && (
-                            <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-red-500/90 backdrop-blur-sm text-white text-[10px] font-bold shadow-sm">
-                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
-                                Fully Booked
-                            </span>
-                        )}
-
-                        {/* Sold Out Badge for Products */}
-                        {listing.type === 'PHYSICAL' && (listing.quantity === 0 || listing.status === 'traded') && (
-                            <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-gray-700/90 backdrop-blur-sm text-white text-[10px] font-bold shadow-sm">
-                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                                Sold Out
-                            </span>
-                        )}
-                    </div>
-
-                    {/* Bookmark Button - Always visible, top-right */}
-                    <div
-                        className="absolute top-2 right-2 z-10"
-                        onClick={(e) => e.preventDefault()}
-                    >
-                        <BookmarkButton listing={bookmarkData} />
-                    </div>
-
-                    {/* Share Button - Always visible on mobile, hover on desktop, bottom-left */}
-                    <div
-                        className="absolute bottom-2 left-2 z-10 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
-                        onClick={(e) => e.preventDefault()}
-                    >
-                        <ShareButton
-                            url={typeof window !== 'undefined' ? `${window.location.origin}/listings/${listing.id}` : `https://barterwave.com/listings/${listing.id}`}
-                            title={listing.title}
-                            description={listing.description || listing.title}
-                            imageUrl={listing.images?.[0]?.url}
-                            price={listing.priceCents !== undefined ? `₦${(listing.priceCents / 100).toLocaleString()}` : 'N/A'}
-                            allowCash={listing.allowCash}
-                            allowBarter={listing.allowBarter}
-                            className="bg-white text-gray-700 p-2.5 rounded-full hover:bg-gray-100 transition shadow-lg"
-                            iconOnly
-                        />
-                    </div>
-
-                    {/* Cart Icon - Always visible on mobile, hover on desktop, bottom-right */}
-                    <div
-                        className="absolute bottom-2 right-2 z-10 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
-                        onClick={(e) => e.preventDefault()}
-                    >
-                        <AddToCartButton
-                            listing={{
-                                id: listing.id,
-                                title: listing.title,
-                                priceCents: listing.priceCents,
-                                currency: listing.currencyCode || 'NGN',
-                                images: listing.images || [],
-                                sellerId: listing.sellerId,
-                                sellerName: listing.seller?.profile?.displayName || listing.seller?.email || 'Unknown',
-                                allowCash: listing.allowCash ?? true,
-                                quantity: listing.quantity || 1,
-                            }}
-                            className="bg-blue-600 text-white p-2.5 rounded-full hover:bg-blue-700 transition shadow-lg"
-                            iconOnly
-                        />
+                    {/* Quick Access Actions Overlay */}
+                    <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex justify-between items-center z-20">
+                        <div onClick={(e) => e.preventDefault()}>
+                            <ShareButton
+                                url={typeof window !== 'undefined' ? `${window.location.origin}/listings/${listing.id}` : `https://barterwave.com/listings/${listing.id}`}
+                                title={listing.title}
+                                description={listing.description || listing.title}
+                                imageUrl={listing.images?.[0]?.url}
+                                price={listing.priceCents !== undefined ? `₦${(listing.priceCents / 100).toLocaleString()}` : 'N/A'}
+                                allowCash={listing.allowCash}
+                                allowBarter={listing.allowBarter}
+                                className="bg-white/90 text-gray-700 p-2 rounded-full hover:bg-white transition shadow-sm"
+                                iconOnly
+                            />
+                        </div>
+                        <div onClick={(e) => e.preventDefault()}>
+                            <AddToCartButton
+                                listing={{
+                                    id: listing.id,
+                                    title: listing.title,
+                                    priceCents: listing.priceCents,
+                                    currency: listing.currencyCode || 'NGN',
+                                    images: listing.images || [],
+                                    sellerId: listing.sellerId,
+                                    sellerName: listing.seller?.profile?.displayName || listing.seller?.email || 'Unknown',
+                                    allowCash: listing.allowCash ?? true,
+                                    quantity: listing.quantity || 1,
+                                }}
+                                className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition shadow-sm"
+                                iconOnly
+                            />
+                        </div>
                     </div>
                 </div>
 
@@ -298,7 +323,6 @@ export default function ListingCard({ listing }: ListingCardProps) {
                         <span className="text-sm font-medium truncate">
                             {locationDisplay || 'Location not set'}
                         </span>
-                        {/* Premium Badge - Twitter/Instagram style */}
                         {listing.seller?.tier === 'premium' && (
                             <PremiumBadge size="sm" />
                         )}
@@ -321,7 +345,7 @@ export default function ListingCard({ listing }: ListingCardProps) {
                         )}
                     </div>
                 </div>
-            </Link>
-        </div>
-    );
+            </>
+        );
+    }
 }

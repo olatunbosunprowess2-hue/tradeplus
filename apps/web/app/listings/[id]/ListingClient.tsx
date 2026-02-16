@@ -24,9 +24,24 @@ interface ListingClientProps {
     listing: Listing;
 }
 
-export default function ListingClient({ listing }: ListingClientProps) {
+export default function ListingClient({ listing: initialListing }: ListingClientProps) {
     const router = useRouter();
     const { user, isAuthenticated } = useAuthStore();
+
+    // Sanitize listing URLs to enforce HTTPS in production
+    const listing = {
+        ...initialListing,
+        images: initialListing.images?.map(img => ({
+            ...img,
+            url: (img.url?.startsWith('http:') && !img.url?.includes('localhost'))
+                ? img.url.replace('http:', 'https:')
+                : img.url
+        })) || [],
+        videoUrl: (initialListing.videoUrl?.startsWith('http:') && !initialListing.videoUrl?.includes('localhost'))
+            ? initialListing.videoUrl.replace('http:', 'https:')
+            : initialListing.videoUrl
+    };
+
     const listingId = listing.id;
 
     const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
