@@ -78,6 +78,7 @@ export default function MarketFeed() {
         hasNextPage,
         isFetchingNextPage,
         status,
+        error,
     } = useInfiniteQuery({
         queryKey: ['listings', search, type, condition, paymentMode, minPrice, maxPrice, categoryId, isDistressSale, countryId, regionId],
         queryFn: async ({ pageParam = 1 }) => {
@@ -123,6 +124,24 @@ export default function MarketFeed() {
 
     const listings = data?.pages.flatMap((page) => page.data) || [];
     const isLoading = status === 'pending';
+    const isError = status === 'error';
+
+    // DIAGNOSTIC ERROR DISPLAY
+    if (isError) {
+        return (
+            <div className="p-8 bg-red-50 border border-red-200 rounded-xl">
+                <h3 className="text-xl font-bold text-red-800 mb-2">Feed Error (Diagnostic Mode)</h3>
+                <p className="text-red-700 mb-4">Please screenshot this for support:</p>
+                <div className="bg-white p-4 rounded border border-red-100 font-mono text-xs overflow-auto">
+                    <p><strong>Status:</strong> {(error as any)?.response?.status || 'Network Error'}</p>
+                    <p><strong>Message:</strong> {(error as Error).message}</p>
+                    <p><strong>API URL:</strong> {process.env.NEXT_PUBLIC_API_URL}</p>
+                    <p><strong>NODE_ENV:</strong> {process.env.NODE_ENV}</p>
+                    <p><strong>Endpoint:</strong> /listings</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div>

@@ -26,6 +26,16 @@ const nextConfig = {
     buildActivity: false,
     appIsrStatus: false,
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: process.env.NODE_ENV === 'production'
+          ? 'https://unhappy-marijo-barterwave-f6a20928.koyeb.app/api/:path*'
+          : 'http://localhost:3333/api/:path*',
+      },
+    ];
+  },
 }
 
 module.exports = withSentryConfig(
