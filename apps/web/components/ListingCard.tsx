@@ -59,15 +59,35 @@ export default function ListingCard({ listing: initialListing }: ListingCardProp
     // Also handle fallback if API URL was localhost in production
     const sanitizeUrl = (url?: string): string => {
         if (!url) return '';
-        // In production, if URL points to localhost API, rewrite it to live API
-        if (process.env.NODE_ENV === 'production' && url.includes('localhost:3333')) {
-            return url.replace('http://localhost:3333/api', 'https://unhappy-marijo-barterwave-f6a20928.koyeb.app/api')
-                .replace('http://localhost:3333', 'https://unhappy-marijo-barterwave-f6a20928.koyeb.app');
+
+        // Handle Cloudinary URLs - Upgrade to HTTPS
+        if (url.includes('cloudinary.com')) {
+            return url.replace('http:', 'https:');
         }
-        // Force HTTPS for non-localhost
+
+        // PROXY MODE: In production, rewrite localhost absolute URLs to relative paths
+        if (process.env.NODE_ENV === 'production' && url.includes('localhost:3333')) {
+            // Priority: /api prefix
+            if (url.includes('/api/')) {
+                return url.split('/api/')[1] ? `/api/${url.split('/api/')[1]}` : '/api';
+            }
+            // Handle /uploads and /private-uploads
+            if (url.includes('/uploads/')) {
+                return url.split('/uploads/')[1] ? `/uploads/${url.split('/uploads/')[1]}` : '/uploads';
+            }
+            if (url.includes('/private-uploads/')) {
+                return url.split('/private-uploads/')[1] ? `/private-uploads/${url.split('/private-uploads/')[1]}` : '/private-uploads';
+            }
+            // Fallback: If it's just http://localhost:3333/some-path
+            const relativePart = url.replace('http://localhost:3333', '');
+            return relativePart.startsWith('/') ? relativePart : `/${relativePart}`;
+        }
+
+        // Force HTTPS for other non-localhost absolute URLs
         if (url.startsWith('http:') && !url.includes('localhost')) {
             return url.replace('http:', 'https:');
         }
+
         return url;
     };
 

@@ -14,6 +14,8 @@ const nextConfig = {
       'placehold.co',
       'api.dicebear.com',
       'localhost',
+      'res.cloudinary.com',
+      'cloudinary.com',
       ...(process.env.NEXT_PUBLIC_API_URL
         ? [new URL(process.env.NEXT_PUBLIC_API_URL).hostname]
         : [])
@@ -27,12 +29,22 @@ const nextConfig = {
     appIsrStatus: false,
   },
   async rewrites() {
+    const backendUrl = process.env.NODE_ENV === 'production'
+      ? 'https://unhappy-marijo-barterwave-f6a20928.koyeb.app'
+      : 'http://localhost:3333';
+
     return [
       {
         source: '/api/:path*',
-        destination: process.env.NODE_ENV === 'production'
-          ? 'https://unhappy-marijo-barterwave-f6a20928.koyeb.app/api/:path*'
-          : 'http://localhost:3333/api/:path*',
+        destination: `${backendUrl}/api/:path*`,
+      },
+      {
+        source: '/uploads/:path*',
+        destination: `${backendUrl}/uploads/:path*`,
+      },
+      {
+        source: '/private-uploads/:path*',
+        destination: `${backendUrl}/private-uploads/:path*`,
       },
     ];
   },
