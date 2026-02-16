@@ -32,6 +32,12 @@ async function getListing(id: string): Promise<Listing | null> {
             apiUrl = apiUrl.replace('http:', 'https:');
         }
 
+        // ENSURE /api SUFFIX: If defined without /api, append it (except for localhost where it's usually included)
+        if (!apiUrl.endsWith('/api') && !apiUrl.includes('localhost') && apiUrl.startsWith('http')) {
+            apiUrl = apiUrl.endsWith('/') ? apiUrl.slice(0, -1) : apiUrl;
+            apiUrl += '/api';
+        }
+
         const fetchUrl = `${apiUrl}/listings/${id}`;
 
         try {

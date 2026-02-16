@@ -21,27 +21,19 @@ apiClient.interceptors.request.use((config) => {
     if (config.url) {
         let rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333/api';
 
-        // PROXY MODE: In production, usage of localhost implies misconfiguration.
-        // Fallback to relative '/api' path to use Next.js Rewrites (Proxies) and avoid CORS
-        if (process.env.NODE_ENV === 'production' && rawApiUrl.includes('localhost')) {
+        if (process.env.NODE_ENV === 'production') {
+            // PROXY MODE: Always use relative /api in production browser environment to avoid CORS/Mixed Content
+            // Vercel will handle the routing via next.config.js rewrites
             rawApiUrl = '/api';
+        } else if (rawApiUrl.includes('localhost') && !rawApiUrl.endsWith('/api')) {
+            // Dev safety: ensure localhost ends with /api
+            rawApiUrl = rawApiUrl.endsWith('/') ? rawApiUrl.slice(0, -1) : rawApiUrl;
+            rawApiUrl += '/api';
         }
 
-        // FORCE HTTPS for production/live environments
-        if (!rawApiUrl.includes('localhost') && rawApiUrl.startsWith('http:')) {
-            rawApiUrl = rawApiUrl.replace('http:', 'https:');
-        }
-
-        // Handle relative URLs
+        // Handle path construction
         if (!config.url.startsWith('http')) {
-            // Ensure API URL ends with /api
-            if (!rawApiUrl.endsWith('/api')) {
-                rawApiUrl = rawApiUrl.endsWith('/') ? rawApiUrl.slice(0, -1) : rawApiUrl;
-                rawApiUrl += '/api';
-            }
-
-            const base = rawApiUrl.startsWith('http') ? rawApiUrl :
-                (typeof window !== 'undefined' ? window.location.origin + rawApiUrl : rawApiUrl);
+            const base = rawApiUrl;
 
             const normalizedBase = base.endsWith('/') ? base : `${base}/`;
             const relativeUrl = config.url.startsWith('/') ? config.url.substring(1) : config.url;
