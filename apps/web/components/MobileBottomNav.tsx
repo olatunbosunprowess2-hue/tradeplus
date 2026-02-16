@@ -34,13 +34,18 @@ export default function MobileBottomNav() {
         return null;
     }
 
-    // Hide navbar on public pages
-    const publicPages = ['/', '/login', '/register'];
-    if (publicPages.includes(pathname)) {
+    // Hide navbar on specific public pages ONLY for unauthenticated users
+    const authRestrictedPages = ['/login', '/register'];
+    if (authRestrictedPages.includes(pathname)) {
         return null;
     }
 
-    // Only show for authenticated users
+    // Hide for unauthenticated on homepage too
+    if (pathname === '/' && !isAuthenticated) {
+        return null;
+    }
+
+    // Only show for authenticated users (except maybe some more public pages if we add them)
     if (!isAuthenticated) return null;
 
     const isVerified = user?.isVerified;

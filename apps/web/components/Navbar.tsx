@@ -178,12 +178,12 @@ export default function Navbar() {
     return null;
   }
 
-  // Hide navbar on homepage for all users
-  if (pathname === '/') {
+  // Hide navbar on homepage for unauthenticated users only
+  if (pathname === '/' && !isAuthenticated) {
     return null;
   }
 
-  // Hide navbar on specific auth pages
+  // Hide navbar on specific auth pages for everyone
   const hiddenPages = ['/login', '/register'];
   if (hiddenPages.includes(pathname)) {
     return null;
