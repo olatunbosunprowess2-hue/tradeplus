@@ -51,9 +51,7 @@ export default function PriceDisplay({
 
     return (
         <div className={`${className}`}>
-            {isBarterFriendly && (
-                <span className="text-xs text-gray-500 block mb-0.5">Seller valued at</span>
-            )}
+            <span className="text-xs text-gray-500 block mb-0.5">Seller valued at</span>
             <div className="flex items-center gap-2">
                 <span className={`font-bold ${sizeClasses[size]} text-gray-900`}>
                     {price}

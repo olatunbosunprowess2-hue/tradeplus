@@ -1,13 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ActivityGateway } from '../activity/activity.gateway';
+import { MessagesService } from '../messages/messages.service';
 
 
 @Injectable()
 export class NotificationsService {
     constructor(
         private prisma: PrismaService,
-        private gateway: ActivityGateway
+        private gateway: ActivityGateway,
+        @Inject(forwardRef(() => MessagesService))
+        private messagesService: MessagesService
     ) { }
 
 
@@ -19,12 +22,46 @@ export class NotificationsService {
     }
 
     async getUnreadCount(userId: string) {
-        return this.prisma.notification.count({
+        // 1. Get raw notification counts
+        const notifications = await this.prisma.notification.findMany({
             where: {
                 userId,
                 readAt: null,
             },
+            select: { type: true }
         });
+
+        // 2. Calculate category counts from notifications table
+        let offersCount = 0;
+        let systemCount = 0;
+
+        const offerTypes = ['NEW_OFFER', 'OFFER_ACCEPTED', 'OFFER_REJECTED', 'OFFER_COUNTERED', 'offer'];
+        // All other types go to system (or other categories if we add them later)
+
+        for (const n of notifications) {
+            if (offerTypes.includes(n.type)) {
+                offersCount++;
+            } else if (n.type !== 'message' && n.type !== 'NEW_MESSAGE') {
+                // Exclude message notifications from system count to avoid double counting
+                // (Messages are counted from Message table)
+                systemCount++;
+            }
+        }
+
+        // 3. Get true unread messages count from Messages table
+        let messagesCount = 0;
+        try {
+            messagesCount = await this.messagesService.getUnreadMessageCount(userId);
+        } catch (error) {
+            console.error('Failed to fetch message count in notifications service:', error);
+        }
+
+        return {
+            total: messagesCount + offersCount + systemCount,
+            messages: messagesCount,
+            offers: offersCount,
+            system: systemCount
+        };
     }
 
     async markAsRead(userId: string, notificationId: string) {

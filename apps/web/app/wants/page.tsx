@@ -29,18 +29,41 @@ export default function WantsPage() {
         fetchWants();
     }, [fetchWants]);
 
-    // Fetch saved posts when tab is active
-    useEffect(() => {
-        if (activeTab === 'saved-posts' && savedPosts.length === 0) {
-            setLoadingSavedPosts(true);
-            apiClient.get('/community-posts/user/saved')
-                .then(r => setSavedPosts(r.data.data)) // Assuming paginated response structure
-                .catch(console.error)
-                .finally(() => setLoadingSavedPosts(false));
-        }
-    }, [activeTab]);
+    // Fetch valid bookmarks from API when tab is active
+    const [validBookmarks, setValidBookmarks] = useState<any[]>([]);
+    const [loadingBookmarks, setLoadingBookmarks] = useState(false);
 
-    if (!mounted) return null;
+    useEffect(() => {
+        if (activeTab === 'bookmarks' && bookmarks.length > 0) {
+            setLoadingBookmarks(true);
+            const ids = bookmarks.map(b => b.id).join(',');
+
+            // OPTIMIZATION: Only fetch if we have IDs
+            if (!ids) {
+                setValidBookmarks([]);
+                setLoadingBookmarks(false);
+                return;
+            }
+
+            apiClient.get(`/listings?ids=${ids}&limit=100`)
+                .then(r => {
+                    // Update valid bookmarks with fresh data from API
+                    // This automatically filters out deleted items (which cause 404s)
+                    setValidBookmarks(r.data.data);
+                })
+                .catch(err => {
+                    console.error('Failed to fetch bookmarks:', err);
+                    // Fallback to local data if API fails, but this might risk 404s
+                    // Better to show empty or error state than broken links?
+                    // For now, let's stick to validBookmarks state
+                })
+                .finally(() => setLoadingBookmarks(false));
+        } else if (activeTab === 'bookmarks' && bookmarks.length === 0) {
+            setValidBookmarks([]);
+        }
+    }, [activeTab, bookmarks]);
+
+    // ... (rest of component)
 
     const activeWants = wants.filter((i) => !i.isFulfilled);
     const fulfilledWants = wants.filter((i) => i.isFulfilled);
@@ -60,6 +83,8 @@ export default function WantsPage() {
             setSavedPosts(prev => prev.filter(p => p.id !== id));
         }
     };
+
+    if (!mounted) return null;
 
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
@@ -224,16 +249,28 @@ export default function WantsPage() {
                 {/* Bookmarks Tab */}
                 {activeTab === 'bookmarks' && (
                     <div>
-                        {bookmarks.length === 0 ? (
+                        {loadingBookmarks ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                {[1, 2, 3, 4].map((i) => (
+                                    <div key={i} className="bg-white rounded-lg shadow-md overflow-hidden h-80 animate-pulse">
+                                        <div className="h-48 bg-gray-200" />
+                                        <div className="p-4 space-y-3">
+                                            <div className="h-4 bg-gray-200 rounded w-3/4" />
+                                            <div className="h-4 bg-gray-200 rounded w-1/2" />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : validBookmarks.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-20 text-center">
                                 <div className="w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center mb-6">
                                     <svg className="w-12 h-12 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z" />
                                     </svg>
                                 </div>
-                                <h2 className="text-xl font-bold text-gray-900 mb-2">No bookmarks yet</h2>
+                                <h2 className="text-xl font-bold text-gray-900 mb-2">No active bookmarks</h2>
                                 <p className="text-gray-600 font-medium max-w-md mb-8">
-                                    Browse listings and bookmark items you're interested in for later
+                                    Items you bookmark will appear here. If an item is sold or deleted, it will be removed from this list.
                                 </p>
                                 <Link
                                     href="/listings"
@@ -244,51 +281,61 @@ export default function WantsPage() {
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                                {bookmarks.map((bookmark) => (
+                                {validBookmarks.map((bookmark) => (
                                     <div
                                         key={bookmark.id}
-                                        className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition group"
+                                        className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition group relative"
                                     >
                                         <Link href={`/listings/${bookmark.id}`} className="block">
-                                            {bookmark.images?.[0] && (
+                                            {bookmark.images?.[0] ? (
                                                 <div className="relative">
                                                     <img
                                                         src={bookmark.images[0].url}
                                                         alt={bookmark.title}
                                                         className="w-full h-48 object-cover"
                                                     />
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.preventDefault();
-                                                            removeBookmark(bookmark.id);
-                                                        }}
-                                                        className="absolute top-2 right-2 p-2 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white transition-all shadow-md hover:shadow-lg"
-                                                    >
-                                                        <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                                                            <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z" />
-                                                        </svg>
-                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <div className="w-full h-48 bg-gray-100 flex items-center justify-center">
+                                                    <span className="text-4xl">📦</span>
                                                 </div>
                                             )}
                                             <div className="p-4">
-                                                <h3 className="font-semibold text-lg mb-2 line-clamp-2">
+                                                <h3 className="font-semibold text-lg mb-2 line-clamp-2 text-gray-900">
                                                     {bookmark.title}
                                                 </h3>
-                                                {bookmark.priceCents && bookmark.priceCents > 0 && (
+                                                {bookmark.priceCents !== undefined && (
                                                     <p className="text-blue-600 font-bold text-xl mb-2">
-                                                        ₦{(bookmark.priceCents / 100).toLocaleString()}
+                                                        {bookmark.currencyCode} {(bookmark.priceCents / 100).toLocaleString()}
                                                     </p>
                                                 )}
-                                                <p className="text-gray-600 text-sm">
-                                                    {bookmark.sellerName}
-                                                </p>
-                                                {bookmark.location && (
-                                                    <p className="text-gray-500 text-xs mt-1">
-                                                        📍 {bookmark.location}
+                                                <div className="flex justify-between items-center mt-2">
+                                                    <p className="text-gray-500 text-xs">
+                                                        {bookmark.seller?.profile?.displayName || 'Unknown Seller'}
                                                     </p>
-                                                )}
+                                                    {bookmark.region?.name && (
+                                                        <p className="text-gray-400 text-xs">
+                                                            📍 {bookmark.region.name}
+                                                        </p>
+                                                    )}
+                                                </div>
                                             </div>
                                         </Link>
+                                        <button
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                removeBookmark(bookmark.id);
+                                                // Optimistic update
+                                                setValidBookmarks(prev => prev.filter(b => b.id !== bookmark.id));
+                                            }}
+                                            className="absolute top-2 right-2 p-2 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white transition-all shadow-md hover:shadow-lg text-red-500 hover:text-red-600 z-10"
+                                            title="Remove Bookmark"
+                                        >
+                                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z" />
+                                            </svg>
+                                        </button>
                                     </div>
                                 ))}
                             </div>

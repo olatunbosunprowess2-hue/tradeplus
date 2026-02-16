@@ -44,8 +44,8 @@ export default function CategoryPills() {
     const allCategories = [{ id: 0, name: 'All', slug: 'all' }, ...categories];
 
     return (
-        <div className="mb-6">
-            <div className="flex items-center justify-between mb-2">
+        <div className="mb-3">
+            <div className="flex items-center justify-between mb-1">
                 <h2 className="text-lg font-semibold text-gray-900">Categories</h2>
             </div>
 

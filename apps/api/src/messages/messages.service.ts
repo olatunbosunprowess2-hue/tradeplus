@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, Inject, forwardRef } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 import { NotificationsService } from '../notifications/notifications.service';
@@ -10,6 +10,7 @@ import { ActivityGateway } from '../activity/activity.gateway';
 export class MessagesService {
     constructor(
         private prisma: PrismaService,
+        @Inject(forwardRef(() => NotificationsService))
         private notificationsService: NotificationsService,
         private activityService: ActivityService,
         private gateway: ActivityGateway
@@ -22,8 +23,8 @@ export class MessagesService {
                 OR: [{ buyerId: userId }, { sellerId: userId }],
             },
             include: {
-                buyer: { select: { id: true, email: true, profile: { select: { displayName: true, avatarUrl: true } } } },
-                seller: { select: { id: true, email: true, profile: { select: { displayName: true, avatarUrl: true } } } },
+                buyer: { select: { id: true, email: true, profile: { select: { displayName: true, avatarUrl: true, lastActiveAt: true } } } },
+                seller: { select: { id: true, email: true, profile: { select: { displayName: true, avatarUrl: true, lastActiveAt: true } } } },
                 listing: { select: { id: true, title: true, images: { take: 1, orderBy: { sortOrder: 'asc' } } } },
                 messages: {
                     take: 1,
@@ -49,6 +50,7 @@ export class MessagesService {
                 participantId: participant.id,
                 participantName: participant.profile?.displayName || participant.email,
                 participantAvatar: participant.profile?.avatarUrl,
+                participantLastActiveAt: participant.profile?.lastActiveAt,
                 lastMessage: lastMessage ? {
                     id: lastMessage.id,
                     content: lastMessage.body,
@@ -138,6 +140,16 @@ export class MessagesService {
             this.activityService.handleChatStarted(conversation.id, userId).catch(err => {
                 console.error('Failed to trigger activity feed for new chat:', err);
             });
+
+            // CREATE SAFETY SYSTEM MESSAGE
+            await this.prisma.message.create({
+                data: {
+                    conversationId: conversation.id,
+                    senderId: userId,
+                    body: "🛡️ Stay Safe: Keep all conversations inside BarterWave. Never pay in advance for items that need to be shipped.",
+                    messageType: 'system',
+                }
+            }).catch(e => console.error("Failed to create safety system message", e));
         }
 
         // Track seller's first response
@@ -216,6 +228,12 @@ export class MessagesService {
     }
 
     async getConversationByParticipant(userId: string, participantId: string) {
+        // Validate UUID to prevent DB errors
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+        if (!uuidRegex.test(participantId)) {
+            return null; // Or throw BadRequestException
+        }
+
         const conversation = await this.prisma.conversation.findFirst({
             where: {
                 OR: [
@@ -368,6 +386,27 @@ export class MessagesService {
             }
         } catch (error) {
             console.error('Failed to track seller response:', error);
+        }
+    }
+
+    async getUnreadMessageCount(userId: string): Promise<number> {
+        try {
+            const count = await this.prisma.message.count({
+                where: {
+                    isRead: false,
+                    senderId: { not: userId },
+                    conversation: {
+                        OR: [
+                            { buyerId: userId },
+                            { sellerId: userId },
+                        ],
+                    },
+                },
+            });
+            return count;
+        } catch (error) {
+            console.error('Failed to get unread message count:', error);
+            return 0;
         }
     }
 }

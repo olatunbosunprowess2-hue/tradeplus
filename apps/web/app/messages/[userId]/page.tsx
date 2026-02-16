@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useMessagesStore } from '@/lib/messages-store';
 import { useAuthStore } from '@/lib/auth-store';
 import { messagesApi } from '@/lib/messages-api';
+import { io, Socket } from 'socket.io-client';
 import Link from 'next/link';
 import Image from 'next/image';
 import ReportModal from '@/components/ReportModal';
@@ -42,6 +43,7 @@ export default function ChatPage() {
     const [showReportModal, setShowReportModal] = useState(false);
     const [showChatLimitModal, setShowChatLimitModal] = useState(false);
     const [isPaymentLoading, setIsPaymentLoading] = useState(false);
+    const socketRef = useRef<Socket | null>(null);
 
     // Find conversation with this participant
     const conversation = conversations.find(c => c.participantId === participantId) || conversationData;
@@ -94,6 +96,41 @@ export default function ChatPage() {
         return () => clearInterval(interval);
     }, [conversationId, fetchMessages]);
 
+    // WebSocket Heartbeat & Activity
+    useEffect(() => {
+        if (!currentUserId) return;
+
+        const socketUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333/api').replace('/api', '');
+        const socket = io(`${socketUrl}/activity`, {
+            transports: ['websocket'],
+        });
+
+        socketRef.current = socket;
+
+        socket.on('connect', () => {
+            socket.emit('join', currentUserId);
+        });
+
+        // Heartbeat every 30s
+        const heartbeatInterval = setInterval(() => {
+            if (socket.connected) {
+                socket.emit('heartbeat', { userId: currentUserId });
+            }
+        }, 30000);
+
+        return () => {
+            clearInterval(heartbeatInterval);
+            socket.disconnect();
+        };
+    }, [currentUserId]);
+
+    const isOnline = (lastActiveAt?: string) => {
+        if (!lastActiveAt) return false;
+        const lastActive = new Date(lastActiveAt).getTime();
+        const now = Date.now();
+        return now - lastActive < 2 * 60 * 1000; // 2 minutes window
+    };
+
     // Auto-scroll to bottom on new messages
     useEffect(() => {
         scrollToBottom();
@@ -127,6 +164,9 @@ export default function ChatPage() {
         e.preventDefault();
         if ((!messageText.trim() && !selectedFile) || isSending) return;
 
+        const currentText = messageText.trim();
+        const currentFile = selectedFile;
+
         // Check chat limit before sending (new conversations)
         if (!conversationId || conversationId.startsWith('temp-')) {
             try {
@@ -140,17 +180,20 @@ export default function ChatPage() {
             }
         }
 
+        // Optimistic UI: Clear input immediately
+        setMessageText('');
+        clearFile();
         setIsSending(true);
+
         try {
-            await sendMessage(participantId, messageText.trim(), undefined, selectedFile || undefined);
-            setMessageText('');
-            clearFile();
-            // Refetch messages after sending
-            if (conversationId) {
-                setTimeout(() => fetchMessages(conversationId), 500);
-            }
+            await sendMessage(participantId, currentText, undefined, currentFile || undefined);
+            // No need to manually refetch or delay as store handles it now
         } catch (error) {
             console.error('Failed to send message:', error);
+            // Put text back on failure so user doesn't lose it
+            setMessageText(currentText);
+            setSelectedFile(currentFile);
+            toast.error('Failed to send message. Please try again.');
         } finally {
             setIsSending(false);
         }
@@ -169,7 +212,9 @@ export default function ChatPage() {
         }
     };
 
-    const getTimeDisplay = (timestamp: number) => {
+    const getTimeDisplay = (timestamp: any) => {
+        if (!timestamp || isNaN(new Date(timestamp).getTime())) return 'Just now';
+
         const date = new Date(timestamp);
         const now = new Date();
         const isToday = date.toDateString() === now.toDateString();
@@ -261,10 +306,12 @@ export default function ChatPage() {
 
                     <div className="flex-1 min-w-0">
                         <h2 className="font-bold text-gray-900 truncate">{conversation.participantName}</h2>
-                        <p className="text-xs text-green-600 flex items-center gap-1">
-                            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                            Online
-                        </p>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                            <span className={`w-2 h-2 rounded-full ${isOnline(conversation.participantLastActiveAt) ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-gray-300'}`}></span>
+                            <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">
+                                {isOnline(conversation.participantLastActiveAt) ? 'Online Now' : 'Offline'}
+                            </p>
+                        </div>
                     </div>
 
                     {/* Quick Actions */}
@@ -326,15 +373,7 @@ export default function ChatPage() {
             {/* Messages */}
             <div ref={messagesContainerRef} className="flex-1 overflow-y-auto px-4 py-4">
                 <div className="container mx-auto max-w-4xl space-y-3">
-                    {/* Safety Banner - Always visible at start of chat */}
-                    <div className="flex justify-center my-6">
-                        <div className="bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-3 max-w-lg text-center shadow-sm">
-                            <p className="text-sm text-yellow-800">
-                                🛡️ <span className="font-bold">Stay Safe:</span> Keep all conversations inside BarterWave.
-                                Never pay in advance for items that need to be shipped.
-                            </p>
-                        </div>
-                    </div>
+                    {/* Safety Banner replaced by system message */}
 
                     {messages.length === 0 ? (
                         <div className="text-center py-12">
@@ -348,7 +387,8 @@ export default function ChatPage() {
                             const isOwn = message.senderId === currentUserId;
                             const isSystemMessage = message.type === 'system';
                             const showTimestamp = index === 0 ||
-                                messages[index - 1].timestamp < message.timestamp - 5 * 60 * 1000;
+                                (messages[index - 1].timestamp && message.timestamp &&
+                                    messages[index - 1].timestamp < message.timestamp - 5 * 60 * 1000);
 
                             // System message (special styling)
                             if (isSystemMessage) {
@@ -396,10 +436,7 @@ export default function ChatPage() {
                                             )}
                                             <div className={`flex items-center gap-1 mt-1 ${isOwn ? 'justify-end' : ''}`}>
                                                 <p className={`text-[10px] ${isOwn ? 'text-blue-200' : 'text-gray-400'}`}>
-                                                    {new Date(message.timestamp).toLocaleTimeString('en-US', {
-                                                        hour: 'numeric',
-                                                        minute: '2-digit'
-                                                    })}
+                                                    {getTimeDisplay(message.timestamp)}
                                                 </p>
                                                 {isOwn && (
                                                     <svg className={`w-3 h-3 ${message.read ? 'text-blue-200' : 'text-blue-300'}`} fill="currentColor" viewBox="0 0 20 20">
@@ -437,11 +474,10 @@ export default function ChatPage() {
                 </div>
             )}
 
-            {/* Input */}
-            <div className="bg-white border-t border-gray-200 px-4 py-3 pb-safe">
+            {/* Input Overlay for Files */}
+            <div className="bg-white border-t border-gray-100 px-4 py-3 pb-safe shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.05)]">
                 <div className="container mx-auto max-w-4xl">
                     <form onSubmit={handleSend} className="flex gap-2 items-end">
-
                         <input
                             type="file"
                             ref={fileInputRef}
@@ -452,7 +488,7 @@ export default function ChatPage() {
                         <button
                             type="button"
                             onClick={() => fileInputRef.current?.click()}
-                            className="p-3 text-gray-500 hover:text-blue-600 hover:bg-gray-100 rounded-full transition"
+                            className="p-3 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-all duration-200 active:scale-90"
                             title="Attach image or video"
                         >
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -462,21 +498,27 @@ export default function ChatPage() {
 
                         <div className="flex-1 relative">
                             {filePreview && (
-                                <div className="absolute bottom-full left-0 mb-2 p-2 bg-white rounded-lg shadow-lg border border-gray-200 flex items-center gap-2">
+                                <div className="absolute bottom-full left-0 mb-4 p-2 bg-white rounded-2xl shadow-2xl border border-gray-100 flex items-center gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300 z-20">
                                     {selectedFile?.type.startsWith('image/') ? (
-                                        <img src={filePreview} alt="Preview" className="w-16 h-16 object-cover rounded-md" />
+                                        <img src={filePreview} alt="Preview" className="w-16 h-16 object-cover rounded-xl shadow-inner" />
                                     ) : (
-                                        <div className="w-16 h-16 bg-gray-100 rounded-md flex items-center justify-center">
+                                        <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center">
                                             <span className="text-2xl">🎥</span>
                                         </div>
                                     )}
+                                    <div className="flex-1 pr-10">
+                                        <p className="text-[11px] font-bold text-gray-900 truncate max-w-[150px]">{selectedFile?.name}</p>
+                                        <p className="text-[10px] text-gray-500 uppercase font-medium tracking-tight">
+                                            {(selectedFile?.size || 0) / 1024 < 1024 ? `${((selectedFile?.size || 0) / 1024).toFixed(1)} KB` : `${((selectedFile?.size || 0) / (1024 * 1024)).toFixed(1)} MB`}
+                                        </p>
+                                    </div>
                                     <button
                                         type="button"
                                         onClick={clearFile}
-                                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 shadow-sm"
+                                        className="absolute top-2 right-2 bg-gray-100 text-gray-500 rounded-full p-1.5 hover:bg-red-50 hover:text-red-500 transition-all shadow-sm"
                                     >
-                                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
                                         </svg>
                                     </button>
                                 </div>
@@ -492,20 +534,23 @@ export default function ChatPage() {
                                 }}
                                 placeholder="Type a message..."
                                 rows={1}
-                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder:text-gray-400 font-medium transition-colors resize-none"
-                                style={{ minHeight: '48px', maxHeight: '120px' }}
+                                className="w-full px-4 py-3 bg-gray-50/80 border-2 border-transparent rounded-2xl focus:bg-white focus:ring-0 focus:border-blue-500 text-gray-900 placeholder:text-gray-400 font-medium transition-all duration-200 resize-none shadow-inner text-sm md:text-base"
+                                style={{ minHeight: '48px', maxHeight: '160px' }}
                             />
                         </div>
                         <button
                             type="submit"
                             disabled={(!messageText.trim() && !filePreview) || isSending}
-                            className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-full font-semibold hover:from-blue-700 hover:to-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg flex items-center justify-center shrink-0"
+                            className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 transition-all duration-300 shadow-lg active:scale-95 ${(!messageText.trim() && !filePreview) || isSending
+                                ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'
+                                : 'bg-gradient-to-br from-blue-600 to-indigo-600 text-white hover:shadow-blue-500/25 hover:scale-110'
+                                }`}
                         >
                             {isSending ? (
                                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                             ) : (
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                <svg className="w-6 h-6 transform translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                                 </svg>
                             )}
                         </button>

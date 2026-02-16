@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import apiClient from '@/lib/api-client';
+import ActionConfirmModal from '@/components/admin/ActionConfirmModal';
 
 interface BrandApplication {
     id: string;
@@ -47,9 +48,11 @@ export default function AdminBrandsPage() {
     const [confirmAction, setConfirmAction] = useState<{
         type: 'APPROVE' | 'REVOKE';
         userId: string;
+        userName: string;
         title: string;
         message: string;
-    } | null>(null);
+        open: boolean;
+    }>({ type: 'APPROVE', userId: '', userName: '', title: '', message: '', open: false });
 
     // Modal State
     const [selectedApp, setSelectedApp] = useState<BrandApplication | null>(null);
@@ -90,29 +93,32 @@ export default function AdminBrandsPage() {
         }
     };
 
-    const handleApproveClick = (userId: string) => {
+    const handleApproveClick = (userId: string, userName: string) => {
         setConfirmAction({
             type: 'APPROVE',
             userId,
-            title: 'Approve Brand?',
-            message: 'This will instantly unlock the sell panel and verified features for this user.',
+            userName,
+            title: 'Approve Brand Verification',
+            message: `Are you sure you want to approve verification for ${userName}? This will instantly unlock the sell panel and verified features for this user.`,
+            open: true,
         });
     };
 
-    const handleRevokeClick = (userId: string) => {
+    const handleRevokeClick = (userId: string, userName: string) => {
         setConfirmAction({
             type: 'REVOKE',
             userId,
-            title: 'Revoke Verification?',
-            message: 'Are you sure? This will remove the verified badge and disable access to the sell panel.',
+            userName,
+            title: 'Revoke Brand Verification',
+            message: `Are you sure you want to revoke verification for ${userName}? This will remove the verified badge and disable access to the sell panel.`,
+            open: true,
         });
     };
 
     const executeConfirmAction = async () => {
-        if (!confirmAction) return;
+        if (!confirmAction.userId) return;
         const { type, userId } = confirmAction;
         setActionLoading(userId);
-        setConfirmAction(null); // Close modal
 
         try {
             if (type === 'APPROVE') {
@@ -122,6 +128,7 @@ export default function AdminBrandsPage() {
             }
             fetchApplications();
             setSelectedApp(null);
+            setConfirmAction(prev => ({ ...prev, open: false }));
         } catch (err: any) {
             alert(err.response?.data?.message || 'Failed to execute action');
         } finally {
@@ -526,7 +533,7 @@ export default function AdminBrandsPage() {
                                                 Reject
                                             </button>
                                             <button
-                                                onClick={() => handleApproveClick(selectedApp.id)}
+                                                onClick={() => handleApproveClick(selectedApp.id, selectedApp.brandName || selectedApp.email)}
                                                 disabled={actionLoading === selectedApp.id}
                                                 className="px-5 py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition-all active:scale-[0.98] shadow-sm hover:shadow text-sm flex items-center gap-2"
                                             >
@@ -542,7 +549,7 @@ export default function AdminBrandsPage() {
 
                                     {selectedApp.brandVerificationStatus === 'VERIFIED_BRAND' && (
                                         <button
-                                            onClick={() => handleRevokeClick(selectedApp.id)}
+                                            onClick={() => handleRevokeClick(selectedApp.id, selectedApp.brandName || selectedApp.email)}
                                             className="px-4 py-2 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 transition-colors shadow-sm text-sm"
                                         >
                                             Revoke
@@ -556,29 +563,15 @@ export default function AdminBrandsPage() {
             )}
 
             {/* Confirmation Modal */}
-            {confirmAction && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4 animate-in fade-in duration-200">
-                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 animate-in zoom-in-95 duration-200">
-                        <h3 className="text-lg font-bold text-gray-900 mb-2">{confirmAction.title}</h3>
-                        <p className="text-gray-500 text-sm mb-6">{confirmAction.message}</p>
-                        <div className="flex gap-3 justify-end">
-                            <button
-                                onClick={() => setConfirmAction(null)}
-                                className="px-4 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded-lg transition-colors text-sm"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={executeConfirmAction}
-                                className={`px-4 py-2 text-white font-bold rounded-lg shadow-sm text-sm ${confirmAction.type === 'APPROVE' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'
-                                    }`}
-                            >
-                                Confirm
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <ActionConfirmModal
+                isOpen={confirmAction.open}
+                onClose={() => setConfirmAction({ ...confirmAction, open: false })}
+                onConfirm={executeConfirmAction}
+                title={confirmAction.title}
+                message={confirmAction.message}
+                confirmText={confirmAction.type === 'APPROVE' ? 'Approve' : 'Revoke'}
+                confirmColor={confirmAction.type === 'APPROVE' ? 'green' : 'red'}
+            />
         </div>
     );
 }

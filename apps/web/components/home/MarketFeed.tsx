@@ -126,7 +126,7 @@ export default function MarketFeed() {
 
     return (
         <div>
-            <div className="flex flex-col lg:flex-row gap-6">
+            <div className="flex flex-col lg:flex-row gap-3 lg:gap-6">
                 {/* Filters Sidebar - Desktop */}
                 <div className="hidden lg:block w-64 shrink-0">
                     <div className="sticky top-24 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">

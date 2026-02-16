@@ -28,29 +28,36 @@ export default function EditProfileModal({ isOpen, onClose }: EditProfileModalPr
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.profile?.avatarUrl || null);
 
-    // Extract city from locationAddress on mount
+    // Extract city from user object or locationAddress on mount
     useEffect(() => {
-        if (user?.locationAddress) {
+        if (user?.city) {
+            setCity(user.city);
+        } else if (user?.locationAddress) {
             const parts = user.locationAddress.split(',').map(p => p.trim());
             setCity(parts[0] || '');
         }
-    }, [user?.locationAddress]);
+    }, [user?.city, user?.locationAddress]);
 
     // Fetch regions for the user's country
     useEffect(() => {
-        const countryId = user?.profile?.countryId;
+        // Fallback to root countryId if missing from profile
+        const countryId = user?.profile?.countryId || user?.countryId;
+
         if (countryId && isOpen) {
             setLoadingRegions(true);
-            getRegions(countryId)
+            getRegions(Number(countryId))
                 .then(res => {
                     setRegions(res.data || []);
                 })
                 .catch(err => {
                     console.error('Failed to fetch regions:', err);
+                    setRegions([]);
                 })
                 .finally(() => setLoadingRegions(false));
+        } else if (isOpen) {
+            setRegions([]);
         }
-    }, [user?.profile?.countryId, isOpen]);
+    }, [user?.profile?.countryId, user?.countryId, isOpen]);
 
     if (!isOpen || !user) return null;
 

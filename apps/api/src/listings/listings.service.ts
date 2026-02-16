@@ -191,12 +191,22 @@ export class ListingsService {
         const skip = (page - 1) * limit;
 
         // Use AND array to combine mutually exclusive groups of conditions
-        const andConditions: any[] = [
-            { status: 'active' }
-        ];
+        const andConditions: any[] = [];
+
+        // If includeAll is true (usually for profile pages), don't filter by status: active
+        if (query.includeAll !== 'true' && String(query.includeAll) !== 'true') {
+            andConditions.push({ status: 'active' });
+        }
 
         if (sellerId) {
             andConditions.push({ sellerId });
+        }
+
+        if (query.ids) {
+            const ids = query.ids.split(',').map(id => id.trim()).filter(id => id.length > 0);
+            if (ids.length > 0) {
+                andConditions.push({ id: { in: ids } });
+            }
         }
 
         if (categoryId) {
@@ -368,37 +378,49 @@ export class ListingsService {
     }
 
     async findOne(id: string) {
-        const listing = await this.prisma.listing.findUnique({
-            where: { id },
-            include: {
-                seller: {
-                    include: {
-                        profile: {
-                            include: {
-                                country: true,
-                                region: true,
+        // Validate UUID format to prevent 500 errors from Prisma
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        if (!uuidRegex.test(id)) {
+            throw new NotFoundException('Invalid listing ID format');
+        }
+
+        try {
+            const listing = await this.prisma.listing.findUnique({
+                where: { id },
+                include: {
+                    seller: {
+                        include: {
+                            profile: {
+                                include: {
+                                    country: true,
+                                    region: true,
+                                },
                             },
                         },
                     },
+                    category: true,
+                    images: {
+                        orderBy: { sortOrder: 'asc' },
+                    },
+                    country: true,
+                    region: true,
                 },
-                category: true,
-                images: {
-                    orderBy: { sortOrder: 'asc' },
-                },
-                country: true,
-                region: true,
-            },
-        });
+            });
 
-        if (!listing) {
-            throw new NotFoundException('Listing not found');
+            if (!listing) {
+                throw new NotFoundException('Listing not found');
+            }
+
+            return {
+                ...listing,
+                priceCents: listing.priceCents ? Number(listing.priceCents) : null,
+                downpaymentCents: listing.downpaymentCents ? Number(listing.downpaymentCents) : null,
+            };
+        } catch (error) {
+            if (error instanceof NotFoundException) throw error;
+            console.error(`[ERROR] Unexpected failure in findOne(${id}):`, error);
+            throw error;
         }
-
-        return {
-            ...listing,
-            priceCents: listing.priceCents ? Number(listing.priceCents) : null,
-            downpaymentCents: listing.downpaymentCents ? Number(listing.downpaymentCents) : null,
-        };
     }
 
     async findByUser(userId: string, page: number = 1, limit: number = 10) {

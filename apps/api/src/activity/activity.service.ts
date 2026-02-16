@@ -88,6 +88,20 @@ export class ActivityService {
             userId,
             userName: user?.profile?.displayName || user?.email || 'Unknown'
         });
+
+        // Also update lastActiveAt on login
+        await this.updateLastActive(userId);
+    }
+
+    async updateLastActive(userId: string) {
+        try {
+            await this.prisma.userProfile.update({
+                where: { userId },
+                data: { lastActiveAt: new Date() }
+            });
+        } catch (error) {
+            this.logger.error(`Failed to update lastActiveAt for user ${userId}:`, error);
+        }
     }
 
     async handleReportFiled(reportId: string, reporterId: string, reason?: string) {

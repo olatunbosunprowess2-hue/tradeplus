@@ -34,26 +34,26 @@ export default function StepLocation({ onNext, onBack }: StepProps) {
     const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
 
     useEffect(() => {
-        // Fetch supported countries
-        apiClient.get<Country[]>('/countries')
-            .then(res => setCountries(res.data))
-            .catch(err => console.error('Failed to fetch countries:', err));
+        const initLocation = async () => {
+            try {
+                // Fetch supported countries
+                const res = await apiClient.get<Country[]>('/countries');
+                const countriesData = res.data;
+                setCountries(countriesData);
 
-        // Attempt to auto-detect country via IP/Browser locale or just default
-        // For now, we'll try to guess based on timezone or just let user pick if not detected?
-        // Actually request asked to "automatically picking up the users country".
-        // We can try a lightweight IP check or just default to generic if we can't.
-        // Let's rely on the user's browser location API *silently* if possible, or just default to Nigeria/User's region if we know it.
-        // Or we can use a free IP-API.
+                // Attempt to auto-detect country
+                await detectCountry(countriesData);
+            } catch (err) {
+                console.error('Failed to initialize location data:', err);
+            }
+        };
 
-        if (countries.length > 0) {
-            detectCountry();
-        }
-    }, [countries]);
+        initLocation();
+    }, []); // Run only once on mount
 
-    const detectCountry = async () => {
+    const detectCountry = async (countriesList: Country[]) => {
         try {
-            // Check localStorage cache first to avoid rate limits
+            // Check localStorage cache first to avoid API rate limits
             const cached = localStorage.getItem('barterwave_location_cache');
             let data;
 
@@ -65,7 +65,7 @@ export default function StepLocation({ onNext, onBack }: StepProps) {
                 }
             }
 
-            // If no valid cache, fetch from API
+            // If no valid cache, fetch from IP-API
             if (!data) {
                 const response = await fetch('https://ipapi.co/json/');
                 if (!response.ok) {
@@ -83,7 +83,7 @@ export default function StepLocation({ onNext, onBack }: StepProps) {
             }
 
             if (data && data.country_code) {
-                const detected = countries.find(c => c.code === data.country_code);
+                const detected = countriesList.find(c => c.code === data.country_code);
                 if (detected) {
                     setCountry(detected);
                     if (!city && data.city) setCity(data.city);
@@ -93,19 +93,10 @@ export default function StepLocation({ onNext, onBack }: StepProps) {
         } catch (e) {
             console.warn('Auto-detect country failed, using default:', e);
             // Fallback to Nigeria if available
-            const ng = countries.find(c => c.code === 'NG');
+            const ng = countriesList.find(c => c.code === 'NG');
             if (ng && !country) setCountry(ng);
         }
     };
-
-    // If we have countries loaded, let's try to match a default?
-    useEffect(() => {
-        if (countries.length > 0 && !country) {
-            // Default to Nigeria for now as per project context if available, or just waiting for selection
-            const ng = countries.find(c => c.code === 'NG');
-            if (ng) setCountry(ng);
-        }
-    }, [countries, country]);
 
     // When country changes, load states
     useEffect(() => {

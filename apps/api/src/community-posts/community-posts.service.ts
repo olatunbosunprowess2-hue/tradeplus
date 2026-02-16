@@ -22,11 +22,23 @@ export class CommunityPostsService {
 
         if (query.search) {
             const term = query.search.trim();
-            where.OR = [
+            const cleanTerm = term.replace(/^[@#]/, '');
+
+            const orConditions: any[] = [
                 { content: { contains: term, mode: 'insensitive' } },
-                { hashtags: { has: term.replace(/^#/, '') } },
-                { author: { profile: { displayName: { contains: term, mode: 'insensitive' } } } },
+                { content: { contains: cleanTerm, mode: 'insensitive' } },
+                { hashtags: { has: cleanTerm } },
+                { author: { profile: { displayName: { contains: cleanTerm, mode: 'insensitive' } } } },
+                { author: { firstName: { contains: cleanTerm, mode: 'insensitive' } } },
+                { author: { lastName: { contains: cleanTerm, mode: 'insensitive' } } },
             ];
+
+            // Self-aware search
+            if (userId && (term.toLowerCase() === '@me' || term.toLowerCase() === 'me')) {
+                where.authorId = userId;
+            } else {
+                where.OR = orConditions;
+            }
         }
 
         const [posts, total] = await Promise.all([

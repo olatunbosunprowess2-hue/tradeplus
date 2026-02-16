@@ -29,7 +29,7 @@ export class UsersService {
                     email: true,
                     role: true,
                     userRole: { select: { name: true, level: true } },
-                    profile: { select: { displayName: true, avatarUrl: true } },
+                    profile: { select: { displayName: true, avatarUrl: true, lastActiveAt: true } },
                     verificationStatus: true,
                     createdAt: true
                 },
@@ -68,7 +68,7 @@ export class UsersService {
                     email: true,
                     role: true,
                     userRole: { select: { name: true, level: true } },
-                    profile: { select: { displayName: true } },
+                    profile: { select: { displayName: true, lastActiveAt: true } },
                     verificationStatus: true,
                     createdAt: true
                 },
@@ -141,6 +141,7 @@ export class UsersService {
                         responseRate: true,
                         country: true,
                         region: true,
+                        lastActiveAt: true,
                     }
                 }
             }

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { messagesApi } from './messages-api';
+import { useAuthStore } from './auth-store';
 
 export interface Message {
     id: string;
@@ -22,6 +23,7 @@ export interface Conversation {
     participantId: string;
     participantName: string;
     participantAvatar?: string;
+    participantLastActiveAt?: string;
     lastMessage?: {
         id: string;
         content: string;
@@ -80,19 +82,45 @@ export const useMessagesStore = create<MessagesState>((set, get) => ({
     },
 
     sendMessage: async (receiverId, content, listingId, file) => {
+        const { user } = useAuthStore.getState();
+        if (!user) return;
+
+        // Create optimistic message
+        const optimisticId = `opt-${Date.now()}`;
+        const optimisticMessage: Message = {
+            id: optimisticId,
+            conversationId: get().messages[0]?.conversationId || 'temp',
+            senderId: user.id,
+            receiverId,
+            content,
+            timestamp: Date.now(),
+            read: false,
+            type: file ? 'image' : 'text', // Simple heuristic for optimistic UI
+            mediaUrl: file ? URL.createObjectURL(file) : undefined,
+            mediaType: file ? (file.type.startsWith('video/') ? 'video' : 'image') : undefined,
+        };
+
+        // Add optimistic message to state
+        set((state) => ({
+            messages: [...state.messages, optimisticMessage],
+        }));
+
         try {
             const newMessage = await messagesApi.sendMessage({ receiverId, content, listingId, file });
 
-            // Optimistic update or re-fetch
-            // For simplicity, we'll append to messages if we are in that conversation
+            // Replace optimistic message with actual data from server
             set((state) => ({
-                messages: [...state.messages, newMessage],
+                messages: state.messages.map((m) => (m.id === optimisticId ? newMessage : m)),
             }));
 
             // Refresh conversations to update last message
             get().fetchConversations();
         } catch (error) {
-            set({ error: 'Failed to send message' });
+            // Remove optimistic message on failure
+            set((state) => ({
+                messages: state.messages.filter((m) => m.id !== optimisticId),
+                error: 'Failed to send message',
+            }));
             throw error;
         }
     },

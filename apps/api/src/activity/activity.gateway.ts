@@ -3,10 +3,13 @@ import {
     WebSocketServer,
     OnGatewayConnection,
     OnGatewayDisconnect,
+    SubscribeMessage,
+    MessageBody,
+    ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { Logger, UseGuards } from '@nestjs/common';
-// import { WsJwtGuard } from '../auth/guards/ws-jwt.guard'; // TODO: Implement WS Auth
+import { Logger, Inject, forwardRef } from '@nestjs/common';
+import { ActivityService } from './activity.service';
 
 @WebSocketGateway({
     cors: {
@@ -20,6 +23,11 @@ export class ActivityGateway implements OnGatewayConnection, OnGatewayDisconnect
 
     private logger = new Logger('ActivityGateway');
 
+    constructor(
+        @Inject(forwardRef(() => ActivityService))
+        private activityService: ActivityService
+    ) { }
+
     handleConnection(client: Socket) {
         this.logger.log(`Client connected: ${client.id}`);
 
@@ -28,8 +36,21 @@ export class ActivityGateway implements OnGatewayConnection, OnGatewayDisconnect
             if (userId) {
                 client.join(`user:${userId}`);
                 this.logger.log(`Client ${client.id} joined room: user:${userId}`);
+
+                // Immediately update status on join
+                this.activityService.updateLastActive(userId).catch(() => { });
             }
         });
+    }
+
+    @SubscribeMessage('heartbeat')
+    async handleHeartbeat(
+        @MessageBody() data: { userId: string },
+        @ConnectedSocket() client: Socket,
+    ) {
+        if (data.userId) {
+            await this.activityService.updateLastActive(data.userId);
+        }
     }
 
     handleDisconnect(client: Socket) {

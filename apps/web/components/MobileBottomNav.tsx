@@ -11,7 +11,7 @@ export default function MobileBottomNav() {
     const pathname = usePathname();
     const router = useRouter();
     const { isAuthenticated, user, _hasHydrated } = useAuthStore();
-    const { unreadCount, fetchUnreadCount } = useNotificationsStore();
+    const { unreadCounts, fetchUnreadCount } = useNotificationsStore();
     const [isMounted, setIsMounted] = useState(false);
     const [showSellSheet, setShowSellSheet] = useState(false);
 
@@ -89,6 +89,7 @@ export default function MobileBottomNav() {
         {
             href: '/offers',
             label: 'Offers',
+            badge: unreadCounts?.offers || 0,
             icon: (
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
@@ -99,6 +100,7 @@ export default function MobileBottomNav() {
         {
             href: '/messages',
             label: 'Messages',
+            badge: unreadCounts?.messages || 0,
             icon: (
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -132,7 +134,7 @@ export default function MobileBottomNav() {
                 <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />
 
                 <div className="flex justify-around items-center h-16 px-2 max-w-lg mx-auto">
-                    {navItems.map((item) => {
+                    {navItems.map((item: any) => {
                         const isActive = pathname === item.href;
 
                         if (item.primary) {
@@ -156,7 +158,7 @@ export default function MobileBottomNav() {
                             <Link
                                 key={item.href}
                                 href={item.href}
-                                className={`flex flex-col items-center justify-center flex-1 h-full py-2 transition-all relative ${isActive
+                                className={`relative flex flex-col items-center justify-center flex-1 h-full py-2 transition-all ${isActive
                                     ? 'text-blue-600'
                                     : 'text-gray-400 hover:text-gray-600'
                                     }`}
@@ -171,6 +173,11 @@ export default function MobileBottomNav() {
                                 <span className={`text-[10px] mt-1 font-medium ${isActive ? 'font-semibold' : ''}`}>
                                     {item.label}
                                 </span>
+                                {item.badge > 0 && (
+                                    <span className="absolute top-1.5 right-6 bg-red-500 text-white text-[10px] font-bold min-w-[16px] h-[16px] rounded-full flex items-center justify-center px-0.5 border-2 border-white">
+                                        {item.badge > 9 ? '9+' : item.badge}
+                                    </span>
+                                )}
                             </Link>
                         );
                     })}

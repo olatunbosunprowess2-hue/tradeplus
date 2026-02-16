@@ -5,7 +5,7 @@ import { adminApi } from '@/lib/admin-api';
 import ListingStatusBadge from '@/components/admin/ListingStatusBadge';
 import { useToastStore } from '@/lib/toast-store';
 import Link from 'next/link';
-import ConfirmationModal from '@/components/admin/ConfirmationModal';
+import ActionConfirmModal from '@/components/admin/ActionConfirmModal';
 
 export default function AdminListingsPage() {
     const [listings, setListings] = useState<any[]>([]);
@@ -21,8 +21,12 @@ export default function AdminListingsPage() {
     const { addToast } = useToastStore();
 
     // Modal State
-    const [modalOpen, setModalOpen] = useState(false);
-    const [pendingAction, setPendingAction] = useState<{ id: string, status: string } | null>(null);
+    const [pendingAction, setPendingAction] = useState<{ id: string, status: string, title: string, open: boolean }>({
+        id: '',
+        status: '',
+        title: '',
+        open: false
+    });
 
     const fetchListings = async () => {
         setIsLoading(true);
@@ -70,13 +74,12 @@ export default function AdminListingsPage() {
     }, []);
 
 
-    const initiateStatusChange = (listingId: string, newStatus: string) => {
-        setPendingAction({ id: listingId, status: newStatus });
-        setModalOpen(true);
+    const initiateStatusChange = (listingId: string, title: string, newStatus: string) => {
+        setPendingAction({ id: listingId, title, status: newStatus, open: true });
     };
 
     const confirmStatusChange = async () => {
-        if (!pendingAction) return;
+        if (!pendingAction.id) return;
 
         const { id, status } = pendingAction;
         try {
@@ -87,8 +90,7 @@ export default function AdminListingsPage() {
             console.error(error);
             addToast('error', error.response?.data?.message || 'Failed to update listing status');
         } finally {
-            setModalOpen(false);
-            setPendingAction(null);
+            setPendingAction(prev => ({ ...prev, open: false }));
         }
     };
 
@@ -217,14 +219,14 @@ export default function AdminListingsPage() {
                                             <div className="flex items-center justify-end gap-2">
                                                 {listing.status === 'active' ? (
                                                     <button
-                                                        onClick={() => initiateStatusChange(listing.id, 'suspended')}
+                                                        onClick={() => initiateStatusChange(listing.id, listing.title, 'suspended')}
                                                         className="text-red-600 hover:text-red-700 text-sm font-medium hover:bg-red-50 px-3 py-1 rounded-md transition"
                                                     >
                                                         Suspend
                                                     </button>
                                                 ) : (
                                                     <button
-                                                        onClick={() => initiateStatusChange(listing.id, 'active')}
+                                                        onClick={() => initiateStatusChange(listing.id, listing.title, 'active')}
                                                         className="text-green-600 hover:text-green-700 text-sm font-medium hover:bg-green-50 px-3 py-1 rounded-md transition"
                                                     >
                                                         Activate
@@ -262,19 +264,16 @@ export default function AdminListingsPage() {
                 )}
             </div>
 
-            <ConfirmationModal
-                isOpen={modalOpen}
-                title={pendingAction?.status === 'suspended' ? 'Suspend Listing' : 'Activate Listing'}
-                message={pendingAction?.status === 'suspended'
-                    ? 'Are you sure you want to suspend this listing? It will no longer be visible to users.'
-                    : 'Are you sure you want to reactivate this listing? It will be visible on the marketplace again.'}
-                isDestructive={pendingAction?.status === 'suspended'}
-                confirmLabel={pendingAction?.status === 'suspended' ? 'Suspend' : 'Activate'}
+            <ActionConfirmModal
+                isOpen={pendingAction.open}
+                onClose={() => setPendingAction({ ...pendingAction, open: false })}
                 onConfirm={confirmStatusChange}
-                onCancel={() => {
-                    setModalOpen(false);
-                    setPendingAction(null);
-                }}
+                title={pendingAction.status === 'suspended' ? 'Suspend Listing' : 'Activate Listing'}
+                message={pendingAction.status === 'suspended'
+                    ? `Are you sure you want to suspend "${pendingAction.title}"? It will no longer be visible to users.`
+                    : `Are you sure you want to reactivate "${pendingAction.title}"? It will be visible on the marketplace again.`}
+                confirmText={pendingAction.status === 'suspended' ? 'Suspend' : 'Activate'}
+                confirmColor={pendingAction.status === 'suspended' ? 'red' : 'green'}
             />
         </div>
     );

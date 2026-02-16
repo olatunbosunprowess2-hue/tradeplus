@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import SideMenu from '@/components/SideMenu';
 import { useOffersStore } from '@/lib/offers-store';
 import { useAuthStore } from '@/lib/auth-store';
@@ -45,6 +45,7 @@ interface CommunityOffer {
 
 export default function OffersPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { user, isAuthenticated, _hasHydrated } = useAuthStore();
     const [activeTab, setActiveTab] = useState<Tab>('received');
     const [isCounterModalOpen, setIsCounterModalOpen] = useState(false);
@@ -69,17 +70,18 @@ export default function OffersPage() {
     const OfferSkeleton = () => (
         <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-white rounded-xl border border-gray-100 p-4 animate-pulse">
+                <div key={i} className="bg-white rounded-xl border border-gray-100 p-6 animate-pulse">
                     <div className="flex items-start gap-4">
-                        <div className="w-16 h-16 bg-gray-200 rounded-lg" />
-                        <div className="flex-1">
-                            <div className="flex justify-between mb-2">
+                        <div className="w-16 h-16 bg-gray-200 rounded-lg shrink-0" />
+                        <div className="flex-1 space-y-3">
+                            <div className="flex justify-between">
                                 <div className="h-4 bg-gray-200 rounded w-1/3" />
-                                <div className="h-6 bg-gray-200 rounded w-20" />
+                                <div className="h-4 bg-gray-200 rounded w-1/4" />
                             </div>
-                            <div className="space-y-2">
-                                <div className="h-3 bg-gray-200 rounded w-1/2" />
-                                <div className="h-3 bg-gray-200 rounded w-2/3" />
+                            <div className="h-3 bg-gray-200 rounded w-1/2" />
+                            <div className="flex gap-2">
+                                <div className="h-8 bg-gray-200 rounded-lg w-20" />
+                                <div className="h-8 bg-gray-200 rounded-lg w-20" />
                             </div>
                         </div>
                     </div>
@@ -97,6 +99,7 @@ export default function OffersPage() {
         }
     }, [_hasHydrated, isAuthenticated, router]);
 
+    // Fetch offers
     useEffect(() => {
         if (isAuthenticated) {
             fetchOffers();
@@ -109,12 +112,45 @@ export default function OffersPage() {
         }
     }, [fetchOffers, isAuthenticated]);
 
-    // Initial check only for redirect, don't block render
-    if (_hasHydrated && !isAuthenticated) return null; // Logic handled by useEffect
-
     const receivedOffers = user ? getReceivedOffers(user.id) : [];
     const sentOffers = user ? getSentOffers(user.id) : [];
     const historyOffers = user ? getHistoryOffers(user.id) : [];
+
+    // Deep link handling
+    useEffect(() => {
+        const offerId = searchParams.get('id');
+        if (!offerId || isLoading || loadingCommunity) return;
+
+        // Find which tab the offer belongs to
+        const foundInReceived = receivedOffers.find(o => o.id === offerId);
+        const foundInSent = sentOffers.find(o => o.id === offerId);
+        const foundInHistory = historyOffers.find(o => o.id === offerId);
+        const foundInCommunity = communityOffers.find(o => o.id === offerId);
+
+        if (foundInReceived) {
+            setActiveTab('received');
+        } else if (foundInSent) {
+            setActiveTab('sent');
+        } else if (foundInHistory) {
+            setActiveTab('history');
+        } else if (foundInCommunity) {
+            setActiveTab('community');
+        }
+
+        // Scroll to offer after a short delay to allow render
+        if (foundInReceived || foundInSent || foundInHistory || foundInCommunity) {
+            setTimeout(() => {
+                const element = document.getElementById(`offer-${offerId}`);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    element.classList.add('ring-2', 'ring-blue-500', 'ring-offset-2');
+                    setTimeout(() => {
+                        element.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2');
+                    }, 3000);
+                }
+            }, 500);
+        }
+    }, [searchParams, isLoading, loadingCommunity, receivedOffers, sentOffers, historyOffers, communityOffers]);
 
     const handleCounter = (offer: BarterOffer) => {
         setSelectedOffer(offer);
@@ -253,7 +289,7 @@ export default function OffersPage() {
             return (
                 <div className="space-y-4">
                     {receivedOffers.map((offer) => (
-                        <div key={offer.id}>
+                        <div key={offer.id} id={`offer-${offer.id}`} className="scroll-mt-24 transition-all duration-500 rounded-xl">
                             <OfferCard
                                 offer={offer}
                                 type="received"
@@ -299,7 +335,7 @@ export default function OffersPage() {
             return (
                 <div className="space-y-4">
                     {sentOffers.map((offer) => (
-                        <div key={offer.id}>
+                        <div key={offer.id} id={`offer-${offer.id}`} className="scroll-mt-24 transition-all duration-500 rounded-xl">
                             <OfferCard
                                 offer={offer}
                                 type="sent"
@@ -368,7 +404,7 @@ export default function OffersPage() {
                         const postPreview = offer.post.content.length > 80 ? offer.post.content.slice(0, 80) + '...' : offer.post.content;
 
                         return (
-                            <div key={offer.id} className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+                            <div key={offer.id} id={`offer-${offer.id}`} className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 scroll-mt-24 transition-all duration-500">
                                 <div className="flex items-start gap-3">
                                     <img src={otherAvatar} alt={otherName} className="w-10 h-10 rounded-full object-cover border border-gray-100" />
                                     <div className="flex-1 min-w-0">
@@ -414,11 +450,12 @@ export default function OffersPage() {
             return (
                 <div className="space-y-4">
                     {historyOffers.map((offer) => (
-                        <OfferCard
-                            key={offer.id}
-                            offer={offer}
-                            type="history"
-                        />
+                        <div key={offer.id} id={`offer-${offer.id}`} className="scroll-mt-24 transition-all duration-500 rounded-xl">
+                            <OfferCard
+                                offer={offer}
+                                type="history"
+                            />
+                        </div>
                     ))}
                 </div>
             );

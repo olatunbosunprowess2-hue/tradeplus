@@ -186,6 +186,7 @@ model UserProfile {
   conversationsRespondedWithin24h Int     @default(0) @map("conversations_responded_within_24h")
   responseRate                   Float    @default(100) @map("response_rate") // Percentage 0-100
   lastResponseRateUpdate         DateTime? @map("last_response_rate_update") @db.Timestamptz
+  lastActiveAt                   DateTime? @map("last_active_at") @db.Timestamptz
   
   createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz

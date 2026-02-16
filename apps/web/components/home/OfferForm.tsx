@@ -27,7 +27,7 @@ export default function OfferForm({ postId, postAuthor, onClose }: { postId: str
             // Send the offer as a message
             try {
                 const { sendMessage } = useMessagesStore.getState();
-                await sendMessage(postAuthor.id, `🚩 Community Offer: ${message.trim()}`);
+                await sendMessage(postAuthor.id, `🤝 New Community Offer: ${message.trim()}`);
             } catch { /* best-effort */ }
 
             setSubmitted(true);

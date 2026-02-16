@@ -64,4 +64,12 @@ export class ListingQueryDto {
     @IsInt()
     @Min(1)
     limit?: number = 20;
+
+    @IsOptional()
+    @IsString()
+    includeAll?: string;
+
+    @IsOptional()
+    @IsString()
+    ids?: string; // Comma-separated list of IDs
 }

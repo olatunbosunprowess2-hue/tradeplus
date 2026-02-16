@@ -4,20 +4,21 @@ import ListingClient from './ListingClient';
 import type { Listing } from '@/lib/types';
 
 interface Props {
-    params: { id: string };
-    searchParams: { [key: string]: string | string[] | undefined };
+    params: Promise<{ id: string }>;
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 async function getListing(id: string): Promise<Listing | null> {
+    if (!id || id === 'undefined') return null;
+
     try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333/api';
-        // Ensure strictly internal URL if needed, but localhost usually works
         const res = await fetch(`${apiUrl}/listings/${id}`, {
             cache: 'no-store',
         });
 
         if (!res.ok) {
-            if (res.status === 404) return null;
+            if (res.status === 404 || res.status === 400) return null;
             throw new Error(`Failed to fetch listing: ${res.status} ${res.statusText}`);
         }
 
@@ -28,8 +29,9 @@ async function getListing(id: string): Promise<Listing | null> {
     }
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-    const listing = await getListing(params.id);
+export async function generateMetadata(props: Props): Promise<Metadata> {
+    const { id } = await props.params;
+    const listing = await getListing(id);
 
     if (!listing) {
         return {
@@ -59,8 +61,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
 }
 
-export default async function ListingPage({ params }: Props) {
-    const listing = await getListing(params.id);
+export default async function ListingPage(props: Props) {
+    const { id } = await props.params;
+    const listing = await getListing(id);
 
     if (!listing) {
         notFound();

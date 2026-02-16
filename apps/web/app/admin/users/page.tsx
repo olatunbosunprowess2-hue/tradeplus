@@ -66,11 +66,12 @@ export default function AdminUsersPage() {
     const [statusAction, setStatusAction] = useState<{
         open: boolean;
         userId: string | null;
+        userName: string;
         newStatus: string;
-    }>({ open: false, userId: null, newStatus: '' });
+    }>({ open: false, userId: null, userName: '', newStatus: '' });
 
-    const openStatusModal = (userId: string, newStatus: string) => {
-        setStatusAction({ open: true, userId, newStatus });
+    const openStatusModal = (userId: string, userName: string, newStatus: string) => {
+        setStatusAction({ open: true, userId, userName, newStatus });
     };
 
     const handleConfirmStatusChange = async (reason?: string) => {
@@ -85,6 +86,29 @@ export default function AdminUsersPage() {
             fetchUsers();
         } catch (error: any) {
             addToast('error', error.response?.data?.message || 'Failed to update user status');
+        }
+    };
+
+    const [verifyAction, setVerifyAction] = useState<{
+        open: boolean;
+        userId: string | null;
+        userName: string;
+        isVerifying: boolean;
+    }>({ open: false, userId: null, userName: '', isVerifying: true });
+
+    const openVerifyModal = (userId: string, userName: string, isVerifying: boolean) => {
+        setVerifyAction({ open: true, userId, userName, isVerifying });
+    };
+
+    const handleConfirmVerification = async () => {
+        if (!verifyAction.userId) return;
+
+        try {
+            await adminApi.toggleUserVerification(verifyAction.userId, verifyAction.isVerifying);
+            addToast('success', verifyAction.isVerifying ? 'User verified successfully' : 'User verification removed');
+            fetchUsers();
+        } catch (e: any) {
+            addToast('error', e.response?.data?.message || `Failed to ${verifyAction.isVerifying ? 'verify' : 'unverify'} user`);
         }
     };
 
@@ -186,103 +210,90 @@ export default function AdminUsersPage() {
                                     </td>
                                 </tr>
                             ) : (
-                                users.map((user) => (
-                                    <tr key={user.id} className="hover:bg-gray-50 transition">
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-sm">
-                                                    {(user.profile?.displayName || user.email).charAt(0).toUpperCase()}
-                                                </div>
-                                                <div>
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="font-medium text-gray-900">
-                                                            {user.profile?.displayName || 'No Name'}
-                                                        </span>
-                                                        {user._count?.reportsAgainst >= 2 && (
-                                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-100 text-red-700 text-xs font-bold rounded-full" title={`${user._count.reportsAgainst} reports against this user`}>
-                                                                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                                                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                                                                </svg>
-                                                                {user._count.reportsAgainst}
+                                users.map((user) => {
+                                    const userName = user.profile?.displayName || user.firstName ? `${user.firstName} ${user.lastName}` : user.email;
+                                    return (
+                                        <tr key={user.id} className="hover:bg-gray-50 transition">
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-sm">
+                                                        {(user.profile?.displayName || user.email).charAt(0).toUpperCase()}
+                                                    </div>
+                                                    <div>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="font-medium text-gray-900">
+                                                                {user.profile?.displayName || 'No Name'}
+                                                            </span>
+                                                            {user._count?.reportsAgainst >= 2 && (
+                                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-100 text-red-700 text-xs font-bold rounded-full" title={`${user._count.reportsAgainst} reports against this user`}>
+                                                                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                                                    </svg>
+                                                                    {user._count.reportsAgainst}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        {user.firstName && user.lastName && (
+                                                            <span className="text-xs text-gray-500">
+                                                                {user.firstName} {user.lastName}
                                                             </span>
                                                         )}
                                                     </div>
-                                                    {user.firstName && user.lastName && (
-                                                        <span className="text-xs text-gray-500">
-                                                            {user.firstName} {user.lastName}
-                                                        </span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 text-gray-600 text-sm">{user.email}</td>
+                                            <td className="px-6 py-4">
+                                                {getVerificationBadge(user.verificationStatus)}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <UserStatusBadge status={user.status} />
+                                            </td>
+                                            <td className="px-6 py-4 text-gray-600 text-sm">
+                                                {new Date(user.createdAt).toLocaleDateString()}
+                                            </td>
+                                            <td className="px-6 py-4 text-right">
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <button
+                                                        onClick={() => setSelectedUser(user)}
+                                                        className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                                                    >
+                                                        View Details
+                                                    </button>
+                                                    {user.verificationStatus === 'VERIFIED' ? (
+                                                        <button
+                                                            onClick={() => openVerifyModal(user.id, userName, false)}
+                                                            className="text-gray-600 hover:text-gray-700 text-sm font-medium"
+                                                        >
+                                                            Unverify
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            onClick={() => openVerifyModal(user.id, userName, true)}
+                                                            className="text-indigo-600 hover:text-indigo-700 text-sm font-medium"
+                                                        >
+                                                            Verify
+                                                        </button>
+                                                    )}
+                                                    {user.status === 'active' ? (
+                                                        <button
+                                                            onClick={() => openStatusModal(user.id, userName, 'suspended')}
+                                                            className="text-yellow-600 hover:text-yellow-700 text-sm font-medium"
+                                                        >
+                                                            Suspend
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            onClick={() => openStatusModal(user.id, userName, 'active')}
+                                                            className="text-green-600 hover:text-green-700 text-sm font-medium"
+                                                        >
+                                                            Activate
+                                                        </button>
                                                     )}
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 text-gray-600 text-sm">{user.email}</td>
-                                        <td className="px-6 py-4">
-                                            {getVerificationBadge(user.verificationStatus)}
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <UserStatusBadge status={user.status} />
-                                        </td>
-                                        <td className="px-6 py-4 text-gray-600 text-sm">
-                                            {new Date(user.createdAt).toLocaleDateString()}
-                                        </td>
-                                        <td className="px-6 py-4 text-right">
-                                            <div className="flex items-center justify-end gap-2">
-                                                <button
-                                                    onClick={() => setSelectedUser(user)}
-                                                    className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-                                                >
-                                                    View Details
-                                                </button>
-                                                {user.verificationStatus === 'VERIFIED' ? (
-                                                    <button
-                                                        onClick={async () => {
-                                                            try {
-                                                                await adminApi.toggleUserVerification(user.id, false);
-                                                                addToast('success', 'User verification removed');
-                                                                fetchUsers();
-                                                            } catch (e: any) {
-                                                                addToast('error', e.response?.data?.message || 'Failed to unverify user');
-                                                            }
-                                                        }}
-                                                        className="text-gray-600 hover:text-gray-700 text-sm font-medium"
-                                                    >
-                                                        Unverify
-                                                    </button>
-                                                ) : (
-                                                    <button
-                                                        onClick={async () => {
-                                                            try {
-                                                                await adminApi.toggleUserVerification(user.id, true);
-                                                                addToast('success', 'User verified successfully');
-                                                                fetchUsers();
-                                                            } catch (e: any) {
-                                                                addToast('error', e.response?.data?.message || 'Failed to verify user');
-                                                            }
-                                                        }}
-                                                        className="text-indigo-600 hover:text-indigo-700 text-sm font-medium"
-                                                    >
-                                                        Verify
-                                                    </button>
-                                                )}
-                                                {user.status === 'active' ? (
-                                                    <button
-                                                        onClick={() => openStatusModal(user.id, 'suspended')}
-                                                        className="text-yellow-600 hover:text-yellow-700 text-sm font-medium"
-                                                    >
-                                                        Suspend
-                                                    </button>
-                                                ) : (
-                                                    <button
-                                                        onClick={() => openStatusModal(user.id, 'active')}
-                                                        className="text-green-600 hover:text-green-700 text-sm font-medium"
-                                                    >
-                                                        Activate
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
+                                            </td>
+                                        </tr>
+                                    );
+                                })
                             )}
                         </tbody>
                     </table>
@@ -328,13 +339,25 @@ export default function AdminUsersPage() {
                 onConfirm={handleConfirmStatusChange}
                 title={statusAction.newStatus === 'suspended' ? 'Suspend User' : 'Activate User'}
                 message={statusAction.newStatus === 'suspended'
-                    ? 'Are you sure you want to suspend this user? They will not be able to log in.'
-                    : 'Are you sure you want to reactivate this user account?'}
+                    ? `Are you sure you want to suspend ${statusAction.userName}? They will not be able to log in.`
+                    : `Are you sure you want to reactivate the account for ${statusAction.userName}?`}
                 confirmText={statusAction.newStatus === 'suspended' ? 'Suspend' : 'Activate'}
                 confirmColor={statusAction.newStatus === 'suspended' ? 'yellow' : 'green'}
                 showInput={statusAction.newStatus === 'suspended'}
                 inputLabel="Suspension Reason"
                 inputPlaceholder="Please explain why the account is being suspended..."
+            />
+
+            <ActionConfirmModal
+                isOpen={verifyAction.open}
+                onClose={() => setVerifyAction({ ...verifyAction, open: false })}
+                onConfirm={handleConfirmVerification}
+                title={verifyAction.isVerifying ? 'Verify User' : 'Unverify User'}
+                message={verifyAction.isVerifying
+                    ? `Are you sure you want to grant a verified badge to ${verifyAction.userName}?`
+                    : `Are you sure you want to remove the verification from ${verifyAction.userName}?`}
+                confirmText={verifyAction.isVerifying ? 'Verify' : 'Unverify'}
+                confirmColor={verifyAction.isVerifying ? 'blue' : 'red'}
             />
         </div>
     );
