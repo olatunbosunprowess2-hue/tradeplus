@@ -20,15 +20,13 @@ export default function ChatPage() {
     const { user } = useAuthStore();
     const currentUserId = user?.id;
 
-    const {
-        conversations,
-        messages,
-        fetchConversations,
-        fetchMessages,
-        sendMessage,
-        markAsRead,
-        isLoading
-    } = useMessagesStore();
+    const conversations = useMessagesStore(s => s.conversations);
+    const messages = useMessagesStore(s => s.messages);
+    const fetchConversations = useMessagesStore(s => s.fetchConversations);
+    const fetchMessages = useMessagesStore(s => s.fetchMessages);
+    const sendMessage = useMessagesStore(s => s.sendMessage);
+    const markAsRead = useMessagesStore(s => s.markAsRead);
+    const isLoading = useMessagesStore(s => s.isLoading);
 
     const [messageText, setMessageText] = useState('');
     const [isSending, setIsSending] = useState(false);
@@ -55,14 +53,19 @@ export default function ChatPage() {
         const loadConversation = async () => {
             setIsLoadingConversation(true);
             try {
-                // First try to find in existing conversations
-                if (conversations.length === 0) {
-                    await fetchConversations();
+                // First try to find in existing store
+                const existingConv = conversations.find(c => c.participantId === participantId);
+                if (existingConv) {
+                    setIsLoadingConversation(false);
+                    return;
                 }
 
-                // If still not found, fetch directly
-                const existingConv = conversations.find(c => c.participantId === participantId);
-                if (!existingConv) {
+                // If not in store, fetch all conversations first
+                await fetchConversations();
+
+                // Check again
+                const refreshedConv = useMessagesStore.getState().conversations.find(c => c.participantId === participantId);
+                if (!refreshedConv) {
                     const conv = await messagesApi.getConversationByParticipant(participantId);
                     if (conv) {
                         setConversationData(conv);
@@ -76,24 +79,34 @@ export default function ChatPage() {
         };
 
         loadConversation();
-    }, [participantId, conversations.length]);
+    }, [participantId]); // Remove conversations.length to avoid re-triggering on every list update
 
-    // Fetch messages when conversation is found
     useEffect(() => {
         if (conversationId && !conversationId.startsWith('temp-')) {
+            // Only fetch on mount or when conversation identity changes
             fetchMessages(conversationId);
+
+            // Initial mark as read
             markAsRead(conversationId);
 
-            // Check if this is the first message in the conversation
-            if (messages.length === 0 && !isLoading) {
-                const hasShownModal = localStorage.getItem(`first_chat_${participantId}`);
-                if (!hasShownModal) {
-                    setShowFirstChatModal(true);
-                    localStorage.setItem(`first_chat_${participantId}`, 'true');
-                }
+            // Re-check safety modal (best-effort)
+            const hasShownModal = localStorage.getItem(`first_chat_${participantId}`);
+            if (!hasShownModal) {
+                setShowFirstChatModal(true);
+                localStorage.setItem(`first_chat_${participantId}`, 'true');
             }
         }
-    }, [conversationId, messages.length, isLoading]);
+    }, [conversationId, fetchMessages, markAsRead, participantId]); // Stabilized dependencies
+
+    // Mark as read when new messages arrive (efficiently)
+    useEffect(() => {
+        if (!conversationId || conversationId.startsWith('temp-')) return;
+
+        const hasUnread = messages.some(m => !m.read && m.senderId !== currentUserId);
+        if (hasUnread) {
+            markAsRead(conversationId);
+        }
+    }, [conversationId, messages, markAsRead, currentUserId]);
 
     // Polling for new messages every 5 seconds
     useEffect(() => {

@@ -64,20 +64,44 @@ export const useMessagesStore = create<MessagesState>((set, get) => ({
     error: null,
 
     fetchConversations: async () => {
-        set({ isLoading: true, error: null });
+        // Only set loading if list is empty
+        const isInitial = get().conversations.length === 0;
+        if (isInitial) set({ isLoading: true, error: null });
+
         try {
             const conversations = await messagesApi.getConversations();
-            set({ conversations, isLoading: false });
+
+            // Shallow compare to avoid re-renders if nothing changed
+            const currentJson = JSON.stringify(get().conversations);
+            const newJson = JSON.stringify(conversations);
+
+            if (currentJson !== newJson) {
+                set({ conversations });
+            }
+
+            if (isInitial) set({ isLoading: false });
         } catch (error) {
             set({ error: 'Failed to fetch conversations', isLoading: false });
         }
     },
 
     fetchMessages: async (conversationId) => {
-        set({ isLoading: true, error: null });
+        const isInitial = get().messages.length === 0;
+        if (isInitial) set({ isLoading: true, error: null });
+
         try {
             const messages = await messagesApi.getMessages(conversationId);
-            set({ messages, isLoading: false });
+
+            // Compare IDs and lengths for a fast "same enough" check
+            const currentMessages = get().messages;
+            const hasChanged = currentMessages.length !== messages.length ||
+                messages.some((m, i) => m.id !== currentMessages[i]?.id || m.read !== currentMessages[i]?.read);
+
+            if (hasChanged) {
+                set({ messages });
+            }
+
+            if (isInitial) set({ isLoading: false });
         } catch (error) {
             set({ error: 'Failed to fetch messages', isLoading: false });
         }
