@@ -23,6 +23,7 @@ export class CloudinaryService {
                         folder,
                         use_filename: true,
                         unique_filename: true,
+                        resource_type: 'auto',
                     },
                     (error, result) => {
                         // Always clean up local file

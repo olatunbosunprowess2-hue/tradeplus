@@ -22,7 +22,8 @@ import { SecurityModule } from '../security/security.module';
         BarterModule,
         WantsModule,
         NotificationsModule,
-        SecurityModule
+        SecurityModule,
+        UploadsModule
     ],
 
 

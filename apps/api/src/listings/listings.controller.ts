@@ -22,9 +22,14 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { VerifiedUserGuard } from '../auth/guards/verified-user.guard';
 import { EmailVerifiedGuard } from '../auth/guards/email-verified.guard';
 
+import { CloudinaryService } from '../uploads/cloudinary/cloudinary.service';
+
 @Controller('listings')
 export class ListingsController {
-    constructor(private readonly listingsService: ListingsService) { }
+    constructor(
+        private readonly listingsService: ListingsService,
+        private readonly cloudinaryService: CloudinaryService
+    ) { }
 
     @UseGuards(JwtAuthGuard, EmailVerifiedGuard, VerifiedUserGuard)
     @Post()
@@ -39,19 +44,17 @@ export class ListingsController {
     ) {
         try {
             console.log('Creating listing for user:', req.user.id);
-            console.log('DTO:', JSON.stringify(createListingDto, null, 2));
+            // console.log('DTO:', JSON.stringify(createListingDto, null, 2));
 
-            if (files.images) {
-                const imageUrls = files.images.map((file) => {
-                    const filename = file.filename;
-                    return `${req.protocol}://${req.get('host')}/uploads/${filename}`;
-                });
-                createListingDto.imageUrls = imageUrls;
+            if (files.images && files.images.length > 0) {
+                const uploadPromises = files.images.map(file => this.cloudinaryService.uploadImage(file));
+                const uploadResults = await Promise.all(uploadPromises);
+                createListingDto.imageUrls = uploadResults.map(res => res.url);
             }
 
             if (files.video && files.video.length > 0) {
-                const videoFile = files.video[0];
-                createListingDto.videoUrl = `${req.protocol}://${req.get('host')}/uploads/${videoFile.filename}`;
+                const uploadResult = await this.cloudinaryService.uploadImage(files.video[0]);
+                createListingDto.videoUrl = uploadResult.url;
             }
 
             return await this.listingsService.create(req.user.id, createListingDto);

@@ -36,7 +36,12 @@ apiClient.interceptors.request.use((config) => {
             const base = rawApiUrl;
 
             const normalizedBase = base.endsWith('/') ? base : `${base}/`;
-            const relativeUrl = config.url.startsWith('/') ? config.url.substring(1) : config.url;
+            let relativeUrl = config.url.startsWith('/') ? config.url.substring(1) : config.url;
+
+            // IDEMPOTENCY FIX: If base is '/api' and relativeUrl already contains 'api/', don't double it
+            if (base === '/api' && relativeUrl.startsWith('api/')) {
+                relativeUrl = relativeUrl.substring(4);
+            }
 
             config.url = normalizedBase + relativeUrl;
         } else if (!config.url.includes('localhost') && config.url.startsWith('http:')) {
