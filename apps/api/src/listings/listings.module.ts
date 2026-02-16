@@ -13,6 +13,7 @@ import { WantsModule } from '../wants/wants.module';
 
 import { NotificationsModule } from '../notifications/notifications.module';
 import { SecurityModule } from '../security/security.module';
+import { UploadsModule } from '../uploads/uploads.module';
 
 @Module({
     imports: [
