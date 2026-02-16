@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { adminApi } from '@/lib/admin-api';
 import { useToastStore } from '@/lib/toast-store';
 import Link from 'next/link';
+import { ADMIN_TEMPLATES, getTemplatesByType } from '@/lib/admin-templates';
 
 export default function AdminReportsPage() {
     const [reports, setReports] = useState<any[]>([]);
@@ -16,6 +17,7 @@ export default function AdminReportsPage() {
     // Admin message modal state
     const [showMessageModal, setShowMessageModal] = useState(false);
     const [adminMessage, setAdminMessage] = useState('');
+    const [selectedTemplateId, setSelectedTemplateId] = useState('');
     const [pendingAction, setPendingAction] = useState<{ type: 'resolve' | 'delete', reportId: string } | null>(null);
 
     // Filter and Pagination state
@@ -46,7 +48,20 @@ export default function AdminReportsPage() {
     const openMessageModal = (type: 'resolve' | 'delete', reportId: string) => {
         setPendingAction({ type, reportId });
         setAdminMessage('');
+        setSelectedTemplateId('');
         setShowMessageModal(true);
+    };
+
+    const handleTemplateChange = (templateId: string) => {
+        setSelectedTemplateId(templateId);
+        if (templateId) {
+            const template = ADMIN_TEMPLATES.find(t => t.id === templateId);
+            if (template) {
+                setAdminMessage(template.message);
+            }
+        } else {
+            setAdminMessage('');
+        }
     };
 
     const handleSubmitWithMessage = async () => {
@@ -61,7 +76,7 @@ export default function AdminReportsPage() {
                 addToast('success', 'Report marked as resolved. Reporter has been notified.');
             } else {
                 await adminApi.deleteReportedListing(pendingAction.reportId, adminMessage || undefined);
-                addToast('success', 'Listing deleted successfully. Reporter has been notified.');
+                addToast('success', 'Listing deleted successfully. Reporter and owner have been notified.');
             }
             fetchReports();
         } catch (error) {
@@ -71,6 +86,7 @@ export default function AdminReportsPage() {
             setActionLoading(null);
             setPendingAction(null);
             setAdminMessage('');
+            setSelectedTemplateId('');
         }
     };
 
@@ -240,7 +256,7 @@ export default function AdminReportsPage() {
                     <div className="bg-white rounded-2xl p-6 max-w-lg w-full">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-xl font-bold text-gray-900">
-                                {pendingAction?.type === 'delete' ? 'Delete Listing & Send Message' : 'Resolve Report & Send Message'}
+                                {pendingAction?.type === 'delete' ? 'Delete Listing & Notify' : 'Resolve Report & Notify'}
                             </h3>
                             <button
                                 onClick={() => setShowMessageModal(false)}
@@ -252,23 +268,46 @@ export default function AdminReportsPage() {
                             </button>
                         </div>
 
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Message to Reporter (Optional)
-                            </label>
-                            <p className="text-xs text-gray-500 mb-3">
-                                {pendingAction?.type === 'delete'
-                                    ? 'A default message will be sent if you leave this blank: "Thank you for your report. After reviewing the evidence, we have removed the reported listing. We appreciate your help in keeping our community safe."'
-                                    : 'A default message will be sent if you leave this blank: "Your report has been reviewed and resolved by our team. Thank you for helping us maintain a safe community."'
-                                }
-                            </p>
-                            <textarea
-                                value={adminMessage}
-                                onChange={(e) => setAdminMessage(e.target.value)}
-                                placeholder="Enter a personalized message (optional)..."
-                                className="w-full p-3 border border-gray-300 rounded-lg text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                rows={5}
-                            />
+                        <div className="space-y-4 mb-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Select Response Template
+                                </label>
+                                <select
+                                    value={selectedTemplateId}
+                                    onChange={(e) => handleTemplateChange(e.target.value)}
+                                    className="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <option value="">-- Choose a template --</option>
+                                    {getTemplatesByType(pendingAction?.type === 'delete' ? ['report_delete', 'listing_action'] : 'report_resolve').map(template => (
+                                        <option key={template.id} value={template.id}>
+                                            {template.label}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Message to User(s)
+                                </label>
+                                <p className="text-xs text-gray-500 mb-3">
+                                    {pendingAction?.type === 'delete'
+                                        ? 'The reporter will be notified of the removal. The owner will also be notified of the removal and the reason.'
+                                        : 'The reporter will be notified about the resolution. A default message is sent if left blank.'
+                                    }
+                                </p>
+                                <textarea
+                                    value={adminMessage}
+                                    onChange={(e) => {
+                                        setAdminMessage(e.target.value);
+                                        setSelectedTemplateId(''); // Clear template if user types manually
+                                    }}
+                                    placeholder="Enter a personalized message..."
+                                    className="w-full p-3 border border-gray-300 rounded-lg text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    rows={5}
+                                />
+                            </div>
                         </div>
 
                         <div className="flex gap-3">

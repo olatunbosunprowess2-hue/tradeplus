@@ -228,17 +228,35 @@ export class ReportsService {
         });
 
         // Notify the reporter about the action taken
-        const defaultMessage = 'Thank you for your report. After reviewing the evidence, we have removed the reported listing. We appreciate your help in keeping our community safe.';
-        const notificationMessage = adminMessage || defaultMessage;
+        const reporterDefaultMessage = 'Thank you for your report. After reviewing the evidence, we have removed the reported listing. We appreciate your help in keeping our community safe.';
+        const reporterMessage = adminMessage || reporterDefaultMessage;
 
         await this.notificationsService.create(
             report.reporterId,
             'REPORT_RESOLVED',
             {
                 reportId: report.id,
-                message: notificationMessage,
+                message: reporterMessage,
                 adminResponse: true,
                 actionTaken: 'Listing deleted'
+            }
+        );
+
+        // Notify the listing owner (reported user) about the removal
+        const ownerDefaultMessage = `Your listing "${report.listing?.title}" has been removed by our moderation team after reviewing a report. Please ensure your listings comply with our community guidelines.`;
+        // We might want a separate message for the owner, but for now we can use the same adminMessage if provided, 
+        // or a default owner-focused one. Usually adminMessage is intended for the reporter.
+        // If we want different messages, we'd need another field. 
+        // For now, let's just use the default for owner unless we add another field.
+        await this.notificationsService.create(
+            report.listing!.sellerId,
+            'LISTING_REMOVED_BY_ADMIN',
+            {
+                listingId: report.listingId,
+                listingTitle: report.listing?.title,
+                message: adminMessage || ownerDefaultMessage,
+                reportId: report.id,
+                timestamp: new Date(),
             }
         );
 

@@ -433,6 +433,22 @@ export class AdminService {
             }
         );
 
+        // Notify seller about the action
+        if (dto.status === 'suspended' || dto.status === 'removed') {
+            const defaultMessage = `Your listing "${listing.title}" has been ${dto.status} by an admin following a review. Please contact support if you believe this was in error.`;
+            await this.notificationsService.create(
+                listing.sellerId,
+                'LISTING_ACTION',
+                {
+                    listingId: id,
+                    listingTitle: listing.title,
+                    message: dto.adminMessage || defaultMessage,
+                    action: dto.status,
+                    timestamp: new Date(),
+                }
+            );
+        }
+
 
 
         return {

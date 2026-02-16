@@ -62,6 +62,7 @@ export interface UpdateUserStatusData {
 
 export interface UpdateListingStatusData {
     status: string;
+    adminMessage?: string;
 }
 
 export const adminApi = {

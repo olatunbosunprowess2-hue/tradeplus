@@ -209,18 +209,19 @@ export default function AdminDashboardPage() {
         setSelectedUser(null);
     };
 
-    const handleDecision = async (userId: string, decision: 'APPROVE' | 'REJECT') => {
+    const handleDecision = async (userId: string, decision: 'APPROVE' | 'REJECT', reason?: string) => {
         try {
             const status = decision === 'APPROVE' ? 'VERIFIED' : 'REJECTED';
-            await apiClient.patch(`/admin/users/${userId}/status`, {
-                verificationStatus: status
+            await adminApi.updateUserStatus(userId, {
+                verificationStatus: status,
+                rejectionReason: reason
             });
             setPendingUsers(prev => prev.filter(u => u.id !== userId));
             setSelectedUser(null);
             fetchData();
         } catch (error) {
             console.error('Failed to update user status:', error);
-            alert('Failed to update user status');
+            addToast('error', 'Failed to update user status');
         }
     };
 

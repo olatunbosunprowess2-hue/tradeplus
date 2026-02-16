@@ -3,11 +3,12 @@
 import { useState } from 'react';
 import type { User } from '@/lib/types';
 import { toast } from 'react-hot-toast';
+import { ADMIN_TEMPLATES, getTemplatesByType } from '@/lib/admin-templates';
 
 interface ModalProps {
     user: User;
     onClose: () => void;
-    onDecision: (userId: string, decision: 'APPROVE' | 'REJECT') => void;
+    onDecision: (userId: string, decision: 'APPROVE' | 'REJECT', reason?: string) => void;
 }
 
 // Helper to get full image URL
@@ -52,8 +53,20 @@ export default function VerificationReviewModal({ user, onClose, onDecision }: M
 
         console.log(`Sending rejection email to ${user.email}. Reason: ${rejectReason}`);
         toast.success(`Rejected ${user.profile?.displayName}. Email sent.`);
-        await onDecision(user.id, 'REJECT');
+        // Pass rejection reason to onDecision
+        await onDecision(user.id, 'REJECT', rejectReason);
         // Don't reset isProcessing - modal will close
+    };
+
+    const handleTemplateChange = (templateId: string) => {
+        if (templateId) {
+            const template = ADMIN_TEMPLATES.find(t => t.id === templateId);
+            if (template) {
+                setRejectReason(template.message);
+            }
+        } else {
+            setRejectReason('');
+        }
     };
 
     return (
@@ -143,6 +156,21 @@ export default function VerificationReviewModal({ user, onClose, onDecision }: M
                 <div className="p-6 border-t border-gray-200 bg-gray-50 sticky bottom-0">
                     {isRejecting ? (
                         <div className="space-y-4 animate-fadeIn">
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-gray-700">Quick Templates</label>
+                                <select
+                                    onChange={(e) => handleTemplateChange(e.target.value)}
+                                    className="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-red-500 bg-white"
+                                >
+                                    <option value="">-- Select a reason --</option>
+                                    {getTemplatesByType('verification_reject').map(template => (
+                                        <option key={template.id} value={template.id}>
+                                            {template.label}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
                             <label className="block text-sm font-medium text-gray-700">Reason for Rejection (will be emailed to user)</label>
                             <textarea
                                 value={rejectReason}
