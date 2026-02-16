@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { sanitizeUrl } from '@/lib/utils';
 import { useRef } from 'react';
 import DistressBadge from './DistressBadge';
 
@@ -126,9 +127,10 @@ export default function SpotlightCarousel({ listings }: SpotlightCarouselProps) 
                             <div className="relative h-40 bg-gray-100">
                                 {listing.images?.[0] ? (
                                     <Image
-                                        src={listing.images[0].url}
+                                        src={sanitizeUrl(listing.images[0].url)}
                                         alt={listing.title}
                                         fill
+                                        unoptimized
                                         className="object-cover group-hover:scale-105 transition-transform duration-300"
                                     />
                                 ) : (

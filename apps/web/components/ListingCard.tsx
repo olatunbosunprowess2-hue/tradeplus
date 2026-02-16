@@ -11,86 +11,15 @@ import StarRating from './StarRating';
 import PriceDisplay from './PriceDisplay';
 import PremiumBadge from './PremiumBadge';
 import BrandBadge from './BrandBadge';
+import { sanitizeUrl } from '@/lib/utils';
+import type { Listing } from '@/lib/types';
 import type { BookmarkedListing } from '@/lib/bookmarks-store';
 
 interface ListingCardProps {
-    listing: {
-        id: string;
-        title: string;
-        description?: string;
-        priceCents?: number;
-        originalPriceCents?: number; // For showing discounts
-        currencyCode?: string;
-        images?: { url: string }[];
-        seller?: {
-            profile?: {
-                displayName?: string;
-                region?: {
-                    name?: string;
-                };
-            };
-            email?: string;
-            verified?: boolean;
-            isVerified?: boolean;
-            locationAddress?: string;
-            tier?: string; // 'free' or 'premium'
-            brandVerificationStatus?: string;
-        };
-        sellerId: string;
-        region?: {
-            name?: string;
-        };
-        allowCash?: boolean;
-        allowBarter?: boolean;
-        quantity?: number;
-        type?: 'PHYSICAL' | 'SERVICE';
-        condition?: 'new' | 'used';
-        rating?: number; // 0-5 star rating
-        reviewCount?: number;
-        isDistressSale?: boolean; // Urgent/distress sale
-        isAvailable?: boolean; // Service availability
-        status?: string; // Listing status
-        downpaymentCents?: number;
-    };
+    listing: Listing;
 }
 
 export default function ListingCard({ listing: initialListing }: ListingCardProps) {
-    // Sanitize listing URLs to enforce HTTPS in production
-    // Also handle fallback if API URL was localhost in production
-    const sanitizeUrl = (url?: string): string => {
-        if (!url) return '';
-
-        // Handle Cloudinary URLs - Upgrade to HTTPS
-        if (url.includes('cloudinary.com')) {
-            return url.replace('http:', 'https:');
-        }
-
-        // PROXY MODE: In production, rewrite localhost absolute URLs to relative paths
-        if (process.env.NODE_ENV === 'production' && url.includes('localhost:3333')) {
-            // Priority: /api prefix
-            if (url.includes('/api/')) {
-                return url.split('/api/')[1] ? `/api/${url.split('/api/')[1]}` : '/api';
-            }
-            // Handle /uploads and /private-uploads
-            if (url.includes('/uploads/')) {
-                return url.split('/uploads/')[1] ? `/uploads/${url.split('/uploads/')[1]}` : '/uploads';
-            }
-            if (url.includes('/private-uploads/')) {
-                return url.split('/private-uploads/')[1] ? `/private-uploads/${url.split('/private-uploads/')[1]}` : '/private-uploads';
-            }
-            // Fallback: If it's just http://localhost:3333/some-path
-            const relativePart = url.replace('http://localhost:3333', '');
-            return relativePart.startsWith('/') ? relativePart : `/${relativePart}`;
-        }
-
-        // Force HTTPS for other non-localhost absolute URLs
-        if (url.startsWith('http:') && !url.includes('localhost')) {
-            return url.replace('http:', 'https:');
-        }
-
-        return url;
-    };
-
     const listing = {
         ...initialListing,
         images: initialListing.images?.map(img => ({

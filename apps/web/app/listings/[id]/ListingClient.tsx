@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { sanitizeUrl } from '@/lib/utils';
 import type { Listing } from '@/lib/types';
 import { useAuthStore } from '@/lib/auth-store';
 import { useOffersStore } from '@/lib/offers-store';
@@ -30,40 +31,6 @@ export default function ListingClient({ listing: initialListing }: ListingClient
 
     // Sanitize listing URLs to enforce HTTPS in production
     // Also handle fallback if API URL was localhost in production
-    const sanitizeUrl = (url?: string): string => {
-        if (!url) return '';
-
-        // Handle Cloudinary URLs - Upgrade to HTTPS
-        if (url.includes('cloudinary.com')) {
-            return url.replace('http:', 'https:');
-        }
-
-        // PROXY MODE: In production, rewrite localhost absolute URLs to relative paths
-        if (process.env.NODE_ENV === 'production' && url.includes('localhost:3333')) {
-            // Priority: /api prefix
-            if (url.includes('/api/')) {
-                return url.split('/api/')[1] ? `/api/${url.split('/api/')[1]}` : '/api';
-            }
-            // Handle /uploads and /private-uploads
-            if (url.includes('/uploads/')) {
-                return url.split('/uploads/')[1] ? `/uploads/${url.split('/uploads/')[1]}` : '/uploads';
-            }
-            if (url.includes('/private-uploads/')) {
-                return url.split('/private-uploads/')[1] ? `/private-uploads/${url.split('/private-uploads/')[1]}` : '/private-uploads';
-            }
-            // Fallback: If it's just http://localhost:3333/some-path
-            const relativePart = url.replace('http://localhost:3333', '');
-            return relativePart.startsWith('/') ? relativePart : `/${relativePart}`;
-        }
-
-        // Force HTTPS for other non-localhost absolute URLs
-        if (url.startsWith('http:') && !url.includes('localhost')) {
-            return url.replace('http:', 'https:');
-        }
-
-        return url;
-    };
-
     const listing = {
         ...initialListing,
         images: initialListing.images?.map(img => ({
@@ -200,6 +167,7 @@ export default function ListingClient({ listing: initialListing }: ListingClient
                                     alt={listing.title}
                                     width={600}
                                     height={600}
+                                    unoptimized
                                     className="w-full aspect-square object-cover"
                                     priority
                                 />
@@ -264,6 +232,7 @@ export default function ListingClient({ listing: initialListing }: ListingClient
                                             alt={`${listing.title} ${index + 1}`}
                                             width={150}
                                             height={150}
+                                            unoptimized
                                             className="w-full aspect-square object-cover"
                                         />
                                     </button>

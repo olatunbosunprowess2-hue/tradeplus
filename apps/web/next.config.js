@@ -16,7 +16,8 @@ const nextConfig = {
       'localhost',
       'res.cloudinary.com',
       'cloudinary.com',
-      ...(process.env.NEXT_PUBLIC_API_URL
+      'unhappy-marijo-barterwave-f6a20928.koyeb.app',
+      ...(process.env.NEXT_PUBLIC_API_URL && !process.env.NEXT_PUBLIC_API_URL.includes('localhost')
         ? [new URL(process.env.NEXT_PUBLIC_API_URL).hostname]
         : [])
     ],

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { sanitizeUrl } from '@/lib/utils';
 import dynamic from 'next/dynamic';
 import { useAuthStore } from '@/lib/auth-store';
 import apiClient from '@/lib/api-client';
@@ -264,9 +265,10 @@ export default function PostCard({ post: initialPost, onDelete, onUpdate, savedI
                     <Link href={`/profile/${author.id}`} className="shrink-0 relative w-10 h-10">
                         {getAvatarUrl(author) ? (
                             <Image
-                                src={getAvatarUrl(author)!}
+                                src={sanitizeUrl(getAvatarUrl(author)!)}
                                 alt={getDisplayName(author)}
                                 fill
+                                unoptimized
                                 className="rounded-full object-cover border border-gray-100 hover:opacity-80 transition"
                                 sizes="40px"
                             />
@@ -371,9 +373,10 @@ export default function PostCard({ post: initialPost, onDelete, onUpdate, savedI
                         {post.images.slice(0, 4).map((img, i) => (
                             <div key={i} className={`relative ${post.images.length === 1 ? 'h-80' : 'h-40'} w-full`}>
                                 <Image
-                                    src={img}
+                                    src={sanitizeUrl(img)}
                                     alt={`Post image ${i + 1}`}
                                     fill
+                                    unoptimized
                                     className="rounded-lg object-cover"
                                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                 />
