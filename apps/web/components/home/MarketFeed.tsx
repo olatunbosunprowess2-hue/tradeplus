@@ -11,6 +11,7 @@ import { ListingsGridSkeleton } from '@/components/ui/Skeleton';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import SearchFilters from '@/components/SearchFilters';
 import CategoryPills from '@/components/CategoryPills';
+import CategorySidebar from '@/components/CategorySidebar';
 import SpotlightCarousel from '@/components/SpotlightCarousel';
 
 // Debounce hook for live search
@@ -147,7 +148,9 @@ export default function MarketFeed() {
         <div>
             <div className="flex flex-col lg:flex-row gap-3 lg:gap-6">
                 {/* Filters Sidebar - Desktop */}
-                <div className="hidden lg:block w-64 shrink-0">
+                <div className="hidden lg:flex flex-col gap-6 w-64 shrink-0">
+                    <CategorySidebar />
+
                     <div className="sticky top-24 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 border-b border-gray-100">
                             <h3 className="font-semibold text-gray-800 flex items-center gap-2 text-sm">
@@ -222,7 +225,10 @@ export default function MarketFeed() {
                         <SpotlightCarousel listings={listings} />
                     )}
 
-                    <CategoryPills />
+                    {/* Mobile Only Category Pills */}
+                    <div className="block lg:hidden">
+                        <CategoryPills />
+                    </div>
 
                     {/* Search status indicator */}
                     {search && (
