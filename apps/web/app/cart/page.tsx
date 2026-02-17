@@ -28,7 +28,7 @@ export default function CartPage() {
                 </p>
                 <Link
                     href="/listings"
-                    className="px-8 py-4 bg-gray-900 text-white rounded-2xl font-bold text-lg hover:bg-black hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center gap-3"
+                    className="px-8 py-4 bg-blue-600 text-white rounded-2xl font-bold text-lg hover:bg-blue-700 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center gap-3 active:scale-95"
                 >
                     Explore Marketplace
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
@@ -52,7 +52,7 @@ export default function CartPage() {
                     </div>
                     <button
                         onClick={clearCart}
-                        className="text-gray-400 hover:text-red-500 font-bold transition-all flex items-center gap-2 px-4 py-2 hover:bg-red-50 rounded-xl text-sm self-start md:self-auto group"
+                        className="text-blue-400 hover:text-red-500 font-bold transition-all flex items-center gap-2 px-4 py-2 hover:bg-red-50 rounded-xl text-sm self-start md:self-auto group"
                     >
                         <svg className="w-4 h-4 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -76,7 +76,7 @@ export default function CartPage() {
                                         className="w-full h-full object-cover group-hover:scale-105 transition duration-700"
                                     />
                                     {item.quantity >= item.maxQuantity && (
-                                        <div className="absolute bottom-2 left-2 right-2 bg-black/60 backdrop-blur-md text-white text-[10px] py-1 px-2 rounded-lg text-center font-bold">
+                                        <div className="absolute bottom-2 left-2 right-2 bg-blue-600/80 backdrop-blur-md text-white text-[10px] py-1 px-2 rounded-lg text-center font-bold">
                                             MAX REACHED
                                         </div>
                                     )}
@@ -142,7 +142,7 @@ export default function CartPage() {
                             {/* Decorative element */}
                             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full -mr-16 -mt-16 group-hover/summary:scale-110 transition-transform duration-700 opacity-50"></div>
 
-                            <h2 className="text-2xl font-black text-gray-900 mb-8 relative">Summary</h2>
+                            <h2 className="text-2xl font-black text-blue-900 mb-8 relative">Summary</h2>
 
                             <div className="space-y-5 mb-8 relative">
                                 <div className="flex justify-between items-center">
@@ -160,7 +160,7 @@ export default function CartPage() {
                                     <div className="flex justify-between items-end">
                                         <span className="font-black text-xs text-gray-400 uppercase tracking-[0.2em]">Total</span>
                                         <div className="text-right">
-                                            <div className="text-3xl font-black text-gray-900 tracking-tighter">
+                                            <div className="text-3xl font-black text-blue-600 tracking-tighter">
                                                 NGN {total.toLocaleString()}
                                             </div>
                                             <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Transaction Secured</div>
