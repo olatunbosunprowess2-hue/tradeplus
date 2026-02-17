@@ -1,0 +1,15 @@
+name: Keep-Alive Ping
+
+on:
+  schedule:
+    # Runs every 10 minutes
+    - cron: '*/10 * * * *'
+  workflow_dispatch: # Allows manual trigger for testing
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Backend Health Check
+        run: |
+          curl -I https://unhappy-marijo-barterwave-f6a20928.koyeb.app/api/health
