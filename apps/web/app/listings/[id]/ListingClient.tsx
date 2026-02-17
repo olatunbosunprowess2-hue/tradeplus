@@ -160,14 +160,14 @@ export default function ListingClient({ listing: initialListing }: ListingClient
                     {/* Left Column - Images */}
                     <div>
                         {/* Main Image */}
-                        <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-200 mb-4 relative">
+                        {/* Image Slider */}
+                        <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-200 mb-4 relative group">
                             {listing.images[selectedImageIndex] ? (
                                 <Image
                                     src={listing.images[selectedImageIndex].url}
                                     alt={listing.title}
                                     width={600}
                                     height={600}
-                                    unoptimized
                                     className="w-full aspect-square object-cover"
                                     priority
                                 />
@@ -213,27 +213,67 @@ export default function ListingClient({ listing: initialListing }: ListingClient
                                     }}
                                 />
                             </div>
+
+                            {/* Navigation Arrows */}
+                            {listing.images.length > 1 && (
+                                <>
+                                    <button
+                                        onClick={() => setSelectedImageIndex(prev => prev === 0 ? listing.images.length - 1 : prev - 1)}
+                                        className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:bg-white transition opacity-0 group-hover:opacity-100 md:opacity-100 z-10"
+                                    >
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                        </svg>
+                                    </button>
+                                    <button
+                                        onClick={() => setSelectedImageIndex(prev => prev === listing.images.length - 1 ? 0 : prev + 1)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:bg-white transition opacity-0 group-hover:opacity-100 md:opacity-100 z-10"
+                                    >
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </button>
+
+                                    {/* Dot Indicators */}
+                                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+                                        {listing.images.map((_, index) => (
+                                            <button
+                                                key={index}
+                                                onClick={() => setSelectedImageIndex(index)}
+                                                className={`rounded-full transition-all duration-300 ${selectedImageIndex === index
+                                                    ? 'w-6 h-2 bg-white shadow-md'
+                                                    : 'w-2 h-2 bg-white/60 hover:bg-white/80'
+                                                    }`}
+                                            />
+                                        ))}
+                                    </div>
+
+                                    {/* Image Counter */}
+                                    <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full">
+                                        {selectedImageIndex + 1} / {listing.images.length}
+                                    </div>
+                                </>
+                            )}
                         </div>
 
-                        {/* Thumbnail Images */}
+                        {/* Thumbnail Strip */}
                         {listing.images.length > 1 && (
-                            <div className="grid grid-cols-4 gap-3">
+                            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                                 {listing.images.map((image, index) => (
                                     <button
                                         key={index}
                                         onClick={() => setSelectedImageIndex(index)}
-                                        className={`rounded-lg overflow-hidden border-2 transition ${selectedImageIndex === index
-                                            ? 'border-gray-900'
-                                            : 'border-transparent hover:border-gray-300'
+                                        className={`rounded-lg overflow-hidden border-2 transition shrink-0 ${selectedImageIndex === index
+                                            ? 'border-blue-600 ring-2 ring-blue-200'
+                                            : 'border-transparent hover:border-gray-300 opacity-70 hover:opacity-100'
                                             }`}
                                     >
                                         <Image
                                             src={image.url}
                                             alt={`${listing.title} ${index + 1}`}
-                                            width={150}
-                                            height={150}
-                                            unoptimized
-                                            className="w-full aspect-square object-cover"
+                                            width={80}
+                                            height={80}
+                                            className="w-16 h-16 md:w-20 md:h-20 object-cover"
                                         />
                                     </button>
                                 ))}

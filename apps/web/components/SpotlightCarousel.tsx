@@ -130,7 +130,7 @@ export default function SpotlightCarousel({ listings }: SpotlightCarouselProps) 
                                         src={sanitizeUrl(listing.images[0].url)}
                                         alt={listing.title}
                                         fill
-                                        unoptimized
+                                        sizes="(max-width: 768px) 100vw, 256px"
                                         className="object-cover group-hover:scale-105 transition-transform duration-300"
                                     />
                                 ) : (

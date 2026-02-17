@@ -52,6 +52,8 @@ export default function MobileBottomNav() {
 
     const handleSellClick = (e: React.MouseEvent) => {
         e.preventDefault();
+        // If already on the create page or community tab, don't show the popup
+        if (pathname === '/listings/create') return;
         if (isVerified) {
             setShowSellSheet(true);
         } else {
@@ -132,8 +134,7 @@ export default function MobileBottomNav() {
     return (
         <>
             <nav
-                className="md:hidden fixed left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-gray-200/50 z-[9999] shadow-lg shadow-black/5 print:hidden"
-                style={{ bottom: '0px' }}
+                className="md:hidden fixed inset-x-0 bottom-0 bg-white/95 backdrop-blur-xl border-t border-gray-200/50 z-[10000] shadow-lg shadow-black/5 pb-[env(safe-area-inset-bottom)]"
             >
                 {/* Gradient top border */}
                 <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />

@@ -46,8 +46,8 @@ export default function AdminSidebar() {
 
         fetchCounts();
 
-        // Refresh counts every 60 seconds
-        const interval = setInterval(fetchCounts, 60000);
+        // Refresh counts every 120 seconds
+        const interval = setInterval(fetchCounts, 120000);
         return () => clearInterval(interval);
     }, []);
 

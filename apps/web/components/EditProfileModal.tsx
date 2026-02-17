@@ -109,9 +109,9 @@ export default function EditProfileModal({ isOpen, onClose }: EditProfileModalPr
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-            <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl overflow-hidden animate-in fade-in zoom-in duration-200 text-left">
-                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-sm">
+            <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-lg shadow-xl overflow-hidden animate-in fade-in zoom-in duration-200 text-left flex flex-col max-h-[95vh] sm:max-h-[90vh]">
+                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center shrink-0">
                     <h2 className="text-xl font-bold text-gray-900">Edit Profile</h2>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -120,107 +120,109 @@ export default function EditProfileModal({ isOpen, onClose }: EditProfileModalPr
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 space-y-6">
-                    {/* Profile Picture Section */}
-                    <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
-                        <div className="relative w-16 h-16 rounded-full overflow-hidden bg-gray-200 border-2 border-white shadow-sm shrink-0">
-                            {avatarPreview ? (
-                                <img src={avatarPreview} alt="Profile" className="w-full h-full object-cover" />
-                            ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold">
-                                    {displayName[0]?.toUpperCase() || user.email[0].toUpperCase()}
+                <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+                    <div className="p-6 space-y-6 overflow-y-auto flex-1">
+                        {/* Profile Picture Section */}
+                        <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                            <div className="relative w-16 h-16 rounded-full overflow-hidden bg-gray-200 border-2 border-white shadow-sm shrink-0">
+                                {avatarPreview ? (
+                                    <img src={avatarPreview} alt="Profile" className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold">
+                                        {displayName[0]?.toUpperCase() || user.email[0].toUpperCase()}
+                                    </div>
+                                )}
+                            </div>
+                            <div className="flex-1">
+                                <label className="block text-sm font-semibold text-gray-900 mb-1">
+                                    Profile Picture
+                                    <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-bold uppercase rounded-full">Recommended</span>
+                                </label>
+                                <p className="text-xs text-gray-500 mb-2">
+                                    Adding a professional logo or photo significantly increases trust and engagement.
+                                </p>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleFileChange}
+                                    className="block w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Read-Only Security Fields */}
+                        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 opacity-75">
+                            <div className="flex justify-between items-start">
+                                <div className="space-y-1">
+                                    <label className="block text-xs text-blue-800 font-bold uppercase">Email Address</label>
+                                    <div className="text-sm font-medium text-gray-900">{user.email}</div>
                                 </div>
-                            )}
-                        </div>
-                        <div className="flex-1">
-                            <label className="block text-sm font-semibold text-gray-900 mb-1">
-                                Profile Picture
-                                <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-bold uppercase rounded-full">Recommended</span>
-                            </label>
-                            <p className="text-xs text-gray-500 mb-2">
-                                Adding a professional logo or photo significantly increases trust and engagement.
-                            </p>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleFileChange}
-                                className="block w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Read-Only Security Fields */}
-                    <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 opacity-75">
-                        <div className="flex justify-between items-start">
-                            <div className="space-y-1">
-                                <label className="block text-xs text-blue-800 font-bold uppercase">Email Address</label>
-                                <div className="text-sm font-medium text-gray-900">{user.email}</div>
-                            </div>
-                            <div className="space-y-1 text-right">
-                                <label className="block text-xs text-blue-800 font-bold uppercase">Account Status</label>
-                                <div className="text-sm font-semibold text-green-600">Active</div>
+                                <div className="space-y-1 text-right">
+                                    <label className="block text-xs text-blue-800 font-bold uppercase">Account Status</label>
+                                    <div className="text-sm font-semibold text-green-600">Active</div>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    {/* Editable Fields */}
-                    <div>
-                        <label className="block text-sm font-bold text-gray-900 mb-1">Business / Profile Name</label>
-                        <input
-                            type="text"
-                            value={displayName}
-                            onChange={(e) => setDisplayName(e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 transition font-medium text-gray-900"
-                            placeholder="e.g. Acme Trading Co. or John Doe"
-                        />
-                        <p className="mt-1.5 text-xs text-gray-500 flex items-center gap-1">
-                            <svg className="w-3 h-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            Using your business name or a professional name helps build trust with buyers.
-                        </p>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Bio / About Business</label>
-                        <textarea
-                            value={bio}
-                            onChange={(e) => setBio(e.target.value)}
-                            rows={3}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 transition resize-none text-gray-900"
-                            placeholder="Tell others about your services or what you trade..."
-                        />
-                    </div>
-
-                    {/* Location Fields */}
-                    <div className="grid grid-cols-2 gap-4">
+                        {/* Editable Fields */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">City / Area</label>
+                            <label className="block text-sm font-bold text-gray-900 mb-1">Business / Profile Name</label>
                             <input
                                 type="text"
-                                value={city}
-                                onChange={(e) => setCity(e.target.value)}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 transition text-gray-900"
-                                placeholder="e.g. Ona Ara"
+                                value={displayName}
+                                onChange={(e) => setDisplayName(e.target.value)}
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 transition font-medium text-gray-900"
+                                placeholder="e.g. Acme Trading Co. or John Doe"
+                            />
+                            <p className="mt-1.5 text-xs text-gray-500 flex items-center gap-1">
+                                <svg className="w-3 h-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Using your business name or a professional name helps build trust with buyers.
+                            </p>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Bio / About Business</label>
+                            <textarea
+                                value={bio}
+                                onChange={(e) => setBio(e.target.value)}
+                                rows={3}
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 transition resize-none text-gray-900"
+                                placeholder="Tell others about your services or what you trade..."
                             />
                         </div>
-                        <div>
-                            <SearchableSelect
-                                label="State / Region"
-                                options={regions}
-                                value={selectedRegionId}
-                                onChange={(val) => setSelectedRegionId(Number(val))}
-                                placeholder="Select your state"
-                                loading={loadingRegions}
-                                emptyMessage="No states available"
-                            />
-                            <p className="mt-1 text-xs text-gray-500">
-                                Wrong state? Select the correct one here.
-                            </p>
+
+                        {/* Location Fields */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">City / Area</label>
+                                <input
+                                    type="text"
+                                    value={city}
+                                    onChange={(e) => setCity(e.target.value)}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 transition text-gray-900"
+                                    placeholder="e.g. Ona Ara"
+                                />
+                            </div>
+                            <div>
+                                <SearchableSelect
+                                    label="State / Region"
+                                    options={regions}
+                                    value={selectedRegionId}
+                                    onChange={(val) => setSelectedRegionId(Number(val))}
+                                    placeholder="Select your state"
+                                    loading={loadingRegions}
+                                    emptyMessage="No states available"
+                                />
+                                <p className="mt-1 text-xs text-gray-500">
+                                    Wrong state? Select the correct one here.
+                                </p>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="pt-2 flex gap-3">
+                    <div className="px-6 py-4 border-t border-gray-100 flex gap-3 shrink-0 bg-white pb-[env(safe-area-inset-bottom)]">
                         <button
                             type="button"
                             onClick={onClose}

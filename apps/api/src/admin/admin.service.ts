@@ -522,6 +522,7 @@ export class AdminService {
             totalReports,
             openReports,
             pendingVerifications,
+            pendingBrands,
         ] = await Promise.all([
             this.prisma.user.count(),
             this.prisma.user.count({ where: { status: 'active' } }),
@@ -533,6 +534,7 @@ export class AdminService {
             this.prisma.report.count(),
             this.prisma.report.count({ where: { status: 'open' } }),
             this.prisma.user.count({ where: { verificationStatus: 'PENDING' } }),
+            this.prisma.user.count({ where: { brandVerificationStatus: 'PENDING' } }),
         ]);
 
         const data = {
@@ -540,7 +542,7 @@ export class AdminService {
                 total: totalUsers,
                 active: activeUsers,
                 suspended: suspendedUsers,
-                pendingVerification: pendingVerifications,
+                pendingVerification: pendingVerifications + pendingBrands,
             },
             listings: {
                 total: totalListings,
@@ -621,7 +623,7 @@ export class AdminService {
 
         const data = {
             users: pendingVerifications + multiReportedCount, // Users needing attention
-            listings: suspendedListings,
+            listings: 0, // Suspended listings are resolved actions, so no badge needed
             reviews: flaggedReviews,
             reports: openReports,
             appeals: pendingAppeals,

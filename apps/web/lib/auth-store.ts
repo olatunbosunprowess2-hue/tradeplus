@@ -295,9 +295,15 @@ export const useAuthStore = create<AuthState>()(
                 const response = await apiClient.patch('/users/profile', data);
 
                 if (response.data) {
-                    set((state) => ({
-                        user: state.user ? { ...state.user, ...response.data } : response.data
-                    }));
+                    set((state) => {
+                        if (!state.user) return { user: response.data };
+                        const merged = { ...state.user, ...response.data };
+                        // Deep-merge profile so avatarUrl and other nested fields are preserved
+                        if (response.data.profile) {
+                            merged.profile = { ...(state.user.profile || {}), ...response.data.profile };
+                        }
+                        return { user: merged };
+                    });
                 }
             },
 

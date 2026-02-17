@@ -268,7 +268,6 @@ export default function PostCard({ post: initialPost, onDelete, onUpdate, savedI
                                 src={sanitizeUrl(getAvatarUrl(author)!)}
                                 alt={getDisplayName(author)}
                                 fill
-                                unoptimized
                                 className="rounded-full object-cover border border-gray-100 hover:opacity-80 transition"
                                 sizes="40px"
                             />
@@ -376,7 +375,6 @@ export default function PostCard({ post: initialPost, onDelete, onUpdate, savedI
                                     src={sanitizeUrl(img)}
                                     alt={`Post image ${i + 1}`}
                                     fill
-                                    unoptimized
                                     className="rounded-lg object-cover"
                                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                 />

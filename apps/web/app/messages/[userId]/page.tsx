@@ -41,6 +41,7 @@ export default function ChatPage() {
     const [showReportModal, setShowReportModal] = useState(false);
     const [showChatLimitModal, setShowChatLimitModal] = useState(false);
     const [showFirstChatModal, setShowFirstChatModal] = useState(false);
+    const [hasFetchedMessages, setHasFetchedMessages] = useState(false);
     const [isPaymentLoading, setIsPaymentLoading] = useState(false);
     const socketRef = useRef<Socket | null>(null);
 
@@ -84,7 +85,7 @@ export default function ChatPage() {
     useEffect(() => {
         if (conversationId && !conversationId.startsWith('temp-')) {
             // Only fetch on mount or when conversation identity changes
-            fetchMessages(conversationId);
+            fetchMessages(conversationId).then(() => setHasFetchedMessages(true));
 
             // Initial mark as read
             markAsRead(conversationId);
@@ -398,7 +399,11 @@ export default function ChatPage() {
                 <div className="container mx-auto max-w-4xl space-y-3">
                     {/* Safety Banner replaced by system message */}
 
-                    {messages.length === 0 ? (
+                    {messages.length === 0 && !hasFetchedMessages ? (
+                        <div className="text-center py-12">
+                            <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                        </div>
+                    ) : messages.length === 0 ? (
                         <div className="text-center py-12">
                             <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <span className="text-3xl">👋</span>
@@ -485,7 +490,7 @@ export default function ChatPage() {
             </div>
 
             {/* Quick Replies for New Conversations */}
-            {messages.length === 0 && (
+            {hasFetchedMessages && messages.length === 0 && (
                 <div className="bg-white border-t border-gray-200 px-4 py-3">
                     <div className="container mx-auto max-w-4xl">
                         <p className="text-xs text-gray-500 mb-2 font-medium">Quick replies:</p>
@@ -579,8 +584,8 @@ export default function ChatPage() {
                             {isSending ? (
                                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                             ) : (
-                                <svg className="w-6 h-6 transform translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
                                 </svg>
                             )}
                         </button>

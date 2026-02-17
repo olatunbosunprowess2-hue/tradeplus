@@ -123,6 +123,11 @@ export default function MessagesPage() {
                                         <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm ${conversation.unreadCount > 0 ? 'bg-gradient-to-br from-blue-600 to-indigo-600' : 'bg-gray-400'}`}>
                                             {conversation.participantName.charAt(0)}
                                         </div>
+                                        {/* Online status dot */}
+                                        <span className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${conversation.participantLastActiveAt && (Date.now() - new Date(conversation.participantLastActiveAt).getTime() < 2 * 60 * 1000)
+                                                ? 'bg-green-500'
+                                                : 'bg-gray-300'
+                                            }`} />
                                         {conversation.unreadCount > 0 && (
                                             <div className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
                                                 {conversation.unreadCount}

@@ -4,9 +4,11 @@ import React, { useEffect, useState } from 'react';
 import { useAuthStore } from '@/lib/auth-store';
 import { useRouter } from 'next/navigation';
 import apiClient from '@/lib/api-client';
+import { adminApi } from '@/lib/admin-api';
 import VerificationReviewModal from '@/components/admin/VerificationReviewModal';
 import { canAccessAdminPanel, canManageUsers, canViewSecurity } from '@/lib/rbac';
 import type { User } from '@/lib/types';
+import { toast } from 'react-hot-toast';
 
 interface ActivityStats {
     ads: { today: number; last7Days: number; last30Days: number };
@@ -65,6 +67,54 @@ const ACTION_COLORS: Record<string, string> = {
     ROLE_ASSIGNED: 'bg-amber-100 text-amber-700',
 };
 
+// Memoized components for better performance on mobile
+const TopUserItem = React.memo(({ user, idx, onBan }: { user: TopUser; idx: number; onBan: (id: string) => void }) => (
+    <div key={user.userId} className="p-4 flex items-center gap-3 hover:bg-gray-50">
+        <span className="text-lg font-bold text-gray-400 w-6">#{idx + 1}</span>
+        <img
+            src={user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName)}&background=6366f1&color=fff`}
+            alt=""
+            className="w-8 h-8 rounded-full"
+            loading="lazy"
+        />
+        <div className="flex-1 min-w-0">
+            <p className="font-medium text-gray-900 truncate">{user.displayName}</p>
+            <p className="text-xs text-gray-500">{user.adsPosted} ads • {user.chatsSent} chats</p>
+        </div>
+        <button
+            onClick={() => onBan(user.userId)}
+            className="text-xs px-2 py-1 text-red-600 hover:bg-red-50 rounded"
+        >
+            Ban
+        </button>
+    </div>
+));
+
+const ActivityItem = React.memo(({ item, index, onView, formatTimeAgo, getViewLabel }: any) => (
+    <div key={index} className="p-3 hover:bg-gray-50">
+        <div className="flex items-start gap-3">
+            <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${ACTION_COLORS[item.type] || 'bg-gray-100'}`}>
+                {ACTION_ICONS[item.type] || '📌'}
+            </span>
+            <div className="flex-1 min-w-0">
+                <p className="text-sm text-gray-900">
+                    <span className="font-medium">{item.userName || 'System'}</span>
+                    <span className="text-gray-500"> {item.description}</span>
+                </p>
+                <p className="text-xs text-gray-400 mt-0.5">{formatTimeAgo(item.timestamp)}</p>
+            </div>
+            {(item.targetId || item.userId) && (
+                <button
+                    onClick={() => onView(item)}
+                    className="text-xs text-blue-600 hover:underline whitespace-nowrap"
+                >
+                    {getViewLabel(item)}
+                </button>
+            )}
+        </div>
+    </div>
+));
+
 export default function AdminDashboardPage() {
     const { user, _hasHydrated } = useAuthStore();
     const router = useRouter();
@@ -87,8 +137,8 @@ export default function AdminDashboardPage() {
     useEffect(() => {
         if (canAccessAdminPanel(user)) {
             fetchData();
-            // Refresh every 30 seconds
-            const interval = setInterval(fetchData, 30000);
+            // Refresh every 60 seconds (optimized for mobile/heat)
+            const interval = setInterval(fetchData, 60000);
             return () => clearInterval(interval);
         }
     }, [user]);
@@ -101,7 +151,7 @@ export default function AdminDashboardPage() {
                 apiClient.get('/activity/top-users?hours=24'),
                 apiClient.get('/activity/feed?limit=20'),
                 canViewSecurity(user) ? apiClient.get('/activity/login-ips?limit=30') : Promise.resolve({ data: [] }),
-                canManageUsers(user) ? apiClient.get('/admin/users?verificationStatus=PENDING&limit=100') : Promise.resolve({ data: { data: [] } }),
+                canManageUsers(user) ? apiClient.get('/admin/users?verificationStatus=PENDING&limit=10') : Promise.resolve({ data: { data: [] } }),
             ];
 
             const [statsRes, topUsersRes, feedRes, ipsRes, pendingRes] = await Promise.all(promises);
@@ -221,7 +271,7 @@ export default function AdminDashboardPage() {
             fetchData();
         } catch (error) {
             console.error('Failed to update user status:', error);
-            addToast('error', 'Failed to update user status');
+            toast.error('Failed to update user status');
         }
     };
 
@@ -349,24 +399,7 @@ export default function AdminDashboardPage() {
                     </div>
                     <div className="divide-y divide-gray-100">
                         {topUsers.slice(0, 10).map((topUser, idx) => (
-                            <div key={topUser.userId} className="p-4 flex items-center gap-3 hover:bg-gray-50">
-                                <span className="text-lg font-bold text-gray-400 w-6">#{idx + 1}</span>
-                                <img
-                                    src={topUser.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(topUser.displayName)}&background=6366f1&color=fff`}
-                                    alt=""
-                                    className="w-8 h-8 rounded-full"
-                                />
-                                <div className="flex-1 min-w-0">
-                                    <p className="font-medium text-gray-900 truncate">{topUser.displayName}</p>
-                                    <p className="text-xs text-gray-500">{topUser.adsPosted} ads • {topUser.chatsSent} chats</p>
-                                </div>
-                                <button
-                                    onClick={() => handleBanUser(topUser.userId)}
-                                    className="text-xs px-2 py-1 text-red-600 hover:bg-red-50 rounded"
-                                >
-                                    Ban
-                                </button>
-                            </div>
+                            <TopUserItem key={topUser.userId} user={topUser} idx={idx} onBan={handleBanUser} />
                         ))}
                         {topUsers.length === 0 && (
                             <div className="p-4 text-center text-gray-400 text-sm">No active users yet</div>
@@ -382,28 +415,14 @@ export default function AdminDashboardPage() {
                     </div>
                     <div className="max-h-96 overflow-y-auto divide-y divide-gray-100">
                         {feed.map((item, idx) => (
-                            <div key={idx} className="p-3 hover:bg-gray-50">
-                                <div className="flex items-start gap-3">
-                                    <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${ACTION_COLORS[item.type] || 'bg-gray-100'}`}>
-                                        {ACTION_ICONS[item.type] || '📌'}
-                                    </span>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-sm text-gray-900">
-                                            <span className="font-medium">{item.userName || 'System'}</span>
-                                            <span className="text-gray-500"> {item.description}</span>
-                                        </p>
-                                        <p className="text-xs text-gray-400 mt-0.5">{formatTimeAgo(item.timestamp)}</p>
-                                    </div>
-                                    {(item.targetId || item.userId) && (
-                                        <button
-                                            onClick={() => handleViewActivity(item)}
-                                            className="text-xs text-blue-600 hover:underline whitespace-nowrap"
-                                        >
-                                            {getViewLabel(item)}
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
+                            <ActivityItem
+                                key={idx}
+                                item={item}
+                                index={idx}
+                                onView={handleViewActivity}
+                                formatTimeAgo={formatTimeAgo}
+                                getViewLabel={getViewLabel}
+                            />
                         ))}
                         {feed.length === 0 && (
                             <div className="p-4 text-center text-gray-400 text-sm">No recent activity</div>

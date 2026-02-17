@@ -165,7 +165,8 @@ export default function ListingCard({ listing: initialListing }: ListingCardProp
             {/* Bookmark Button */}
             <div
                 className="absolute top-2 right-2 z-10"
-                onClick={(e) => e.preventDefault()}
+                onClick={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
             >
                 <BookmarkButton listing={bookmarkData} />
             </div>
@@ -204,8 +205,8 @@ export default function ListingCard({ listing: initialListing }: ListingCardProp
                     )}
 
                     {/* Quick Access Actions Overlay */}
-                    <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex justify-between items-center z-20">
-                        <div onClick={(e) => e.preventDefault()}>
+                    <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex justify-between items-center z-20 pointer-events-none group-hover:pointer-events-auto">
+                        <div onClick={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()} className="pointer-events-auto">
                             <ShareButton
                                 url={typeof window !== 'undefined' ? `${window.location.origin}/listings/${listing.id}` : `https://barterwave.com/listings/${listing.id}`}
                                 title={listing.title}
@@ -218,7 +219,7 @@ export default function ListingCard({ listing: initialListing }: ListingCardProp
                                 iconOnly
                             />
                         </div>
-                        <div onClick={(e) => e.preventDefault()}>
+                        <div onClick={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()} className="pointer-events-auto">
                             <AddToCartButton
                                 listing={{
                                     id: listing.id,

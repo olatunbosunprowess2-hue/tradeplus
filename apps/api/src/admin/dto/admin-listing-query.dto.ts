@@ -7,8 +7,8 @@ export class AdminListingQueryDto {
     search?: string;
 
     @IsOptional()
-    @IsEnum(['active', 'paused', 'sold', 'removed'])
-    status?: 'active' | 'paused' | 'sold' | 'removed';
+    @IsEnum(['active', 'paused', 'sold', 'removed', 'suspended'])
+    status?: 'active' | 'paused' | 'sold' | 'removed' | 'suspended';
 
     @IsOptional()
     @Type(() => Number)

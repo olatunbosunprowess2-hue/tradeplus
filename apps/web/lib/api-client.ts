@@ -111,9 +111,12 @@ apiClient.interceptors.response.use(
                     sessionStorage.removeItem('auth-storage');
                     sessionStorage.removeItem('accessToken');
                     sessionStorage.removeItem('refreshToken');
-                    // Only redirect if not already on login/register page
+                    // Only redirect if NOT on a public page
+                    const publicPaths = ['/', '/listings', '/about', '/contact', '/help', '/terms', '/privacy'];
                     const currentPath = window.location.pathname;
-                    if (!currentPath.includes('/login') && !currentPath.includes('/register')) {
+                    const isPublicPath = publicPaths.includes(currentPath) || currentPath.startsWith('/listings/');
+
+                    if (!isPublicPath && !currentPath.includes('/login') && !currentPath.includes('/register')) {
                         window.location.href = '/login';
                     }
                 }
@@ -163,9 +166,12 @@ apiClient.interceptors.response.use(
                     sessionStorage.removeItem('auth-storage');
                     sessionStorage.removeItem('accessToken');
                     sessionStorage.removeItem('refreshToken');
-                    // Only redirect if not already on login/register page
+                    // Only redirect if NOT on a public page
+                    const publicPaths = ['/', '/listings', '/about', '/contact', '/help', '/terms', '/privacy'];
                     const currentPath = window.location.pathname;
-                    if (!currentPath.includes('/login') && !currentPath.includes('/register')) {
+                    const isPublicPath = publicPaths.includes(currentPath) || currentPath.startsWith('/listings/');
+
+                    if (!isPublicPath && !currentPath.includes('/login') && !currentPath.includes('/register')) {
                         window.location.href = '/login';
                     }
                 }

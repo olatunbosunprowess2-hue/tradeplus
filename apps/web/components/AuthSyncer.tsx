@@ -7,21 +7,21 @@ export function AuthSyncer() {
     const refreshProfile = useAuthStore((state) => state.refreshProfile);
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
+    const _hasHydrated = useAuthStore((state) => state._hasHydrated);
+
     useEffect(() => {
-        if (isAuthenticated) {
+        if (isAuthenticated && _hasHydrated) {
             // Refresh profile immediately/on mount to ensure role is up to date
             refreshProfile();
 
-            // Optional: Set up an interval or focus listener if 
-            // we really want "real-time" without reload
-            // For now, refreshing on mount/navigation is usually what is expected.
+            // Background refresh every 2 minutes
             const interval = setInterval(() => {
                 refreshProfile();
-            }, 30000); // Check every 30 seconds? 
+            }, 120000);
 
             return () => clearInterval(interval);
         }
-    }, [isAuthenticated, refreshProfile]);
+    }, [isAuthenticated, _hasHydrated, refreshProfile]);
 
     return null;
 }
