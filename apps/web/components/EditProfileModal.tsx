@@ -129,11 +129,14 @@ export default function EditProfileModal({ isOpen, onClose }: EditProfileModalPr
     return (
         <div className="fixed inset-0 z-[10005] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-md transition-all duration-300">
             <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300 text-left flex flex-col max-h-[92vh] sm:max-h-[90vh]">
-                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center shrink-0">
-                    <h2 className="text-xl font-bold text-gray-900">Edit Profile</h2>
-                    <button onClick={onClose} className="p-2 -mr-2 text-gray-400 hover:text-gray-600 transition rounded-full hover:bg-gray-100">
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center shrink-0 bg-white">
+                    <div>
+                        <h2 className="text-xl font-bold text-gray-900">Edit Profile</h2>
+                        <p className="text-xs text-gray-500 font-medium">Manage your public information</p>
+                    </div>
+                    <button onClick={onClose} className="p-2 -mr-2 text-gray-400 hover:text-gray-900 transition rounded-xl hover:bg-gray-100 active:scale-95">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
@@ -261,26 +264,26 @@ export default function EditProfileModal({ isOpen, onClose }: EditProfileModalPr
                         </div>
                     </div>
 
-                    <div className="px-6 py-4 border-t border-gray-100 flex gap-3 shrink-0 bg-white/80 backdrop-blur-md pb-[max(1rem,env(safe-area-inset-bottom))]">
+                    <div className="px-6 py-5 border-t border-gray-100 flex gap-4 shrink-0 bg-white/90 backdrop-blur-md pb-[max(1.25rem,env(safe-area-inset-bottom))]">
                         <button
                             type="button"
                             onClick={onClose}
-                            className="flex-1 px-4 py-3 border border-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition active:scale-95"
+                            className="flex-1 px-4 py-3.5 border border-gray-200 text-gray-500 font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-gray-50 hover:text-gray-900 transition active:scale-95"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="flex-1 px-4 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-blue-500/30 active:scale-95"
+                            className="flex-1 px-4 py-3.5 bg-blue-600 text-white font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-blue-700 transition disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-xl shadow-blue-500/20 active:scale-95"
                         >
                             {isLoading ? (
                                 <>
-                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                     Saving...
                                 </>
                             ) : (
-                                'Save Changes'
+                                'Save Profile'
                             )}
                         </button>
                     </div>

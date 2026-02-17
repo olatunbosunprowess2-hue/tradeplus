@@ -151,14 +151,14 @@ export default function MakeOfferModal({ isOpen, onClose, listing, onSubmit }: M
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
             <div className="bg-white rounded-2xl w-[95%] max-w-lg p-0 shadow-2xl max-h-[85vh] overflow-y-auto flex flex-col animate-in zoom-in-95 duration-200 mx-auto">
                 {/* Header */}
-                <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-white">
+                <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-white shrink-0">
                     <div>
                         <h2 className="text-xl font-bold text-gray-900">Make an Offer</h2>
-                        <p className="text-xs text-gray-500 mt-1">Negotiate a fair deal with the seller</p>
+                        <p className="text-xs text-gray-500 mt-0.5 font-medium">Negotiate a deal with the seller</p>
                     </div>
                     <button
                         onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600 transition p-2 hover:bg-gray-100 rounded-full"
+                        className="text-gray-400 hover:text-gray-600 transition p-2 hover:bg-gray-100 rounded-lg"
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -204,55 +204,46 @@ export default function MakeOfferModal({ isOpen, onClose, listing, onSubmit }: M
                         {/* Offer Type Selection */}
                         <div>
                             <label className="block text-sm font-bold text-gray-900 mb-2">
-                                How do you want to pay?
+                                Choose Payment Method
                             </label>
                             <div className="grid grid-cols-3 gap-2">
                                 {listing.allowCash && (
                                     <button
                                         type="button"
                                         onClick={() => setOfferType('cash')}
-                                        className={`relative py-3 px-2 rounded-xl font-bold text-xs transition-all border-2 flex flex-col items-center gap-1 ${offerType === 'cash'
-                                            ? 'bg-gray-900 text-white border-gray-900 shadow-lg scale-[1.02]'
-                                            : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                        className={`relative py-3.5 px-2 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all border flex flex-col items-center gap-1.5 ${offerType === 'cash'
+                                            ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-200'
+                                            : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                                             }`}
                                     >
-                                        <span className="text-xl">💵</span>
+                                        <span className="text-lg">💵</span>
                                         <span>Cash</span>
-                                        {offerType === 'cash' && (
-                                            <div className="absolute top-2 right-2 w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-                                        )}
                                     </button>
                                 )}
                                 {listing.allowBarter && (!listing.downpaymentCents || listing.downpaymentCents === 0) && (
                                     <button
                                         type="button"
                                         onClick={() => setOfferType('barter')}
-                                        className={`relative py-3 px-2 rounded-xl font-bold text-xs transition-all border-2 flex flex-col items-center gap-1 ${offerType === 'barter'
-                                            ? 'bg-gray-900 text-white border-gray-900 shadow-lg scale-[1.02]'
-                                            : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                        className={`relative py-3.5 px-2 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all border flex flex-col items-center gap-1.5 ${offerType === 'barter'
+                                            ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-200'
+                                            : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                                             }`}
                                     >
-                                        <span className="text-xl">🔄</span>
+                                        <span className="text-lg">🔄</span>
                                         <span>Barter</span>
-                                        {offerType === 'barter' && (
-                                            <div className="absolute top-2 right-2 w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-                                        )}
                                     </button>
                                 )}
                                 {listing.allowCashPlusBarter && (
                                     <button
                                         type="button"
                                         onClick={() => setOfferType('both')}
-                                        className={`relative py-3 px-2 rounded-xl font-bold text-xs transition-all border-2 flex flex-col items-center gap-1 ${offerType === 'both'
-                                            ? 'bg-gray-900 text-white border-gray-900 shadow-lg scale-[1.02]'
-                                            : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                        className={`relative py-3.5 px-2 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all border flex flex-col items-center gap-1.5 ${offerType === 'both'
+                                            ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-200'
+                                            : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                                             }`}
                                     >
-                                        <span className="text-xl">⚖️</span>
+                                        <span className="text-lg">⚖️</span>
                                         <span>Both</span>
-                                        {offerType === 'both' && (
-                                            <div className="absolute top-2 right-2 w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-                                        )}
                                     </button>
                                 )}
                             </div>
@@ -401,7 +392,7 @@ export default function MakeOfferModal({ isOpen, onClose, listing, onSubmit }: M
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="flex-1 px-6 py-3.5 border-2 border-gray-200 rounded-xl font-bold text-gray-600 hover:bg-gray-50 hover:text-gray-900 hover:border-gray-300 transition-all"
+                                className="flex-1 px-6 py-3.5 border border-gray-200 rounded-xl font-bold text-gray-600 hover:bg-gray-50 transition-all active:scale-95 text-xs uppercase tracking-wider"
                             >
                                 Cancel
                             </button>
@@ -411,9 +402,9 @@ export default function MakeOfferModal({ isOpen, onClose, listing, onSubmit }: M
                                     (offerType !== 'cash' && barterMethod === 'select' && selectedListingIds.size === 0) ||
                                     (offerType !== 'cash' && barterMethod === 'manual' && manualDescription.trim().length === 0)
                                 }
-                                className="flex-1 px-6 py-3.5 bg-gray-900 text-white rounded-xl font-bold hover:bg-black transition-all shadow-lg shadow-gray-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none transform active:scale-[0.98]"
+                                className="flex-1 px-6 py-3.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/10 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none active:scale-95 text-xs uppercase tracking-wider"
                             >
-                                Send Offer 🚀
+                                Send Offer
                             </button>
                         </div>
                     </form>

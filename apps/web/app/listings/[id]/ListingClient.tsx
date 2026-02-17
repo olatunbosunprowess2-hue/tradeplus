@@ -148,12 +148,12 @@ export default function ListingClient({ listing: initialListing }: ListingClient
             <div className="container mx-auto px-4 py-6 max-w-7xl">
                 <button
                     onClick={() => router.back()}
-                    className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 font-medium transition"
+                    className="flex items-center gap-2 text-gray-400 hover:text-gray-900 mb-6 font-bold transition text-xs uppercase tracking-wider"
                 >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
                     </svg>
-                    Back
+                    Back to Marketplace
                 </button>
 
                 <div className="grid lg:grid-cols-2 gap-6">
@@ -219,18 +219,18 @@ export default function ListingClient({ listing: initialListing }: ListingClient
                                 <>
                                     <button
                                         onClick={() => setSelectedImageIndex(prev => prev === 0 ? listing.images.length - 1 : prev - 1)}
-                                        className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:bg-white transition opacity-0 group-hover:opacity-100 md:opacity-100 z-10"
+                                        className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 backdrop-blur-md rounded-lg shadow-sm flex items-center justify-center text-gray-700 hover:bg-white transition opacity-0 group-hover:opacity-100 md:opacity-100 z-10 border border-gray-100"
                                     >
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
                                         </svg>
                                     </button>
                                     <button
                                         onClick={() => setSelectedImageIndex(prev => prev === listing.images.length - 1 ? 0 : prev + 1)}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:bg-white transition opacity-0 group-hover:opacity-100 md:opacity-100 z-10"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 backdrop-blur-md rounded-lg shadow-sm flex items-center justify-center text-gray-700 hover:bg-white transition opacity-0 group-hover:opacity-100 md:opacity-100 z-10 border border-gray-100"
                                     >
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
                                         </svg>
                                     </button>
 
@@ -493,7 +493,7 @@ export default function ListingClient({ listing: initialListing }: ListingClient
                                                         setIsOfferModalOpen(true);
                                                     }
                                                 }}
-                                                className="px-6 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition shadow-sm hover:shadow-md"
+                                                className="px-6 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-500/10 text-xs uppercase tracking-wider active:scale-95"
                                             >
                                                 Make Offer
                                             </button>
@@ -509,12 +509,12 @@ export default function ListingClient({ listing: initialListing }: ListingClient
                                                     allowCash: listing.allowCash,
                                                     quantity: listing.quantity,
                                                 }}
-                                                className="px-6 py-3 rounded-lg font-bold shadow-sm border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
+                                                className="rounded-lg"
                                             />
                                         </div>
                                         <button
                                             onClick={handleContactSeller}
-                                            className="w-full px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-bold hover:bg-slate-50 hover:border-gray-400 transition"
+                                            className="w-full px-6 py-3 border border-gray-200 text-gray-600 rounded-lg font-bold hover:bg-gray-50 hover:text-gray-900 transition text-xs uppercase tracking-wider active:scale-95"
                                         >
                                             💬 Message Seller
                                         </button>

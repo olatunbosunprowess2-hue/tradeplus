@@ -9,8 +9,7 @@ export default function CartPage() {
     const router = useRouter();
 
     const subtotal = getTotal();
-    const serviceFee = subtotal * 0.02; // 2% service fee
-    const total = subtotal + serviceFee;
+    const total = subtotal; // Platform fee removed
 
     if (items.length === 0) {
         return (
@@ -151,25 +150,20 @@ export default function CartPage() {
                                     <span className="font-bold text-gray-900">NGN {subtotal.toLocaleString()}</span>
                                 </div>
                                 <div className="flex justify-between items-center group/fee">
-                                    <span className="text-gray-400 font-bold text-sm uppercase tracking-wider flex items-center gap-1.5">
+                                    <span className="text-gray-400 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5">
                                         Platform Fee
-                                        <div className="relative">
-                                            <svg className="w-4 h-4 text-gray-300 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                        </div>
                                     </span>
-                                    <span className="font-bold text-gray-900">NGN {serviceFee.toLocaleString()}</span>
+                                    <span className="text-emerald-600 font-bold text-xs uppercase tracking-widest">FREE</span>
                                 </div>
 
                                 <div className="pt-6 border-t border-gray-100 space-y-2">
                                     <div className="flex justify-between items-end">
-                                        <span className="font-black text-base text-gray-900 uppercase">Total amount</span>
+                                        <span className="font-black text-xs text-gray-400 uppercase tracking-[0.2em]">Total</span>
                                         <div className="text-right">
-                                            <div className="text-3xl font-black text-blue-600 tracking-tighter">
+                                            <div className="text-3xl font-black text-gray-900 tracking-tighter">
                                                 NGN {total.toLocaleString()}
                                             </div>
-                                            <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">VAT Included</div>
+                                            <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Transaction Secured</div>
                                         </div>
                                     </div>
                                 </div>
@@ -178,10 +172,10 @@ export default function CartPage() {
                             <div className="space-y-4 relative">
                                 <Link
                                     href="/checkout"
-                                    className="w-full bg-gray-900 text-white py-5 rounded-2xl font-black text-lg hover:bg-black hover:shadow-2xl hover:shadow-gray-200 hover:-translate-y-1 transition-all duration-300 text-center flex items-center justify-center gap-3 active:scale-95"
+                                    className="w-full bg-blue-600 text-white py-5 rounded-2xl font-black text-sm uppercase tracking-[0.2em] hover:bg-blue-700 hover:shadow-2xl hover:shadow-blue-500/20 hover:-translate-y-1 transition-all duration-300 text-center flex items-center justify-center gap-3 active:scale-95 shadow-lg shadow-blue-500/10"
                                 >
-                                    CHECKOUT NOW
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                                    Proceed to Checkout
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                                 </Link>
 
                                 <div className="flex flex-col gap-3 pt-6">

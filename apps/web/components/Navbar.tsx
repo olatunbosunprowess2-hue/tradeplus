@@ -318,10 +318,10 @@ export default function Navbar() {
                 <SideMenu />
               ) : (
                 <div className="flex items-center gap-2">
-                  <Link href="/login" className="text-gray-700 font-medium hover:text-blue-600 px-3 py-2 text-sm hidden sm:block">
+                  <Link href="/login" className="text-gray-500 font-bold hover:text-blue-600 px-3 py-2 text-xs uppercase tracking-widest hidden sm:block transition-colors">
                     Login
                   </Link>
-                  <Link href="/register" className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-xl font-medium hover:shadow-lg hover:shadow-blue-500/25 transition-all text-sm">
+                  <Link href="/register" className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/20 transition-all text-xs uppercase tracking-widest active:scale-95">
                     Join Free
                   </Link>
                 </div>

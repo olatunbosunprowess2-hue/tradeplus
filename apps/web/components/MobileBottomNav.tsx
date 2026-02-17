@@ -150,12 +150,12 @@ export default function MobileBottomNav() {
                                     onClick={handleSellClick}
                                     className="flex flex-col items-center justify-center -mt-4"
                                 >
-                                    <div className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all hover:scale-105 active:scale-95">
+                                    <div className="bg-blue-600 text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/30 hover:bg-blue-700 transition-all hover:scale-105 active:scale-95">
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
                                         </svg>
                                     </div>
-                                    <span className="text-[10px] mt-1 font-medium text-gray-500">{item.label}</span>
+                                    <span className="text-[9px] mt-1.5 font-bold text-gray-400 uppercase tracking-widest">SELL</span>
                                 </button>
                             );
                         }
@@ -176,7 +176,7 @@ export default function MobileBottomNav() {
                                 <div className={`transition-transform ${isActive ? 'scale-110' : ''}`}>
                                     {item.icon}
                                 </div>
-                                <span className={`text-[10px] mt-1 font-medium ${isActive ? 'font-semibold' : ''}`}>
+                                <span className={`text-[9px] mt-1 font-bold uppercase tracking-wider ${isActive ? 'text-blue-600' : 'text-gray-400'}`}>
                                     {item.label}
                                 </span>
                                 {item.badge > 0 && (

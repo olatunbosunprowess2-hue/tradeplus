@@ -1,4 +1,4 @@
-import { Inter } from 'next/font/google';
+import { Outfit } from 'next/font/google';
 import type { Metadata } from 'next';
 import './globals.css';
 import Navbar from '@/components/Navbar';
@@ -6,7 +6,7 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import { Toaster } from 'react-hot-toast';
 import { Providers } from './providers';
 
-const inter = Inter({ subsets: ['latin'] });
+const outfit = Outfit({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: {
@@ -89,7 +89,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://res.cloudinary.com" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
       </head>
-      <body className={`${inter.className} bg-slate-50`} suppressHydrationWarning>
+      <body className={`${outfit.className} bg-slate-50`} suppressHydrationWarning>
         <Providers>
           <script
             dangerouslySetInnerHTML={{

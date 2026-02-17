@@ -299,7 +299,7 @@ export default function ProfilePage() {
                                 </div>
                                 <button
                                     onClick={() => setIsEditModalOpen(true)}
-                                    className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition shadow-sm">
+                                    className="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-gray-50 hover:text-gray-900 transition shadow-sm active:scale-95">
                                     Edit Profile
                                 </button>
                             </div>
@@ -423,22 +423,22 @@ export default function ProfilePage() {
                                                         {listing.status === 'active' && (
                                                             <button
                                                                 onClick={() => handleMarkAsSold(listing.id)}
-                                                                className="flex-1 px-3 py-2 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-100 transition">
+                                                                className="flex-1 px-3 py-2 bg-blue-50 text-blue-700 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-blue-100 transition active:scale-95">
                                                                 Mark as Sold
                                                             </button>
                                                         )}
                                                         {listing.status === 'sold' && (
                                                             <button
                                                                 onClick={() => handleReactivate(listing.id)}
-                                                                className="flex-1 px-3 py-2 bg-green-50 text-green-700 rounded-lg text-sm font-medium hover:bg-green-100 transition">
+                                                                className="flex-1 px-3 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-emerald-100 transition active:scale-95">
                                                                 Reactivate
                                                             </button>
                                                         )}
                                                         <button
                                                             onClick={() => handleDelete(listing.id)}
-                                                            className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition">
-                                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                            className="px-3 py-2 text-red-500 hover:bg-red-50 rounded-lg transition active:scale-90">
+                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                             </svg>
                                                         </button>
                                                     </div>
