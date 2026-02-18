@@ -211,6 +211,7 @@ export default function PostCard({ post: initialPost, onDelete, onUpdate, savedI
     const [showReportModal, setShowReportModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [deleting, setDeleting] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(false);
 
     const isOwner = user?.id === post.authorId;
     const author = post.author;
@@ -272,15 +273,17 @@ export default function PostCard({ post: initialPost, onDelete, onUpdate, savedI
                         )}
                     </Link>
                     <div className="flex-1 min-w-0">
-                        <div className="flex items-center flex-wrap gap-x-1">
+                        <div className="flex items-center flex-wrap gap-1.5 mb-0.5">
                             <Link href={`/profile/${author.id}`} className="font-semibold text-gray-900 text-sm hover:underline">
                                 @{getDisplayName(author)}
                             </Link>
-                            {isVerified(author) && <VerifiedBadge />}
-                            {isBrand(author) && <div className="ml-1"><BrandBadge size="xs" /></div>}
-                            {author.tier === 'premium' && <div className="ml-1"><PremiumBadge size="xs" /></div>}
+                            <div className="flex items-center flex-wrap gap-1">
+                                {isVerified(author) && <VerifiedBadge />}
+                                {isBrand(author) && <BrandBadge size="xs" />}
+                                {author.tier === 'premium' && <PremiumBadge size="xs" />}
+                            </div>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                             <span className="text-xs text-gray-400">{timeAgo(post.createdAt)}</span>
                             {post.status === 'resolved' ? (
                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-[10px] font-bold uppercase tracking-wide">
@@ -351,7 +354,19 @@ export default function PostCard({ post: initialPost, onDelete, onUpdate, savedI
 
                 {/* CONTENT */}
                 <div className="px-4 pb-2">
-                    <p className="text-gray-800 text-sm whitespace-pre-wrap leading-relaxed">{post.content}</p>
+                    <p className="text-gray-800 text-sm whitespace-pre-wrap leading-relaxed">
+                        {isExpanded || post.content.length <= 800
+                            ? post.content
+                            : `${post.content.substring(0, 800)}... `}
+                        {post.content.length > 800 && (
+                            <button
+                                onClick={() => setIsExpanded(!isExpanded)}
+                                className="text-blue-600 font-bold hover:underline focus:outline-none"
+                            >
+                                {isExpanded ? 'See less' : 'See more'}
+                            </button>
+                        )}
+                    </p>
                 </div>
 
                 {/* HASHTAGS */}

@@ -15,6 +15,8 @@ import { sanitizeUrl } from '@/lib/utils';
 import type { Listing } from '@/lib/types';
 import type { BookmarkedListing } from '@/lib/bookmarks-store';
 
+import { motion } from 'framer-motion';
+
 interface ListingCardProps {
     listing: Listing;
 }
@@ -93,17 +95,20 @@ export default function ListingCard({ listing: initialListing }: ListingCardProp
     }
 
     return (
-        <div className={`rounded-2xl shadow-md overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group relative animate-in fade-in zoom-in-95 duration-700 ${isUrgentItem
-            ? 'bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-400 ring-2 ring-red-200 animate-pulse-subtle'
-            : 'bg-white border border-gray-100'
-            }`}>
+        <motion.div
+            layout
+            whileHover={{ y: -8, transition: { duration: 0.2 } }}
+            whileTap={{ scale: 0.98 }}
+            className={`rounded-2xl shadow-md overflow-hidden hover:shadow-2xl transition-all duration-300 group relative ${isUrgentItem
+                ? 'bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-400 ring-2 ring-red-200 animate-pulse-subtle'
+                : 'bg-white border border-gray-100'
+                }`}
+        >
             {/* Gradient accent on hover - Red for distress, purple for normal */}
-            <div className={`absolute inset-x-0 top-0 h-1 ${isUrgentItem
+            <div className={`absolute inset-x-0 top-0 h-1 z-20 ${isUrgentItem
                 ? 'bg-gradient-to-r from-red-500 via-orange-500 to-red-500 opacity-100'
                 : 'bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100'
                 } transition-opacity`} />
-
-            {/* Discount Badge - Removed since originalPriceCents is not in current type */}
 
             {/* Badges Container - Top Left */}
             <div className="absolute top-2 left-2 z-10 flex flex-col gap-1 items-start">
@@ -146,24 +151,24 @@ export default function ListingCard({ listing: initialListing }: ListingCardProp
 
             {/* Bookmark Button */}
             <div
-                className="absolute top-2 right-2 z-10"
+                className="absolute top-2 right-2 z-20"
                 onClick={(e) => e.stopPropagation()}
                 onTouchStart={(e) => e.stopPropagation()}
             >
                 <BookmarkButton listing={bookmarkData} />
             </div>
 
-            {/* Link Wrapper or Div if ID invalid */}
-            {isValidId ? (
-                <Link href={`/listings/${listing.id}`} className="block h-full">
-                    {renderCardContent()}
-                </Link>
-            ) : (
-                <div className="block cursor-not-allowed opacity-75 h-full">
-                    {renderCardContent()}
-                </div>
+            {/* Clickable Overlay for redirection */}
+            {isValidId && (
+                <Link
+                    href={`/listings/${listing.id}`}
+                    className="absolute inset-0 z-10"
+                    aria-label={`View ${listing.title}`}
+                />
             )}
-        </div>
+
+            {renderCardContent()}
+        </motion.div>
     );
 
     function renderCardContent() {
