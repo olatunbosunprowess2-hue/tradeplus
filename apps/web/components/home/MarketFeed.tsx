@@ -199,10 +199,9 @@ export default function MarketFeed() {
                     </div>
                 </aside>
 
-                {/* Mobile Filter Button, Search Bar, and Panel */}
+                {/* Mobile Filter & Search Bar */}
                 <div className="lg:hidden">
                     <div className="flex items-center gap-2 mb-3">
-                        {/* Filter Button */}
                         <button
                             onClick={() => setShowMobileFilters(!showMobileFilters)}
                             className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-2 rounded-lg font-medium flex items-center justify-center gap-1.5 hover:shadow-lg transition shadow-sm shrink-0 text-sm"
@@ -213,7 +212,6 @@ export default function MarketFeed() {
                             <span>{showMobileFilters ? 'Hide' : 'Filters'}</span>
                         </button>
 
-                        {/* Search Bar - Mobile */}
                         <div className="flex-1 relative">
                             <input
                                 type="text"
@@ -222,20 +220,11 @@ export default function MarketFeed() {
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="w-full px-3 py-2 pl-9 pr-8 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white text-gray-900 placeholder:text-gray-400 transition-all text-sm"
                             />
-                            <svg
-                                className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
+                            <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                             {searchQuery && (
-                                <button
-                                    type="button"
-                                    onClick={handleClearSearch}
-                                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
-                                >
+                                <button onClick={handleClearSearch} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400">
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                     </svg>
@@ -251,38 +240,31 @@ export default function MarketFeed() {
                     )}
                 </div>
 
-                {/* Listings Grid - Main Center Content */}
-                <div className="flex-1">
-                    {/* Spotlight Carousel - Featured Items */}
-                    {!isLoading && listings.length > 0 && (
-                        <SpotlightCarousel listings={listings} />
-                    )}
+                {/* Main Content Area */}
+                <div className="flex-1 min-w-0">
+                    {/* Spotlight Carousel */}
+                    {!isLoading && listings.length > 0 && <SpotlightCarousel listings={listings} />}
 
-                    {/* Mobile Only Category Pills - Still useful for quick navigation on mobile */}
-                    <div className="block lg:hidden">
+                    {/* Category Pills - Now on BOTH Mobile and Desktop */}
+                    <div className="mb-6">
                         <CategoryPills />
                     </div>
 
                     {/* Search status indicator */}
                     {search && (
-                        <div className="mb-3 flex items-center gap-2 text-sm bg-blue-50 border border-blue-100 rounded-lg px-3 py-2">
+                        <div className="mb-4 flex items-center gap-2 text-sm bg-blue-50 border border-blue-100 rounded-lg px-3 py-2">
                             <svg className="w-4 h-4 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                             <span className="text-gray-600 truncate">Results for: <strong className="text-blue-700">"{search}"</strong></span>
-                            <button
-                                onClick={handleClearSearch}
-                                className="ml-auto text-blue-600 hover:text-blue-700 font-medium shrink-0"
-                            >
-                                Clear
-                            </button>
+                            <button onClick={handleClearSearch} className="ml-auto text-blue-600 font-medium">Clear</button>
                         </div>
                     )}
 
                     {isLoading ? (
-                        <ListingsGridSkeleton count={6} />
+                        <ListingsGridSkeleton count={8} />
                     ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                             {listings.map((listing) => (
                                 <ListingCard key={listing.id} listing={listing} />
                             ))}
@@ -296,7 +278,6 @@ export default function MarketFeed() {
                         </div>
                     )}
 
-                    {/* Infinite Scroll Trigger */}
                     <div ref={ref} className="h-4" />
 
                     {!isLoading && listings.length === 0 && (
@@ -307,23 +288,12 @@ export default function MarketFeed() {
                                 </svg>
                             </div>
                             <h3 className="text-lg font-bold text-gray-900 mb-1">No listings found</h3>
-                            <p className="text-gray-600 text-sm mb-4 max-w-xs mx-auto">Try adjusting your search terms or filters to discover more great items</p>
-                            <button
-                                onClick={handleClearSearch}
-                                className="px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-medium hover:shadow-lg transition text-sm"
-                            >
+                            <button onClick={handleClearSearch} className="px-5 py-2 mt-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-medium text-sm">
                                 Clear Search
                             </button>
                         </div>
                     )}
                 </div>
-
-                {/* Right Sidebar - Categories (Desktop) */}
-                <aside className="hidden lg:block w-64 shrink-0">
-                    <div className="sticky top-24">
-                        <CategorySidebar />
-                    </div>
-                </aside>
             </div>
         </div>
     );

@@ -44,66 +44,58 @@ export default function CategoryPills() {
     const allCategories = [{ id: 0, name: 'All', slug: 'all' }, ...categories];
 
     return (
-        <div className="mb-3">
-            <div className="flex items-center justify-between mb-1">
-                <h2 className="text-lg font-semibold text-gray-900">Categories</h2>
+        <div className="mb-4">
+            <div className="flex items-center justify-between mb-3">
+                <h2 className="text-sm font-bold text-gray-900 uppercase tracking-widest flex items-center gap-2">
+                    <span className="w-1.5 h-6 bg-blue-600 rounded-full"></span>
+                    Marketplace Categories
+                </h2>
             </div>
 
-            {/* Mobile View — Toggle between scroll and grid */}
+            {/* Mobile View — Horizontal Scroll */}
             <div className={`
-                md:hidden flex gap-2 pb-1 -mx-1 px-1 transition-all duration-300
-                ${isExpanded ? 'flex-wrap' : 'overflow-x-auto scrollbar-hide'}
+                md:hidden flex gap-2 pb-2 -mx-4 px-4 overflow-x-auto scrollbar-hide
             `}>
-                {(isExpanded ? allCategories : allCategories.slice(0, 6)).map((category) => (
-                    <button
-                        key={category.id}
-                        onClick={() => handleCategoryClick(category.id === 0 ? '' : category.id.toString())}
-                        className={`
-                            whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium transition-all shrink-0
-                            ${(category.id === 0 ? currentCategoryId === '' : currentCategoryId === category.id.toString())
-                                ? 'bg-gray-900 text-white shadow-md'
-                                : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
-                            }
-                        `}
-                    >
-                        {category.name}
-                    </button>
-                ))}
-                {!isExpanded && allCategories.length > 6 && (
-                    <button
-                        onClick={() => setIsExpanded(true)}
-                        className="whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-blue-600 border border-gray-200 hover:bg-gray-200 transition-all shrink-0"
-                    >
-                        See All
-                    </button>
-                )}
-                {isExpanded && (
-                    <button
-                        onClick={() => setIsExpanded(false)}
-                        className="whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200 transition-all shrink-0"
-                    >
-                        Show Less
-                    </button>
-                )}
+                {allCategories.map((category) => {
+                    const isActive = (category.id === 0 ? currentCategoryId === '' : currentCategoryId === category.id.toString());
+                    return (
+                        <button
+                            key={category.id}
+                            onClick={() => handleCategoryClick(category.id === 0 ? '' : category.id.toString())}
+                            className={`
+                                whitespace-nowrap px-4 py-2 rounded-xl text-xs font-semibold transition-all shrink-0
+                                ${isActive
+                                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
+                                    : 'bg-white text-gray-600 border border-gray-100 hover:bg-gray-50'
+                                }
+                            `}
+                        >
+                            {category.name}
+                        </button>
+                    );
+                })}
             </div>
 
-            {/* Desktop View */}
-            <div className="hidden md:flex flex-wrap gap-2">
-                {allCategories.map((category) => (
-                    <button
-                        key={category.id}
-                        onClick={() => handleCategoryClick(category.id === 0 ? '' : category.id.toString())}
-                        className={`
-                            px-4 py-2 rounded-full text-sm font-medium transition-all
-                            ${(category.id === 0 ? currentCategoryId === '' : currentCategoryId === category.id.toString())
-                                ? 'bg-gray-900 text-white shadow-md transform scale-105'
-                                : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-gray-300'
-                            }
-                        `}
-                    >
-                        {category.name}
-                    </button>
-                ))}
+            {/* Desktop View — Flex Wrap with Premium Styling */}
+            <div className="hidden md:flex flex-wrap gap-2.5">
+                {allCategories.map((category) => {
+                    const isActive = (category.id === 0 ? currentCategoryId === '' : currentCategoryId === category.id.toString());
+                    return (
+                        <button
+                            key={category.id}
+                            onClick={() => handleCategoryClick(category.id === 0 ? '' : category.id.toString())}
+                            className={`
+                                px-5 py-2.5 rounded-2xl text-sm font-bold transition-all duration-300
+                                ${isActive
+                                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xl shadow-blue-600/20 scale-105'
+                                    : 'bg-white text-gray-600 border border-gray-100 hover:border-blue-200 hover:text-blue-600 hover:bg-blue-50/30 hover:shadow-md'
+                                }
+                            `}
+                        >
+                            {category.name}
+                        </button>
+                    );
+                })}
             </div>
         </div>
     );
