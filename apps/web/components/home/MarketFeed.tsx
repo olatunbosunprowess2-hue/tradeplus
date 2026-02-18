@@ -181,11 +181,9 @@ export default function MarketFeed() {
 
     return (
         <div>
-            <div className="flex flex-col lg:flex-row gap-3 lg:gap-6">
-                {/* Filters Sidebar - Desktop */}
-                <div className="hidden lg:flex flex-col gap-6 w-64 shrink-0">
-                    <CategorySidebar />
-
+            <div className="flex flex-col lg:flex-row gap-6">
+                {/* Left Sidebar - Filters (Desktop) */}
+                <aside className="hidden lg:block w-72 shrink-0">
                     <div className="sticky top-24 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 border-b border-gray-100">
                             <h3 className="font-semibold text-gray-800 flex items-center gap-2 text-sm">
@@ -199,7 +197,7 @@ export default function MarketFeed() {
                             <SearchFilters />
                         </div>
                     </div>
-                </div>
+                </aside>
 
                 {/* Mobile Filter Button, Search Bar, and Panel */}
                 <div className="lg:hidden">
@@ -253,14 +251,14 @@ export default function MarketFeed() {
                     )}
                 </div>
 
-                {/* Listings Grid */}
+                {/* Listings Grid - Main Center Content */}
                 <div className="flex-1">
                     {/* Spotlight Carousel - Featured Items */}
                     {!isLoading && listings.length > 0 && (
                         <SpotlightCarousel listings={listings} />
                     )}
 
-                    {/* Mobile Only Category Pills */}
+                    {/* Mobile Only Category Pills - Still useful for quick navigation on mobile */}
                     <div className="block lg:hidden">
                         <CategoryPills />
                     </div>
@@ -284,7 +282,7 @@ export default function MarketFeed() {
                     {isLoading ? (
                         <ListingsGridSkeleton count={6} />
                     ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+                        <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-4">
                             {listings.map((listing) => (
                                 <ListingCard key={listing.id} listing={listing} />
                             ))}
@@ -319,6 +317,13 @@ export default function MarketFeed() {
                         </div>
                     )}
                 </div>
+
+                {/* Right Sidebar - Categories (Desktop) */}
+                <aside className="hidden lg:block w-64 shrink-0">
+                    <div className="sticky top-24">
+                        <CategorySidebar />
+                    </div>
+                </aside>
             </div>
         </div>
     );
