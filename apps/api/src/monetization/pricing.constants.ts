@@ -17,6 +17,7 @@ export const PRICING = {
     CROSS_LIST: { NGN: 0, USD: 0 },                   // FREE - To populate the main feed
 
     PREMIUM_MONTHLY: { NGN: 250000, USD: 499 },      // Alias for Empire Status
+    CHAT_PASS: { NGN: 0, USD: 0 },                   // DEPRECATED - Free limit is 15
 };
 
 export const LIMITS = {
@@ -32,6 +33,7 @@ export const PURCHASE_TYPES = {
     SPOTLIGHT_3: 'spotlight_3',
     SPOTLIGHT_7: 'spotlight_7',
     PREMIUM: 'premium',
+    CHAT_PASS: 'chat_pass',
 } as const;
 
 export type PurchaseType = typeof PURCHASE_TYPES[keyof typeof PURCHASE_TYPES];
