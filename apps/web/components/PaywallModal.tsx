@@ -266,54 +266,53 @@ export default function PaywallModal({
                                     </span>
                                     <span className="text-[10px] font-medium opacity-60">/month</span>
                                 </div>
-                        </div>
                             </button>
 
-                <button
-                    onClick={(e) => toggleExpand(e, 'premium')}
-                    className="w-full text-center text-[10px] font-black text-slate-500 hover:text-slate-900 uppercase tracking-widest transition-colors py-1"
-                >
-                    {expandedOption === 'premium' ? 'Hide Details' : 'See Everything You Get'}
-                </button>
+                            <button
+                                onClick={(e) => toggleExpand(e, 'premium')}
+                                className="w-full text-center text-[10px] font-black text-slate-500 hover:text-slate-900 uppercase tracking-widest transition-colors py-1"
+                            >
+                                {expandedOption === 'premium' ? 'Hide Details' : 'See Everything You Get'}
+                            </button>
 
-                {expandedOption === 'premium' && (
-                    <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 animate-in slide-in-from-top-2">
-                        <h4 className="text-[10px] font-black text-slate-400 uppercase mb-3 pr-4">Premium Membership Includes:</h4>
-                        <ul className="grid grid-cols-1 gap-3 pr-4">
-                            {[
-                                { icon: <Check className="text-green-500" />, text: "Unlimited active listings (Up to 10 free)" },
-                                { icon: <Check className="text-green-500" />, text: "Unlimited chat initiations (Up to 15 free)" },
-                                { icon: <Check className="text-green-500" />, text: "Unlimited Community Posts & Offers" },
-                                { icon: <Check className="text-green-500" />, text: "Read Receipts (Seen status)" },
-                                { icon: <Check className="text-green-500" />, text: "Verified Crown Badge on profile" },
-                                { icon: <Check className="text-green-500" />, text: "Search results priority (Top placement)" },
-                                { icon: <Check className="text-green-500" />, text: "50% Discount on all Boosts" },
-                                { icon: <Check className="text-green-500" />, text: "2 Free Spotlight credits per month" },
-                            ].map((item, i) => (
-                                <li key={i} className="flex items-center gap-2 text-xs font-bold text-slate-700">
-                                    {item.icon}
-                                    {item.text}
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
-            </div>
+                            {expandedOption === 'premium' && (
+                                <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 animate-in slide-in-from-top-2">
+                                    <h4 className="text-[10px] font-black text-slate-400 uppercase mb-3 pr-4">Premium Membership Includes:</h4>
+                                    <ul className="grid grid-cols-1 gap-3 pr-4">
+                                        {[
+                                            { icon: <Check className="text-green-500" />, text: "Unlimited active listings (Up to 10 free)" },
+                                            { icon: <Check className="text-green-500" />, text: "Unlimited chat initiations (Up to 15 free)" },
+                                            { icon: <Check className="text-green-500" />, text: "Unlimited Community Posts & Offers" },
+                                            { icon: <Check className="text-green-500" />, text: "Read Receipts (Seen status)" },
+                                            { icon: <Check className="text-green-500" />, text: "Verified Crown Badge on profile" },
+                                            { icon: <Check className="text-green-500" />, text: "Search results priority (Top placement)" },
+                                            { icon: <Check className="text-green-500" />, text: "50% Discount on all Boosts" },
+                                            { icon: <Check className="text-green-500" />, text: "2 Free Spotlight credits per month" },
+                                        ].map((item, i) => (
+                                            <li key={i} className="flex items-center gap-2 text-xs font-bold text-slate-700">
+                                                {item.icon}
+                                                {item.text}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                        </div>
                     )}
-        </div>
+                </div>
 
-                {/* Fixed Footer */ }
-    <div className="px-8 py-4 bg-slate-50/50 border-t border-slate-100 text-center flex-shrink-0">
-        <button
-            onClick={onClose}
-            className="text-slate-500 text-xs font-bold hover:text-slate-800 transition-colors uppercase tracking-widest"
-        >
-            Maybe later
-        </button>
-    </div>
+                {/* Fixed Footer */}
+                <div className="px-8 py-4 bg-slate-50/50 border-t border-slate-100 text-center flex-shrink-0">
+                    <button
+                        onClick={onClose}
+                        className="text-slate-500 text-xs font-bold hover:text-slate-800 transition-colors uppercase tracking-widest"
+                    >
+                        Maybe later
+                    </button>
+                </div>
             </div >
 
-        <style jsx>{`
+            <style jsx>{`
                 .custom-scrollbar::-webkit-scrollbar {
                     width: 4px;
                 }
