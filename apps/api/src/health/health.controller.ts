@@ -27,21 +27,26 @@ export class HealthController {
      */
     @Get('ready')
     async ready() {
-        const checks: Record<string, boolean> = {};
+        const checks: Record<string, any> = {};
         let isReady = true;
 
         // Check database connection
         try {
-            await this.prisma.$queryRaw`SELECT 1`;
-            checks.database = true;
-        } catch {
-            checks.database = false;
+            // Use a short timeout for the readiness check itself to prevent hanging
+            const dbCheck = await Promise.race([
+                this.prisma.$queryRaw`SELECT 1`,
+                new Promise((_, reject) => setTimeout(() => reject(new Error('DB Timeout')), 5000))
+            ]);
+            checks.database = { status: 'up', latency: 'ok' };
+        } catch (err: any) {
+            checks.database = { status: 'down', error: err.message };
             isReady = false;
         }
 
         return {
             status: isReady ? 'ready' : 'not_ready',
             timestamp: new Date().toISOString(),
+            version: process.env.npm_package_version || '0.0.1',
             checks,
         };
     }

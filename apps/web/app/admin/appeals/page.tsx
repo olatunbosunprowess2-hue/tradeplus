@@ -245,7 +245,7 @@ export default function AdminAppealsPage() {
                                     <p className="text-sm font-medium text-gray-700 mb-2">Evidence:</p>
                                     <div className="grid grid-cols-3 gap-2">
                                         {selectedAppeal.evidenceImages.map((url: string, index: number) => (
-                                            <a key={index} href={url} target="_blank" rel="noopener noreferrer" className="block">
+                                            <a key={index} href={sanitizeUrl(url)} target="_blank" rel="noopener noreferrer" className="block">
                                                 <img src={sanitizeUrl(url)} alt={`Evidence ${index + 1}`} className="w-full h-20 object-cover rounded border border-gray-200" />
                                             </a>
                                         ))}

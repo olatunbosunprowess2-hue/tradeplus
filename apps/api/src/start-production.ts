@@ -78,30 +78,31 @@ function main() {
     logger.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
     logger.log('='.repeat(50));
 
-    // Step 1: Run migrations
-    const migrationsSuccess = runMigrations();
-
-    if (!migrationsSuccess) {
-        // IMPORTANT: Don't exit! Allow the app to start even if migrations fail.
-        // This handles cases where:
-        // 1. Database is temporarily unreachable during container startup
-        // 2. Network connectivity issues between Koyeb and Supabase
-        // 3. Database is paused (Supabase free tier)
-        // 
-        // The app should still work if the schema is already up-to-date.
-        // If schema is out of sync, you'll see Prisma errors in runtime logs.
-        logger.warn('Migrations failed, but continuing with application startup...');
-        logger.warn('If you see Prisma errors, please run migrations manually:');
-        logger.warn('  npx prisma migrate deploy');
+    // Step 1: Start the application IMMEDIATELY in the background
+    // This ensures the port opens quickly and prevents 503 errors during health checks
+    logger.log('Starting NestJS application in non-blocking mode...');
+    try {
+        require('./main.js');
+        logger.success('NestJS bootstrap initiated');
+    } catch (err: any) {
+        logger.error(`Immediate startup failed: ${err.message}`);
+        process.exit(1);
     }
 
-    // Step 2: Start the application
-    // The main.ts file handles its own bootstrap and auto-executes
-    logger.log('Starting NestJS application...');
+    // Step 2: Run migrations in the background
+    // We don't await this so the Node.js event loop remains free to handle incoming requests/health checks
+    // The PrismaService handles its own connection retry logic if the DB is still warming up
+    setTimeout(() => {
+        logger.log('Initiating background database migrations...');
+        const migrationsSuccess = runMigrations();
 
-    // Use require to load and execute main.ts
-    // This works because main.ts calls bootstrap() at the module level
-    require('./main.js');
+        if (!migrationsSuccess) {
+            logger.warn('Background migrations failed. Application may experience Prisma errors if schema is out of sync.');
+            logger.warn('Please run migrations manually if issues persist: npx prisma migrate deploy');
+        } else {
+            logger.success('Background migrations completed successfully');
+        }
+    }, 1000); // 1s delay to let the app start its listener first
 }
 
 // Run the startup sequence

@@ -6,6 +6,7 @@ import { useAuthStore } from '@/lib/auth-store';
 import { appealsApi, CreateAppealData } from '@/lib/appeals-api';
 import { useToastStore } from '@/lib/toast-store';
 import ImageUpload from '@/components/ImageUpload';
+import { sanitizeUrl } from '@/lib/utils';
 
 interface Appeal {
     id: string;
@@ -225,7 +226,7 @@ export default function AppealsPage() {
                                         {evidenceImages.map((url, index) => (
                                             <div key={index} className="relative group">
                                                 <img
-                                                    src={url}
+                                                    src={sanitizeUrl(url)}
                                                     alt={`Evidence ${index + 1}`}
                                                     className="w-full h-20 object-cover rounded-lg border border-gray-200"
                                                 />

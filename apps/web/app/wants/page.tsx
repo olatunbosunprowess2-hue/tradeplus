@@ -10,6 +10,7 @@ import PostCard from '@/components/home/PostCard'; // Imported PostCard
 import apiClient from '@/lib/api-client'; // Imported apiClient
 import { CommunityPost } from '@/lib/types'; // Imported types
 import Link from 'next/link';
+import { sanitizeUrl } from '@/lib/utils';
 
 export default function WantsPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -290,7 +291,7 @@ export default function WantsPage() {
                                             {bookmark.images?.[0] ? (
                                                 <div className="relative">
                                                     <img
-                                                        src={bookmark.images[0].url}
+                                                        src={sanitizeUrl(bookmark.images[0].url)}
                                                         alt={bookmark.title}
                                                         className="w-full h-48 object-cover"
                                                     />

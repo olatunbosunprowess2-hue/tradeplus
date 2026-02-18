@@ -2,6 +2,7 @@
 
 import Image, { ImageProps } from 'next/image';
 import { useState, useRef, useEffect } from 'react';
+import { sanitizeUrl } from '@/lib/utils';
 
 interface LazyImageProps extends Omit<ImageProps, 'onLoad'> {
     fallback?: string;
@@ -69,7 +70,7 @@ export default function LazyImage({
             {/* Actual image - only render when in view */}
             {isInView && (
                 <Image
-                    src={error ? fallback : src}
+                    src={error ? fallback : sanitizeUrl(src as string)}
                     alt={alt}
                     onLoad={handleLoad}
                     onError={handleError}
@@ -97,7 +98,7 @@ export function SimpleLazyImage({
 }: ImageProps) {
     return (
         <Image
-            src={src}
+            src={sanitizeUrl(src as string)}
             alt={alt}
             width={width}
             height={height}

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { sanitizeUrl } from '@/lib/utils';
 
 interface CategoryCardProps {
     name: string;
@@ -22,7 +23,7 @@ export default function CategoryCard({ name, icon, href, count, image }: Categor
                 style={{ backgroundColor: 'var(--color-primary-pale)' }}
             >
                 {image ? (
-                    <img src={image} alt={name} className="w-10 h-10 object-contain" />
+                    <img src={sanitizeUrl(image)} alt={name} className="w-10 h-10 object-contain" />
                 ) : (
                     <span className="text-3xl">{icon}</span>
                 )}

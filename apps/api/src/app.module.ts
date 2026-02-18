@@ -7,6 +7,7 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
 import * as Joi from 'joi';
 import { SentryInterceptor } from './common/interceptors/sentry.interceptor';
+import { TimeoutInterceptor } from './common/interceptors/timeout.interceptor';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
@@ -129,6 +130,10 @@ import { CommunityPostsModule } from './community-posts/community-posts.module';
         {
             provide: APP_INTERCEPTOR,
             useClass: SentryInterceptor,
+        },
+        {
+            provide: APP_INTERCEPTOR,
+            useClass: TimeoutInterceptor,
         },
     ],
 })

@@ -152,6 +152,8 @@ model User {
   @@index([phoneNumber])
   @@index([boostNotificationCount24h]) // Fast spam filtering for boost targeting
   @@index([brandVerificationStatus])
+  @@index([createdAt])
+  @@index([signupIpAddress])
 }
 
 

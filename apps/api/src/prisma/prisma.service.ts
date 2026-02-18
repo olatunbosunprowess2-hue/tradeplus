@@ -71,8 +71,10 @@ export class PrismaService
      * Sets up database connection with retry and soft delete middleware
      */
     async onModuleInit() {
-        // Establish connection with retry logic
-        await this.connectWithRetry();
+        // Establish connection with retry logic in the background.
+        // We do NOT await this so that NestJS can finish its lifecycle and start the HTTP server.
+        // Queries will naturally wait for the connection or fail if not ready, but the server will respond to health checks.
+        this.connectWithRetry();
 
         // Soft Delete Middleware
         // This intercepts database queries and modifies them to handle soft deletes
@@ -129,6 +131,22 @@ export class PrismaService
 
             // Continue with the modified query
             return next(params);
+        });
+
+        // Slow Query Logging Middleware
+        this.$use(async (params, next) => {
+            const before = Date.now();
+            const result = await next(params);
+            const after = Date.now();
+            const duration = after - before;
+
+            if (duration > 1000) { // Log queries longer than 1s
+                this.logger.warn(
+                    `🐢 Slow Query: ${params.model}.${params.action} took ${duration}ms`
+                );
+            }
+
+            return result;
         });
     }
 

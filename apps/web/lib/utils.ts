@@ -27,29 +27,27 @@ export function formatDate(date: string | Date): string {
   }
 
   // PROXY MODE: Rewrite absolute backend URLs to relative paths to avoid CORS/IP mismatch issues
+  // This helps when accessing the app via local IP, local hostname, or production URL.
   // This works both in production (via Next.config rewrites) and development (via proxy)
 
-  // Broad match for any localhost or private network IP with any port (or no port)
-  const isLocalHost = url.includes('localhost') || url.includes('127.0.0.1') || url.includes('0.0.0.0');
-  const isNetworkIP = url.match(/https?:\/\/192\.168\.\d+\.\d+/) ||
-    url.match(/https?:\/\/172\.\d+\.\d+\.\d+/) ||
-    url.match(/https?:\/\/10\.\d+\.\d+\.\d+/) ||
-    url.match(/https?:\/\/169\.254\.\d+\.\d+/); // APIPA addresses
+  // Identify absolute URLs that point to our backend paths
+  const hasBackendPath = url.includes('/uploads/') ||
+    url.includes('/private-uploads/') ||
+    url.includes('/api/');
 
-  if (isLocalHost || isNetworkIP) {
-    // Extract the path after the origin (e.g., http://192.168.1.5:3333/uploads/1.jpg -> /uploads/1.jpg)
+  if (url.startsWith('http') && hasBackendPath) {
     try {
       const parsed = new URL(url);
       const relative = parsed.pathname + parsed.search;
 
-      // Ensure it's one of our proxied paths
+      // Ensure it's actually one of our proxied paths
       if (relative.startsWith('/uploads/') ||
         relative.startsWith('/private-uploads/') ||
         relative.startsWith('/api/')) {
         return relative;
       }
     } catch {
-      // Fallback for malformed URLs that still match our patterns
+      // Fallback for malformed URLs
       if (url.includes('/uploads/')) return `/uploads/${url.split('/uploads/')[1]}`;
       if (url.includes('/private-uploads/')) return `/private-uploads/${url.split('/private-uploads/')[1]}`;
       if (url.includes('/api/')) return `/api/${url.split('/api/')[1]}`;
