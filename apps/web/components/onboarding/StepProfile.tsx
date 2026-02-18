@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAuthStore } from '@/lib/auth-store';
 import { toast } from 'react-hot-toast';
+import { sanitizeUrl } from '@/lib/utils';
 
 interface StepProps {
     onNext: () => void;
@@ -12,7 +13,7 @@ interface StepProps {
 export default function StepProfile({ onNext, onBack }: StepProps) {
     const { user, updateProfile } = useAuthStore();
     const [avatar, setAvatar] = useState<File | null>(null);
-    const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.profile?.avatarUrl || null);
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(sanitizeUrl(user?.profile?.avatarUrl) || null);
     const [firstName, setFirstName] = useState(() => {
         const name = user?.firstName || '';
         return (name.toLowerCase() === 'john' || name.toLowerCase() === 'doe') ? '' : name;
@@ -69,7 +70,7 @@ export default function StepProfile({ onNext, onBack }: StepProps) {
                 <div className="flex flex-col items-center gap-4">
                     <div className="relative w-24 h-24 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200 group">
                         {avatarPreview ? (
-                            <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
+                            <img src={avatarPreview.startsWith('blob:') ? avatarPreview : sanitizeUrl(avatarPreview)} alt="Avatar" className="w-full h-full object-cover" />
                         ) : (
                             <div className="w-full h-full flex items-center justify-center text-gray-400">
                                 <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">

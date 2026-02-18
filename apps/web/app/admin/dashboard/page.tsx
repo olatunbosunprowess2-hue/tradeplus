@@ -7,8 +7,9 @@ import apiClient from '@/lib/api-client';
 import { adminApi } from '@/lib/admin-api';
 import VerificationReviewModal from '@/components/admin/VerificationReviewModal';
 import { canAccessAdminPanel, canManageUsers, canViewSecurity } from '@/lib/rbac';
-import type { User } from '@/lib/types';
+import { User } from '@/lib/types';
 import { toast } from 'react-hot-toast';
+import { sanitizeUrl } from '@/lib/utils';
 
 interface ActivityStats {
     ads: { today: number; last7Days: number; last30Days: number };
@@ -72,7 +73,7 @@ const TopUserItem = React.memo(({ user, idx, onBan }: { user: TopUser; idx: numb
     <div key={user.userId} className="p-4 flex items-center gap-3 hover:bg-gray-50">
         <span className="text-lg font-bold text-gray-400 w-6">#{idx + 1}</span>
         <img
-            src={user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName)}&background=6366f1&color=fff`}
+            src={sanitizeUrl(user.avatarUrl) || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName)}&background=6366f1&color=fff`}
             alt=""
             className="w-8 h-8 rounded-full"
             loading="lazy"
@@ -513,7 +514,7 @@ export default function AdminDashboardPage() {
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
                                                     <img
-                                                        src={pendingUser.profile?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(pendingUser.profile?.displayName || pendingUser.email)}&background=6366f1&color=fff`}
+                                                        src={sanitizeUrl(pendingUser.profile?.avatarUrl) || `https://ui-avatars.com/api/?name=${encodeURIComponent(pendingUser.profile?.displayName || pendingUser.email)}&background=6366f1&color=fff`}
                                                         alt={pendingUser.profile?.displayName}
                                                         className="w-10 h-10 rounded-full bg-gray-200"
                                                     />

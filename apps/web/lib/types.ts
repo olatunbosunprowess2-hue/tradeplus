@@ -245,6 +245,7 @@ export interface PostAuthor {
     id: string;
     firstName?: string;
     lastName?: string;
+    tier?: 'free' | 'premium';
     isVerified: boolean;
     verificationStatus: string;
     brandVerificationStatus?: string;

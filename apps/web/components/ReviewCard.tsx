@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { reviewsApi } from '@/lib/reviews-api';
 import { useAuthStore } from '@/lib/auth-store';
 import { useToastStore } from '@/lib/toast-store';
+import { sanitizeUrl } from '@/lib/utils';
 
 interface ReviewCardProps {
     review: {
@@ -76,7 +77,7 @@ export default function ReviewCard({ review, onUpdate }: ReviewCardProps) {
                     <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold">
                         {reviewerAvatar ? (
                             <img
-                                src={reviewerAvatar}
+                                src={sanitizeUrl(reviewerAvatar)}
                                 alt={reviewerName}
                                 className="w-full h-full rounded-full object-cover"
                             />

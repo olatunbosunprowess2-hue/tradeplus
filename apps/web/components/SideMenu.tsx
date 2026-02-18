@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useAuthStore } from '@/lib/auth-store';
 import { useRouter, usePathname } from 'next/navigation';
 import { createPortal } from 'react-dom';
+import { sanitizeUrl } from '@/lib/utils';
 
 interface SideMenuProps {
     className?: string;
@@ -205,9 +206,17 @@ export default function SideMenu({ className = '' }: SideMenuProps) {
 
                     {isAuthenticated && user && (
                         <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-xl font-bold">
-                                {user.profile?.displayName?.[0]?.toUpperCase() || user.email[0].toUpperCase()}
-                            </div>
+                            {user.profile?.avatarUrl ? (
+                                <img
+                                    src={sanitizeUrl(user.profile.avatarUrl)}
+                                    alt=""
+                                    className="w-12 h-12 rounded-full object-cover border-2 border-white/20"
+                                />
+                            ) : (
+                                <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-xl font-bold">
+                                    {user.profile?.displayName?.[0]?.toUpperCase() || user.email[0].toUpperCase()}
+                                </div>
+                            )}
                             <div className="flex-1 min-w-0">
                                 <p className="font-semibold truncate">
                                     {user.profile?.displayName || 'User'}

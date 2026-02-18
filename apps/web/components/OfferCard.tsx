@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { BarterOffer } from '@/lib/types';
+import { sanitizeUrl } from '@/lib/utils';
 
 interface OfferCardProps {
     offer: BarterOffer;
@@ -65,7 +66,7 @@ export default function OfferCard({ offer, type, onAccept, onReject, onCounter, 
             {/* Header with Listing Info */}
             <div className="flex gap-4 p-5 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
                 <Image
-                    src={offer.listing.images[0]?.url || ''}
+                    src={sanitizeUrl(offer.listing.images[0]?.url || '')}
                     alt={offer.listing.title}
                     width={96}
                     height={96}

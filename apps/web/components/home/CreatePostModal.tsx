@@ -6,6 +6,7 @@ import { useToastStore } from '@/lib/toast-store';
 import apiClient from '@/lib/api-client';
 import { PostLimitModal } from '@/components/PaywallModal';
 import { initializePayment, redirectToPaystack, PurchaseType } from '@/lib/payments-api';
+import { sanitizeUrl } from '@/lib/utils';
 
 interface CreatePostModalProps {
     isOpen: boolean;
@@ -26,7 +27,7 @@ export default function CreatePostModal({ isOpen, onClose, onCreated }: CreatePo
     if (!isOpen) return null;
 
     const displayName = user?.profile?.displayName || user?.firstName || 'You';
-    const avatarUrl = user?.profile?.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.id || 'anon'}`;
+    const avatarUrl = sanitizeUrl(user?.profile?.avatarUrl) || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.id || 'anon'}`;
 
     // Upload images to Cloudinary via API (Parallelized)
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -171,7 +172,7 @@ export default function CreatePostModal({ isOpen, onClose, onCreated }: CreatePo
                         <div className="grid grid-cols-4 gap-2">
                             {images.map((img, i) => (
                                 <div key={i} className="relative group aspect-square">
-                                    <img src={img} alt="" className="w-full h-full object-cover rounded-lg border border-gray-100" />
+                                    <img src={sanitizeUrl(img)} alt="" className="w-full h-full object-cover rounded-lg border border-gray-100" />
                                     <button
                                         onClick={() => removeImage(i)}
                                         className="absolute top-1 right-1 w-6 h-6 bg-black/60 text-white rounded-full flex items-center justify-center text-sm opacity-0 group-hover:opacity-100 transition hover:bg-black/80"

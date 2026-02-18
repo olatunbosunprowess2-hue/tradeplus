@@ -6,6 +6,7 @@ import Link from 'next/link';
 import apiClient from '@/lib/api-client';
 import { useAuthStore } from '@/lib/auth-store';
 import type { User, Listing, CommunityPost } from '@/lib/types';
+import { sanitizeUrl } from '@/lib/utils';
 import ReviewList from '@/components/ReviewList';
 import PostCard from '@/components/home/PostCard';
 import { ListingsGridSkeleton, SkeletonStyles } from '@/components/ui/Skeleton';
@@ -70,11 +71,7 @@ export default function PublicProfilePage() {
         );
     }
 
-    const avatarUrl = user.profile?.avatarUrl
-        ? (user.profile.avatarUrl.startsWith('http')
-            ? user.profile.avatarUrl
-            : `${(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333/api').replace(/\/api$/, '')}${user.profile.avatarUrl}`)
-        : `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`;
+    const avatarUrl = sanitizeUrl(user.profile?.avatarUrl) || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`;
 
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
@@ -202,7 +199,7 @@ export default function PublicProfilePage() {
                                 <Link key={l.id} href={`/listings/${l.id}`} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition group">
                                     <div className="aspect-square bg-gray-100 relative overflow-hidden">
                                         {l.images?.[0] ? (
-                                            <img src={l.images[0].url} alt={l.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                                            <img src={sanitizeUrl(l.images[0].url)} alt={l.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center text-gray-400">No Image</div>
                                         )}

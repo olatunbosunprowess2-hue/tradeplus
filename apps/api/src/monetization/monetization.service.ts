@@ -163,7 +163,7 @@ export class MonetizationService {
             currentCount = 0;
         }
 
-        const limit = 5; // Can be moved to LIMITS.FREE_DAILY_POSTS
+        const limit = LIMITS.FREE_COMMUNITY_POSTS;
         const remaining = Math.max(0, limit - currentCount);
         return {
             allowed: currentCount < limit,
@@ -206,7 +206,7 @@ export class MonetizationService {
             currentCount = 0;
         }
 
-        const limit = 5; // Can be moved to LIMITS.FREE_DAILY_OFFERS
+        const limit = LIMITS.FREE_COMMUNITY_POSTS; // Use same limit as posts for offers
         const remaining = Math.max(0, limit - currentCount);
         return {
             allowed: currentCount < limit,
@@ -229,19 +229,10 @@ export class MonetizationService {
      * Activate chat pass for user (valid until end of current month)
      */
     async activateChatPass(userId: string): Promise<{ success: boolean; message: string }> {
-        const now = new Date();
-        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
-
-        await this.prisma.user.update({
-            where: { id: userId },
-            data: {
-                chatPassExpiry: endOfMonth,
-            },
-        });
-
+        // [DEPRECATED] Free chat limit increased to 15. Standalone pass no longer sold.
         return {
             success: true,
-            message: '🎫 Chat Pass activated! You now have unlimited messaging until the end of the month.'
+            message: '🎫 All good! You already have access to a high daily chat limit of 15.'
         };
     }
 

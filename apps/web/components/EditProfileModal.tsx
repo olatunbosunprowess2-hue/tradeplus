@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/lib/auth-store';
 import { getRegions } from '@/lib/api-client';
 import SearchableSelect from './SearchableSelect';
+import { sanitizeUrl } from '@/lib/utils';
 
 interface EditProfileModalProps {
     isOpen: boolean;
@@ -28,7 +29,7 @@ export default function EditProfileModal({ isOpen, onClose }: EditProfileModalPr
 
     // Avatar state
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
-    const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.profile?.avatarUrl || null);
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(sanitizeUrl(user?.profile?.avatarUrl) || null);
 
     // Extract city from user object or locationAddress on mount
     useEffect(() => {
@@ -147,7 +148,7 @@ export default function EditProfileModal({ isOpen, onClose }: EditProfileModalPr
                         <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100 shadow-sm">
                             <div className="relative w-16 h-16 rounded-full overflow-hidden bg-gray-200 border-2 border-white shadow-md shrink-0">
                                 {avatarPreview ? (
-                                    <img src={avatarPreview} alt="Profile" className="w-full h-full object-cover" />
+                                    <img src={avatarPreview.startsWith('blob:') ? avatarPreview : sanitizeUrl(avatarPreview)} alt="Profile" className="w-full h-full object-cover" />
                                 ) : (
                                     <div className="w-full h-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold">
                                         {displayName[0]?.toUpperCase() || user.email[0].toUpperCase()}

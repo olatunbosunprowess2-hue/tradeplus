@@ -13,6 +13,9 @@ import DownpaymentTracker from '@/components/DownpaymentTracker';
 import CounterOfferModal from '@/components/CounterOfferModal';
 import OfferActionModal from '@/components/OfferActionModal';
 import toast from 'react-hot-toast';
+import PremiumBadge from '@/components/PremiumBadge';
+import BrandBadge from '@/components/BrandBadge';
+import { sanitizeUrl } from '@/lib/utils';
 
 type Tab = 'received' | 'sent' | 'history' | 'community';
 
@@ -27,7 +30,9 @@ interface CommunityOffer {
         id: string;
         firstName: string;
         lastName: string;
+        tier?: 'free' | 'premium';
         isVerified: boolean;
+        brandVerificationStatus?: string;
         profile?: { displayName?: string; avatarUrl?: string };
     };
     post: {
@@ -38,6 +43,9 @@ interface CommunityOffer {
             id: string;
             firstName: string;
             lastName: string;
+            tier?: 'free' | 'premium';
+            isVerified: boolean;
+            brandVerificationStatus?: string;
             profile?: { displayName?: string; avatarUrl?: string };
         };
     };
@@ -183,7 +191,7 @@ export default function OffersPage() {
         createConversation(participantId, participantName, undefined, {
             id: offer.listingId,
             title: offer.listing?.title || 'Listing',
-            image: offer.listing?.images?.[0]?.url || '',
+            image: sanitizeUrl(offer.listing?.images?.[0]?.url) || '',
         });
 
         // Navigate to chat
@@ -212,11 +220,11 @@ export default function OffersPage() {
             createConversation(
                 buyer?.id || selectedOffer.buyerId,
                 buyer?.profile?.displayName || buyer?.email || 'Unknown',
-                buyer?.profile?.avatarUrl,
+                sanitizeUrl(buyer?.profile?.avatarUrl),
                 {
                     id: listing?.id || selectedOffer.listingId,
                     title: listing?.title || 'Listing',
-                    image: listing?.images?.[0]?.url || ''
+                    image: sanitizeUrl(listing?.images?.[0]?.url) || ''
                 }
             );
 
@@ -400,7 +408,7 @@ export default function OffersPage() {
                         const isSent = offer.type === 'sent';
                         const otherPerson = isSent ? offer.post.author : offer.offerer;
                         const otherName = otherPerson.profile?.displayName || [otherPerson.firstName, otherPerson.lastName].filter(Boolean).join(' ') || 'User';
-                        const otherAvatar = otherPerson.profile?.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${otherPerson.id}`;
+                        const otherAvatar = sanitizeUrl(otherPerson.profile?.avatarUrl) || `https://api.dicebear.com/7.x/avataaars/svg?seed=${otherPerson.id}`;
                         const postPreview = offer.post.content.length > 80 ? offer.post.content.slice(0, 80) + '...' : offer.post.content;
 
                         return (
@@ -413,6 +421,16 @@ export default function OffersPage() {
                                                 {isSent ? '📤 Sent' : '📥 Received'}
                                             </span>
                                             <span className="text-xs text-gray-400">{new Date(offer.createdAt).toLocaleDateString()}</span>
+                                            {otherPerson.isVerified && (
+                                                <span className="flex items-center gap-0.5 px-1 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[8px] font-bold border border-blue-100">
+                                                    <svg className="w-2 h-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                                    </svg>
+                                                    Verified
+                                                </span>
+                                            )}
+                                            {otherPerson.brandVerificationStatus === 'VERIFIED_BRAND' && <BrandBadge size="xs" />}
+                                            {otherPerson.tier === 'premium' && <PremiumBadge size="xs" />}
                                         </div>
                                         <p className="text-sm font-semibold text-gray-900">{isSent ? `You offered to ${otherName}` : `${otherName} offered you`}</p>
                                         <p className="text-sm text-gray-700 mt-1 bg-gray-50 rounded-lg p-2 italic">&ldquo;{offer.message}&rdquo;</p>

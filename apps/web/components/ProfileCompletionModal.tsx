@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/auth-store';
 import { User, X, CheckCircle2, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
+import { sanitizeUrl } from '@/lib/utils';
 
 export default function ProfileCompletionModal() {
     const router = useRouter();
@@ -77,7 +78,7 @@ export default function ProfileCompletionModal() {
                         <div className="relative w-14 h-14 shrink-0">
                             {user?.profile?.avatarUrl ? (
                                 <Image
-                                    src={user.profile.avatarUrl}
+                                    src={sanitizeUrl(user.profile.avatarUrl)}
                                     alt="Profile"
                                     fill
                                     className="rounded-full object-cover border-2 border-gray-100"

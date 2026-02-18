@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { BarterOffer } from '@/lib/types';
 import Image from 'next/image';
+import { sanitizeUrl } from '@/lib/utils';
 
 interface OfferReviewModalProps {
     isOpen: boolean;
@@ -58,7 +59,7 @@ export default function OfferReviewModal({
                             <div className="text-center">
                                 <div className="relative inline-block">
                                     <img
-                                        src={offer.listing.images[0]?.url || 'https://via.placeholder.com/150'}
+                                        src={sanitizeUrl(offer.listing.images[0]?.url || 'https://via.placeholder.com/150')}
                                         alt={offer.listing.title}
                                         className="w-24 h-24 rounded-xl object-cover shadow-md border-2 border-white"
                                     />
@@ -85,7 +86,7 @@ export default function OfferReviewModal({
                                 ) : (
                                     <div className="relative inline-block">
                                         <img
-                                            src={offer.items[0]?.offeredListing.images[0]?.url || 'https://via.placeholder.com/150'}
+                                            src={sanitizeUrl(offer.items[0]?.offeredListing.images[0]?.url || 'https://via.placeholder.com/150')}
                                             alt="Offered Item"
                                             className="w-24 h-24 rounded-xl object-cover shadow-md border-2 border-white"
                                         />
@@ -139,7 +140,7 @@ export default function OfferReviewModal({
                                 {offer.items.map((item) => (
                                     <div key={item.id} className="flex items-center gap-4 p-3 bg-gray-50 rounded-xl border border-gray-200">
                                         <img
-                                            src={item.offeredListing.images[0]?.url || 'https://via.placeholder.com/50'}
+                                            src={item.offeredListing.images[0]?.url ? sanitizeUrl(item.offeredListing.images[0].url) : 'https://via.placeholder.com/50'}
                                             alt={item.offeredListing.title}
                                             className="w-12 h-12 rounded-lg object-cover"
                                         />

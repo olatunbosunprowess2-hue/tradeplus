@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/lib/auth-store';
 import { listingsApi } from '@/lib/listings-api';
 import type { Listing } from '@/lib/types';
+import { sanitizeUrl } from '@/lib/utils';
 
 interface MakeOfferModalProps {
     isOpen: boolean;
@@ -170,7 +171,7 @@ export default function MakeOfferModal({ isOpen, onClose, listing, onSubmit }: M
                     {/* Target Listing Card */}
                     <div className="flex gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200 items-center">
                         <img
-                            src={listing.image}
+                            src={sanitizeUrl(listing.image)}
                             alt={listing.title}
                             className="w-16 h-16 rounded-lg object-cover shadow-sm border border-white"
                         />
@@ -352,7 +353,7 @@ export default function MakeOfferModal({ isOpen, onClose, listing, onSubmit }: M
                                                             )}
                                                         </div>
                                                         <img
-                                                            src={item.images?.[0]?.url || 'https://via.placeholder.com/50'}
+                                                            src={item.images?.[0]?.url ? sanitizeUrl(item.images[0].url) : 'https://via.placeholder.com/50'}
                                                             alt={item.title}
                                                             className="w-12 h-12 rounded-lg object-cover mr-3 bg-gray-100"
                                                         />

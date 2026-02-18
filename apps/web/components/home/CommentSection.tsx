@@ -6,6 +6,9 @@ import apiClient from '@/lib/api-client';
 import { useAuthStore } from '@/lib/auth-store';
 import type { PostComment as PostCommentType, PostAuthor } from '@/lib/types';
 import { CheckCircle2 } from 'lucide-react';
+import PremiumBadge from '../PremiumBadge';
+import BrandBadge from '../BrandBadge';
+import { sanitizeUrl } from '@/lib/utils';
 
 function getDisplayName(author: PostAuthor): string {
     return author.profile?.displayName || author.brandName || [author.firstName, author.lastName].filter(Boolean).join(' ') || 'Anonymous';
@@ -32,8 +35,17 @@ function isVerified(author: PostAuthor): boolean {
 
 function VerifiedBadge() {
     return (
-        <CheckCircle2 className="w-4 h-4 text-blue-500 inline-block ml-1" />
+        <span className="flex items-center gap-1 px-1 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[9px] font-bold shadow-sm border border-blue-100 ml-0.5">
+            <svg className="w-2.5 h-2.5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            Verified
+        </span>
     );
+}
+
+function isBrand(author: PostAuthor): boolean {
+    return author.brandVerificationStatus === 'VERIFIED_BRAND';
 }
 
 export default function CommentSection({ postId }: { postId: string }) {
@@ -75,7 +87,7 @@ export default function CommentSection({ postId }: { postId: string }) {
                         {comments.map(c => (
                             <div key={c.id} className="px-4 py-2.5 flex gap-2.5">
                                 <Link href={`/profile/${c.authorId}`}>
-                                    <img src={getAvatarUrl(c.author)} alt="" className="w-7 h-7 rounded-full shrink-0 mt-0.5 hover:opacity-80 transition" />
+                                    <img src={sanitizeUrl(getAvatarUrl(c.author))} alt="" className="w-7 h-7 rounded-full shrink-0 mt-0.5 hover:opacity-80 transition" />
                                 </Link>
                                 <div className="min-w-0">
                                     <div className="flex items-center gap-1.5">
@@ -83,6 +95,8 @@ export default function CommentSection({ postId }: { postId: string }) {
                                             {getDisplayName(c.author)}
                                         </Link>
                                         {isVerified(c.author) && <VerifiedBadge />}
+                                        {isBrand(c.author) && <BrandBadge size="xs" />}
+                                        {c.author.tier === 'premium' && <PremiumBadge size="xs" />}
                                         <span className="text-xs text-gray-400">{timeAgo(c.createdAt)}</span>
                                     </div>
                                     <p className="text-sm text-gray-700 mt-0.5">{c.content}</p>
@@ -92,7 +106,7 @@ export default function CommentSection({ postId }: { postId: string }) {
                     </div>
                     {user && (
                         <form onSubmit={handleSubmit} className="flex items-center gap-2 px-4 py-2.5 border-t border-gray-100">
-                            <img src={user.profile?.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`} alt="" className="w-7 h-7 rounded-full shrink-0" />
+                            <img src={sanitizeUrl(user.profile?.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`)} alt="" className="w-7 h-7 rounded-full shrink-0" />
                             <input
                                 type="text"
                                 value={newComment}

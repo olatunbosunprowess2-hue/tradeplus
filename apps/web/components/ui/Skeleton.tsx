@@ -22,9 +22,14 @@ export function SkeletonStyles() {
             @keyframes shimmer {
                 0% {
                     background-position: 200% 0;
+                    opacity: 0.8;
+                }
+                50% {
+                    opacity: 1;
                 }
                 100% {
                     background-position: -200% 0;
+                    opacity: 0.8;
                 }
             }
         `}} />
@@ -34,26 +39,35 @@ export function SkeletonStyles() {
 // Listing Card Skeleton
 export function ListingCardSkeleton() {
     return (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden animate-in fade-in duration-500">
             {/* Image placeholder */}
-            <SkeletonBase className="aspect-square w-full" />
+            <SkeletonBase className="h-48 w-full" />
 
             {/* Content */}
             <div className="p-4 space-y-3">
                 {/* Title */}
-                <SkeletonBase className="h-4 w-3/4" />
+                <div className="space-y-1">
+                    <SkeletonBase className="h-4 w-full" />
+                    <SkeletonBase className="h-4 w-2/3" />
+                </div>
 
-                {/* Price */}
-                <SkeletonBase className="h-6 w-1/3" />
+                {/* Price (Blue themed placeholder) */}
+                <div className="flex items-center gap-2">
+                    <div className="w-1.5 h-6 bg-blue-100 rounded-full animate-pulse" />
+                    <SkeletonBase className="h-6 w-24 bg-blue-50/50" />
+                </div>
 
                 {/* Tags */}
-                <div className="flex gap-2">
-                    <SkeletonBase className="h-6 w-16 rounded-full" />
-                    <SkeletonBase className="h-6 w-14 rounded-full" />
+                <div className="flex gap-2 mb-2">
+                    <SkeletonBase className="h-6 w-16 rounded-full bg-gray-50" />
+                    <SkeletonBase className="h-6 w-14 rounded-full bg-gray-50" />
                 </div>
 
                 {/* Location */}
-                <SkeletonBase className="h-4 w-1/2" />
+                <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-blue-100 animate-pulse" />
+                    <SkeletonBase className="h-3 w-1/2" />
+                </div>
             </div>
         </div>
     );

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import apiClient from '@/lib/api-client';
+import { sanitizeUrl } from '@/lib/utils';
 import ActionConfirmModal from '@/components/admin/ActionConfirmModal';
 
 interface BrandApplication {
@@ -468,7 +469,7 @@ export default function AdminBrandsPage() {
                                     <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                                         {selectedApp.brandProofUrls.map((url, i) => (
                                             <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="group relative aspect-square rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
-                                                <img src={url} alt={`Proof ${i + 1}`} className="w-full h-full object-cover" />
+                                                <img src={sanitizeUrl(url)} alt={`Proof ${i + 1}`} className="w-full h-full object-cover" />
                                                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
                                                     <span className="bg-white/90 text-gray-900 text-[10px] font-bold px-1.5 py-0.5 rounded shadow-sm">View</span>
                                                 </div>

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/lib/auth-store';
 import { listingsApi } from '@/lib/listings-api';
 import { BarterOffer, Listing } from '@/lib/types';
+import { sanitizeUrl } from '@/lib/utils';
 
 interface CounterOfferModalProps {
     isOpen: boolean;
@@ -244,7 +245,7 @@ export default function CounterOfferModal({ isOpen, onClose, offer, onSubmit }: 
                                                 )}
                                             </div>
                                             <img
-                                                src={item.images?.[0]?.url || 'https://via.placeholder.com/50'}
+                                                src={item.images?.[0]?.url ? sanitizeUrl(item.images[0].url) : 'https://via.placeholder.com/50'}
                                                 alt={item.title}
                                                 className="w-10 h-10 rounded object-cover mr-3"
                                             />

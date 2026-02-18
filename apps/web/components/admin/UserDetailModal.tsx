@@ -5,6 +5,7 @@ import Image from 'next/image';
 import ActionConfirmModal from './ActionConfirmModal';
 import { adminApi } from '@/lib/admin-api';
 import { useToastStore } from '@/lib/toast-store';
+import { sanitizeUrl } from '@/lib/utils';
 
 interface UserDetailModalProps {
     user: {
@@ -116,15 +117,7 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
         });
     };
 
-    const getImageUrl = (path: string) => {
-        if (!path) return '';
-        if (path.startsWith('http')) return path;
-        // The path already includes /uploads/ or /private-uploads/ prefix
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333/api';
-        // Remove '/api' suffix if present for static files
-        const staticBaseUrl = baseUrl.replace(/\/api$/, '');
-        return `${staticBaseUrl}${path.startsWith('/') ? path : '/' + path}`;
-    };
+
 
     return (
         <>
@@ -327,7 +320,7 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
                                                 onClick={() => setActiveImageUrl(user.faceVerificationUrl!)}
                                             >
                                                 <Image
-                                                    src={getImageUrl(user.faceVerificationUrl)}
+                                                    src={sanitizeUrl(user.faceVerificationUrl!)}
                                                     alt="Face verification"
                                                     fill
                                                     className="object-cover"
@@ -352,7 +345,7 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
                                                 onClick={() => setActiveImageUrl(user.idDocumentFrontUrl!)}
                                             >
                                                 <Image
-                                                    src={getImageUrl(user.idDocumentFrontUrl)}
+                                                    src={sanitizeUrl(user.idDocumentFrontUrl!)}
                                                     alt="ID Front"
                                                     fill
                                                     className="object-cover"
@@ -374,7 +367,7 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
                                                 onClick={() => setActiveImageUrl(user.idDocumentBackUrl!)}
                                             >
                                                 <Image
-                                                    src={getImageUrl(user.idDocumentBackUrl)}
+                                                    src={sanitizeUrl(user.idDocumentBackUrl!)}
                                                     alt="ID Back"
                                                     fill
                                                     className="object-cover"
@@ -443,7 +436,7 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
                         </button>
                         <div className="relative max-w-4xl max-h-[90vh] w-full h-full">
                             <Image
-                                src={getImageUrl(activeImageUrl)}
+                                src={sanitizeUrl(activeImageUrl)}
                                 alt="Full size document"
                                 fill
                                 className="object-contain"

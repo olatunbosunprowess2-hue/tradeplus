@@ -14,6 +14,7 @@ import { Check, Sparkles, Pencil } from 'lucide-react';
 import EditPostModal from '@/components/home/EditPostModal';
 import { CommunityPost } from '@/lib/types';
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { sanitizeUrl } from '@/lib/utils';
 
 interface Listing {
     id: string;
@@ -260,10 +261,7 @@ export default function ProfilePage() {
                             <div className="w-32 h-32 rounded-full border-4 border-white bg-white shadow-md overflow-hidden">
                                 {user.profile?.avatarUrl ? (
                                     <img
-                                        src={user.profile.avatarUrl.startsWith('http')
-                                            ? user.profile.avatarUrl
-                                            : `${(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333/api').replace(/\/api$/, '')}${user.profile.avatarUrl}`
-                                        }
+                                        src={sanitizeUrl(user.profile.avatarUrl)}
                                         alt="Profile"
                                         className="w-full h-full object-cover"
                                     />
@@ -367,7 +365,7 @@ export default function ProfilePage() {
                                         <div key={listing.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden group">
                                             <div className="aspect-video bg-gray-100 relative">
                                                 {listing.images && listing.images[0] ? (
-                                                    <img src={listing.images[0].url} alt={listing.title} className="w-full h-full object-cover" />
+                                                    <img src={sanitizeUrl(listing.images[0].url)} alt={listing.title} className="w-full h-full object-cover" />
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center text-gray-400">
                                                         No Image
@@ -522,7 +520,7 @@ export default function ProfilePage() {
                                                         <p className="text-gray-800 line-clamp-3 mb-4">{post.content}</p>
                                                         {post.images && post.images.length > 0 && (
                                                             <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden mb-4 relative">
-                                                                <img src={post.images[0]} alt="Post attachment" className="w-full h-full object-cover" />
+                                                                <img src={sanitizeUrl(post.images[0])} alt="Post attachment" className="w-full h-full object-cover" />
                                                                 {post.images.length > 1 && (
                                                                     <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-md font-bold">
                                                                         +{post.images.length - 1} more

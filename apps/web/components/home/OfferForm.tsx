@@ -7,6 +7,7 @@ import type { PostAuthor } from '@/lib/types';
 import toast from 'react-hot-toast';
 import { OfferLimitModal } from '@/components/PaywallModal';
 import { initializePayment, redirectToPaystack, PurchaseType } from '@/lib/payments-api';
+import { sanitizeUrl } from '@/lib/utils';
 
 export default function OfferForm({ postId, postAuthor, onClose }: { postId: string; postAuthor: PostAuthor; onClose: () => void }) {
     const [message, setMessage] = useState('');
@@ -25,7 +26,7 @@ export default function OfferForm({ postId, postAuthor, onClose }: { postId: str
 
             // Create a message conversation with the post author
             const authorName = postAuthor.profile?.displayName || postAuthor.brandName || [postAuthor.firstName, postAuthor.lastName].filter(Boolean).join(' ') || 'User';
-            const authorAvatar = postAuthor.profile?.avatarUrl;
+            const authorAvatar = sanitizeUrl(postAuthor.profile?.avatarUrl);
             createConversation(postAuthor.id, authorName, authorAvatar);
 
             // Send the offer as a message

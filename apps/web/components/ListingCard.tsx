@@ -36,7 +36,7 @@ export default function ListingCard({ listing: initialListing }: ListingCardProp
         images: listing.images || [],
         sellerId: listing.sellerId,
         sellerName: listing.seller?.profile?.displayName || listing.seller?.email || 'Unknown',
-        location: listing.region?.name || '',
+        location: listing.seller?.profile?.region?.name || '',
         bookmarkedAt: new Date().toISOString(),
     };
 
@@ -58,22 +58,9 @@ export default function ListingCard({ listing: initialListing }: ListingCardProp
         return city || null;
     };
 
-    // Get location display - prioritize region/state, then extract from address
+    // Get location display - prioritize seller's profile region, then extract from address
     const getLocationDisplay = () => {
-        // First check listing's region (state)
-        const listingState = listing.region?.name;
-        if (listingState) {
-            // Try to get city from seller's address
-            const sellerAddress = listing.seller?.locationAddress;
-            if (sellerAddress) {
-                const city = sellerAddress.split(',')[0]?.trim();
-                if (city && city !== listingState) {
-                    return `${city}, ${listingState}`;
-                }
-            }
-            return listingState;
-        }
-        // Then check seller's profile region
+        // Check seller's profile region
         const sellerState = listing.seller?.profile?.region?.name;
         if (sellerState) {
             const sellerAddress = listing.seller?.locationAddress;
@@ -106,7 +93,7 @@ export default function ListingCard({ listing: initialListing }: ListingCardProp
     }
 
     return (
-        <div className={`rounded-2xl shadow-md overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group relative ${isUrgentItem
+        <div className={`rounded-2xl shadow-md overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group relative animate-in fade-in zoom-in-95 duration-700 ${isUrgentItem
             ? 'bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-400 ring-2 ring-red-200 animate-pulse-subtle'
             : 'bg-white border border-gray-100'
             }`}>
@@ -116,12 +103,7 @@ export default function ListingCard({ listing: initialListing }: ListingCardProp
                 : 'bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100'
                 } transition-opacity`} />
 
-            {/* Discount Badge - Show if originalPriceCents exists */}
-            {listing.originalPriceCents && listing.priceCents && listing.originalPriceCents > listing.priceCents && (
-                <DiscountBadge
-                    percentage={Math.round(((listing.originalPriceCents - listing.priceCents) / listing.originalPriceCents) * 100)}
-                />
-            )}
+            {/* Discount Badge - Removed since originalPriceCents is not in current type */}
 
             {/* Badges Container - Top Left */}
             <div className="absolute top-2 left-2 z-10 flex flex-col gap-1 items-start">
@@ -131,7 +113,7 @@ export default function ListingCard({ listing: initialListing }: ListingCardProp
                 )}
 
                 {/* Verified Seller Badge */}
-                {(listing.seller?.verified || listing.seller?.isVerified) && (
+                {listing.seller?.isVerified && (
                     <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-white/90 backdrop-blur-sm text-blue-700 text-[10px] font-bold shadow-sm border border-blue-100">
                         <svg className="w-3 h-3 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -191,7 +173,7 @@ export default function ListingCard({ listing: initialListing }: ListingCardProp
                 <div className="relative">
                     {listing.images?.[0] ? (
                         <Image
-                            src={listing.images[0].url}
+                            src={sanitizeUrl(listing.images[0].url)}
                             alt={listing.title}
                             width={400}
                             height={400}
@@ -255,7 +237,6 @@ export default function ListingCard({ listing: initialListing }: ListingCardProp
                         <div className="mb-3">
                             <PriceDisplay
                                 priceCents={listing.priceCents}
-                                originalPriceCents={listing.originalPriceCents}
                                 size="md"
                                 isBarterFriendly={listing.allowBarter}
                             />
@@ -263,16 +244,16 @@ export default function ListingCard({ listing: initialListing }: ListingCardProp
                     )}
 
                     {/* Star Rating */}
-                    {listing.rating !== undefined && listing.rating > 0 && (
+                    {listing.seller?.profile?.rating !== undefined && (listing.seller?.profile?.rating ?? 0) > 0 && (
                         <div className="mb-3">
                             <StarRating
-                                rating={listing.rating}
+                                rating={listing.seller.profile.rating}
                                 showNumber={false}
                                 size="sm"
                             />
-                            {listing.reviewCount && listing.reviewCount > 0 && (
+                            {listing.seller?.profile?.reviewCount !== undefined && listing.seller.profile.reviewCount > 0 && (
                                 <span className="text-xs text-gray-500 ml-1">
-                                    ({listing.reviewCount})
+                                    ({listing.seller.profile.reviewCount})
                                 </span>
                             )}
                         </div>

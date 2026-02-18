@@ -1,6 +1,6 @@
 'use client';
 
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { useInView } from 'react-intersection-observer';
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -32,6 +32,7 @@ function useDebounce<T>(value: T, delay: number): T {
 }
 
 export default function MarketFeed() {
+    const queryClient = useQueryClient();
     const searchParams = useSearchParams();
     const router = useRouter();
     const search = searchParams.get('search') || '';
@@ -104,7 +105,42 @@ export default function MarketFeed() {
             return lastPage.meta.page < lastPage.meta.totalPages ? lastPage.meta.page + 1 : undefined;
         },
         initialPageParam: 1,
+        staleTime: 1000 * 60 * 5, // Keep listings fresh for 5 minutes
     });
+
+    const listings = data?.pages.flatMap((page) => page.data) || [];
+
+    // Smart Prefetching: Fetch the next page when the user is close to the bottom
+    useEffect(() => {
+        if (hasNextPage && !isFetchingNextPage && listings.length > 0) {
+            const nextPage = (data?.pages.length || 0) + 1;
+            const queryKey = ['listings', search, type, condition, paymentMode, minPrice, maxPrice, categoryId, isDistressSale, countryId, regionId];
+
+            // Only prefetch if not already fetching
+            queryClient.prefetchInfiniteQuery({
+                queryKey,
+                queryFn: async () => {
+                    const params = {
+                        page: nextPage,
+                        limit: 12,
+                        search,
+                        type,
+                        condition,
+                        paymentMode,
+                        minPrice,
+                        maxPrice,
+                        categoryId,
+                        isDistressSale,
+                        countryId,
+                        regionId,
+                    };
+                    const response = await apiClient.get<PaginatedResponse<Listing>>('/listings', { params });
+                    return response.data;
+                },
+                initialPageParam: 1,
+            });
+        }
+    }, [listings.length, hasNextPage, isFetchingNextPage, queryClient]);
 
     useEffect(() => {
         if (inView && hasNextPage) {
@@ -123,7 +159,6 @@ export default function MarketFeed() {
         setSearchQuery('');
     };
 
-    const listings = data?.pages.flatMap((page) => page.data) || [];
     const isLoading = status === 'pending';
     const isError = status === 'error';
 

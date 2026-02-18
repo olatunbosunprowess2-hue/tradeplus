@@ -6,26 +6,27 @@
 
 export const PRICING = {
     // Pay-As-You-Go Services (using psychological price points)
-    CHAT_PASS: { NGN: 100000, USD: 499 },            // ₦1,000 / $4.99
-    CROSS_LIST: { NGN: 150000, USD: 399 },           // ₦1,500 / $3.99
-    AGGRESSIVE_BOOST: { NGN: 400000, USD: 999 },     // ₦4,000 / $9.99
-    AGGRESSIVE_BOOST_PREMIUM: { NGN: 200000, USD: 499 }, // 50% off for verified users
-    SPOTLIGHT_3_DAYS: { NGN: 200000, USD: 599 },     // ₦2,000 / $5.99
-    SPOTLIGHT_7_DAYS: { NGN: 400000, USD: 1299 },    // ₦4,000 / $12.99
+    // EMPIRE_STATUS (Subscription) - EARLY BIRD PROMO
+    EMPIRE_STATUS: { NGN: 250000, USD: 499 },         // ₦2,500 / $4.99
 
-    // Subscription
-    EMPIRE_STATUS: { NGN: 700000, USD: 1499 },       // ₦7,000 / $14.99
-    PREMIUM_MONTHLY: { NGN: 700000, USD: 1499 },     // Alias for Empire Status
+    // Pay-As-You-Go Services (Early Adopter Price Drops)
+    AGGRESSIVE_BOOST: { NGN: 100000, USD: 299 },      // ₦1,000 / $2.99
+    AGGRESSIVE_BOOST_PREMIUM: { NGN: 50000, USD: 149 }, // 50% off for verified/premium users
+    SPOTLIGHT_3_DAYS: { NGN: 50000, USD: 199 },       // ₦500 / $1.99
+    SPOTLIGHT_7_DAYS: { NGN: 120000, USD: 399 },      // ₦1,200 / $3.99
+    CROSS_LIST: { NGN: 0, USD: 0 },                   // FREE - To populate the main feed
+
+    PREMIUM_MONTHLY: { NGN: 250000, USD: 499 },      // Alias for Empire Status
 };
 
 export const LIMITS = {
-    FREE_LISTINGS: 5,               // Max active listings for free users
-    FREE_DAILY_CHATS: 3,            // Max new chat initiations per day
+    FREE_LISTINGS: 10,              // Max active listings for free users (up from 5)
+    FREE_DAILY_CHATS: 15,           // Max new chat initiations per day (up from 3)
+    FREE_COMMUNITY_POSTS: 50,       // Max community posts per day (sanity check for spam)
     PREMIUM_SPOTLIGHT_CREDITS: 2,   // Free spotlight credits for new premium subscribers
 };
 
 export const PURCHASE_TYPES = {
-    CHAT_PASS: 'chat_pass',
     CROSS_LIST: 'cross_list',
     AGGRESSIVE_BOOST: 'aggressive_boost',
     SPOTLIGHT_3: 'spotlight_3',

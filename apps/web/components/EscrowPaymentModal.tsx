@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import apiClient from '@/lib/api-client';
 import { toast } from 'react-hot-toast';
+import { sanitizeUrl } from '@/lib/utils';
 
 interface EscrowPaymentModalProps {
     isOpen: boolean;
@@ -111,7 +112,7 @@ export default function EscrowPaymentModal({
                     <div className="flex gap-3 mb-5 p-3 bg-gray-50 rounded-xl">
                         {listing.images?.[0] && (
                             <img
-                                src={listing.images[0].url}
+                                src={sanitizeUrl(listing.images[0].url)}
                                 alt={listing.title}
                                 className="w-16 h-16 rounded-lg object-cover"
                             />

@@ -8,8 +8,10 @@ import dynamic from 'next/dynamic';
 import { useAuthStore } from '@/lib/auth-store';
 import apiClient from '@/lib/api-client';
 import type { CommunityPost, PostAuthor } from '@/lib/types';
-import { Share2, Bookmark, MoreVertical, Send, Twitter, Facebook, Link as LinkIcon, CheckCircle2 } from 'lucide-react';
+import { Share2, Bookmark, MoreVertical, Send, Twitter, Facebook, Link as LinkIcon, CheckCircle2, ShieldCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
+import PremiumBadge from '../PremiumBadge';
+import BrandBadge from '../BrandBadge';
 
 // Lazy load heavy interactive components
 const ReportModal = dynamic(() => import('./ReportModal'), { ssr: false });
@@ -76,19 +78,13 @@ function isBrand(author: PostAuthor): boolean {
     return author.brandVerificationStatus === 'VERIFIED_BRAND';
 }
 
-// ============================================================================
-// BADGE COMPONENTS
-// ============================================================================
 function VerifiedBadge() {
     return (
-        <CheckCircle2 className="w-4 h-4 text-blue-500 inline-block ml-1" />
-    );
-}
-
-function BrandBadge() {
-    return (
-        <span className="inline-flex items-center ml-1.5 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-100 text-purple-700">
-            BRAND
+        <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-bold shadow-sm border border-blue-100 ml-1">
+            <svg className="w-3 h-3 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            Verified
         </span>
     );
 }
@@ -281,7 +277,8 @@ export default function PostCard({ post: initialPost, onDelete, onUpdate, savedI
                                 @{getDisplayName(author)}
                             </Link>
                             {isVerified(author) && <VerifiedBadge />}
-                            {isBrand(author) && <BrandBadge />}
+                            {isBrand(author) && <div className="ml-1"><BrandBadge size="xs" /></div>}
+                            {author.tier === 'premium' && <div className="ml-1"><PremiumBadge size="xs" /></div>}
                         </div>
                         <div className="flex items-center gap-2">
                             <span className="text-xs text-gray-400">{timeAgo(post.createdAt)}</span>

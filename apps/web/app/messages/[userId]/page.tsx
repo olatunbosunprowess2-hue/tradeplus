@@ -12,6 +12,7 @@ import ReportModal from '@/components/ReportModal';
 import { ChatLimitModal, FirstChatModal } from '@/components/PaywallModal';
 import { checkChatLimit, initializePayment, redirectToPaystack } from '@/lib/payments-api';
 import toast from 'react-hot-toast';
+import { sanitizeUrl } from '@/lib/utils';
 
 export default function ChatPage() {
     const params = useParams();
@@ -316,7 +317,7 @@ export default function ChatPage() {
 
                     {conversation.participantAvatar ? (
                         <Image
-                            src={conversation.participantAvatar}
+                            src={sanitizeUrl(conversation.participantAvatar)}
                             alt={conversation.participantName}
                             width={44}
                             height={44}
@@ -373,7 +374,7 @@ export default function ChatPage() {
                         >
                             {conversation.listingContext.image && (
                                 <Image
-                                    src={conversation.listingContext.image}
+                                    src={sanitizeUrl(conversation.listingContext.image)}
                                     alt={conversation.listingContext.title}
                                     width={40}
                                     height={40}
@@ -449,12 +450,12 @@ export default function ChatPage() {
                                         >
                                             {message.mediaUrl && message.mediaType === 'image' && (
                                                 <div className="mb-2 -mx-2 -mt-2">
-                                                    <img src={message.mediaUrl} alt="Attachment" className="rounded-lg max-w-full h-auto object-cover" style={{ maxHeight: '200px' }} />
+                                                    <img src={sanitizeUrl(message.mediaUrl)} alt="Attachment" className="rounded-lg max-w-full h-auto object-cover" style={{ maxHeight: '200px' }} />
                                                 </div>
                                             )}
                                             {message.mediaUrl && message.mediaType === 'video' && (
                                                 <div className="mb-2 -mx-2 -mt-2">
-                                                    <video src={message.mediaUrl} controls className="rounded-lg max-w-full h-auto" style={{ maxHeight: '200px' }} />
+                                                    <video src={sanitizeUrl(message.mediaUrl)} controls className="rounded-lg max-w-full h-auto" style={{ maxHeight: '200px' }} />
                                                 </div>
                                             )}
                                             {message.content && (
@@ -535,7 +536,7 @@ export default function ChatPage() {
                             {filePreview && (
                                 <div className="absolute bottom-full left-0 mb-4 p-2 bg-white rounded-2xl shadow-2xl border border-gray-100 flex items-center gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300 z-20">
                                     {selectedFile?.type.startsWith('image/') ? (
-                                        <img src={filePreview} alt="Preview" className="w-16 h-16 object-cover rounded-xl shadow-inner" />
+                                        <img src={filePreview.startsWith('blob:') ? filePreview : sanitizeUrl(filePreview)} alt="Preview" className="w-16 h-16 object-cover rounded-xl shadow-inner" />
                                     ) : (
                                         <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center">
                                             <span className="text-2xl">🎥</span>

@@ -241,80 +241,79 @@ export default function PaywallModal({
                                     </div>
 
                                     <div className="flex-1">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <h3 className="font-bold text-base tracking-tight uppercase">Empire Status</h3>
-                                            <span className="text-[9px] bg-amber-400 text-slate-900 px-1.5 py-0.5 rounded-full font-black">BEST VALUE</span>
-                                        </div>
-                                        <p className="text-xs text-slate-300 font-bold mb-3 italic">
-                                            "Stop counting chats. Start closing deals. Get 2x visibility and 50% off all boosts."
-                                        </p>
+                                        <h3 className="font-bold text-base tracking-tight uppercase">Empire Status</h3>
+                                        <span className="text-[9px] bg-amber-400 text-slate-900 px-1.5 py-0.5 rounded-full font-black">EARLY BIRD PROMO: 65% OFF</span>
+                                    </div>
+                                    <p className="text-xs text-slate-300 font-bold mb-3 italic">
+                                        "Stop counting chats. Start closing deals. Get 2x visibility and 50% off all boosts."
+                                    </p>
 
-                                        <div className="flex gap-2">
-                                            <div className="bg-white/10 rounded-lg px-2 py-1 flex items-center gap-1.5">
-                                                <BadgeCheck className="w-3 h-3 text-amber-400" />
-                                                <span className="text-[10px] font-bold">Verified Badge</span>
-                                            </div>
-                                            <div className="bg-white/10 rounded-lg px-2 py-1 flex items-center gap-1.5">
-                                                <Star className="w-3 h-3 text-amber-400" />
-                                                <span className="text-[10px] font-bold">Priority Search</span>
-                                            </div>
+                                    <div className="flex gap-2">
+                                        <div className="bg-white/10 rounded-lg px-2 py-1 flex items-center gap-1.5">
+                                            <BadgeCheck className="w-3 h-3 text-amber-400" />
+                                            <span className="text-[10px] font-bold">Verified Badge</span>
+                                        </div>
+                                        <div className="bg-white/10 rounded-lg px-2 py-1 flex items-center gap-1.5">
+                                            <Star className="w-3 h-3 text-amber-400" />
+                                            <span className="text-[10px] font-bold">Priority Search</span>
                                         </div>
                                     </div>
-
-                                    <div className="text-right flex-shrink-0">
-                                        <span className="font-bold text-xl block text-amber-400">
-                                            {currency === 'NGN' ? '₦7,000' : '$14.99'}
-                                        </span>
-                                        <span className="text-[10px] font-medium opacity-60">/month</span>
-                                    </div>
                                 </div>
-                            </button>
 
-                            <button
-                                onClick={(e) => toggleExpand(e, 'premium')}
-                                className="w-full text-center text-[10px] font-black text-slate-500 hover:text-slate-900 uppercase tracking-widest transition-colors py-1"
-                            >
-                                {expandedOption === 'premium' ? 'Hide Details' : 'See Everything You Get'}
-                            </button>
-
-                            {expandedOption === 'premium' && (
-                                <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 animate-in slide-in-from-top-2">
-                                    <h4 className="text-[10px] font-black text-slate-400 uppercase mb-3 pr-4">Premium Membership Includes:</h4>
-                                    <ul className="grid grid-cols-1 gap-3 pr-4">
-                                        {[
-                                            { icon: <Check className="text-green-500" />, text: "Unlimited active listings (No cap)" },
-                                            { icon: <Check className="text-green-500" />, text: "Unlimited chat initiations" },
-                                            { icon: <Check className="text-green-500" />, text: "Unlimited Community Posts & Offers" },
-                                            { icon: <Check className="text-green-500" />, text: "Read Receipts (Seen status)" },
-                                            { icon: <Check className="text-green-500" />, text: "Verified Crown Badge on profile" },
-                                            { icon: <Check className="text-green-500" />, text: "Search results priority (Top placement)" },
-                                            { icon: <Check className="text-green-500" />, text: "50% Discount on all Boosts" },
-                                            { icon: <Check className="text-green-500" />, text: "2 Free Spotlight credits per month" },
-                                        ].map((item, i) => (
-                                            <li key={i} className="flex items-center gap-2 text-xs font-bold text-slate-700">
-                                                {item.icon}
-                                                {item.text}
-                                            </li>
-                                        ))}
-                                    </ul>
+                                <div className="text-right flex-shrink-0">
+                                    <span className="font-bold text-xl block text-amber-400">
+                                        {currency === 'NGN' ? '₦2,500' : '$4.99'}
+                                    </span>
+                                    <span className="text-[10px] font-medium opacity-60">/month</span>
                                 </div>
-                            )}
                         </div>
-                    )}
-                </div>
+                            </button>
 
-                {/* Fixed Footer */}
-                <div className="px-8 py-4 bg-slate-50/50 border-t border-slate-100 text-center flex-shrink-0">
-                    <button
-                        onClick={onClose}
-                        className="text-slate-500 text-xs font-bold hover:text-slate-800 transition-colors uppercase tracking-widest"
-                    >
-                        Maybe later
-                    </button>
-                </div>
+                <button
+                    onClick={(e) => toggleExpand(e, 'premium')}
+                    className="w-full text-center text-[10px] font-black text-slate-500 hover:text-slate-900 uppercase tracking-widest transition-colors py-1"
+                >
+                    {expandedOption === 'premium' ? 'Hide Details' : 'See Everything You Get'}
+                </button>
+
+                {expandedOption === 'premium' && (
+                    <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 animate-in slide-in-from-top-2">
+                        <h4 className="text-[10px] font-black text-slate-400 uppercase mb-3 pr-4">Premium Membership Includes:</h4>
+                        <ul className="grid grid-cols-1 gap-3 pr-4">
+                            {[
+                                { icon: <Check className="text-green-500" />, text: "Unlimited active listings (Up to 10 free)" },
+                                { icon: <Check className="text-green-500" />, text: "Unlimited chat initiations (Up to 15 free)" },
+                                { icon: <Check className="text-green-500" />, text: "Unlimited Community Posts & Offers" },
+                                { icon: <Check className="text-green-500" />, text: "Read Receipts (Seen status)" },
+                                { icon: <Check className="text-green-500" />, text: "Verified Crown Badge on profile" },
+                                { icon: <Check className="text-green-500" />, text: "Search results priority (Top placement)" },
+                                { icon: <Check className="text-green-500" />, text: "50% Discount on all Boosts" },
+                                { icon: <Check className="text-green-500" />, text: "2 Free Spotlight credits per month" },
+                            ].map((item, i) => (
+                                <li key={i} className="flex items-center gap-2 text-xs font-bold text-slate-700">
+                                    {item.icon}
+                                    {item.text}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
             </div>
+                    )}
+        </div>
 
-            <style jsx>{`
+                {/* Fixed Footer */ }
+    <div className="px-8 py-4 bg-slate-50/50 border-t border-slate-100 text-center flex-shrink-0">
+        <button
+            onClick={onClose}
+            className="text-slate-500 text-xs font-bold hover:text-slate-800 transition-colors uppercase tracking-widest"
+        >
+            Maybe later
+        </button>
+    </div>
+            </div >
+
+        <style jsx>{`
                 .custom-scrollbar::-webkit-scrollbar {
                     width: 4px;
                 }
@@ -329,7 +328,7 @@ export default function PaywallModal({
                     background: #CBD5E1;
                 }
             `}</style>
-        </div>
+        </div >
     );
 }
 
@@ -350,27 +349,10 @@ export function ChatLimitModal({
         <PaywallModal
             isOpen={isOpen}
             onClose={onClose}
-            title="Talk to more buyers"
-            subtitle="You have reached your free chat limit. Unlock now to keep talking."
+            title="Empire Status"
+            subtitle="You have reached your free chat limit of 15. Go Premium for unlimited trading."
             headerGradient="from-slate-900 to-slate-800"
-            options={[
-                {
-                    id: 'chat_pass',
-                    title: 'Unlimited Chat Pass',
-                    description: '"Stop counting chats. Start closing deals. Message as many buyers as you want."',
-                    prices: { NGN: 1000, USD: 499 },
-                    icon: <Zap className="w-6 h-6 fill-current" />,
-                    isPrimary: true,
-                    badge: 'POPULAR',
-                    badgeColor: 'bg-green-600',
-                    quickFeatures: ['All messages', '30 Days', 'No hidden fees'],
-                    detailedBenefits: [
-                        "Message an unlimited number of buyers and sellers for 30 full days",
-                        "Great for active flippers and high-volume traders",
-                        "Pays for itself with just one successful high-ticket trade"
-                    ]
-                },
-            ]}
+            options={[]} // Removing standalone chat pass
             onSelectOption={onSelectOption}
             showPremiumUpsell={true}
             isLoading={isLoading}
@@ -395,16 +377,18 @@ export function DistressBoostModal({
         <PaywallModal
             isOpen={isOpen}
             onClose={onClose}
-            title="Sell your item faster"
-            subtitle="Show your item to more people today and get paid quickly."
+            title="Get Noticed Instantly"
+            subtitle="Don't let your item get buried. For a tiny fee, we'll put your listing in front of thousands of active buyers."
             headerGradient="from-slate-900 to-slate-800"
             options={[
                 {
                     id: 'cross_list',
                     title: 'Cross-List to Marketplace',
                     description: 'Push your ad to the main feed where everyone sees it.',
-                    prices: { NGN: 1500, USD: 399 },
+                    prices: { NGN: 0, USD: 0 },
                     icon: <MapPin className="w-6 h-6" />,
+                    badge: 'FREE',
+                    badgeColor: 'bg-green-600',
                     quickFeatures: ['All users', 'Main feed spot', 'Permanent'],
                     detailedBenefits: [
                         "Moves your listing from the side-feed to the central marketplace stream",
@@ -416,11 +400,10 @@ export function DistressBoostModal({
                     id: 'aggressive_boost',
                     title: 'Aggressive Targeted Boost',
                     description: '"Don\'t wait for buyers. We\'ll ping the 10 most interested people instantly."',
-                    prices: isPremium ? { NGN: 2000, USD: 499 } : { NGN: 4000, USD: 999 },
-                    originalPrices: isPremium ? { NGN: 4000, USD: 999 } : undefined,
+                    prices: { NGN: 1000, USD: 299 },
                     icon: <Bell className="w-6 h-6 fill-current" />,
                     isPrimary: true,
-                    badge: 'MOST TARGETED',
+                    badge: 'BEST VALUE',
                     badgeColor: 'bg-red-600',
                     quickFeatures: ['Smart Pings', 'In-Region', 'High Intent'],
                     detailedBenefits: [
@@ -456,16 +439,18 @@ export function SpotlightModal({
         <PaywallModal
             isOpen={isOpen}
             onClose={onClose}
-            title="Get more views"
-            subtitle="Stay at the very top of search results so buyers see you first."
+            title="Sell 3x Faster Today!"
+            subtitle="For only ₦500, put your item at the very top of search results so buyers see you first."
             headerGradient="from-slate-900 to-slate-800"
             options={[
                 {
                     id: 'spotlight_3',
                     title: 'Spotlight - 3 Days',
                     description: 'Fix your ad at the top of its category for a 72-hour visibility peak.',
-                    prices: { NGN: 2000, USD: 599 },
+                    prices: { NGN: 500, USD: 199 },
                     icon: <Star className="w-6 h-6 fill-current" />,
+                    badge: 'IMPULSE BUY',
+                    badgeColor: 'bg-green-500',
                     quickFeatures: ['Top spot', 'Best for quick sales'],
                     detailedBenefits: [
                         "Category-specific featured banner",
@@ -477,8 +462,8 @@ export function SpotlightModal({
                     id: 'spotlight_7',
                     title: 'Spotlight - 7 Days',
                     description: '"Own the homepage for a week. Perfect for cars, phones, and high-ticket items."',
-                    prices: { NGN: 4000, USD: 1299 },
-                    originalPrices: { NGN: 4700, USD: 1499 },
+                    prices: { NGN: 1200, USD: 399 },
+                    originalPrices: { NGN: 4000, USD: 1299 },
                     icon: <TrendingUp className="w-6 h-6" />,
                     isPrimary: true,
                     badge: 'BEST FOR CARS',
@@ -514,8 +499,8 @@ export function PostLimitModal({
         <PaywallModal
             isOpen={isOpen}
             onClose={onClose}
-            title="Post more in Community"
-            subtitle="Free users are limited to 5 posts per day. Upgrade to Empire Status for unlimited posting."
+            title="Grow your audience"
+            subtitle="Free users are limited to 50 posts per day. Upgrade to Empire Status for unlimited posting."
             headerGradient="from-blue-600 to-indigo-600"
             options={[]}
             onSelectOption={onSelectOption}

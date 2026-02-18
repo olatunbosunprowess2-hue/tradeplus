@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { appealsApi } from '@/lib/appeals-api';
 import { useToastStore } from '@/lib/toast-store';
 import Link from 'next/link';
+import { sanitizeUrl } from '@/lib/utils';
 
 export default function AdminAppealsPage() {
     const [appeals, setAppeals] = useState<any[]>([]);
@@ -105,7 +106,7 @@ export default function AdminAppealsPage() {
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
                                                 {appeal.user?.profile?.avatarUrl ? (
-                                                    <img src={appeal.user.profile.avatarUrl} alt="" className="w-8 h-8 rounded-full" />
+                                                    <img src={sanitizeUrl(appeal.user.profile.avatarUrl)} alt="" className="w-8 h-8 rounded-full" />
                                                 ) : (
                                                     <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-500">
                                                         {appeal.user?.email?.[0]?.toUpperCase() || '?'}
@@ -245,7 +246,7 @@ export default function AdminAppealsPage() {
                                     <div className="grid grid-cols-3 gap-2">
                                         {selectedAppeal.evidenceImages.map((url: string, index: number) => (
                                             <a key={index} href={url} target="_blank" rel="noopener noreferrer" className="block">
-                                                <img src={url} alt={`Evidence ${index + 1}`} className="w-full h-20 object-cover rounded border border-gray-200" />
+                                                <img src={sanitizeUrl(url)} alt={`Evidence ${index + 1}`} className="w-full h-20 object-cover rounded border border-gray-200" />
                                             </a>
                                         ))}
                                     </div>

@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useAuthStore } from '@/lib/auth-store';
 import { useRouter } from 'next/navigation';
 import apiClient from '@/lib/api-client';
+import { sanitizeUrl } from '@/lib/utils';
 
 interface Role {
     id: string;
@@ -301,7 +302,7 @@ export default function TeamManagementPage() {
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">
                                                         <img
-                                                            src={member.profile?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.profile?.displayName || member.email)}&background=6366f1&color=fff`}
+                                                            src={sanitizeUrl(member.profile?.avatarUrl) || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.profile?.displayName || member.email)}&background=6366f1&color=fff`}
                                                             alt=""
                                                             className="w-10 h-10 rounded-full bg-gray-200"
                                                         />
@@ -458,7 +459,7 @@ export default function TeamManagementPage() {
                                                 }`}
                                         >
                                             <img
-                                                src={searchUser.profile?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(searchUser.profile?.displayName || searchUser.email)}&background=6366f1&color=fff`}
+                                                src={sanitizeUrl(searchUser.profile?.avatarUrl) || `https://ui-avatars.com/api/?name=${encodeURIComponent(searchUser.profile?.displayName || searchUser.email)}&background=6366f1&color=fff`}
                                                 alt=""
                                                 className="w-8 h-8 rounded-full"
                                             />
