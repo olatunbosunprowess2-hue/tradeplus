@@ -96,10 +96,9 @@ export default function ListingCard({ listing: initialListing }: ListingCardProp
 
     return (
         <motion.div
-            layout
             whileHover={{ y: -8, transition: { duration: 0.2 } }}
             whileTap={{ scale: 0.98 }}
-            className={`rounded-2xl shadow-md overflow-hidden hover:shadow-2xl transition-all duration-300 group relative ${isUrgentItem
+            className={`rounded-2xl shadow-md overflow-hidden hover:shadow-2xl transition-shadow duration-200 group relative touch-manipulation ${isUrgentItem
                 ? 'bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-400 ring-2 ring-red-200 animate-pulse-subtle'
                 : 'bg-white border border-gray-100'
                 }`}
@@ -162,6 +161,7 @@ export default function ListingCard({ listing: initialListing }: ListingCardProp
             {isValidId && (
                 <Link
                     href={`/listings/${listing.id}`}
+                    prefetch={true}
                     className="absolute inset-0 z-10"
                     aria-label={`View ${listing.title}`}
                 />
@@ -175,19 +175,19 @@ export default function ListingCard({ listing: initialListing }: ListingCardProp
         return (
             <>
                 {/* Image Section */}
-                <div className="relative">
+                <div className="relative overflow-hidden h-48 bg-gray-100">
                     {listing.images?.[0] ? (
                         <Image
                             src={sanitizeUrl(listing.images[0].url)}
                             alt={listing.title}
-                            width={400}
-                            height={400}
-                            className="w-full h-48 object-cover"
-                            loading="lazy"
+                            fill
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            className="object-cover transition-transform duration-500 ease-out group-hover:scale-110 will-change-transform"
+                            priority={false} // Lazy load by default, but Next.js handles viewport priority well
                         />
                     ) : (
-                        <div className="w-full h-48 bg-gray-100 flex items-center justify-center">
-                            <span className="text-6xl">📦</span>
+                        <div className="w-full h-full flex items-center justify-center text-gray-300">
+                            <span className="text-4xl">📦</span>
                         </div>
                     )}
 

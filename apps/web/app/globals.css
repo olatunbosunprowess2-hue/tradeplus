@@ -151,6 +151,18 @@ html {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Eliminate 300ms tap delay on iOS Safari for all interactive elements */
+a,
+button,
+[role="button"],
+input,
+select,
+textarea,
+label,
+summary {
+  touch-action: manipulation;
+}
+
 body {
   color: var(--foreground);
   background: var(--color-bg-primary);

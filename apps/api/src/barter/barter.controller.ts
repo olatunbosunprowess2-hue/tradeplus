@@ -15,6 +15,7 @@ import { CounterOfferDto } from './dto/counter-offer.dto';
 import { OfferQueryDto } from './dto/offer-query.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { EmailVerifiedGuard } from '../auth/guards/email-verified.guard';
+import { UpdateBrandSettingsDto } from './dto/update-brand-settings.dto';
 
 import { VerifiedUserGuard } from '../auth/guards/verified-user.guard';
 
@@ -82,5 +83,20 @@ export class BarterController {
     @Post('offers/:id/receipt')
     getReceipt(@Request() req, @Param('id') id: string) {
         return this.barterService.getReceipt(id, req.user.id);
+    }
+
+    @Get('brand-settings')
+    getBrandSettings(@Request() req) {
+        return this.barterService.getBrandSettings(req.user.id);
+    }
+
+    @Patch('brand-settings')
+    updateBrandSettings(@Request() req, @Body() dto: UpdateBrandSettingsDto) {
+        return this.barterService.updateBrandSettings(req.user.id, dto);
+    }
+
+    @Patch('offers/:id/extend')
+    extendTradeTimer(@Request() req, @Param('id') id: string) {
+        return this.barterService.extendTradeTimer(id, req.user.id);
     }
 }

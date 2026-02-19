@@ -11,6 +11,7 @@ import { OfferQueryDto } from './dto/offer-query.dto';
 
 import { NotificationsService } from '../notifications/notifications.service';
 import { EmailService } from '../email/email.service';
+import { UpdateBrandSettingsDto } from './dto/update-brand-settings.dto';
 
 @Injectable()
 export class BarterService {
@@ -309,19 +310,37 @@ export class BarterService {
         }
 
         // Create system message for trade acceptance
-        await this.prisma.message.create({
-            data: {
-                conversationId: conversation.id,
-                senderId: userId,
-                body: `🎉 Offer accepted! You can now chat to arrange the exchange for "${offer.listing.title}".`,
-                messageType: 'system',
-            },
+        await this.prisma.message.createMany({
+            data: [
+                {
+                    conversationId: conversation.id,
+                    senderId: userId,
+                    body: `🎉 Offer accepted! You can now chat to arrange the exchange for "${offer.listing.title}".`,
+                    messageType: 'system',
+                },
+                {
+                    conversationId: conversation.id,
+                    senderId: userId,
+                    body: `⚠️ Safety First: Meet in public. Do not pay full price before inspection. Check the item before confirming.`,
+                    messageType: 'system',
+                }
+            ],
         });
+
+        // Fetch Brand Settings for the seller to determine timer duration
+        const brandSettings = await this.prisma.brandSettings.findUnique({
+            where: { userId },
+        });
+
+        const timerDuration = brandSettings?.defaultTimerDuration || 60; // Default to 60 minutes
+        const timerExpiresAt = new Date();
+        timerExpiresAt.setMinutes(timerExpiresAt.getMinutes() + timerDuration);
 
         const updated = await this.prisma.barterOffer.update({
             where: { id },
             data: {
                 status: 'accepted',
+                timerExpiresAt,
                 // If listing has a downpayment, start the downpayment flow
                 ...(offer.listing.downpaymentCents && Number(offer.listing.downpaymentCents) > 0
                     ? { downpaymentStatus: 'awaiting_payment' }
@@ -709,6 +728,8 @@ export class BarterService {
             const now = new Date();
             const receiptAvailableAt = new Date(now.getTime() + 24 * 60 * 60 * 1000); // +24 hours
             updateData.receiptAvailableAt = receiptAvailableAt;
+            updateData.status = 'completed'; // Mark as completed to stop timer
+            updateData.timerPausedAt = null; // Clear pause state
 
             // Atomic quantity reduction and status updates using a transaction
             return await this.prisma.$transaction(async (tx) => {
@@ -905,6 +926,7 @@ export class BarterService {
             data: {
                 downpaymentStatus: 'paid',
                 downpaymentPaidAt: new Date(),
+                timerPausedAt: new Date(),
             },
             include: {
                 listing: {
@@ -1002,10 +1024,133 @@ export class BarterService {
             offerId: updated.id,
             listingId: updated.listingId,
         });
-
         return {
             ...updated,
             offeredCashCents: updated.offeredCashCents ? Number(updated.offeredCashCents) : 0,
+        };
+    }
+
+    async extendTradeTimer(offerId: string, userId: string): Promise<any> {
+        const offer = await this.prisma.barterOffer.findUnique({
+            where: { id: offerId },
+            include: { listing: true },
+        });
+
+        if (!offer) {
+            throw new NotFoundException('Offer not found');
+        }
+
+        if (offer.status !== 'accepted') {
+            throw new BadRequestException('Can only extend timer for accepted trades');
+        }
+
+        if (offer.extensionCount >= 3) {
+            throw new BadRequestException('Maximum number of extensions (3) reached for this trade');
+        }
+
+        const isSeller = offer.sellerId === userId;
+        const isBuyer = offer.buyerId === userId;
+
+        if (!isSeller && !isBuyer) {
+            throw new ForbiddenException('You are not involved in this trade');
+        }
+
+        // Sellers can extend instantly. Buyers must request.
+        if (isSeller) {
+            const currentExpiresAt = offer.timerExpiresAt || new Date();
+            const newExpiresAt = new Date(currentExpiresAt.getTime() + 30 * 60 * 1000); // Add 30 mins
+
+            const updated = await this.prisma.barterOffer.update({
+                where: { id: offerId },
+                data: {
+                    timerExpiresAt: newExpiresAt,
+                    extensionCount: offer.extensionCount + 1,
+                },
+            });
+
+            // Notify buyer
+            await this.notificationsService.create(offer.buyerId, 'TIMER_EXTENDED', {
+                title: 'Time Extended ⏰',
+                message: `The seller has extended the trade timer by 30 minutes.`,
+                offerId: offer.id,
+                newExpiresAt,
+            });
+
+            return updated;
+        } else {
+            // Buyer request flow - Create a notification for the seller
+            await this.notificationsService.create(offer.sellerId, 'EXTENSION_REQUEST', {
+                title: 'Extension Requested ⏰',
+                message: `The buyer is asking for 30 more minutes to complete the trade.`,
+                offerId: offer.id,
+            });
+
+            return { message: 'Extension request sent to seller' };
+        }
+    }
+
+    /**
+     * Re-calculates and resumes the timer if a payment was reverted or needs adjustment.
+     * (Self-correction logic for the 'Pause' button)
+     */
+    async resumeTradeTimer(offerId: string) {
+        const offer = await this.prisma.barterOffer.findUnique({ where: { id: offerId } });
+        if (!offer || !offer.timerPausedAt || !offer.timerExpiresAt) return;
+
+        const pauseDuration = new Date().getTime() - offer.timerPausedAt.getTime();
+        const newExpiresAt = new Date(offer.timerExpiresAt.getTime() + pauseDuration);
+
+        await this.prisma.barterOffer.update({
+            where: { id: offerId },
+            data: {
+                timerExpiresAt: newExpiresAt,
+                timerPausedAt: null,
+            },
+        });
+    }
+
+    async getBrandSettings(userId: string) {
+        let settings = await this.prisma.brandSettings.findUnique({
+            where: { userId },
+        });
+
+        if (!settings) {
+            // Create default settings if not exists
+            settings = await this.prisma.brandSettings.create({
+                data: { userId },
+            });
+        }
+
+        return {
+            ...settings,
+            downpaymentValue: settings.downpaymentValue ? Number(settings.downpaymentValue) : 0,
+        };
+    }
+
+    async updateBrandSettings(userId: string, dto: UpdateBrandSettingsDto) {
+        const { downpaymentType, downpaymentValue } = dto;
+
+        // Validation: Percentage-based downpayment must not exceed 50%
+        if (downpaymentType === 'PERCENTAGE' && downpaymentValue !== undefined && downpaymentValue > 50) {
+            throw new BadRequestException('Percentage downpayment cannot exceed 50%');
+        }
+
+        const updated = await this.prisma.brandSettings.upsert({
+            where: { userId },
+            create: {
+                userId,
+                ...dto,
+                downpaymentValue: dto.downpaymentValue ? BigInt(dto.downpaymentValue) : undefined,
+            },
+            update: {
+                ...dto,
+                downpaymentValue: dto.downpaymentValue !== undefined ? BigInt(dto.downpaymentValue) : undefined,
+            },
+        });
+
+        return {
+            ...updated,
+            downpaymentValue: updated.downpaymentValue ? Number(updated.downpaymentValue) : 0,
         };
     }
 }

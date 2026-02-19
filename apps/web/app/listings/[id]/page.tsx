@@ -10,12 +10,7 @@ interface Props {
 
 async function getListing(id: string): Promise<Listing | null> {
     if (!id || id === 'undefined') {
-        try {
-            const fs = require('fs');
-            const logPath = 'C:/Users/PC/Desktop/BarterWave/BarterWave/debug_frontend.log';
-            fs.appendFileSync(logPath, `\n[${new Date().toISOString()}] getListing: Invalid ID: ${id}`);
-        } catch (e) { }
-        console.error('[DEBUG] getListing called with invalid id:', id);
+        console.error('[getListing] Invalid id:', id);
         return null;
     }
 
@@ -32,7 +27,7 @@ async function getListing(id: string): Promise<Listing | null> {
             apiUrl = apiUrl.replace('http:', 'https:');
         }
 
-        // ENSURE /api SUFFIX: If defined without /api, append it (except for localhost where it's usually included)
+        // ENSURE /api SUFFIX
         if (!apiUrl.endsWith('/api') && !apiUrl.includes('localhost') && apiUrl.startsWith('http')) {
             apiUrl = apiUrl.endsWith('/') ? apiUrl.slice(0, -1) : apiUrl;
             apiUrl += '/api';
@@ -40,16 +35,11 @@ async function getListing(id: string): Promise<Listing | null> {
 
         const fetchUrl = `${apiUrl}/listings/${id}`;
 
-        try {
-            const fs = require('fs');
-            const logPath = 'C:/Users/PC/Desktop/BarterWave/BarterWave/debug_frontend.log';
-            fs.appendFileSync(logPath, `\n[${new Date().toISOString()}] getListing: Fetching from ${fetchUrl}`);
-        } catch (e) { }
-
-        console.log(`[DEBUG] Fetching listing from: ${fetchUrl}`);
-
+        // ISR: Cache listing data for 30 seconds at the edge.
+        // This is the single biggest mobile perf win — subsequent clicks
+        // serve from Vercel's edge cache instead of round-tripping to Koyeb.
         const res = await fetch(fetchUrl, {
-            cache: 'no-store',
+            next: { revalidate: 30 },
             headers: {
                 'Content-Type': 'application/json',
                 'User-Agent': 'BarterWave-Frontend/1.0'
@@ -57,11 +47,7 @@ async function getListing(id: string): Promise<Listing | null> {
         });
 
         if (!res.ok) {
-            // DIAGNOSTIC MODE: Return error details UI instead of 404
-            // This allows us to see exactly WHY it failed in production
             const errorText = await res.text();
-
-            // Return a special object that the component can render as an error
             return {
                 isDiagnosticError: true,
                 status: res.status,
@@ -73,21 +59,11 @@ async function getListing(id: string): Promise<Listing | null> {
             } as any;
         }
 
-        const data = await res.json();
-
-        try {
-            const fs = require('fs');
-            const logPath = 'C:/Users/PC/Desktop/BarterWave/BarterWave/debug_frontend.log';
-            fs.appendFileSync(logPath, `\n[${new Date().toISOString()}] getListing: SUCCESS for ${data.title}`);
-        } catch (e) { }
-
-        console.log(`[DEBUG] Successfully fetched listing: ${data.title}`);
-        return data;
+        return await res.json();
     } catch (error: any) {
-        // DIAGNOSTIC CHECK: If we already returned a diagnostic object, don't wrap it
         if (error.isDiagnosticError) throw error;
 
-        console.error('[DEBUG] Error fetching listing server-side:', error);
+        console.error('[getListing] Server-side error:', error.message);
         return {
             isDiagnosticError: true,
             status: 500,

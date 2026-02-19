@@ -144,6 +144,8 @@ model User {
 
   deletedAt     DateTime? @map("deleted_at") @db.Timestamptz
 
+  brandSettings BrandSettings?
+
   @@map("users")
   @@index([deletedAt])
   @@index([googleId])
@@ -203,6 +205,20 @@ model UserProfile {
   @@map("user_profiles")
   @@index([displayName])
   @@index([regionId]) // Speeds up "Find users in Lagos"
+}
+
+model BrandSettings {
+  id                    String   @id @default(uuid()) @db.Uuid
+  userId                String   @unique @map("user_id") @db.Uuid
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  requireDownpayment    Boolean  @default(false) @map("require_downpayment")
+  downpaymentType       String   @default("FIXED") @map("downpayment_type") // 'FIXED', 'PERCENTAGE'
+  downpaymentValue      BigInt   @default(0) @map("downpayment_value")
+  defaultTimerDuration  Int      @default(60) @map("default_timer_duration") // Minutes
+  createdAt             DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt             DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("brand_settings")
 }
 
 
@@ -309,6 +325,11 @@ model Listing {
   isCrossListed         Boolean   @default(false) @map("is_cross_listed")
   spotlightExpiry       DateTime? @map("spotlight_expiry") @db.Timestamptz
   pushNotificationSent  Boolean   @default(false) @map("push_notification_sent")
+  
+  // Item-Specific Downpayment Overrides
+  hasDownpaymentOverride Boolean  @default(false) @map("has_downpayment_override")
+  overrideType           String?  @map("override_type") // 'FIXED' or 'PERCENTAGE'
+  overrideValue          BigInt?  @map("override_value")
 
   deletedAt             DateTime? @map("deleted_at") @db.Timestamptz
 
@@ -360,6 +381,11 @@ model BarterOffer {
   downpaymentStatus      String    @default("none") @map("downpayment_status") // 'none', 'awaiting_payment', 'paid', 'confirmed'
   downpaymentPaidAt      DateTime? @map("downpayment_paid_at") @db.Timestamptz
   downpaymentConfirmedAt DateTime? @map("downpayment_confirmed_at") @db.Timestamptz
+  
+  // Anti-Ghosting Timer Fields
+  timerExpiresAt    DateTime? @map("timer_expires_at") @db.Timestamptz
+  timerPausedAt     DateTime? @map("timer_paused_at") @db.Timestamptz // If set, timer is FROZEN
+  extensionCount    Int       @default(0) @map("extension_count")
 
   createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt         DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
