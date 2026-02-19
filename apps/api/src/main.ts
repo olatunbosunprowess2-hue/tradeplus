@@ -29,10 +29,10 @@ async function bootstrap() {
     integrations: [
       nodeProfilingIntegration(),
     ],
-    // Performance Monitoring
-    tracesSampleRate: 1.0, //  Capture 100% of the transactions
+    // Performance Monitoring — 10% in production to stay within free tier
+    tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
     // Set sampling rate for profiling - this is relative to tracesSampleRate
-    profilesSampleRate: 1.0,
+    profilesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
   });
 
   // Create the NestJS application instance
@@ -45,9 +45,9 @@ async function bootstrap() {
   // COOKIE PARSER
   app.use(cookieParser());
 
-  // Increase body size limit for large media uploads
-  app.use(json({ limit: '100mb' }));
-  app.use(urlencoded({ extended: true, limit: '100mb' }));
+  // Body size limit for JSON payloads (file uploads use Multer separately)
+  app.use(json({ limit: '10mb' }));
+  app.use(urlencoded({ extended: true, limit: '10mb' }));
 
   // HELMET SECURITY HEADERS
   // Comprehensive security headers protection

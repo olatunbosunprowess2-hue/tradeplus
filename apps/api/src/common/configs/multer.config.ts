@@ -29,8 +29,8 @@ export const multerConfig = {
         },
     }),
     limits: {
-        fileSize: 100 * 1024 * 1024, // 100MB limit for files
-        fieldSize: 100 * 1024 * 1024, // 100MB limit for non-file fields
+        fileSize: 5 * 1024 * 1024, // 5MB limit per file
+        fieldSize: 10 * 1024 * 1024, // 10MB limit for non-file fields
     },
     fileFilter: (req: any, file: any, cb: any) => {
         // Allow images and common video formats

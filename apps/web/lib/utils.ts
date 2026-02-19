@@ -42,14 +42,18 @@ export function formatDate(date: string | Date): string {
 
       // Ensure it's actually one of our proxied paths
       if (relative.startsWith('/uploads/') ||
-        relative.startsWith('/private-uploads/') ||
         relative.startsWith('/api/')) {
         return relative;
+      }
+      // Route private uploads through the authenticated API endpoint
+      if (relative.startsWith('/private-uploads/')) {
+        const filename = relative.split('/private-uploads/')[1];
+        return `/api/uploads/private/${filename}`;
       }
     } catch {
       // Fallback for malformed URLs
       if (url.includes('/uploads/')) return `/uploads/${url.split('/uploads/')[1]}`;
-      if (url.includes('/private-uploads/')) return `/private-uploads/${url.split('/private-uploads/')[1]}`;
+      if (url.includes('/private-uploads/')) return `/api/uploads/private/${url.split('/private-uploads/')[1]}`;
       if (url.includes('/api/')) return `/api/${url.split('/api/')[1]}`;
     }
   }

@@ -18,33 +18,31 @@ export class NotificationsService {
         return this.prisma.notification.findMany({
             where: { userId },
             orderBy: { createdAt: 'desc' },
+            take: 50,
         });
     }
 
     async getUnreadCount(userId: string) {
-        // 1. Get raw notification counts
-        const notifications = await this.prisma.notification.findMany({
+        // Use groupBy to count directly in the database instead of loading all rows
+        const groups = await this.prisma.notification.groupBy({
+            by: ['type'],
             where: {
                 userId,
                 readAt: null,
             },
-            select: { type: true }
+            _count: true,
         });
 
-        // 2. Calculate category counts from notifications table
         let offersCount = 0;
         let systemCount = 0;
 
         const offerTypes = ['NEW_OFFER', 'OFFER_ACCEPTED', 'OFFER_REJECTED', 'OFFER_COUNTERED', 'offer'];
-        // All other types go to system (or other categories if we add them later)
 
-        for (const n of notifications) {
-            if (offerTypes.includes(n.type)) {
-                offersCount++;
-            } else if (n.type !== 'message' && n.type !== 'NEW_MESSAGE') {
-                // Exclude message notifications from system count to avoid double counting
-                // (Messages are counted from Message table)
-                systemCount++;
+        for (const g of groups) {
+            if (offerTypes.includes(g.type)) {
+                offersCount += g._count;
+            } else if (g.type !== 'message' && g.type !== 'NEW_MESSAGE') {
+                systemCount += g._count;
             }
         }
 

@@ -8,22 +8,23 @@ const nextConfig = {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333/api',
   },
   images: {
-    domains: [
-      'ui-avatars.com',
-      'images.unsplash.com',
-      'placehold.co',
-      'api.dicebear.com',
-      'localhost',
-      'res.cloudinary.com',
-      'cloudinary.com',
-      'unhappy-marijo-barterwave-f6a20928.koyeb.app',
+    remotePatterns: [
+      { protocol: 'https', hostname: 'ui-avatars.com' },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'placehold.co' },
+      { protocol: 'https', hostname: 'api.dicebear.com' },
+      { protocol: 'http', hostname: 'localhost' },
+      { protocol: 'https', hostname: 'res.cloudinary.com' },
+      { protocol: 'https', hostname: 'cloudinary.com' },
+      { protocol: 'https', hostname: 'unhappy-marijo-barterwave-f6a20928.koyeb.app' },
       ...(process.env.NEXT_PUBLIC_API_URL && !process.env.NEXT_PUBLIC_API_URL.includes('localhost')
-        ? [new URL(process.env.NEXT_PUBLIC_API_URL).hostname]
-        : [])
+        ? [{ protocol: 'https', hostname: new URL(process.env.NEXT_PUBLIC_API_URL).hostname }]
+        : []),
     ],
   },
   typescript: {
-    ignoreBuildErrors: true,
+    // TypeScript errors should fail the build — don't ship broken code
+    ignoreBuildErrors: false,
   },
   devIndicators: {
     buildActivity: false,
@@ -43,10 +44,8 @@ const nextConfig = {
         source: '/uploads/:path*',
         destination: `${backendUrl}/uploads/:path*`,
       },
-      {
-        source: '/private-uploads/:path*',
-        destination: `${backendUrl}/private-uploads/:path*`,
-      },
+      // Private uploads are now served through the authenticated API endpoint:
+      // GET /api/uploads/private/:filename (requires moderator+ role)
     ];
   },
 }

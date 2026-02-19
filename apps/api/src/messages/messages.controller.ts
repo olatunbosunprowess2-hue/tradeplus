@@ -5,6 +5,7 @@ import {
     Body,
     Patch,
     Param,
+    Query,
     UseGuards,
     Request,
     UseInterceptors,
@@ -31,8 +32,13 @@ export class MessagesController {
     }
 
     @Get(':conversationId')
-    getMessages(@Request() req, @Param('conversationId') conversationId: string) {
-        return this.messagesService.getMessages(conversationId, req.user.id);
+    getMessages(
+        @Request() req,
+        @Param('conversationId') conversationId: string,
+        @Query('cursor') cursor?: string,
+        @Query('limit') limit?: string,
+    ) {
+        return this.messagesService.getMessages(conversationId, req.user.id, cursor, limit ? parseInt(limit) : 50);
     }
 
     @Post()

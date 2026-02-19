@@ -88,10 +88,9 @@ import { CommunityPostsModule } from './community-posts/community-posts.module';
             rootPath: join(process.cwd(), 'uploads'),
             serveRoot: '/uploads',
         }),
-        ServeStaticModule.forRoot({
-            rootPath: join(process.cwd(), 'private-uploads'),
-            serveRoot: '/private-uploads',
-        }),
+        // Private uploads are now served through an authenticated endpoint:
+        // GET /api/uploads/private/:filename (requires moderator+ role)
+        // See uploads.controller.ts servePrivateFile()
         PrismaModule,
         AuthModule,
         UsersModule,

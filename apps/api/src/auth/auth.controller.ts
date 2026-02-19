@@ -1,4 +1,5 @@
 import { Controller, Post, Body, Get, UseGuards, Request, Query, Res, HttpStatus, UnauthorizedException } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -9,6 +10,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { EmailService } from '../email/email.service';
 
 @Controller('auth')
+@Throttle({ default: { limit: 5, ttl: 60000 } }) // 5 auth requests per minute (stricter than global 100/min)
 export class AuthController {
     constructor(
         private readonly authService: AuthService,

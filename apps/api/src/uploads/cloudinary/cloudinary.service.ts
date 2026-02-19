@@ -24,6 +24,11 @@ export class CloudinaryService {
                         use_filename: true,
                         unique_filename: true,
                         resource_type: 'auto',
+                        // Image optimization: resize large images, auto-format & auto-quality
+                        transformation: [
+                            { width: 1200, crop: 'limit' },
+                            { quality: 'auto', fetch_format: 'auto' },
+                        ],
                     },
                     (error, result) => {
                         // Always clean up local file

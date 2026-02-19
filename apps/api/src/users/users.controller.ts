@@ -4,10 +4,14 @@ import { UsersService } from './users.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { multerConfig } from '../common/configs/multer.config';
+import { CloudinaryService } from '../uploads/cloudinary/cloudinary.service';
 
 @Controller('users')
 export class UsersController {
-    constructor(private readonly usersService: UsersService) { }
+    constructor(
+        private readonly usersService: UsersService,
+        private readonly cloudinaryService: CloudinaryService,
+    ) { }
 
     @UseGuards(JwtAuthGuard)
     @Get('admin/all') // Used by Team Page initial load
@@ -71,8 +75,14 @@ export class UsersController {
 
             // Map uploaded files to DTO fields
             if (files?.avatar?.[0]) {
-                dto.avatarUrl = `/uploads/${files.avatar[0].filename}`;
-                console.log('✅ Avatar saved:', dto.avatarUrl);
+                try {
+                    const result = await this.cloudinaryService.uploadImage(files.avatar[0]);
+                    dto.avatarUrl = result.url;
+                    console.log('✅ Avatar uploaded to Cloudinary:', dto.avatarUrl);
+                } catch (uploadError) {
+                    console.error('❌ Failed to upload avatar to Cloudinary:', uploadError);
+                    throw uploadError;
+                }
             }
             if (files?.faceVerification?.[0]) {
                 dto.faceVerificationUrl = `/private-uploads/${files.faceVerification[0].filename}`;

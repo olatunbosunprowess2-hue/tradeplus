@@ -49,6 +49,37 @@ export class SecurityService {
         }
     }
 
+    /**
+     * CRON JOB: Runs daily at 3 AM to clean up old records and prevent unbounded table growth.
+     */
+    @Cron('0 3 * * *')
+    async cleanupOldRecords() {
+        try {
+            this.logger.log('Running daily cleanup...');
+
+            const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+            const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
+            const [fingerprints, notifications, recentlyViewed] = await this.prisma.$transaction([
+                this.prisma.deviceFingerprint.deleteMany({
+                    where: { createdAt: { lt: ninetyDaysAgo } },
+                }),
+                this.prisma.notification.deleteMany({
+                    where: { readAt: { not: null }, createdAt: { lt: thirtyDaysAgo } },
+                }),
+                this.prisma.recentlyViewed.deleteMany({
+                    where: { viewedAt: { lt: thirtyDaysAgo } },
+                }),
+            ]);
+
+            this.logger.log(
+                `Cleanup complete: ${fingerprints.count} fingerprints, ${notifications.count} notifications, ${recentlyViewed.count} recently-viewed records deleted.`
+            );
+        } catch (error) {
+            this.logger.warn(`Cleanup failed: ${error.message}`);
+        }
+    }
+
     // Rule 1: Same IP creates > 3 accounts in 24h
     private async detectAccountFlooding() {
         const floodedIps = await this.prisma.$queryRaw`

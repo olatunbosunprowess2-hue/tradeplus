@@ -408,6 +408,7 @@ model BarterOfferItem {
   quantity          Int         @default(1)
 
   @@map("barter_offer_items")
+  @@index([barterOfferId])
 }
 
 // CART & CHECKOUT
@@ -423,6 +424,7 @@ model Cart {
   items     CartItem[]
 
   @@map("carts")
+  @@index([userId])
 }
 
 model CartItem {
@@ -527,6 +529,7 @@ model OrderItem {
   barterOffer   BarterOffer? @relation(fields: [barterOfferId], references: [id])
 
   @@map("order_items")
+  @@index([orderId])
 }
 
 model Payment {
@@ -541,6 +544,7 @@ model Payment {
   createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
 
   @@map("payments")
+  @@index([orderId])
 }
 
 // MESSAGING
@@ -566,6 +570,8 @@ model Conversation {
   messages      Message[]
 
   @@map("conversations")
+  @@index([buyerId])
+  @@index([sellerId])
 }
 
 model Message {
@@ -584,6 +590,8 @@ model Message {
   reports        Report[]
 
   @@map("messages")
+  @@index([conversationId])
+  @@index([senderId])
 }
 
 // NOTIFICATIONS
@@ -598,6 +606,8 @@ model Notification {
   createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
 
   @@map("notifications")
+  @@index([userId])
+  @@index([userId, readAt])
 }
 
 // FRAUD REPORTING

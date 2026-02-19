@@ -160,25 +160,25 @@ export class AuthService {
             throw new UnauthorizedException('Invalid credentials');
         }
 
-        // Reset failed attempts on success
-        await this.prisma.user.update({
-            where: { id: user.id },
-            data: {
-                failedLoginAttempts: 0,
-                lockoutUntil: null,
-            }
-        });
+        // Reset failed attempts and update last login in a single transaction
+        await this.prisma.$transaction([
+            this.prisma.user.update({
+                where: { id: user.id },
+                data: {
+                    failedLoginAttempts: 0,
+                    lockoutUntil: null,
+                },
+            }),
+            this.prisma.userProfile.update({
+                where: { userId: user.id },
+                data: { lastLoginAt: new Date() },
+            }),
+        ]);
 
         // Note: We allow suspended users to login so they can see their status and submit appeals
         // The frontend will handle restricting their actions
 
-        // Update last login
-        await this.prisma.userProfile.update({
-            where: { userId: user.id },
-            data: { lastLoginAt: new Date() },
-        });
-
-        // Trigger Activity Feed
+        // Trigger Activity Feed (fire-and-forget)
         this.activityService.handleUserLogin(user.id, '127.0.0.1').catch(err => {
             console.error('Failed to trigger activity feed for login:', err);
         });
@@ -261,7 +261,7 @@ export class AuthService {
         const [accessToken, refreshToken] = await Promise.all([
             this.jwtService.signAsync(payload, {
                 secret: secret,
-                expiresIn: this.configService.get<string>('JWT_EXPIRES_IN') || '30d',
+                expiresIn: this.configService.get<string>('JWT_EXPIRES_IN') || '15m',
             }),
             this.jwtService.signAsync(payload, {
                 secret: this.configService.get<string>('JWT_REFRESH_SECRET'),

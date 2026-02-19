@@ -69,7 +69,7 @@ export class MessagesService {
         });
     }
 
-    async getMessages(conversationId: string, userId: string) {
+    async getMessages(conversationId: string, userId: string, cursor?: string, limit = 50) {
         // Verify participation
         const conversation = await this.prisma.conversation.findUnique({
             where: { id: conversationId },
@@ -81,10 +81,15 @@ export class MessagesService {
 
         const messages = await this.prisma.message.findMany({
             where: { conversationId },
-            orderBy: { createdAt: 'asc' },
+            orderBy: { createdAt: 'desc' },
+            take: limit,
+            ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
         });
 
-        return messages.map(msg => ({
+        // Return in chronological order
+        const chronological = messages.reverse();
+
+        return chronological.map(msg => ({
             id: msg.id,
             conversationId: msg.conversationId,
             senderId: msg.senderId,

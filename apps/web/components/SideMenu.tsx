@@ -353,15 +353,29 @@ export default function SideMenu({ className = '' }: SideMenuProps) {
 
     return (
         <>
-            {/* Hamburger Button */}
+            {/* Menu Trigger — Avatar or Hamburger */}
             <button
                 onClick={() => setIsOpen(true)}
-                className={`p-2 rounded-lg hover:bg-gray-100 transition-colors ${className}`}
+                className={`p-1 rounded-full hover:ring-2 hover:ring-blue-500/30 transition-all ${className}`}
                 aria-label="Open menu"
             >
-                <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
+                {isAuthenticated && user ? (
+                    user.profile?.avatarUrl ? (
+                        <img
+                            src={sanitizeUrl(user.profile.avatarUrl)}
+                            alt=""
+                            className="w-8 h-8 rounded-full object-cover border-2 border-gray-200"
+                        />
+                    ) : (
+                        <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-bold">
+                            {user.profile?.displayName?.[0]?.toUpperCase() || user.email[0].toUpperCase()}
+                        </div>
+                    )
+                ) : (
+                    <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                )}
             </button>
 
             {/* Render menu items in portal */}
