@@ -97,20 +97,19 @@ export default function ListingCard({ listing: initialListing }: ListingCardProp
     return (
         <motion.div
             whileHover={{ y: -8, transition: { duration: 0.2 } }}
-            whileTap={{ scale: 0.98 }}
             className={`rounded-2xl shadow-md overflow-hidden hover:shadow-2xl transition-shadow duration-200 group relative touch-manipulation ${isUrgentItem
                 ? 'bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-400 ring-2 ring-red-200 animate-pulse-subtle'
                 : 'bg-white border border-gray-100'
                 }`}
         >
-            {/* Gradient accent on hover - Red for distress, purple for normal */}
-            <div className={`absolute inset-x-0 top-0 h-1 z-20 ${isUrgentItem
+            {/* Gradient accent on hover - purely decorative, must not intercept taps */}
+            <div className={`absolute inset-x-0 top-0 h-1 z-20 pointer-events-none ${isUrgentItem
                 ? 'bg-gradient-to-r from-red-500 via-orange-500 to-red-500 opacity-100'
                 : 'bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100'
                 } transition-opacity`} />
 
-            {/* Badges Container - Top Left */}
-            <div className="absolute top-2 left-2 z-10 flex flex-col gap-1 items-start">
+            {/* Badges Container - decorative, must not intercept taps */}
+            <div className="absolute top-2 left-2 z-10 flex flex-col gap-1 items-start pointer-events-none">
                 {/* Distress Sale Badge */}
                 {listing.isDistressSale && (
                     <DistressBadge size="sm" />
@@ -148,21 +147,21 @@ export default function ListingCard({ listing: initialListing }: ListingCardProp
                 )}
             </div>
 
-            {/* Bookmark Button */}
+            {/* Bookmark Button — must be ABOVE the Link overlay (z-30) */}
             <div
-                className="absolute top-2 right-2 z-20"
+                className="absolute top-2 right-2 z-40"
                 onClick={(e) => e.stopPropagation()}
                 onTouchStart={(e) => e.stopPropagation()}
             >
                 <BookmarkButton listing={bookmarkData} />
             </div>
 
-            {/* Clickable Overlay for redirection */}
+            {/* Clickable Overlay — z-30: above gradient (z-20) and badges (z-10), below bookmark (z-40) */}
             {isValidId && (
                 <Link
                     href={`/listings/${listing.id}`}
                     prefetch={true}
-                    className="absolute inset-0 z-10"
+                    className="absolute inset-0 z-30"
                     aria-label={`View ${listing.title}`}
                 />
             )}
@@ -191,8 +190,8 @@ export default function ListingCard({ listing: initialListing }: ListingCardProp
                         </div>
                     )}
 
-                    {/* Quick Access Actions Overlay */}
-                    <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex justify-between items-center z-20 pointer-events-none group-hover:pointer-events-auto">
+                    {/* Quick Access Actions Overlay — desktop only (hover:hover), prevents iOS first-tap-is-hover bug */}
+                    <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 transition-opacity flex justify-between items-center z-40 pointer-events-none hidden md:flex md:group-hover:opacity-100 md:group-hover:pointer-events-auto">
                         <div onClick={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()} className="pointer-events-auto">
                             <ShareButton
                                 url={typeof window !== 'undefined' ? `${window.location.origin}/listings/${listing.id}` : `https://barterwave.com/listings/${listing.id}`}
