@@ -96,8 +96,7 @@ export default function ListingCard({ listing: initialListing }: ListingCardProp
 
     return (
         <motion.div
-            whileHover={{ y: -8, transition: { duration: 0.2 } }}
-            className={`rounded-2xl shadow-md overflow-hidden hover:shadow-2xl transition-shadow duration-200 group relative touch-manipulation ${isUrgentItem
+            className={`rounded-2xl shadow-md overflow-hidden md:hover:shadow-2xl md:hover:-translate-y-2 transition-all duration-200 group relative touch-manipulation ${isUrgentItem
                 ? 'bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-400 ring-2 ring-red-200 animate-pulse-subtle'
                 : 'bg-white border border-gray-100'
                 }`}
@@ -105,7 +104,7 @@ export default function ListingCard({ listing: initialListing }: ListingCardProp
             {/* Gradient accent on hover - purely decorative, must not intercept taps */}
             <div className={`absolute inset-x-0 top-0 h-1 z-20 pointer-events-none ${isUrgentItem
                 ? 'bg-gradient-to-r from-red-500 via-orange-500 to-red-500 opacity-100'
-                : 'bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100'
+                : 'bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-0 md:group-hover:opacity-100'
                 } transition-opacity`} />
 
             {/* Badges Container - decorative, must not intercept taps */}
