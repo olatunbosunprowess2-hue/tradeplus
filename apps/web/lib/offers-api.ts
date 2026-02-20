@@ -62,4 +62,24 @@ export const offersApi = {
         const response = await apiClient.patch<BarterOffer>(`/barter/offers/${id}/confirm-receipt`);
         return response.data;
     },
+
+    extendTimer: async (id: string) => {
+        const response = await apiClient.patch<BarterOffer | { message: string }>(`/barter/offers/${id}/extend`);
+        return response.data;
+    },
+
+    getBrandSettings: async () => {
+        const response = await apiClient.get('/barter/brand-settings');
+        return response.data;
+    },
+
+    updateBrandSettings: async (data: {
+        requireDownpayment?: boolean;
+        downpaymentType?: 'FIXED' | 'PERCENTAGE';
+        downpaymentValue?: number;
+        defaultTimerDuration?: number;
+    }) => {
+        const response = await apiClient.patch('/barter/brand-settings', data);
+        return response.data;
+    },
 };

@@ -127,6 +127,11 @@ export interface Listing {
     downpaymentCents?: number;
     downpaymentCurrency?: string;
 
+    // Item-Level Downpayment Overrides
+    hasDownpaymentOverride?: boolean;
+    overrideType?: 'FIXED' | 'PERCENTAGE';
+    overrideValue?: number;
+
     // Barter Preferences
     barterPreference1?: string;
     barterPreference2?: string;
@@ -151,7 +156,7 @@ export interface BarterOffer {
     buyer: User;
     sellerId: string;
     seller: User;
-    status: 'pending' | 'accepted' | 'rejected' | 'countered' | 'cancelled';
+    status: 'pending' | 'accepted' | 'rejected' | 'countered' | 'cancelled' | 'awaiting_meetup' | 'dispute';
     offeredCashCents: number;
     currencyCode: string;
     message?: string;
@@ -169,6 +174,11 @@ export interface BarterOffer {
     downpaymentStatus: 'none' | 'awaiting_payment' | 'paid' | 'confirmed';
     downpaymentPaidAt?: string;
     downpaymentConfirmedAt?: string;
+
+    // Anti-Ghosting Timer
+    timerExpiresAt?: string;
+    timerPausedAt?: string;
+    extensionCount: number;
 
     createdAt: string;
     updatedAt: string;

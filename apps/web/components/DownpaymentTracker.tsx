@@ -26,6 +26,7 @@ function getStepIndex(status: string): number {
 
 export default function DownpaymentTracker({ offer, currentUserId, onUpdate }: DownpaymentTrackerProps) {
     const [loading, setLoading] = useState(false);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
     const { addToast } = useToastStore();
 
     const isBuyer = offer.buyerId === currentUserId;
@@ -53,6 +54,7 @@ export default function DownpaymentTracker({ offer, currentUserId, onUpdate }: D
     };
 
     const handleConfirmReceipt = async () => {
+        setShowConfirmModal(false);
         setLoading(true);
         try {
             const updated = await offersApi.confirmReceipt(offer.id);
@@ -147,7 +149,7 @@ export default function DownpaymentTracker({ offer, currentUserId, onUpdate }: D
 
             {isSeller && offer.downpaymentStatus === 'paid' && (
                 <button
-                    onClick={handleConfirmReceipt}
+                    onClick={() => setShowConfirmModal(true)}
                     disabled={loading}
                     className="w-full mt-2 px-4 py-2.5 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
@@ -169,6 +171,70 @@ export default function DownpaymentTracker({ offer, currentUserId, onUpdate }: D
                 <p className="text-xs text-gray-500 italic mt-2 text-center">
                     Waiting for seller to confirm receipt...
                 </p>
+            )}
+
+            {/* Safety Confirmation Modal */}
+            {showConfirmModal && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden animate-in zoom-in-95 duration-200">
+                        {/* Warning Header */}
+                        <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 className="text-white font-bold text-lg">Safety Check</h3>
+                                    <p className="text-white/80 text-xs">Please read carefully!</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Body */}
+                        <div className="px-6 py-5">
+                            <p className="text-gray-800 text-sm font-medium mb-3">
+                                Before confirming, please check:
+                            </p>
+                            <div className="space-y-2.5 mb-4">
+                                <div className="flex items-start gap-2.5">
+                                    <span className="text-amber-500 mt-0.5">●</span>
+                                    <p className="text-sm text-gray-600">
+                                        Open your <strong>bank app</strong> and verify the payment of <strong>{currency} {downpaymentAmount}</strong> has been received.
+                                    </p>
+                                </div>
+                                <div className="flex items-start gap-2.5">
+                                    <span className="text-amber-500 mt-0.5">●</span>
+                                    <p className="text-sm text-gray-600">
+                                        Do <strong>not</strong> rely on screenshots — always verify from your bank directly.
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="bg-red-50 border border-red-200 rounded-xl p-3">
+                                <p className="text-xs text-red-700 font-semibold">
+                                    ⚠️ This action cannot be undone. Only confirm if the money is in your account.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="px-6 pb-5 flex gap-3">
+                            <button
+                                onClick={() => setShowConfirmModal(false)}
+                                className="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition text-sm"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleConfirmReceipt}
+                                className="flex-1 px-4 py-2.5 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition text-sm"
+                            >
+                                Yes, I Received It
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

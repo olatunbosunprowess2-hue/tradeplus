@@ -14,7 +14,7 @@ import { sanitizeUrl } from '@/lib/utils';
 
 export default function WantsPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState<'wants' | 'bookmarks' | 'saved-posts'>('wants'); // Added saved-posts tab
+    const [activeTab, setActiveTab] = useState<'wants' | 'bookmarks' | 'saved-posts'>('bookmarks'); // Default to bookmarks for better utility
     const wants = useWantsStore((state) => state.items);
     const bookmarks = useBookmarksStore((state) => state.bookmarks);
     const removeBookmark = useBookmarksStore((state) => state.removeBookmark);
@@ -209,9 +209,9 @@ export default function WantsPage() {
                                 <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mb-6">
                                     <span className="text-4xl">📝</span>
                                 </div>
-                                <h2 className="text-xl font-bold text-gray-900 mb-2">Your wants list is empty</h2>
+                                <h2 className="text-xl font-bold text-gray-900 mb-2">Looking for something specific?</h2>
                                 <p className="text-gray-600 font-medium max-w-md mb-8">
-                                    Start adding items you want to trade or buy. We'll help you find them!
+                                    Add an item to your Wants list, and we'll <b>automatically notify you</b> when someone lists it near you!
                                 </p>
                                 <button
                                     onClick={() => setIsModalOpen(true)}

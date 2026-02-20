@@ -4,6 +4,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useMessagesStore } from '@/lib/messages-store';
 import { useAuthStore } from '@/lib/auth-store';
+import TradeTimerBar from '@/components/TradeTimerBar';
+import DownpaymentTracker from '@/components/DownpaymentTracker';
 import { messagesApi } from '@/lib/messages-api';
 import { io, Socket } from 'socket.io-client';
 import Link from 'next/link';
@@ -363,6 +365,37 @@ export default function ChatPage() {
                     </button>
                 </div>
             </div>
+
+            {/* Trade Timer Bar — sticky below header */}
+            {conversation.barterOffer?.status === 'accepted' && conversation.barterOffer?.timerExpiresAt && currentUserId && (
+                <div className="bg-white border-b border-gray-200 px-4 py-2">
+                    <div className="container mx-auto max-w-4xl">
+                        <TradeTimerBar
+                            offer={conversation.barterOffer}
+                            currentUserId={currentUserId}
+                            onUpdate={(updatedOffer) => {
+                                // Refresh conversations to get updated timer data
+                                fetchConversations();
+                            }}
+                        />
+                    </div>
+                </div>
+            )}
+
+            {/* Downpayment Tracker */}
+            {conversation.barterOffer?.downpaymentStatus && conversation.barterOffer.downpaymentStatus !== 'none' && currentUserId && (
+                <div className="bg-white border-b border-gray-200 px-4 py-2">
+                    <div className="container mx-auto max-w-4xl">
+                        <DownpaymentTracker
+                            offer={conversation.barterOffer}
+                            currentUserId={currentUserId}
+                            onUpdate={() => {
+                                fetchConversations();
+                            }}
+                        />
+                    </div>
+                </div>
+            )}
 
             {/* Listing Context Card */}
             {conversation.listingContext && (

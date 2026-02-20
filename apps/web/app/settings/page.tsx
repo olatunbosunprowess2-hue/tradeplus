@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useAuthStore } from '@/lib/auth-store';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import TradePreferences from '@/components/TradePreferences';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333/api';
 
@@ -119,8 +120,8 @@ export default function SettingsPage() {
                             {/* Password Message */}
                             {passwordMessage && (
                                 <div className={`mb-4 p-3 rounded-xl text-sm font-medium ${passwordMessage.type === 'success'
-                                        ? 'bg-green-50 text-green-700 border border-green-200'
-                                        : 'bg-red-50 text-red-700 border border-red-200'
+                                    ? 'bg-green-50 text-green-700 border border-green-200'
+                                    : 'bg-red-50 text-red-700 border border-red-200'
                                     }`}>
                                     {passwordMessage.type === 'success' ? '✅' : '❌'} {passwordMessage.text}
                                 </div>
@@ -263,6 +264,11 @@ export default function SettingsPage() {
                             )}
                         </div>
                     </div>
+
+                    {/* Trade Preferences — Brand Only */}
+                    {brandStatus === 'VERIFIED_BRAND' && (
+                        <TradePreferences />
+                    )}
 
                     {/* Support Section */}
                     <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">

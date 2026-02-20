@@ -46,8 +46,8 @@ async function bootstrap() {
   app.use(cookieParser());
 
   // Body size limit for JSON payloads (file uploads use Multer separately)
-  app.use(json({ limit: '10mb' }));
-  app.use(urlencoded({ extended: true, limit: '10mb' }));
+  app.use(json({ limit: '20mb' }));
+  app.use(urlencoded({ extended: true, limit: '20mb' }));
 
   // HELMET SECURITY HEADERS
   // Comprehensive security headers protection

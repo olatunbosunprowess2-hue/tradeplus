@@ -309,7 +309,16 @@ export class BarterService {
             }
         }
 
-        // Create system message for trade acceptance
+        // Fetch Brand Settings for the seller to determine timer duration
+        const brandSettings = await this.prisma.brandSettings.findUnique({
+            where: { userId },
+        });
+
+        const timerDuration = brandSettings?.defaultTimerDuration || 60; // Default to 60 minutes
+        const timerExpiresAt = new Date();
+        timerExpiresAt.setMinutes(timerExpiresAt.getMinutes() + timerDuration);
+
+        // Create system messages for trade acceptance + timer education
         await this.prisma.message.createMany({
             data: [
                 {
@@ -321,20 +330,17 @@ export class BarterService {
                 {
                     conversationId: conversation.id,
                     senderId: userId,
+                    body: `🤝 Trade Started! A ${timerDuration}-minute timer has begun to help you conclude this deal quickly. Please discuss terms, agree on a meetup, or pay the downpayment before the timer runs out to lock in the item!`,
+                    messageType: 'system',
+                },
+                {
+                    conversationId: conversation.id,
+                    senderId: userId,
                     body: `⚠️ Safety First: Meet in public. Do not pay full price before inspection. Check the item before confirming.`,
                     messageType: 'system',
                 }
             ],
         });
-
-        // Fetch Brand Settings for the seller to determine timer duration
-        const brandSettings = await this.prisma.brandSettings.findUnique({
-            where: { userId },
-        });
-
-        const timerDuration = brandSettings?.defaultTimerDuration || 60; // Default to 60 minutes
-        const timerExpiresAt = new Date();
-        timerExpiresAt.setMinutes(timerExpiresAt.getMinutes() + timerDuration);
 
         const updated = await this.prisma.barterOffer.update({
             where: { id },
@@ -992,11 +998,19 @@ export class BarterService {
             throw new BadRequestException(`Downpayment is currently '${offer.downpaymentStatus}', expected 'paid'`);
         }
 
+        // CRITICAL: Do NOT resume the short anti-ghosting timer after payment.
+        // Instead, transition to AWAITING_MEETUP with a 7-day meetup deadline.
+        const meetupDeadline = new Date();
+        meetupDeadline.setDate(meetupDeadline.getDate() + 7); // 7-day meetup window
+
         const updated = await this.prisma.barterOffer.update({
             where: { id: offerId },
             data: {
                 downpaymentStatus: 'confirmed',
                 downpaymentConfirmedAt: new Date(),
+                status: 'awaiting_meetup',
+                timerExpiresAt: meetupDeadline,
+                timerPausedAt: null, // Clear any paused state
             },
             include: {
                 listing: {
@@ -1024,6 +1038,22 @@ export class BarterService {
             offerId: updated.id,
             listingId: updated.listingId,
         });
+
+        // Inject "Meetup Phase" education message into the chat
+        const conversation = await this.prisma.conversation.findFirst({
+            where: { barterOfferId: offerId },
+        });
+        if (conversation) {
+            await this.prisma.message.create({
+                data: {
+                    conversationId: conversation.id,
+                    senderId: offer.sellerId,
+                    body: '✅ Payment Locked! The downpayment is confirmed. You now have 7 days to meet up and exchange the item. Click "Confirm Final Handshake" ONLY when you have physically received and inspected the item.',
+                    messageType: 'system',
+                },
+            });
+        }
+
         return {
             ...updated,
             offeredCashCents: updated.offeredCashCents ? Number(updated.offeredCashCents) : 0,

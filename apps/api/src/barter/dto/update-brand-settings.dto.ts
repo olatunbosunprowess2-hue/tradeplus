@@ -17,7 +17,8 @@ export class UpdateBrandSettingsDto {
     @IsOptional()
     @IsNumber()
     @Min(0)
-    downpaymentValue?: number; // In cents if FIXED, or 0-50 if PERCENTAGE
+    @Max(50) // 50% safety cap for percentage type; for FIXED, the raw value in cents
+    downpaymentValue?: number;
 
     @IsOptional()
     @IsNumber()

@@ -386,6 +386,7 @@ model BarterOffer {
   timerExpiresAt    DateTime? @map("timer_expires_at") @db.Timestamptz
   timerPausedAt     DateTime? @map("timer_paused_at") @db.Timestamptz // If set, timer is FROZEN
   extensionCount    Int       @default(0) @map("extension_count")
+  timerWarned10Min  Boolean   @default(false) @map("timer_warned_10min")
 
   createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt         DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz

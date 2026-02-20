@@ -13,6 +13,7 @@ import SuspendedAccountModal from '@/components/SuspendedAccountModal';
 import BusinessAddressModal from '@/components/BusinessAddressModal';
 import { DistressBoostModal, SpotlightModal } from '@/components/PaywallModal';
 import { initializePayment, redirectToPaystack, checkListingLimit, useSpotlightCredit } from '@/lib/payments-api';
+import { compressImages } from '@/lib/image-compression';
 import Image from 'next/image';
 
 // --- Validation Schema ---
@@ -126,23 +127,32 @@ export default function CreateListingPage() {
     }, [isAuthenticated, refreshProfile]);
 
     // --- Handlers ---
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
         if (files.length + images.length > 3) {
             toast.error('Maximum 3 images allowed');
             return;
         }
 
-        const newPreviews: string[] = [];
-        files.forEach(file => {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreviews(prev => [...prev, reader.result as string]);
-            };
-            reader.readAsDataURL(file);
-        });
+        // Compress images client-side before storing
+        const toastId = toast.loading('Compressing images...');
+        try {
+            const compressed = await compressImages(files);
+            toast.dismiss(toastId);
 
-        setImages(prev => [...prev, ...files]);
+            compressed.forEach(file => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setImagePreviews(prev => [...prev, reader.result as string]);
+                };
+                reader.readAsDataURL(file);
+            });
+
+            setImages(prev => [...prev, ...compressed]);
+        } catch {
+            toast.dismiss(toastId);
+            toast.error('Failed to process images');
+        }
     };
 
     const removeImage = (index: number) => {
@@ -602,41 +612,56 @@ export default function CreateListingPage() {
                                     </div>
                                 </div>
 
-                                {/* Verified Brand Downpayment Option */}
+                                {/* Verified Brand Downpayment Override */}
                                 {user?.brandVerificationStatus === 'VERIFIED_BRAND' && !formData.isDistressSale && (
                                     <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl mt-4">
                                         <div className="flex items-start gap-3">
                                             <span className="text-xl">💰</span>
                                             <div className="flex-1">
-                                                <h3 className="font-bold text-gray-900">Enable Downpayment?</h3>
-                                                <p className="text-xs text-gray-600 mt-1">
-                                                    As a verified brand, you can require a partial downpayment.
-                                                </p>
-                                                <div className="mt-3">
-                                                    <label className="block text-sm font-bold text-gray-700 mb-2">Downpayment Amount</label>
-                                                    <div className="relative">
-                                                        <span className="absolute left-3 top-3 text-gray-500">{formData.currency}</span>
-                                                        <input
-                                                            type="number"
-                                                            placeholder="0.00"
-                                                            value={formData.downpaymentCents || ''}
-                                                            onChange={(e) => {
-                                                                // prevent downpayment > price
-                                                                const val = parseFloat(e.target.value);
-                                                                const price = parseFloat(formData.priceCents);
-                                                                if (val > price) {
-                                                                    toast.error('Downpayment cannot exceed listing price');
-                                                                    return;
-                                                                }
-                                                                setFormData({ ...formData, downpaymentCents: e.target.value })
-                                                            }}
-                                                            className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500"
-                                                        />
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <h3 className="font-bold text-gray-900 text-sm">Override Downpayment</h3>
+                                                        <p className="text-xs text-gray-500 mt-0.5">
+                                                            Set a custom downpayment for this listing (overrides your brand defaults).
+                                                        </p>
                                                     </div>
-                                                    <p className="text-xs text-amber-700 mt-2">
-                                                        Buyers will be required to pay this amount upfront.
-                                                    </p>
+                                                    <div
+                                                        onClick={() => setFormData(p => ({
+                                                            ...p,
+                                                            downpaymentCents: p.downpaymentCents ? '' : '0',
+                                                        }))}
+                                                        className={`w-11 h-6 rounded-full p-1 cursor-pointer transition-colors ${formData.downpaymentCents ? 'bg-amber-500' : 'bg-gray-300'}`}
+                                                    >
+                                                        <div className={`bg-white w-4 h-4 rounded-full shadow-sm transition-transform ${formData.downpaymentCents ? 'translate-x-5' : 'translate-x-0'}`} />
+                                                    </div>
                                                 </div>
+
+                                                {formData.downpaymentCents !== '' && (
+                                                    <div className="mt-3 animate-in slide-in-from-top-2 duration-200">
+                                                        <label className="block text-sm font-bold text-gray-700 mb-2">Amount</label>
+                                                        <div className="relative">
+                                                            <span className="absolute left-3 top-3 text-gray-500">{formData.currency}</span>
+                                                            <input
+                                                                type="number"
+                                                                placeholder="0.00"
+                                                                value={formData.downpaymentCents || ''}
+                                                                onChange={(e) => {
+                                                                    const val = parseFloat(e.target.value);
+                                                                    const price = parseFloat(formData.priceCents);
+                                                                    if (price && val > price * 0.5) {
+                                                                        toast.error('Downpayment cannot exceed 50% of listing price');
+                                                                        return;
+                                                                    }
+                                                                    setFormData({ ...formData, downpaymentCents: e.target.value })
+                                                                }}
+                                                                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500"
+                                                            />
+                                                        </div>
+                                                        <p className="text-xs text-amber-700 mt-2">
+                                                            Buyers will be required to pay this amount upfront. Max 50% of listing price.
+                                                        </p>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </div>

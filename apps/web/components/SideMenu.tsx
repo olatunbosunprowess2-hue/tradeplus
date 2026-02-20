@@ -96,16 +96,7 @@ export default function SideMenu({ className = '' }: SideMenuProps) {
         {
             section: 'Activity',
             items: [
-                {
-                    href: '/history',
-                    icon: (
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    ),
-                    label: 'Trade History',
-                    description: 'Past transactions & receipts'
-                },
+
                 {
                     href: '/wants',
                     icon: (
@@ -356,25 +347,38 @@ export default function SideMenu({ className = '' }: SideMenuProps) {
             {/* Menu Trigger — Avatar or Hamburger */}
             <button
                 onClick={() => setIsOpen(true)}
-                className={`p-1 rounded-full hover:ring-2 hover:ring-blue-500/30 transition-all ${className}`}
+                className={`p-1 rounded-full transition-all ${className}`}
                 aria-label="Open menu"
             >
                 {isAuthenticated && user ? (
-                    user.profile?.avatarUrl ? (
-                        <img
-                            src={sanitizeUrl(user.profile.avatarUrl)}
-                            alt=""
-                            className="w-8 h-8 rounded-full object-cover border-2 border-gray-200"
-                        />
-                    ) : (
-                        <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-bold">
-                            {user.profile?.displayName?.[0]?.toUpperCase() || user.email[0].toUpperCase()}
+                    <div className="relative group cursor-pointer">
+                        {/* Stronger Pulsing active state indicator */}
+                        <div className="absolute -inset-1 bg-blue-600/40 rounded-full animate-pulse group-hover:bg-blue-600/60 transition-colors" />
+
+                        {/* Avatar container */}
+                        <div className="relative z-10">
+                            {user.profile?.avatarUrl ? (
+                                <img
+                                    src={sanitizeUrl(user.profile.avatarUrl)}
+                                    alt="Profile"
+                                    className="w-8 h-8 rounded-full object-cover border-2 border-white ring-1 ring-gray-200"
+                                />
+                            ) : (
+                                <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-bold border-2 border-white ring-1 ring-gray-200">
+                                    {user.profile?.displayName?.[0]?.toUpperCase() || user.email[0].toUpperCase()}
+                                </div>
+                            )}
                         </div>
-                    )
+
+                        {/* Online status dot */}
+                        <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></div>
+                    </div>
                 ) : (
-                    <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
+                    <div className="hover:bg-gray-100 p-1 rounded-full transition-colors">
+                        <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </div>
                 )}
             </button>
 
