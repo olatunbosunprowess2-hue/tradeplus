@@ -120,7 +120,7 @@ export default function TradeTimerBar({ offer, currentUserId, onUpdate }: TradeT
         setExtending(true);
         try {
             const result = await offersApi.extendTimer(offer.id);
-            if ('message' in result) {
+            if ('message' in result && typeof result.message === 'string' && !('id' in result)) {
                 addToast('success', result.message);
             } else {
                 addToast('success', isSeller ? 'Timer extended by 30 minutes!' : 'Extension request sent to seller.');

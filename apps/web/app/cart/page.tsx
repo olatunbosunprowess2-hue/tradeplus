@@ -1,8 +1,15 @@
 'use client';
 
-import { useCartStore } from '@/lib/cart-store';
+import { useCartStore, CartItem } from '@/lib/cart-store';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+
+interface SellerGroup {
+    sellerName: string;
+    sellerAvatar?: string;
+    items: CartItem[];
+    subtotal: number;
+}
 
 export default function CartPage() {
     const { items, removeItem, updateQuantity, clearCart, clearSellerItems } = useCartStore();
@@ -36,18 +43,19 @@ export default function CartPage() {
 
     // Group items by seller
     const groups = items.reduce((acc, item) => {
-        if (!acc[item.sellerId]) {
-            acc[item.sellerId] = {
-                sellerName: item.sellerName,
+        const sId = item.sellerId || 'unknown';
+        if (!acc[sId]) {
+            acc[sId] = {
+                sellerName: item.sellerName || 'Unknown Seller',
                 sellerAvatar: item.sellerAvatar,
                 items: [],
                 subtotal: 0
             };
         }
-        acc[item.sellerId].items.push(item);
-        acc[item.sellerId].subtotal += item.price * item.quantity;
+        acc[sId].items.push(item);
+        acc[sId].subtotal += (item.price || 0) * (item.quantity || 1);
         return acc;
-    }, {} as Record<string, { sellerName: string; sellerAvatar?: string; items: any[]; subtotal: number; }>);
+    }, {} as Record<string, SellerGroup>);
 
     return (
         <div className="min-h-screen bg-[#fafbfc] py-12 md:py-16">
@@ -90,7 +98,7 @@ export default function CartPage() {
                                         />
                                     ) : (
                                         <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-lg border-2 border-white shadow-sm uppercase">
-                                            {group.sellerName[0]}
+                                            {group.sellerName[0] || '?'}
                                         </div>
                                     )}
                                     <div>
@@ -187,7 +195,7 @@ export default function CartPage() {
                                                 <span className="text-emerald-600">FREE</span>
                                             </div>
                                             <div className="pt-4 border-t border-gray-100 flex justify-between items-end">
-                                                <span className="text-xs font-black text-blue-900 uppercase">Total with {group.sellerName.split(' ')[0]}</span>
+                                                <span className="text-xs font-black text-blue-900 uppercase">Total with {(group.sellerName || '').split(' ')[0]}</span>
                                                 <span className="text-2xl font-black text-blue-600 tracking-tight">NGN {group.subtotal.toLocaleString()}</span>
                                             </div>
                                         </div>
@@ -196,7 +204,7 @@ export default function CartPage() {
                                             href={`/checkout?sellerId=${sellerId}`}
                                             className="w-full bg-blue-600 text-white py-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-blue-700 hover:shadow-xl hover:-translate-y-0.5 transition-all text-center flex items-center justify-center gap-2 active:scale-95"
                                         >
-                                            Checkout with {group.sellerName.split(' ')[0]}
+                                            Checkout with {(group.sellerName || '').split(' ')[0]}
                                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                                         </Link>
 
