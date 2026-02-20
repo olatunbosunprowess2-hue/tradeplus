@@ -13,6 +13,7 @@ interface AddToCartButtonProps {
         images?: { url: string }[];
         sellerId: string;
         sellerName?: string;
+        sellerAvatar?: string;
         allowCash: boolean;
         quantity: number;
     };
@@ -42,6 +43,7 @@ export default function AddToCartButton({ listing, className = '', iconOnly = fa
             image: listing.images?.[0]?.url || '',
             sellerId: listing.sellerId,
             sellerName: listing.sellerName || 'Unknown Seller',
+            sellerAvatar: listing.sellerAvatar,
             maxQuantity: listing.quantity,
         });
 

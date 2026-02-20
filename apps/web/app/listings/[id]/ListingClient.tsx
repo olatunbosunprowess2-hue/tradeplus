@@ -506,6 +506,7 @@ export default function ListingClient({ listing: initialListing }: ListingClient
                                                     images: listing.images,
                                                     sellerId: listing.sellerId,
                                                     sellerName: listing.seller?.profile?.displayName || listing.seller?.email || 'Unknown Seller',
+                                                    sellerAvatar: listing.seller?.profile?.avatarUrl,
                                                     allowCash: listing.allowCash,
                                                     quantity: listing.quantity,
                                                 }}

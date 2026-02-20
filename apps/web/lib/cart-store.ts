@@ -9,6 +9,7 @@ export interface CartItem {
     image: string;
     sellerId: string;
     sellerName: string;
+    sellerAvatar?: string;
     quantity: number;
     maxQuantity: number;
 }
@@ -19,6 +20,7 @@ interface CartState {
     removeItem: (id: string) => void;
     updateQuantity: (id: string, quantity: number) => void;
     clearCart: () => void;
+    clearSellerItems: (sellerId: string) => void;
     getTotal: () => number;
     getItemCount: () => number;
 }
@@ -73,6 +75,12 @@ export const useCartStore = create<CartState>()(
             },
 
             clearCart: () => set({ items: [] }),
+
+            clearSellerItems: (sellerId) => {
+                set((state) => ({
+                    items: state.items.filter((item) => item.sellerId !== sellerId),
+                }));
+            },
 
             getTotal: () => {
                 return get().items.reduce((total, item) => total + (item.price * item.quantity), 0);
