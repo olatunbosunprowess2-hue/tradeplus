@@ -352,8 +352,8 @@ export default function SideMenu({ className = '' }: SideMenuProps) {
             >
                 {isAuthenticated && user ? (
                     <div className="relative group cursor-pointer">
-                        {/* Stronger Pulsing active state indicator */}
-                        <div className="absolute -inset-1 bg-blue-600/40 rounded-full animate-pulse group-hover:bg-blue-600/60 transition-colors" />
+                        {/* Small Pulsing Ring indicator */}
+                        <div className="absolute inset-0 ring-1 ring-blue-600/30 rounded-full animate-pulse group-hover:ring-blue-600/50 transition-all" />
 
                         {/* Avatar container */}
                         <div className="relative z-10">
@@ -361,10 +361,10 @@ export default function SideMenu({ className = '' }: SideMenuProps) {
                                 <img
                                     src={sanitizeUrl(user.profile.avatarUrl)}
                                     alt="Profile"
-                                    className="w-8 h-8 rounded-full object-cover border-2 border-white ring-1 ring-gray-200"
+                                    className="w-8 h-8 rounded-full object-cover border-2 border-white"
                                 />
                             ) : (
-                                <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-bold border-2 border-white ring-1 ring-gray-200">
+                                <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-bold border-2 border-white">
                                     {user.profile?.displayName?.[0]?.toUpperCase() || user.email[0].toUpperCase()}
                                 </div>
                             )}
@@ -374,8 +374,10 @@ export default function SideMenu({ className = '' }: SideMenuProps) {
                         <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></div>
                     </div>
                 ) : (
-                    <div className="hover:bg-gray-100 p-1 rounded-full transition-colors">
-                        <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="relative hover:bg-gray-100 p-1 rounded-full transition-colors group">
+                        {/* Small Pulsing Ring for hamburger */}
+                        <div className="absolute inset-x-0.5 inset-y-0.5 ring-1 ring-blue-600/20 rounded-full animate-pulse" />
+                        <svg className="w-6 h-6 text-gray-700 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
                     </div>
