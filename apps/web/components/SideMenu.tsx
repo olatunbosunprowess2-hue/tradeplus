@@ -351,8 +351,7 @@ export default function SideMenu({ className = '' }: SideMenuProps) {
                 aria-label="Open menu"
             >
                 <div className="relative hover:bg-gray-100 p-1.5 rounded-full transition-colors group">
-                    {/* Small Pulsing Ring for hamburger */}
-                    <div className="absolute inset-1 ring-1 ring-blue-600/20 rounded-full animate-pulse opacity-0 group-hover:opacity-100 transition-opacity" />
+                    {/* Hamburger menu without pulsing ring */}
                     <svg className="w-6 h-6 text-gray-700 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                     </svg>

@@ -85,16 +85,34 @@ export class UsersController {
                 }
             }
             if (files?.faceVerification?.[0]) {
-                dto.faceVerificationUrl = `/private-uploads/${files.faceVerification[0].filename}`;
-                console.log('✅ Face verification saved:', dto.faceVerificationUrl);
+                try {
+                    const result = await this.cloudinaryService.uploadImage(files.faceVerification[0]);
+                    dto.faceVerificationUrl = result.url;
+                    console.log('✅ Face verification uploaded to Cloudinary:', dto.faceVerificationUrl);
+                } catch (uploadError) {
+                    console.error('❌ Failed to upload face verification:', uploadError);
+                    throw uploadError;
+                }
             }
             if (files?.idDocumentFront?.[0]) {
-                dto.idDocumentFrontUrl = `/private-uploads/${files.idDocumentFront[0].filename}`;
-                console.log('✅ ID Front saved:', dto.idDocumentFrontUrl);
+                try {
+                    const result = await this.cloudinaryService.uploadImage(files.idDocumentFront[0]);
+                    dto.idDocumentFrontUrl = result.url;
+                    console.log('✅ ID Front uploaded to Cloudinary:', dto.idDocumentFrontUrl);
+                } catch (uploadError) {
+                    console.error('❌ Failed to upload ID Front:', uploadError);
+                    throw uploadError;
+                }
             }
             if (files?.idDocumentBack?.[0]) {
-                dto.idDocumentBackUrl = `/private-uploads/${files.idDocumentBack[0].filename}`;
-                console.log('✅ ID Back saved:', dto.idDocumentBackUrl);
+                try {
+                    const result = await this.cloudinaryService.uploadImage(files.idDocumentBack[0]);
+                    dto.idDocumentBackUrl = result.url;
+                    console.log('✅ ID Back uploaded to Cloudinary:', dto.idDocumentBackUrl);
+                } catch (uploadError) {
+                    console.error('❌ Failed to upload ID Back:', uploadError);
+                    throw uploadError;
+                }
             }
 
             // Handle numeric conversion for coordinates if sent as strings (multipart/form-data sends everything as strings)
