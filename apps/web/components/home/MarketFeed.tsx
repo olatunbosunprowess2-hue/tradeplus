@@ -1,6 +1,6 @@
 'use client';
 
-import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useInView } from 'react-intersection-observer';
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -142,6 +142,15 @@ export default function MarketFeed() {
         }
     }, [listings.length, hasNextPage, isFetchingNextPage, queryClient]);
 
+    const { data: featuredListings, isLoading: isLoadingFeatured } = useQuery({
+        queryKey: ['featured-listings'],
+        queryFn: async () => {
+            const response = await apiClient.get<Listing[]>('/listings/featured');
+            return response.data;
+        },
+        staleTime: 1000 * 60 * 5, // Keep fresh for 5 minutes
+    });
+
     useEffect(() => {
         if (inView && hasNextPage) {
             fetchNextPage();
@@ -243,7 +252,7 @@ export default function MarketFeed() {
                 {/* Main Content Area */}
                 <div className="flex-1 min-w-0">
                     {/* Spotlight Carousel */}
-                    {!isLoading && listings.length > 0 && <SpotlightCarousel listings={listings} />}
+                    {!isLoadingFeatured && featuredListings && featuredListings.length > 0 && <SpotlightCarousel listings={featuredListings} />}
 
                     {/* Category Pills - Now on BOTH Mobile and Desktop */}
                     <div className="mb-6">

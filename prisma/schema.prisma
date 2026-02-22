@@ -363,7 +363,7 @@ model BarterOffer {
   buyer             User      @relation("BuyerOffers", fields: [buyerId], references: [id], onDelete: Cascade)
   sellerId          String    @map("seller_id") @db.Uuid
   seller            User      @relation("SellerOffers", fields: [sellerId], references: [id], onDelete: Cascade)
-  status            String    @default("pending") // 'pending','accepted','rejected','countered','cancelled'
+  status            String    @default("pending") // 'pending','accepted','rejected','countered','cancelled','awaiting_fulfillment','completed','disputed'
   offeredCashCents  BigInt?   @default(0) @map("offered_cash_cents")
   currencyCode      String    @map("currency_code") @db.Char(3)
   message           String?
@@ -382,6 +382,18 @@ model BarterOffer {
   downpaymentPaidAt      DateTime? @map("downpayment_paid_at") @db.Timestamptz
   downpaymentConfirmedAt DateTime? @map("downpayment_confirmed_at") @db.Timestamptz
   
+  // Dual-Consent Commitment Phase
+  isBuyerLocked          Boolean   @default(false) @map("is_buyer_locked")
+  isSellerLocked         Boolean   @default(false) @map("is_seller_locked")
+
+  // Fulfillment Tracking (OTP/Manual)
+  pickupPin              String?   @map("pickup_pin") @db.VarChar(6)
+  isBuyerFulfilled       Boolean   @default(false) @map("is_buyer_fulfilled")
+  isSellerFulfilled      Boolean   @default(false) @map("is_seller_fulfilled")
+
+  // Dispute Tracking
+  disputeReason          String?   @map("dispute_reason")
+
   // Anti-Ghosting Timer Fields
   timerExpiresAt    DateTime? @map("timer_expires_at") @db.Timestamptz
   timerPausedAt     DateTime? @map("timer_paused_at") @db.Timestamptz // If set, timer is FROZEN

@@ -69,6 +69,11 @@ export class ListingsController {
         return this.listingsService.findAll(query);
     }
 
+    @Get('featured')
+    getFeatured() {
+        return this.listingsService.getFeaturedListings(12);
+    }
+
     @UseGuards(JwtAuthGuard)
     @Get('my-listings')
     getMyListings(

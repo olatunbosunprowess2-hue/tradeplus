@@ -46,7 +46,7 @@ export default function MakeOfferModal({ isOpen, onClose, listing, onSubmit }: M
 
     // Barter selection state
     const [userListings, setUserListings] = useState<Listing[]>([]);
-    const [selectedListingIds, setSelectedListingIds] = useState<Set<string>>(new Set());
+    const [selectedItems, setSelectedItems] = useState<Record<string, number>>({});
     const [isLoadingListings, setIsLoadingListings] = useState(false);
     const [barterMethod, setBarterMethod] = useState<'select' | 'manual'>('select');
     const [manualDescription, setManualDescription] = useState('');
@@ -92,21 +92,33 @@ export default function MakeOfferModal({ isOpen, onClose, listing, onSubmit }: M
     if (!isOpen) return null;
 
     const toggleListingSelection = (listingId: string) => {
-        const newSelected = new Set(selectedListingIds);
-        if (newSelected.has(listingId)) {
-            newSelected.delete(listingId);
-        } else {
-            newSelected.add(listingId);
-        }
-        setSelectedListingIds(newSelected);
+        setSelectedItems(prev => {
+            const next = { ...prev };
+            if (next[listingId]) {
+                delete next[listingId];
+            } else {
+                next[listingId] = 1;
+            }
+            return next;
+        });
+    };
+
+    const updateItemQuantity = (listingId: string, quantity: number) => {
+        setSelectedItems(prev => {
+            if (!prev[listingId]) return prev;
+            return {
+                ...prev,
+                [listingId]: Math.max(1, quantity)
+            };
+        });
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        const offeredItems = barterMethod === 'select' ? Array.from(selectedListingIds).map(id => ({
+        const offeredItems = barterMethod === 'select' ? Object.entries(selectedItems).map(([id, qty]) => ({
             listingId: id,
-            quantity: 1
+            quantity: qty
         })) : undefined;
 
         // If using manual barter entry, pass description as message
@@ -144,7 +156,7 @@ export default function MakeOfferModal({ isOpen, onClose, listing, onSubmit }: M
 
         // Reset form
         setCashAmount('');
-        setSelectedListingIds(new Set());
+        setSelectedItems({});
         onClose();
     };
 
@@ -336,35 +348,72 @@ export default function MakeOfferModal({ isOpen, onClose, listing, onSubmit }: M
                                                 {userListings.map(item => (
                                                     <div
                                                         key={item.id}
-                                                        onClick={() => toggleListingSelection(item.id)}
-                                                        className={`group flex items-center p-3 rounded-xl cursor-pointer border-2 transition-all duration-200 ${selectedListingIds.has(item.id)
+                                                        className={`group flex items-center p-3 rounded-xl border-2 transition-all duration-200 ${selectedItems[item.id]
                                                             ? 'bg-gray-50 border-gray-900 shadow-sm'
                                                             : 'bg-white border-gray-100 hover:border-gray-300 hover:bg-gray-50'
                                                             }`}
                                                     >
-                                                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center mr-3 transition-colors ${selectedListingIds.has(item.id)
-                                                            ? 'bg-gray-900 border-gray-900'
-                                                            : 'border-gray-300 group-hover:border-gray-400'
-                                                            }`}>
-                                                            {selectedListingIds.has(item.id) && (
-                                                                <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                                                </svg>
-                                                            )}
+                                                        <div
+                                                            className="flex-1 min-w-0 flex items-center cursor-pointer"
+                                                            onClick={() => toggleListingSelection(item.id)}
+                                                        >
+                                                            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center mr-3 transition-colors shrink-0 ${selectedItems[item.id]
+                                                                ? 'bg-gray-900 border-gray-900'
+                                                                : 'border-gray-300 group-hover:border-gray-400'
+                                                                }`}>
+                                                                {selectedItems[item.id] && (
+                                                                    <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                                                    </svg>
+                                                                )}
+                                                            </div>
+                                                            <img
+                                                                src={item.images?.[0]?.url ? sanitizeUrl(item.images[0].url) : 'https://via.placeholder.com/50'}
+                                                                alt={item.title}
+                                                                className="w-12 h-12 rounded-lg object-cover mr-3 bg-gray-100 shrink-0"
+                                                            />
+                                                            <div className="flex-1 min-w-0 pr-2">
+                                                                <p className={`text-sm font-bold truncate ${selectedItems[item.id] ? 'text-gray-900' : 'text-gray-700'}`}>
+                                                                    {item.title}
+                                                                </p>
+                                                                <p className="text-xs text-gray-500 font-medium">
+                                                                    {item.currencyCode} {((item.priceCents || 0) / 100).toLocaleString()} • {item.quantity} available
+                                                                </p>
+                                                            </div>
                                                         </div>
-                                                        <img
-                                                            src={item.images?.[0]?.url ? sanitizeUrl(item.images[0].url) : 'https://via.placeholder.com/50'}
-                                                            alt={item.title}
-                                                            className="w-12 h-12 rounded-lg object-cover mr-3 bg-gray-100"
-                                                        />
-                                                        <div className="flex-1 min-w-0">
-                                                            <p className={`text-sm font-bold truncate ${selectedListingIds.has(item.id) ? 'text-gray-900' : 'text-gray-700'}`}>
-                                                                {item.title}
-                                                            </p>
-                                                            <p className="text-xs text-gray-500 font-medium">
-                                                                {item.currencyCode} {((item.priceCents || 0) / 100).toLocaleString()}
-                                                            </p>
-                                                        </div>
+
+                                                        {/* Quantity Input */}
+                                                        {selectedItems[item.id] && (
+                                                            <div className="shrink-0 flex items-center gap-2 pl-3 border-l border-gray-200" onClick={e => e.stopPropagation()}>
+                                                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Qty</label>
+                                                                <div className="flex bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => updateItemQuantity(item.id, selectedItems[item.id] - 1)}
+                                                                        disabled={selectedItems[item.id] <= 1}
+                                                                        className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition"
+                                                                    >
+                                                                        -
+                                                                    </button>
+                                                                    <input
+                                                                        type="number"
+                                                                        min="1"
+                                                                        max={item.quantity}
+                                                                        value={selectedItems[item.id]}
+                                                                        onChange={(e) => updateItemQuantity(item.id, parseInt(e.target.value) || 1)}
+                                                                        className="w-10 h-8 text-center text-sm font-bold text-gray-900 border-x border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                                    />
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => updateItemQuantity(item.id, selectedItems[item.id] + 1)}
+                                                                        disabled={selectedItems[item.id] >= item.quantity}
+                                                                        className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition"
+                                                                    >
+                                                                        +
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 ))}
                                             </div>
@@ -400,7 +449,7 @@ export default function MakeOfferModal({ isOpen, onClose, listing, onSubmit }: M
                             <button
                                 type="submit"
                                 disabled={
-                                    (offerType !== 'cash' && barterMethod === 'select' && selectedListingIds.size === 0) ||
+                                    (offerType !== 'cash' && barterMethod === 'select' && Object.keys(selectedItems).length === 0) ||
                                     (offerType !== 'cash' && barterMethod === 'manual' && manualDescription.trim().length === 0)
                                 }
                                 className="flex-1 px-6 py-3.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/10 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none active:scale-95 text-xs uppercase tracking-wider"

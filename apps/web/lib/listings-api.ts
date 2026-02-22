@@ -36,6 +36,11 @@ export const listingsApi = {
         return response.data;
     },
 
+    createOffer: async (data: any) => {
+        const response = await apiClient.post('/barter/offers', data);
+        return response;
+    },
+
     delete: async (id: string) => {
         await apiClient.delete(`/listings/${id}`);
     }

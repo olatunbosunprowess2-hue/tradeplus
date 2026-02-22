@@ -15,6 +15,7 @@ interface AddToCartButtonProps {
         sellerName?: string;
         sellerAvatar?: string;
         allowCash: boolean;
+        allowBarter?: boolean;
         quantity: number;
     };
     className?: string;
@@ -27,7 +28,7 @@ export default function AddToCartButton({ listing, className = '', iconOnly = fa
     const [isAdded, setIsAdded] = useState(false);
 
     const isOwner = user?.id === listing.sellerId;
-    const canAddToCart = listing.allowCash && listing.priceCents && !isOwner;
+    const canAddToCart = (listing.allowCash || listing.allowBarter) && !isOwner;
 
     if (!canAddToCart) return null;
 

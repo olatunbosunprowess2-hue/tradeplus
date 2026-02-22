@@ -1183,4 +1183,174 @@ export class BarterService {
             downpaymentValue: updated.downpaymentValue ? Number(updated.downpaymentValue) : 0,
         };
     }
+
+    // --- PHASE 4 & 5: FINAL TRADE ARCHITECTURE ---
+
+    async lockDeal(offerId: string, userId: string) {
+        const offer = await this.prisma.barterOffer.findUnique({
+            where: { id: offerId },
+        });
+
+        if (!offer) throw new NotFoundException('Offer not found');
+        if (offer.status !== 'accepted') throw new BadRequestException('Offer must be in ACCEPTED state to lock deal');
+
+        let updateData: any = {};
+        if (offer.buyerId === userId) {
+            updateData.isBuyerLocked = true;
+        } else if (offer.sellerId === userId) {
+            updateData.isSellerLocked = true;
+        } else {
+            throw new ForbiddenException('Not a party to this trade');
+        }
+
+        // Check if this action completes the Dual-Consent lock
+        const willBeBuyerLocked = updateData.isBuyerLocked || offer.isBuyerLocked;
+        const willBeSellerLocked = updateData.isSellerLocked || offer.isSellerLocked;
+
+        if (willBeBuyerLocked && willBeSellerLocked) {
+            // BOTH parties have locked the deal. Transition to AWAITING_FULFILLMENT.
+            updateData.status = 'awaiting_fulfillment';
+            // Generate a 6-digit pickup PIN for local secure fulfillment
+            updateData.pickupPin = Math.floor(100000 + Math.random() * 900000).toString();
+            // Give them 7 days for the meetup
+            const meetupDeadline = new Date();
+            meetupDeadline.setDate(meetupDeadline.getDate() + 7);
+            updateData.timerExpiresAt = meetupDeadline;
+            // Clear the 60 min warnings
+            updateData.timerWarned10Min = false;
+
+            // Notify both parties
+            await this.notificationsService.create(offer.buyerId, 'TRADE_LOCKED', {
+                title: '🤝 Deal Locked!',
+                message: 'Both parties agreed. You have 7 days to meet up.',
+                offerId: offer.id
+            });
+            await this.notificationsService.create(offer.sellerId, 'TRADE_LOCKED', {
+                title: '🤝 Deal Locked!',
+                message: 'Both parties agreed. You have 7 days to meet up.',
+                offerId: offer.id
+            });
+        }
+
+        return this.prisma.barterOffer.update({
+            where: { id: offerId },
+            data: updateData,
+        });
+    }
+
+    async verifyPickup(offerId: string, userId: string, pin?: string) {
+        const offer = await this.prisma.barterOffer.findUnique({
+            where: { id: offerId },
+            include: { items: true }, // Needed for inventory deduction
+        });
+
+        if (!offer) throw new NotFoundException('Offer not found');
+        if (offer.status !== 'awaiting_fulfillment') throw new BadRequestException('Trade is not awaiting fulfillment');
+
+        const isSeller = offer.sellerId === userId;
+        const isBuyer = offer.buyerId === userId;
+
+        if (!isSeller && !isBuyer) throw new ForbiddenException('Not a party to this trade');
+
+        let updateData: any = {};
+
+        if (pin) {
+            // SCENE 1: Seller inputs Buyer's PIN (QR Code / Scanner bypass)
+            if (!isSeller) throw new BadRequestException('Only the seller can verify the buyer pin');
+            if (offer.pickupPin !== pin) throw new BadRequestException('Invalid PIN code');
+
+            // Instantly completes the trade
+            updateData.status = 'completed';
+            updateData.isSellerFulfilled = true;
+            updateData.isBuyerFulfilled = true;
+        } else {
+            // SCENE 2: Manual bypass (Dual-Confirmation)
+            if (isBuyer) updateData.isBuyerFulfilled = true;
+            if (isSeller) updateData.isSellerFulfilled = true;
+
+            const willBeBuyerFulfilled = updateData.isBuyerFulfilled || offer.isBuyerFulfilled;
+            const willBeSellerFulfilled = updateData.isSellerFulfilled || offer.isSellerFulfilled;
+
+            if (willBeBuyerFulfilled && willBeSellerFulfilled) {
+                updateData.status = 'completed';
+            }
+        }
+
+        // If transitioning to COMPLETED, deduct inventory
+        if (updateData.status === 'completed') {
+            await this._deductInventoryForCompletedTrade(offer);
+
+            // Send "Congratulations" notifications to trigger TradeCompleteModal
+            await this.notificationsService.create(offer.buyerId, 'TRADE_COMPLETED', {
+                title: '🎉 Trade Completed!',
+                message: 'Items swapped successfully. Please leave a review.',
+                offerId: offer.id
+            });
+            await this.notificationsService.create(offer.sellerId, 'TRADE_COMPLETED', {
+                title: '🎉 Trade Completed!',
+                message: 'Items swapped successfully. Please leave a review.',
+                offerId: offer.id
+            });
+        }
+
+        return this.prisma.barterOffer.update({
+            where: { id: offerId },
+            data: updateData,
+        });
+    }
+
+    async raiseDispute(offerId: string, userId: string, reason: string) {
+        const offer = await this.prisma.barterOffer.findUnique({
+            where: { id: offerId },
+        });
+
+        if (!offer) throw new NotFoundException('Offer not found');
+        if (offer.status !== 'awaiting_fulfillment') throw new BadRequestException('Disputes can only be raised during fulfillment');
+        if (offer.sellerId !== userId && offer.buyerId !== userId) throw new ForbiddenException('Not your trade');
+
+        // Freeze the trade: Status -> Disputed, pause timers, flag reason
+        const updateData = {
+            status: 'disputed',
+            disputeReason: reason,
+            disputeStatus: 'opened',
+            timerPausedAt: new Date(),
+        };
+
+        const updated = await this.prisma.barterOffer.update({
+            where: { id: offerId },
+            data: updateData,
+        });
+
+        // Notify the OTHER party
+        const otherPartyId = userId === offer.buyerId ? offer.sellerId : offer.buyerId;
+        await this.notificationsService.create(otherPartyId, 'TRADE_DISPUTED', {
+            title: '🚨 Trade Disputed',
+            message: 'The other party has flagged an issue with this trade. Support will review it.',
+            offerId: offer.id
+        });
+
+        return updated;
+    }
+
+    // Helper method to safely deduct inventory when a P2P trade actually completes locally.
+    private async _deductInventoryForCompletedTrade(offer: any) {
+        // 1. Deduct Seller's Target Listing
+        await this.prisma.listing.update({
+            where: { id: offer.listingId },
+            data: {
+                quantity: { decrement: 1 },
+                // If quantity reaches 0, it should be marked as "traded" but we'll do that in a nightly job or trigger to keep this fast.
+            },
+        });
+
+        // 2. Deduct all of the Buyer's Offered Items
+        if (offer.items && offer.items.length > 0) {
+            for (const item of offer.items) {
+                await this.prisma.listing.update({
+                    where: { id: item.offeredListingId },
+                    data: { quantity: { decrement: item.quantity } },
+                });
+            }
+        }
+    }
 }

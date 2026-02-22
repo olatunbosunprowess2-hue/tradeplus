@@ -698,13 +698,24 @@ export default function CreateListingPage() {
                                                 onChange={(e) => setFormData({ ...formData, barterPreference1: e.target.value })}
                                                 className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm"
                                             />
-                                            <input
-                                                type="text"
-                                                placeholder="e.g. DSLR Camera"
-                                                value={formData.barterPreference2}
-                                                onChange={(e) => setFormData({ ...formData, barterPreference2: e.target.value })}
-                                                className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm"
-                                            />
+                                            {formData.barterPreference1 && (
+                                                <input
+                                                    type="text"
+                                                    placeholder="e.g. DSLR Camera"
+                                                    value={formData.barterPreference2}
+                                                    onChange={(e) => setFormData({ ...formData, barterPreference2: e.target.value })}
+                                                    className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm animate-in fade-in slide-in-from-top-2 duration-200"
+                                                />
+                                            )}
+                                            {formData.barterPreference2 && (
+                                                <input
+                                                    type="text"
+                                                    placeholder="e.g. Electric Scooter"
+                                                    value={formData.barterPreference3}
+                                                    onChange={(e) => setFormData({ ...formData, barterPreference3: e.target.value })}
+                                                    className="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm animate-in fade-in slide-in-from-top-2 duration-200"
+                                                />
+                                            )}
                                         </div>
                                     </div>
                                 )}

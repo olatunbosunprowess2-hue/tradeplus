@@ -26,6 +26,7 @@ export class MessagesService {
                 buyer: { select: { id: true, email: true, profile: { select: { displayName: true, avatarUrl: true, lastActiveAt: true } } } },
                 seller: { select: { id: true, email: true, profile: { select: { displayName: true, avatarUrl: true, lastActiveAt: true } } } },
                 listing: { select: { id: true, title: true, images: { take: 1, orderBy: { sortOrder: 'asc' } } } },
+                barterOffer: true, // Include full offer details
                 messages: {
                     take: 1,
                     orderBy: { createdAt: 'desc' },
@@ -60,10 +61,15 @@ export class MessagesService {
                     readAt: lastMessage.readAt ? lastMessage.readAt.getTime() : undefined,
                 } : undefined,
                 unreadCount,
-                listingContext: conv.listing ? {
-                    id: conv.listing.id,
-                    title: conv.listing.title,
-                    image: conv.listing.images[0]?.url,
+                barterOffer: conv.barterOffer ? {
+                    ...conv.barterOffer,
+                    listing: conv.listing ? {
+                        id: conv.listing.id,
+                        title: conv.listing.title,
+                        images: conv.listing.images,
+                    } : undefined,
+                    buyer: conv.buyer,
+                    seller: conv.seller,
                 } : undefined,
             };
         });
@@ -255,7 +261,7 @@ export class MessagesService {
                 buyer: { select: { id: true, email: true, profile: { select: { displayName: true, avatarUrl: true } } } },
                 seller: { select: { id: true, email: true, profile: { select: { displayName: true, avatarUrl: true } } } },
                 listing: { select: { id: true, title: true, images: { take: 1, orderBy: { sortOrder: 'asc' } } } },
-                barterOffer: { select: { id: true, status: true } },
+                barterOffer: true, // Include full offer details for P2P action panel
             },
         });
 
@@ -277,8 +283,14 @@ export class MessagesService {
                 image: conversation.listing.images[0]?.url,
             } : undefined,
             barterOffer: conversation.barterOffer ? {
-                id: conversation.barterOffer.id,
-                status: conversation.barterOffer.status,
+                ...conversation.barterOffer,
+                listing: conversation.listing ? {
+                    id: conversation.listing.id,
+                    title: conversation.listing.title,
+                    images: conversation.listing.images,
+                } : undefined,
+                buyer: conversation.buyer,
+                seller: conversation.seller,
             } : undefined,
         };
     }

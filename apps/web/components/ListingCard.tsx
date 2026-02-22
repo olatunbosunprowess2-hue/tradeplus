@@ -215,6 +215,7 @@ export default function ListingCard({ listing: initialListing }: ListingCardProp
                                     sellerId: listing.sellerId,
                                     sellerName: listing.seller?.profile?.displayName || listing.seller?.email || 'Unknown',
                                     allowCash: listing.allowCash ?? true,
+                                    allowBarter: listing.allowBarter,
                                     quantity: listing.quantity || 1,
                                 }}
                                 className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition shadow-sm"

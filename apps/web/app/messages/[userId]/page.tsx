@@ -9,6 +9,7 @@ import DownpaymentTracker from '@/components/DownpaymentTracker';
 import { messagesApi } from '@/lib/messages-api';
 import { io, Socket } from 'socket.io-client';
 import Link from 'next/link';
+import TradeActionPanel from '@/components/trade/TradeActionPanel';
 import Image from 'next/image';
 import ReportModal from '@/components/ReportModal';
 import { ChatLimitModal, FirstChatModal } from '@/components/PaywallModal';
@@ -387,6 +388,21 @@ export default function ChatPage() {
                 <div className="bg-white border-b border-gray-200 px-4 py-2">
                     <div className="container mx-auto max-w-4xl">
                         <DownpaymentTracker
+                            offer={conversation.barterOffer}
+                            currentUserId={currentUserId}
+                            onUpdate={() => {
+                                fetchConversations();
+                            }}
+                        />
+                    </div>
+                </div>
+            )}
+
+            {/* Trade Action Panel (Commitment, Fulfillment, Disputes) */}
+            {conversation.barterOffer && ['accepted', 'awaiting_fulfillment', 'completed', 'disputed'].includes(conversation.barterOffer.status) && currentUserId && (
+                <div className="bg-gray-50 border-b border-gray-200 px-4 py-4 pt-6 shadow-inner">
+                    <div className="container mx-auto max-w-4xl">
+                        <TradeActionPanel
                             offer={conversation.barterOffer}
                             currentUserId={currentUserId}
                             onUpdate={() => {

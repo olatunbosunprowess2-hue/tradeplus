@@ -351,8 +351,6 @@ export class ListingsService {
                 orderBy: (isDistressSale !== undefined && String(isDistressSale) === 'true')
                     ? [{ createdAt: 'desc' }]
                     : [
-                        { isFeatured: 'desc' },
-                        { spotlightExpiry: { sort: 'desc', nulls: 'last' } },
                         { seller: { tier: 'desc' } },  // Premium sellers above free users
                         { createdAt: 'desc' },
                     ],
@@ -375,6 +373,53 @@ export class ListingsService {
                 totalPages: Math.ceil(total / limit),
             },
         };
+    }
+
+    async getFeaturedListings(limit: number = 12) {
+        // Fetch a large pool of active spotlight listings (up to 100)
+        // We do this to create a randomized rotation pool, like an ad network.
+        const pool = await this.prisma.listing.findMany({
+            where: {
+                status: 'active',
+                isFeatured: true,
+            },
+            take: 100, // Fetch an oversampled pool for randomization
+            select: {
+                id: true,
+                title: true,
+                priceCents: true,
+                currencyCode: true,
+                isDistressSale: true,
+                isFeatured: true,
+                spotlightExpiry: true,
+                images: {
+                    orderBy: { sortOrder: 'asc' },
+                    take: 1,
+                    select: { url: true }
+                },
+                seller: {
+                    select: {
+                        isVerified: true,
+                        profile: { select: { displayName: true } }
+                    }
+                }
+            }
+        });
+
+        // Shuffle the entire pool to guarantee fair rotation (ad impression style)
+        for (let i = pool.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [pool[i], pool[j]] = [pool[j], pool[i]];
+        }
+
+        // Return only the requested subset (e.g., 12) to this specific user's feed
+        const selectedListings = pool.slice(0, limit);
+
+        return selectedListings.map((listing) => ({
+            ...listing,
+            priceCents: listing.priceCents ? Number(listing.priceCents) : null,
+            images: listing.images || []
+        }));
     }
 
     async findOne(id: string) {

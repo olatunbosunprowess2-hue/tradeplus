@@ -1,8 +1,12 @@
 'use client';
 
+import { useState } from 'react';
 import { useCartStore, CartItem } from '@/lib/cart-store';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import MakeOfferModal from '@/components/MakeOfferModal';
+import { listingsApi } from '@/lib/listings-api';
+import { toast } from 'react-hot-toast';
 
 interface SellerGroup {
     sellerName: string;
@@ -14,6 +18,47 @@ interface SellerGroup {
 export default function CartPage() {
     const { items, removeItem, updateQuantity, clearCart, clearSellerItems } = useCartStore();
     const router = useRouter();
+
+    const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
+    const [selectedBundle, setSelectedBundle] = useState<CartItem[]>([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const handleMakeOffer = async (offerData: any) => {
+        if (!selectedBundle || selectedBundle.length === 0) return;
+        setIsSubmitting(true);
+
+        try {
+            // Build the bundle message summarizing the seller's items being requested
+            let bundleMsg = "I would like to make an offer for this bundle:\n";
+            selectedBundle.forEach(item => {
+                bundleMsg += `- ${item.quantity}x ${item.title}\n`;
+            });
+
+            const finalMessage = bundleMsg + (offerData.message ? `\n\n${offerData.message}` : '');
+
+            const response = await listingsApi.createOffer({
+                targetListingId: selectedBundle[0].id, // primary item
+                offerType: offerData.offerType,
+                cashAmount: offerData.cashAmount,
+                currency: offerData.currency,
+                offeredItems: offerData.offeredItems,
+                message: finalMessage,
+            });
+
+            toast.success('Bundle offer sent successfully!');
+            clearSellerItems(selectedBundle[0].sellerId || 'unknown');
+            setIsOfferModalOpen(false);
+
+            if (response.data && response.data.id) {
+                router.push(`/offers`);
+            }
+        } catch (error: any) {
+            console.error('Failed to send bundle offer:', error);
+            toast.error(error.response?.data?.message || 'Failed to send offer. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     if (items.length === 0) {
         return (
@@ -67,7 +112,7 @@ export default function CartPage() {
                             Shopping Bag
                         </div>
                         <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">
-                            Checkout <span className="text-gray-300 font-light ml-2">{items.length}</span>
+                            Your Cart <span className="text-gray-300 font-light ml-2">{items.length}</span>
                         </h1>
                     </div>
                     <button
@@ -200,13 +245,23 @@ export default function CartPage() {
                                             </div>
                                         </div>
 
-                                        <Link
-                                            href={`/checkout?sellerId=${sellerId}`}
-                                            className="w-full bg-blue-600 text-white py-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-blue-700 hover:shadow-xl hover:-translate-y-0.5 transition-all text-center flex items-center justify-center gap-2 active:scale-95"
+                                        <button
+                                            onClick={() => {
+                                                setSelectedBundle(group.items);
+                                                setIsOfferModalOpen(true);
+                                            }}
+                                            disabled={isSubmitting}
+                                            className="w-full bg-blue-600 text-white py-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-blue-700 hover:shadow-xl hover:-translate-y-0.5 transition-all text-center flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
                                         >
-                                            Checkout with {(group.sellerName || '').split(' ')[0]}
-                                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-                                        </Link>
+                                            {isSubmitting && selectedBundle.length > 0 && selectedBundle[0].sellerId === sellerId ? (
+                                                'Sending...'
+                                            ) : (
+                                                <>
+                                                    Make Offer for this Bundle
+                                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                                                </>
+                                            )}
+                                        </button>
 
                                         <p className="mt-4 text-[10px] text-gray-400 font-bold text-center uppercase tracking-widest flex items-center justify-center gap-1">
                                             <svg className="w-3 h-3 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
@@ -235,6 +290,29 @@ export default function CartPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Make Offer Modal for Bundles */}
+            {selectedBundle.length > 0 && (
+                <MakeOfferModal
+                    isOpen={isOfferModalOpen}
+                    onClose={() => {
+                        setIsOfferModalOpen(false);
+                        setSelectedBundle([]);
+                    }}
+                    listing={{
+                        id: selectedBundle[0].id,
+                        title: `Bundle: ${selectedBundle[0].title} +${selectedBundle.length - 1} more`,
+                        image: selectedBundle[0].image || '',
+                        sellerName: selectedBundle[0].sellerName || 'Unknown Seller',
+                        sellerLocation: 'See inside',
+                        allowCash: true,
+                        allowBarter: true,
+                        allowCashPlusBarter: true,
+                        currencyCode: selectedBundle[0].currency || 'NGN',
+                    }}
+                    onSubmit={handleMakeOffer}
+                />
+            )}
         </div>
     );
 }

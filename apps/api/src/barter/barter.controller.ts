@@ -99,4 +99,32 @@ export class BarterController {
     extendTradeTimer(@Request() req, @Param('id') id: string) {
         return this.barterService.extendTradeTimer(id, req.user.id);
     }
+
+    // --- PHASE 4 & 5 ARCHITECTURE ---
+
+    @UseGuards(VerifiedUserGuard)
+    @Post('offers/:id/lock')
+    lockDeal(@Request() req, @Param('id') id: string) {
+        return this.barterService.lockDeal(id, req.user.id);
+    }
+
+    @UseGuards(VerifiedUserGuard)
+    @Post('offers/:id/verify-pickup')
+    verifyPickup(
+        @Request() req,
+        @Param('id') id: string,
+        @Body('pin') pin?: string,
+    ) {
+        return this.barterService.verifyPickup(id, req.user.id, pin);
+    }
+
+    @UseGuards(VerifiedUserGuard)
+    @Post('offers/:id/dispute')
+    raiseDispute(
+        @Request() req,
+        @Param('id') id: string,
+        @Body('reason') reason: string,
+    ) {
+        return this.barterService.raiseDispute(id, req.user.id, reason);
+    }
 }
