@@ -454,7 +454,8 @@ export function SpotlightModal({
                     detailedBenefits: [
                         "Category-specific featured banner",
                         "3x more clicks than standard listings",
-                        "Great for items needing a quick pulse check"
+                        "Great for items needing a quick pulse check",
+                        "⏱️ Days stack if purchased multiple times"
                     ]
                 },
                 {
@@ -471,7 +472,8 @@ export function SpotlightModal({
                     detailedBenefits: [
                         "Fixed homepage rotating carousel placement",
                         "Extended 7-day run-time for complex negotiations",
-                        "Boosts seller credibility with 'Featured' tag"
+                        "Boosts seller credibility with 'Featured' tag",
+                        "⏱️ Days stack if purchased multiple times"
                     ]
                 },
             ]}

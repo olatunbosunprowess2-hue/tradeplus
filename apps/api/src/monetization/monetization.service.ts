@@ -237,11 +237,27 @@ export class MonetizationService {
     }
 
     /**
-     * Activate spotlight for a listing
+     * Activate spotlight for a listing, extending expiry if already active
      */
     async activateSpotlight(listingId: string, days: number): Promise<ActivationResult> {
         const now = new Date();
-        const expiryDate = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
+
+        // Fetch current listing to check existing expiry
+        const listing = await this.prisma.listing.findUnique({
+            where: { id: listingId },
+            select: { spotlightExpiry: true }
+        });
+
+        if (!listing) {
+            return { success: false, message: 'Listing not found.' };
+        }
+
+        // If already active, extend from the current expiry; else, from now
+        const baseDate = (listing.spotlightExpiry && listing.spotlightExpiry > now)
+            ? listing.spotlightExpiry
+            : now;
+
+        const expiryDate = new Date(baseDate.getTime() + days * 24 * 60 * 60 * 1000);
 
         await this.prisma.listing.update({
             where: { id: listingId },
@@ -253,7 +269,7 @@ export class MonetizationService {
 
         return {
             success: true,
-            message: `✨ Your listing is now spotlighted! It will stay at the top of search results for ${days} days.`
+            message: `✨ Your listing is now spotlighted! It will stay at the top of search results until ${expiryDate.toLocaleDateString()}.`
         };
     }
 
@@ -272,6 +288,15 @@ export class MonetizationService {
 
         if (user.spotlightCredits <= 0) {
             return { success: false, message: 'You have no spotlight credits remaining.' };
+        }
+
+        // Verify ownership
+        const listing = await this.prisma.listing.findFirst({
+            where: { id: listingId, sellerId: userId }
+        });
+
+        if (!listing) {
+            return { success: false, message: 'Listing not found or you do not have permission to spotlight it.' };
         }
 
         // Deduct credit and activate spotlight (standard 7 days for a credit)
