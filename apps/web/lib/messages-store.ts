@@ -90,12 +90,22 @@ export const useMessagesStore = create<MessagesState>((set, get) => ({
         if (isInitial) set({ isLoading: true, error: null });
 
         try {
-            const messages = await messagesApi.getMessages(conversationId);
+            const serverMessages = await messagesApi.getMessages(conversationId);
+
+            const currentStateMessages = get().messages;
+
+            // Preserve any optimistic messages that haven't resolved yet
+            const optimisticMessages = currentStateMessages.filter(m => m.id.startsWith('opt-'));
+
+            // Combine and sort
+            let messages = serverMessages;
+            if (optimisticMessages.length > 0) {
+                messages = [...serverMessages, ...optimisticMessages].sort((a, b) => a.timestamp - b.timestamp);
+            }
 
             // Compare IDs and lengths for a fast "same enough" check
-            const currentMessages = get().messages;
-            const hasChanged = currentMessages.length !== messages.length ||
-                messages.some((m, i) => m.id !== currentMessages[i]?.id || m.read !== currentMessages[i]?.read);
+            const hasChanged = currentStateMessages.length !== messages.length ||
+                messages.some((m, i) => m.id !== currentStateMessages[i]?.id || m.read !== currentStateMessages[i]?.read);
 
             if (hasChanged) {
                 set({ messages });

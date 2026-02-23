@@ -123,7 +123,7 @@ export default function MakeOfferModal({ isOpen, onClose, listing, onSubmit }: M
 
         // If using manual barter entry, pass description as message
         const message = (offerType === 'barter' || offerType === 'both') && barterMethod === 'manual'
-            ? `I'm offering: ${manualDescription}`
+            ? manualDescription
             : undefined;
 
         let parsedCashAmount: number | undefined = undefined;

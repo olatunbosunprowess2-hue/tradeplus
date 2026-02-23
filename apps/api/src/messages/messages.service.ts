@@ -31,6 +31,16 @@ export class MessagesService {
                     take: 1,
                     orderBy: { createdAt: 'desc' },
                 },
+                _count: {
+                    select: {
+                        messages: {
+                            where: {
+                                isRead: false,
+                                senderId: { not: userId }
+                            }
+                        }
+                    }
+                }
             },
             orderBy: { updatedAt: 'desc' },
         });
@@ -41,10 +51,8 @@ export class MessagesService {
             const participant = isBuyer ? conv.seller : conv.buyer;
             const lastMessage = conv.messages[0];
 
-            // Count unread messages
-            // Note: This is a simplified count. Ideally we'd query this.
-            // For now, we'll just check if the last message is unread and not from us.
-            const unreadCount = lastMessage && !lastMessage.isRead && lastMessage.senderId !== userId ? 1 : 0;
+            // Count unread messages accurately from the DB using the _count aggregate
+            const unreadCount = (conv as any)._count?.messages || 0;
 
             return {
                 id: conv.id,

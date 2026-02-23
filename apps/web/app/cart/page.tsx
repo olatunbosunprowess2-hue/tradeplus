@@ -28,13 +28,9 @@ export default function CartPage() {
         setIsSubmitting(true);
 
         try {
-            // Build the bundle message summarizing the seller's items being requested
-            let bundleMsg = "I would like to make an offer for this bundle:\n";
-            selectedBundle.forEach(item => {
-                bundleMsg += `- ${item.quantity}x ${item.title}\n`;
-            });
-
-            const finalMessage = bundleMsg + (offerData.message ? `\n\n${offerData.message}` : '');
+            // Send the user's message as-is without concatenating bundle strings
+            // The backend and UI naturally group bundle items without needing to bloat the message
+            const finalMessage = offerData.message || 'I would like to trade for these items.';
 
             const response = await listingsApi.createOffer({
                 targetListingId: selectedBundle[0].id, // primary item

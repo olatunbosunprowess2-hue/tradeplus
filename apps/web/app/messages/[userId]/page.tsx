@@ -168,6 +168,8 @@ export default function ChatPage() {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, []);
 
+    const isSendingRef = useRef(false);
+
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
@@ -190,10 +192,19 @@ export default function ChatPage() {
 
     const handleSend = async (e: React.FormEvent) => {
         e.preventDefault();
-        if ((!messageText.trim() && !selectedFile) || isSending) return;
+
+        // Prevent double-clicks synchronously
+        if (isSendingRef.current) return;
 
         const currentText = messageText.trim();
         const currentFile = selectedFile;
+
+        if (!currentText && !currentFile) return;
+
+        // If there's a file, we should prevent multiple simultaneous heavy uploads
+        if (currentFile && isSending) return;
+
+        isSendingRef.current = true;
 
         // Check chat limit before sending (new conversations)
         if (!conversationId || conversationId.startsWith('temp-')) {
@@ -211,7 +222,11 @@ export default function ChatPage() {
         // Optimistic UI: Clear input immediately
         setMessageText('');
         clearFile();
-        setIsSending(true);
+
+        const needsFileUploading = !!currentFile;
+        if (needsFileUploading) {
+            setIsSending(true);
+        }
 
         try {
             await sendMessage(participantId, currentText, undefined, currentFile || undefined);
@@ -220,10 +235,16 @@ export default function ChatPage() {
             console.error('Failed to send message:', error);
             // Put text back on failure so user doesn't lose it
             setMessageText(currentText);
-            setSelectedFile(currentFile);
+            if (currentFile) setSelectedFile(currentFile);
             toast.error('Failed to send message. Please try again.');
         } finally {
-            setIsSending(false);
+            if (needsFileUploading) {
+                setIsSending(false);
+            }
+            // Add a tiny delay to reset the ref to completely ensure no double taps
+            setTimeout(() => {
+                isSendingRef.current = false;
+            }, 300);
         }
     };
 

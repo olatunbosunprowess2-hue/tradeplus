@@ -209,14 +209,21 @@ export default function OffersPage() {
 
     const handleConfirmAccept = async () => {
         if (!selectedOffer) return;
-        setIsProcessingAction(true);
+
+        // Optimistic UI: Close modal immediately and show an engaging success message
+        const buyer = selectedOffer.buyer;
+        const listing = selectedOffer.listing;
+        const offerIdToAccept = selectedOffer.id;
+
+        setIsActionModalOpen(false);
+        setSelectedOffer(null);
+        toast.success('Trade Accepted! Initiating secure chat...', { icon: '🚀', duration: 3000 });
+
         try {
-            await acceptOffer(selectedOffer.id);
+            // Process the acceptance cleanly in the background
+            await acceptOffer(offerIdToAccept);
 
             // Create conversation context and redirect to chat
-            const buyer = selectedOffer.buyer;
-            const listing = selectedOffer.listing;
-
             createConversation(
                 buyer?.id || selectedOffer.buyerId,
                 buyer?.profile?.displayName || buyer?.email || 'Unknown',
@@ -228,20 +235,11 @@ export default function OffersPage() {
                 }
             );
 
-            toast.success('Offer accepted! Redirecting to chat...');
-            setIsActionModalOpen(false);
-            setSelectedOffer(null);
-
-            // Short delay to let the toast be seen
-            setTimeout(() => {
-                router.push(`/messages/${buyer.id}`);
-            }, 1000);
+            router.push(`/messages/${buyer.id}`);
 
         } catch (error) {
             console.error('Failed to accept offer:', error);
-            toast.error('Failed to accept offer');
-        } finally {
-            setIsProcessingAction(false);
+            toast.error('Network delay: Failed to finalize offer. Please try again.');
         }
     };
 
@@ -256,15 +254,17 @@ export default function OffersPage() {
 
     const handleConfirmReject = async () => {
         if (!selectedOffer) return;
-        setIsProcessingAction(true);
+
+        const offerIdToReject = selectedOffer.id;
+
+        // Optimistic UI: instant close
+        setIsActionModalOpen(false);
+        setSelectedOffer(null);
+
         try {
-            await rejectOffer(selectedOffer.id);
-            setIsActionModalOpen(false);
-            setSelectedOffer(null);
+            await rejectOffer(offerIdToReject);
         } catch (error) {
             console.error('Failed to reject offer:', error);
-        } finally {
-            setIsProcessingAction(false);
         }
     };
 

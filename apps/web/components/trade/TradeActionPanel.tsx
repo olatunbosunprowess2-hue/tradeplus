@@ -110,89 +110,94 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
 
                 {/* 1. Commitment Phase */}
                 {offer.status === 'accepted' && (
-                    <div className="space-y-4 text-center">
-                        <h3 className="font-bold text-gray-900">Lock Deal & Schedule Meetup</h3>
-                        <p className="text-sm text-gray-500 max-w-md mx-auto">
-                            By clicking below, you commit to this trade. Once both parties lock the deal, a 7-day timer will begin for the meetup/fulfillment.
-                        </p>
-                        <div className="flex justify-center flex-col sm:flex-row items-center gap-3">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm flex-wrap">
+                        <div className="flex items-center gap-2">
+                            <span className="font-bold text-gray-900">Lock Deal</span>
+                            <span className="text-xs text-gray-500 hidden sm:inline">(Starts 7-day Meetup Timer)</span>
+                        </div>
+                        <div className="flex items-center gap-2 w-full sm:w-auto">
+                            {otherHasLocked && !hasLocked && (
+                                <p className="text-xs text-orange-600 font-bold bg-orange-50 px-2 py-1 rounded animate-pulse hidden sm:block">
+                                    Waiting for you!
+                                </p>
+                            )}
                             <button
                                 onClick={handleLockDeal}
                                 disabled={isLoading || hasLocked}
-                                className={`px-8 py-3 rounded-xl font-bold uppercase tracking-wider text-xs transition-all w-full sm:w-auto ${hasLocked
-                                        ? 'bg-green-100 text-green-700 cursor-not-allowed'
-                                        : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 active:scale-95'
+                                className={`px-4 py-2 rounded-lg font-bold uppercase tracking-wider text-[11px] transition-all flex-1 sm:flex-none ${hasLocked
+                                    ? 'bg-green-100 text-green-700 cursor-not-allowed'
+                                    : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95 shadow-sm'
                                     }`}
                             >
-                                {isLoading ? 'Processing...' : hasLocked ? '✓ Deal Locked by You' : '🔒 Lock Deal'}
+                                {isLoading ? 'Working...' : hasLocked ? '✓ Locked' : '🔒 Lock Deal'}
                             </button>
-                            {otherHasLocked && !hasLocked && (
-                                <p className="text-xs text-orange-600 font-bold bg-orange-50 px-3 py-2 rounded-lg animate-pulse">
-                                    Other party has already locked. Waiting for you!
-                                </p>
-                            )}
                         </div>
                     </div>
                 )}
 
                 {/* 2. Meetup/Fulfillment Phase */}
                 {offer.status === 'awaiting_fulfillment' && (
-                    <div className="space-y-6">
+                    <div className="space-y-3 shrink-0 relative mt-2 pt-2 border-t border-gray-100">
                         {isBuyer ? (
-                            <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-6 text-center">
-                                <h3 className="font-bold text-blue-900 mb-2">Your Secret Pickup PIN</h3>
-                                <p className="text-sm text-blue-700 mb-4">Give this to the seller ONLY when you have received and inspected the item(s).</p>
-                                <div className="text-5xl font-black text-blue-600 tracking-[0.2em] bg-white py-4 rounded-xl shadow-inner inline-block px-8 w-fit mx-auto border border-blue-100">
-                                    {offer.pickupPin}
+                            <div className="bg-blue-50/50 rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-blue-100">
+                                <div className="space-y-1">
+                                    <h3 className="font-bold text-blue-900 text-sm">Your Pickup PIN</h3>
+                                    <p className="text-[11px] text-blue-700 leading-tight">Give this to the seller only after inspecting the item.</p>
                                 </div>
-                                <div className="mt-6 pt-6 border-t border-blue-100">
+                                <div className="flex items-center gap-3">
+                                    <div className="text-xl font-black text-blue-600 tracking-widest bg-white py-1 px-4 rounded-md shadow-sm border border-blue-100">
+                                        {offer.pickupPin}
+                                    </div>
                                     <button
                                         onClick={() => handleVerifyPickup(false)}
                                         disabled={isLoading || hasFulfilled}
-                                        className={`px-6 py-2.5 rounded-xl font-bold uppercase text-xs transition-all ${hasFulfilled
-                                                ? 'bg-green-100 text-green-700 cursor-not-allowed'
-                                                : 'bg-white text-blue-600 border border-blue-200 hover:bg-blue-100'
+                                        className={`px-3 py-1.5 rounded-md font-bold uppercase text-[10px] whitespace-nowrap transition-all ${hasFulfilled
+                                            ? 'bg-green-100 text-green-700 cursor-not-allowed hidden sm:block'
+                                            : 'bg-white text-blue-600 border border-blue-200 hover:bg-blue-100'
                                             }`}
                                     >
-                                        {hasFulfilled ? '✓ Manual Approval Sent' : 'Or Approve Manually without PIN'}
+                                        {hasFulfilled ? 'Sent' : 'Approve w/o PIN'}
                                     </button>
                                 </div>
                             </div>
                         ) : (
-                            <div className="bg-green-50 border-2 border-green-200 rounded-xl p-6 max-w-lg mx-auto">
-                                <h3 className="font-bold text-green-900 mb-2 text-center">Verify Buyer's PIN</h3>
-                                <p className="text-sm text-green-700 mb-4 text-center">Ask the buyer for their 6-digit PIN to instantly complete this trade.</p>
-                                <div className="flex gap-2">
-                                    <input
-                                        type="text"
-                                        maxLength={6}
-                                        value={verifyPin}
-                                        onChange={(e) => setVerifyPin(e.target.value.replace(/\D/g, ''))}
-                                        placeholder="000000"
-                                        className="flex-1 text-center font-black text-2xl tracking-[0.2em] rounded-xl border-green-300 focus:border-green-500 focus:ring-green-500"
-                                    />
-                                    <button
-                                        onClick={() => handleVerifyPickup(true)}
-                                        disabled={isLoading || verifyPin.length !== 6}
-                                        className="bg-green-600 text-white px-6 font-bold uppercase tracking-wider text-xs rounded-xl hover:bg-green-700 disabled:opacity-50"
-                                    >
-                                        Verify
-                                    </button>
+                            <div className="bg-green-50/50 rounded-lg p-3 sm:p-4 border border-green-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div className="space-y-1">
+                                    <h3 className="font-bold text-green-900 text-sm">Verify Buyer's PIN</h3>
+                                    <p className="text-[11px] text-green-700 leading-tight">Enter their 6-digit PIN to complete the trade.</p>
+                                    {otherHasLocked && !hasFulfilled && (
+                                        <p className="text-[10px] text-orange-600 font-bold bg-orange-100 px-2 py-0.5 rounded w-fit">Manual approval sent by buyer</p>
+                                    )}
                                 </div>
-                                <div className="mt-6 pt-6 border-t border-green-200 text-center">
+                                <div className="flex flex-col gap-2">
+                                    <div className="flex items-center justify-end gap-2">
+                                        <input
+                                            type="text"
+                                            maxLength={6}
+                                            value={verifyPin}
+                                            onChange={(e) => setVerifyPin(e.target.value.replace(/\D/g, ''))}
+                                            placeholder="000000"
+                                            className="w-28 text-center font-bold text-lg tracking-wider rounded-md border-green-300 py-1 focus:ring-green-500 shadow-sm"
+                                        />
+                                        <button
+                                            onClick={() => handleVerifyPickup(true)}
+                                            disabled={isLoading || verifyPin.length !== 6}
+                                            className="bg-green-600 text-white px-4 py-1.5 font-bold uppercase text-[11px] rounded-md hover:bg-green-700 disabled:opacity-50 shadow-sm"
+                                        >
+                                            Verify
+                                        </button>
+                                    </div>
+
                                     <button
                                         onClick={() => handleVerifyPickup(false)}
                                         disabled={isLoading || hasFulfilled}
-                                        className={`px-6 py-2.5 rounded-xl font-bold uppercase text-xs transition-all ${hasFulfilled
-                                                ? 'bg-green-100 text-green-700 cursor-not-allowed'
-                                                : 'bg-white text-green-600 border border-green-200 hover:bg-green-100'
+                                        className={`px-3 py-1.5 rounded border uppercase text-[10px] font-bold text-center transition-all ${hasFulfilled
+                                            ? 'bg-green-100 text-green-700 border-green-200 cursor-not-allowed'
+                                            : 'bg-white text-green-600 border-green-200 hover:bg-green-50'
                                             }`}
                                     >
-                                        {hasFulfilled ? '✓ Manual Approval Sent' : 'Or Approve Manually without PIN'}
+                                        {hasFulfilled ? 'Manual Approval Sent' : 'Approve Manually w/o PIN'}
                                     </button>
-                                    {otherHasLocked && !hasFulfilled && (
-                                        <p className="text-xs text-orange-600 font-bold mt-2">Buyer sent manual approval. Yours is needed.</p>
-                                    )}
                                 </div>
                             </div>
                         )}
