@@ -22,16 +22,21 @@ async function getListing(id: string): Promise<Listing | null> {
             apiUrl = 'https://api.barterwave.com/api';
         }
 
+        // Normalize: strip trailing slashes
+        apiUrl = apiUrl.replace(/\/+$/, '');
+
         // FORCE HTTPS for production/live environments (server-side)
         if (!apiUrl.includes('localhost') && apiUrl.startsWith('http:')) {
             apiUrl = apiUrl.replace('http:', 'https:');
         }
 
-        // ENSURE /api SUFFIX
+        // ENSURE /api SUFFIX (only if not already present)
         if (!apiUrl.endsWith('/api') && !apiUrl.includes('localhost') && apiUrl.startsWith('http')) {
-            apiUrl = apiUrl.endsWith('/') ? apiUrl.slice(0, -1) : apiUrl;
             apiUrl += '/api';
         }
+
+        // SAFETY: Deduplicate any accidental /api/api
+        apiUrl = apiUrl.replace(/\/api\/api(\/|$)/, '/api$1');
 
         const fetchUrl = `${apiUrl}/listings/${id}`;
 

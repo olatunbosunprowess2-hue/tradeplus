@@ -44,6 +44,9 @@ apiClient.interceptors.request.use((config) => {
             }
 
             config.url = normalizedBase + relativeUrl;
+
+            // SAFETY: Deduplicate any accidental /api/api patterns
+            config.url = config.url.replace(/\/api\/api(\/|$)/, '/api$1');
         } else if (!config.url.includes('localhost') && config.url.startsWith('http:')) {
             // Upgrade absolute URLs to HTTPS if not localhost
             config.url = config.url.replace('http:', 'https:');
