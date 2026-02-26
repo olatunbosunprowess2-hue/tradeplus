@@ -98,7 +98,12 @@ async function bootstrap() {
   // In production, this is restricted to your actual frontend domain
   // Allow local network IPs for mobile testing (172.x.x.x and 192.168.x.x)
   const allowedOrigins = process.env.NODE_ENV === 'production'
-    ? [process.env.FRONTEND_URL || 'https://barterwave.com']
+    ? [
+      process.env.FRONTEND_URL || 'https://barterwave.com',
+      'https://barterwave.com',
+      'https://www.barterwave.com',
+      /.vercel\.app$/ // Allow Vercel preview deployments safely
+    ]
     : [
       'http://localhost:3000',
       'http://localhost:3001',

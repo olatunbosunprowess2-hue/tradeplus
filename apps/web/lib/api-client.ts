@@ -19,12 +19,12 @@ export const apiClient = axios.create({
 apiClient.interceptors.request.use((config) => {
     // 1. URL Construction
     if (config.url) {
-        let rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333/api';
+        let rawApiUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333/api').trim();
 
-        if (!rawApiUrl.includes('localhost') && !rawApiUrl.endsWith('/api')) {
-            // Safety: ensure production domain ends with /api if trailing slash is missing
-            rawApiUrl = rawApiUrl.endsWith('/') ? rawApiUrl.slice(0, -1) : rawApiUrl;
-            rawApiUrl += '/api';
+        if (process.env.NODE_ENV === 'production') {
+            // PROXY MODE: Always use relative /api in production browser environment to avoid CORS/Mixed Content
+            // Vercel will handle the routing via next.config.js rewrites
+            rawApiUrl = '/api';
         } else if (rawApiUrl.includes('localhost') && !rawApiUrl.endsWith('/api')) {
             // Dev safety: ensure localhost ends with /api
             rawApiUrl = rawApiUrl.endsWith('/') ? rawApiUrl.slice(0, -1) : rawApiUrl;

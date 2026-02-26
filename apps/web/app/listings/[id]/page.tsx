@@ -15,7 +15,7 @@ async function getListing(id: string): Promise<Listing | null> {
     }
 
     try {
-        let apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333/api';
+        let apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333/api').trim();
 
         // ROBUST PRODUCTION FALLBACK: If Vercel build defaulted to localhost, force the known live backend
         if (process.env.NODE_ENV === 'production' && apiUrl.includes('localhost')) {

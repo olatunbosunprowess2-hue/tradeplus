@@ -10,7 +10,7 @@ interface Props {
 
 async function getPost(id: string): Promise<CommunityPost | null> {
     try {
-        let apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333/api';
+        let apiUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333/api').trim();
         // Normalize: strip trailing slashes and deduplicate any /api/api
         apiUrl = apiUrl.replace(/\/+$/, '').replace(/\/api\/api(\/|$)/, '/api$1');
         const res = await fetch(`${apiUrl}/community-posts/${id}`, {
