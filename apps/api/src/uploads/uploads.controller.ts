@@ -2,7 +2,7 @@ import { Controller, Post, Get, Param, Res, UseGuards, UseInterceptors, Uploaded
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerConfig } from '../common/configs/multer.config';
 import { ApiTags, ApiConsumes, ApiBody, ApiOperation } from '@nestjs/swagger';
-import { CloudinaryService } from './cloudinary/cloudinary.service';
+import { InfrastructureService } from '../infrastructure/infrastructure.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard, RequireRole } from '../common/guards/roles.guard';
 import * as express from 'express';
@@ -12,7 +12,7 @@ import { existsSync } from 'fs';
 @ApiTags('Uploads')
 @Controller('uploads')
 export class UploadsController {
-    constructor(private readonly cloudinaryService: CloudinaryService) { }
+    constructor(private readonly infrastructureService: InfrastructureService) { }
 
     /**
      * Serve private files (ID docs, verification selfies) — admin/moderator only
@@ -62,7 +62,7 @@ export class UploadsController {
         }
 
         try {
-            const result = await this.cloudinaryService.uploadImage(file);
+            const result = await this.infrastructureService.uploadImage(file);
             return { url: result.url };
         } catch (error) {
             console.error('Upload failed:', error);

@@ -22,13 +22,13 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { VerifiedUserGuard } from '../auth/guards/verified-user.guard';
 import { EmailVerifiedGuard } from '../auth/guards/email-verified.guard';
 
-import { CloudinaryService } from '../uploads/cloudinary/cloudinary.service';
+import { InfrastructureService } from '../infrastructure/infrastructure.service';
 
 @Controller('listings')
 export class ListingsController {
     constructor(
         private readonly listingsService: ListingsService,
-        private readonly cloudinaryService: CloudinaryService
+        private readonly infrastructureService: InfrastructureService
     ) { }
 
     @UseGuards(JwtAuthGuard, EmailVerifiedGuard, VerifiedUserGuard)
@@ -47,13 +47,13 @@ export class ListingsController {
             // console.log('DTO:', JSON.stringify(createListingDto, null, 2));
 
             if (files.images && files.images.length > 0) {
-                const uploadPromises = files.images.map(file => this.cloudinaryService.uploadImage(file));
+                const uploadPromises = files.images.map(file => this.infrastructureService.uploadImage(file));
                 const uploadResults = await Promise.all(uploadPromises);
                 createListingDto.imageUrls = uploadResults.map(res => res.url);
             }
 
             if (files.video && files.video.length > 0) {
-                const uploadResult = await this.cloudinaryService.uploadImage(files.video[0]);
+                const uploadResult = await this.infrastructureService.uploadImage(files.video[0]);
                 createListingDto.videoUrl = uploadResult.url;
             }
 

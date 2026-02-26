@@ -36,7 +36,7 @@ export default function CartPage() {
                 targetListingId: selectedBundle[0].id, // primary item
                 offerType: offerData.offerType,
                 cashAmount: offerData.cashAmount,
-                currency: offerData.currency,
+                currencyCode: offerData.currency,
                 offeredItems: offerData.offeredItems,
                 message: finalMessage,
             });

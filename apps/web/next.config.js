@@ -16,7 +16,8 @@ const nextConfig = {
       { protocol: 'http', hostname: 'localhost' },
       { protocol: 'https', hostname: 'res.cloudinary.com' },
       { protocol: 'https', hostname: 'cloudinary.com' },
-      { protocol: 'https', hostname: 'unhappy-marijo-barterwave-f6a20928.koyeb.app' },
+      { protocol: 'https', hostname: 'images.barterwave.com' },
+      { protocol: 'https', hostname: 'api.barterwave.com' },
       ...(process.env.NEXT_PUBLIC_API_URL && !process.env.NEXT_PUBLIC_API_URL.includes('localhost')
         ? [{ protocol: 'https', hostname: new URL(process.env.NEXT_PUBLIC_API_URL).hostname }]
         : []),
@@ -32,7 +33,7 @@ const nextConfig = {
   },
   async rewrites() {
     const backendUrl = process.env.NODE_ENV === 'production'
-      ? 'https://unhappy-marijo-barterwave-f6a20928.koyeb.app'
+      ? 'https://api.barterwave.com'
       : 'http://localhost:3333';
 
     return [

@@ -38,4 +38,8 @@ export class CreateOfferDto {
     @Min(0)
     @IsOptional()
     offeredCashCents?: number;
+
+    @IsString()
+    @IsOptional()
+    currencyCode?: string;
 }

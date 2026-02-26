@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { BarterOffer } from '@/lib/types';
 import { sanitizeUrl } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 interface OfferCardProps {
     offer: BarterOffer;
@@ -15,10 +16,13 @@ interface OfferCardProps {
     onMessage?: (offer: BarterOffer) => void;
     onConfirm?: (id: string) => void;
     onViewReceipt?: (offer: BarterOffer) => void;
+    onViewDetails?: (offer: BarterOffer) => void;
     currentUserId?: string;
 }
 
-export default function OfferCard({ offer, type, onAccept, onReject, onCounter, onWithdraw, onAcceptCounter, onMessage, onConfirm, onViewReceipt, currentUserId }: OfferCardProps) {
+export default function OfferCard({ offer, type, onAccept, onReject, onCounter, onWithdraw, onAcceptCounter, onMessage, onConfirm, onViewReceipt, onViewDetails, currentUserId }: OfferCardProps) {
+    const router = useRouter();
+
     const getTimeAgo = (timestamp: string) => {
         const date = new Date(timestamp);
         const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -313,7 +317,10 @@ export default function OfferCard({ offer, type, onAccept, onReject, onCounter, 
                             </button>
                         )}
                         <div className="flex gap-3">
-                            <button className="flex-1 px-4 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-xl font-bold text-sm hover:bg-gray-50 transition-all shadow-sm hover:shadow-md">
+                            <button
+                                onClick={() => onViewDetails ? onViewDetails(offer) : router.push(`/listings/${offer.listingId}`)}
+                                className="flex-1 px-4 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-xl font-bold text-sm hover:bg-gray-50 transition-all shadow-sm hover:shadow-md"
+                            >
                                 View Details
                             </button>
                             {offer.status === 'accepted' && (

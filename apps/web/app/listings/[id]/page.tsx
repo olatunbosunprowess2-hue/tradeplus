@@ -19,7 +19,7 @@ async function getListing(id: string): Promise<Listing | null> {
 
         // ROBUST PRODUCTION FALLBACK: If Vercel build defaulted to localhost, force the known live backend
         if (process.env.NODE_ENV === 'production' && apiUrl.includes('localhost')) {
-            apiUrl = 'https://unhappy-marijo-barterwave-f6a20928.koyeb.app/api';
+            apiUrl = 'https://api.barterwave.com/api';
         }
 
         // FORCE HTTPS for production/live environments (server-side)

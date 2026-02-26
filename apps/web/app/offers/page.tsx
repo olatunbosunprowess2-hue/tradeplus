@@ -111,14 +111,21 @@ export default function OffersPage() {
     useEffect(() => {
         if (isAuthenticated) {
             fetchOffers();
-            // Fetch community offers
-            setLoadingCommunity(true);
+            // Fetch community offers (don't set loading if we already have data to avoid glitches)
+            if (communityOffers.length === 0) {
+                setLoadingCommunity(true);
+            }
             apiClient.get('/community-posts/user/my-offers')
-                .then(r => setCommunityOffers(r.data))
+                .then(r => {
+                    // Only update if data changed to prevent flicker
+                    if (JSON.stringify(r.data) !== JSON.stringify(communityOffers)) {
+                        setCommunityOffers(r.data);
+                    }
+                })
                 .catch(() => { })
                 .finally(() => setLoadingCommunity(false));
         }
-    }, [fetchOffers, isAuthenticated]);
+    }, [fetchOffers, isAuthenticated]); // Removed communityOffers from dep array since it would cause loop
 
     const receivedOffers = user ? getReceivedOffers(user.id) : [];
     const sentOffers = user ? getSentOffers(user.id) : [];
@@ -268,6 +275,12 @@ export default function OffersPage() {
         }
     };
 
+    const handleViewDetails = (offer: BarterOffer) => {
+        setSelectedOffer(offer);
+        setActionType('view' as any); // Reusing the state for the view mode
+        setIsActionModalOpen(true);
+    };
+
     const renderContent = () => {
         if (!_hasHydrated || isLoading) {
             return <OfferSkeleton />;
@@ -305,6 +318,7 @@ export default function OffersPage() {
                                 onReject={handleReject}
                                 onCounter={handleCounter}
                                 onMessage={handleMessage}
+                                onViewDetails={handleViewDetails}
                             />
                             {offer.status === 'accepted' && offer.downpaymentStatus && offer.downpaymentStatus !== 'none' && user && (
                                 <DownpaymentTracker
@@ -348,6 +362,7 @@ export default function OffersPage() {
                                 offer={offer}
                                 type="sent"
                                 onMessage={handleMessage}
+                                onViewDetails={handleViewDetails}
                             />
                             {offer.status === 'accepted' && offer.downpaymentStatus && offer.downpaymentStatus !== 'none' && user && (
                                 <DownpaymentTracker

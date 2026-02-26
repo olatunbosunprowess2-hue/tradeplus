@@ -15,8 +15,6 @@ import { sanitizeUrl } from '@/lib/utils';
 import type { Listing } from '@/lib/types';
 import type { BookmarkedListing } from '@/lib/bookmarks-store';
 
-import { motion } from 'framer-motion';
-
 interface ListingCardProps {
     listing: Listing;
 }
@@ -95,7 +93,7 @@ export default function ListingCard({ listing: initialListing }: ListingCardProp
     }
 
     return (
-        <motion.div
+        <div
             className={`rounded-2xl shadow-md overflow-hidden md:hover:shadow-2xl md:hover:-translate-y-2 transition-all duration-200 group relative touch-manipulation ${isUrgentItem
                 ? 'bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-400 ring-2 ring-red-200 animate-pulse-subtle'
                 : 'bg-white border border-gray-100'
@@ -166,7 +164,7 @@ export default function ListingCard({ listing: initialListing }: ListingCardProp
             )}
 
             {renderCardContent()}
-        </motion.div>
+        </div>
     );
 
     function renderCardContent() {

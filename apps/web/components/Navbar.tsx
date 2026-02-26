@@ -7,7 +7,7 @@ import { useAuthStore } from '@/lib/auth-store';
 import { useCartStore } from '@/lib/cart-store';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useNotificationsStore } from '@/lib/notifications-store';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import SideMenu from './SideMenu';
 
 const VerificationBlockModal = dynamic(() => import('./VerificationBlockModal'), { ssr: false });
@@ -40,6 +40,7 @@ export default function Navbar() {
 
   // Debounce search for 400ms
   const debouncedSearch = useDebounce(searchQuery, 400);
+  const [isPending, startTransition] = useTransition();
 
   // Ensure component is mounted before using router hooks
   useEffect(() => {
@@ -74,9 +75,12 @@ export default function Navbar() {
       } else {
         params.delete('search');
       }
-      router.push(`/listings?${params.toString()}`, { scroll: false });
+
+      startTransition(() => {
+        router.push(`/listings?${params.toString()}`, { scroll: false });
+      });
     }
-  }, [debouncedSearch, isMounted, pathname]);
+  }, [debouncedSearch, isMounted, pathname, router, searchParams]);
 
   // Handle scroll effect
   useEffect(() => {

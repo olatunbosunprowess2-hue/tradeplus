@@ -1,6 +1,6 @@
 ﻿import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as nodemailer from 'nodemailer';
+import { InfrastructureService } from '../infrastructure/infrastructure.service';
 
 interface EmailOptions {
     to: string;
@@ -12,83 +12,14 @@ interface EmailOptions {
 @Injectable()
 export class EmailService {
     private readonly logger = new Logger(EmailService.name);
-    private transporter: nodemailer.Transporter | null = null;
-    private isConfigured = false;
 
-    constructor(private configService: ConfigService) {
-        this.initializeTransporter();
-    }
-
-    private initializeTransporter() {
-        const smtpHost = this.configService.get<string>('SMTP_HOST');
-        const smtpPort = this.configService.get<number>('SMTP_PORT');
-        const smtpUser = this.configService.get<string>('SMTP_USER');
-        const smtpPass = this.configService.get<string>('SMTP_PASS');
-
-        this.logger.log(`SMTP Config: host=${smtpHost}, port=${smtpPort}, user=${smtpUser ? smtpUser.substring(0, 10) + '...' : 'MISSING'}`);
-
-        if (!smtpHost || !smtpUser || !smtpPass) {
-            this.logger.warn('Email service not configured. Set SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS in environment.');
-            this.isConfigured = false;
-            return;
-        }
-
-        this.transporter = nodemailer.createTransport({
-            host: smtpHost,
-            port: smtpPort || 587,
-            secure: smtpPort === 465,
-            auth: {
-                user: smtpUser,
-                pass: smtpPass,
-            },
-            debug: true, // Enable debug output
-            logger: true, // Log to console
-        });
-
-        // Verify connection
-        this.transporter.verify((error, success) => {
-            if (error) {
-                this.logger.error(`❌ SMTP Connection Failed: ${error.message}`);
-                this.isConfigured = false;
-            } else {
-                this.logger.log(`✅ SMTP Connection Verified - Ready to send emails`);
-            }
-        });
-
-        this.isConfigured = true;
-        this.logger.log(`✅ Email service configured successfully with ${smtpHost}:${smtpPort || 587}`);
-    }
+    constructor(
+        private configService: ConfigService,
+        private infrastructureService: InfrastructureService
+    ) { }
 
     async send(options: EmailOptions): Promise<boolean> {
-        this.logger.log(`📧 Attempting to send email: "${options.subject}" to ${options.to}`);
-
-        if (!this.isConfigured || !this.transporter) {
-            this.logger.warn(`❌ Email not sent (not configured): ${options.subject} to ${options.to}`);
-            // In development, log the email content for testing
-            this.logger.debug(`Subject: ${options.subject}`);
-            this.logger.debug(`To: ${options.to}`);
-            this.logger.debug(`Body: ${options.text || 'HTML email'}`);
-            return false;
-        }
-
-        const fromEmail = this.configService.get<string>('EMAIL_FROM') || 'noreply@BarterWave.com';
-        const fromName = this.configService.get<string>('EMAIL_FROM_NAME') || 'BarterWave';
-
-        try {
-            const info = await this.transporter.sendMail({
-                from: `"${fromName}" <${fromEmail}>`,
-                to: options.to,
-                subject: options.subject,
-                html: options.html,
-                text: options.text,
-            });
-
-            this.logger.log(`✅ Email sent successfully: ${options.subject} to ${options.to} (messageId: ${info.messageId})`);
-            return true;
-        } catch (error) {
-            this.logger.error(`❌ Failed to send email: ${error.message}`, error.stack);
-            return false;
-        }
+        return this.infrastructureService.sendEmail(options);
     }
 
     // ========================================================================

@@ -5,6 +5,7 @@ import { useAuthStore } from '@/lib/auth-store';
 import { listingsApi } from '@/lib/listings-api';
 import type { Listing } from '@/lib/types';
 import { sanitizeUrl } from '@/lib/utils';
+import { getGroupedCurrencies } from '@/lib/currencies';
 
 interface MakeOfferModalProps {
     isOpen: boolean;
@@ -161,7 +162,7 @@ export default function MakeOfferModal({ isOpen, onClose, listing, onSubmit }: M
     };
 
     return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
             <div className="bg-white rounded-2xl w-[95%] max-w-lg p-0 shadow-2xl max-h-[85vh] overflow-y-auto flex flex-col animate-in zoom-in-95 duration-200 mx-auto">
                 {/* Header */}
                 <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-white shrink-0">
@@ -274,11 +275,11 @@ export default function MakeOfferModal({ isOpen, onClose, listing, onSubmit }: M
                                         onChange={(e) => setCurrency(e.target.value)}
                                         className="px-4 py-3 bg-gray-50 border-2 border-r-0 border-gray-200 rounded-l-xl font-bold text-gray-700 focus:ring-0 focus:border-gray-300 transition-colors cursor-pointer hover:bg-gray-100"
                                     >
-                                        <option value="NGN">₦ NGN</option>
-                                        <option value="USD">$ USD</option>
-                                        <option value="GHS">₵ GHS</option>
-                                        <option value="KES">KSh KES</option>
-                                        <option value="ZAR">R ZAR</option>
+                                        {Object.entries(getGroupedCurrencies()).map(([group, currencies]) => (
+                                            <optgroup key={group} label={group}>
+                                                {currencies.map(c => <option key={c.code} value={c.code}>{c.code}</option>)}
+                                            </optgroup>
+                                        ))}
                                     </select>
                                     <input
                                         type="number"

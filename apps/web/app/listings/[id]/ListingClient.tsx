@@ -90,6 +90,7 @@ export default function ListingClient({ listing: initialListing }: ListingClient
                 targetListingId: listing.id,
                 offeredItems: offerData.offeredItems,
                 offeredCashCents: offerData.cashAmount ? offerData.cashAmount * 100 : undefined,
+                currencyCode: offerData.currency,
                 message: offerData.message,
             });
 

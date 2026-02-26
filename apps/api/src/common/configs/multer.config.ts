@@ -29,7 +29,7 @@ export const multerConfig = {
         },
     }),
     limits: {
-        fileSize: 20 * 1024 * 1024, // 20MB limit per file (smartphones produce 10-20MB images; Cloudinary compresses downstream)
+        fileSize: 50 * 1024 * 1024, // 50MB limit per file (videos up to 50MB; images are compressed on the frontend)
         fieldSize: 20 * 1024 * 1024, // 20MB limit for non-file fields
     },
     fileFilter: (req: any, file: any, cb: any) => {

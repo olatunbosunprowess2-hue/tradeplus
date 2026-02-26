@@ -4,13 +4,13 @@ import { UsersService } from './users.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { multerConfig } from '../common/configs/multer.config';
-import { CloudinaryService } from '../uploads/cloudinary/cloudinary.service';
+import { InfrastructureService } from '../infrastructure/infrastructure.service';
 
 @Controller('users')
 export class UsersController {
     constructor(
         private readonly usersService: UsersService,
-        private readonly cloudinaryService: CloudinaryService,
+        private readonly infrastructureService: InfrastructureService,
     ) { }
 
     @UseGuards(JwtAuthGuard)
@@ -76,19 +76,19 @@ export class UsersController {
             // Map uploaded files to DTO fields
             if (files?.avatar?.[0]) {
                 try {
-                    const result = await this.cloudinaryService.uploadImage(files.avatar[0]);
+                    const result = await this.infrastructureService.uploadImage(files.avatar[0]);
                     dto.avatarUrl = result.url;
-                    console.log('✅ Avatar uploaded to Cloudinary:', dto.avatarUrl);
+                    console.log('✅ Avatar uploaded to R2:', dto.avatarUrl);
                 } catch (uploadError) {
-                    console.error('❌ Failed to upload avatar to Cloudinary:', uploadError);
+                    console.error('❌ Failed to upload avatar:', uploadError);
                     throw uploadError;
                 }
             }
             if (files?.faceVerification?.[0]) {
                 try {
-                    const result = await this.cloudinaryService.uploadImage(files.faceVerification[0]);
+                    const result = await this.infrastructureService.uploadImage(files.faceVerification[0]);
                     dto.faceVerificationUrl = result.url;
-                    console.log('✅ Face verification uploaded to Cloudinary:', dto.faceVerificationUrl);
+                    console.log('✅ Face verification uploaded to R2:', dto.faceVerificationUrl);
                 } catch (uploadError) {
                     console.error('❌ Failed to upload face verification:', uploadError);
                     throw uploadError;
@@ -96,9 +96,9 @@ export class UsersController {
             }
             if (files?.idDocumentFront?.[0]) {
                 try {
-                    const result = await this.cloudinaryService.uploadImage(files.idDocumentFront[0]);
+                    const result = await this.infrastructureService.uploadImage(files.idDocumentFront[0]);
                     dto.idDocumentFrontUrl = result.url;
-                    console.log('✅ ID Front uploaded to Cloudinary:', dto.idDocumentFrontUrl);
+                    console.log('✅ ID Front uploaded to R2:', dto.idDocumentFrontUrl);
                 } catch (uploadError) {
                     console.error('❌ Failed to upload ID Front:', uploadError);
                     throw uploadError;
@@ -106,9 +106,9 @@ export class UsersController {
             }
             if (files?.idDocumentBack?.[0]) {
                 try {
-                    const result = await this.cloudinaryService.uploadImage(files.idDocumentBack[0]);
+                    const result = await this.infrastructureService.uploadImage(files.idDocumentBack[0]);
                     dto.idDocumentBackUrl = result.url;
-                    console.log('✅ ID Back uploaded to Cloudinary:', dto.idDocumentBackUrl);
+                    console.log('✅ ID Back uploaded to R2:', dto.idDocumentBackUrl);
                 } catch (uploadError) {
                     console.error('❌ Failed to upload ID Back:', uploadError);
                     throw uploadError;

@@ -24,6 +24,7 @@ import { ReportsModule } from './reports/reports.module';
 import { AppealsModule } from './appeals/appeals.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
+import { InfrastructureModule } from './infrastructure/infrastructure.module';
 
 import { RolesModule } from './roles/roles.module';
 import { AuditModule } from './audit/audit.module';
@@ -63,16 +64,18 @@ import { CommunityPostsModule } from './community-posts/community-posts.module';
 
                 // Optional services
                 SENTRY_DSN: Joi.string().optional(),
-                SMTP_HOST: Joi.string().optional(),
-                SMTP_PORT: Joi.number().optional(),
-                SMTP_USER: Joi.string().optional(),
-                SMTP_PASS: Joi.string().optional(),
                 ADMIN_EMAIL: Joi.string().optional().description('Admin email for brand application alerts'),
 
-                // Cloudinary Configuration
-                CLOUDINARY_CLOUD_NAME: Joi.string().required().description('Cloudinary Cloud Name'),
-                CLOUDINARY_API_KEY: Joi.string().required().description('Cloudinary API Key'),
-                CLOUDINARY_API_SECRET: Joi.string().required().description('Cloudinary API Secret'),
+                // Resend Email
+                RESEND_API_KEY: Joi.string().optional().description('Resend API key for transactional email'),
+
+                // Cloudflare R2 Configuration
+                CLOUDFLARE_ACCOUNT_ID: Joi.string().optional().description('Cloudflare Account ID'),
+                CLOUDFLARE_R2_ACCESS_KEY_ID: Joi.string().optional().description('R2 Access Key ID'),
+                CLOUDFLARE_R2_SECRET_ACCESS_KEY: Joi.string().optional().description('R2 Secret Access Key'),
+                CLOUDFLARE_R2_ENDPOINT: Joi.string().optional().description('R2 S3 Endpoint URL'),
+                CLOUDFLARE_R2_BUCKET_NAME: Joi.string().optional().description('R2 Bucket Name'),
+                CLOUDFLARE_R2_CUSTOM_DOMAIN: Joi.string().optional().description('R2 Custom Domain for public URLs'),
             }),
             validationOptions: {
                 abortEarly: false, // Show all validation errors at once
@@ -106,6 +109,7 @@ import { CommunityPostsModule } from './community-posts/community-posts.module';
         ReportsModule,
         AppealsModule,
         UploadsModule,
+        InfrastructureModule,
         RolesModule,
         AuditModule,
         ActivityModule,

@@ -51,11 +51,13 @@ export class BarterService {
             }
         }
 
-        // Check if user has already made 2 or more offers for this listing
+        // Check if user has already made 2 or more ACTIVE offers for this listing
+        // Exclude rejected offers so a user can try again if they are rejected.
         const existingOffersCount = await this.prisma.barterOffer.count({
             where: {
                 listingId: dto.targetListingId,
                 buyerId: userId,
+                status: { notIn: ['rejected', 'withdrawn', 'cancelled'] }
             },
         });
 
@@ -114,7 +116,7 @@ export class BarterService {
                 listingId: dto.targetListingId,
                 buyerId: userId,
                 sellerId: targetListing.sellerId,
-                currencyCode: targetListing.currencyCode,
+                currencyCode: dto.currencyCode || targetListing.currencyCode,
                 message: dto.message,
                 offeredCashCents: dto.offeredCashCents ? BigInt(dto.offeredCashCents) : BigInt(0),
                 items: dto.offeredItems

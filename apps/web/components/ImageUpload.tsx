@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import apiClient from '@/lib/api-client';
+import imageCompression from 'browser-image-compression';
 
 interface ImageUploadProps {
     onUploadComplete: (url: string) => void;
@@ -19,15 +20,22 @@ export default function ImageUpload({ onUploadComplete, maxFiles = 3 }: ImageUpl
 
         const file = files[0];
 
-        // Validate file type
-        if (!file.type.startsWith('image/')) {
-            setError('Please select an image file');
+        const isVideo = file.type.startsWith('video/');
+        const isImage = file.type.startsWith('image/');
+
+        if (!isImage && !isVideo) {
+            setError('Please select an image or video file');
             return;
         }
 
-        // Validate file size (5MB max)
-        if (file.size > 5 * 1024 * 1024) {
-            setError('Image must be less than 5MB');
+        if (isVideo && file.size > 50 * 1024 * 1024) {
+            alert('Video size must not exceed 50MB');
+            setError('Video must be less than 50MB');
+            return;
+        }
+
+        if (isImage && file.size > 10 * 1024 * 1024) {
+            setError('Initial image must be less than 10MB before compression');
             return;
         }
 
@@ -35,8 +43,19 @@ export default function ImageUpload({ onUploadComplete, maxFiles = 3 }: ImageUpl
         setIsUploading(true);
 
         try {
+            let fileToUpload = file;
+            if (isImage) {
+                const options = {
+                    maxSizeMB: 0.5,
+                    maxWidthOrHeight: 1080,
+                    useWebWorker: true,
+                    initialQuality: 0.7,
+                };
+                fileToUpload = await imageCompression(file, options);
+            }
+
             const formData = new FormData();
-            formData.append('file', file);
+            formData.append('file', fileToUpload);
 
             const response = await apiClient.post('/uploads/image', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
@@ -67,14 +86,14 @@ export default function ImageUpload({ onUploadComplete, maxFiles = 3 }: ImageUpl
                         <svg className="w-10 h-10 text-gray-400 group-hover:text-blue-500 mb-2 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
-                        <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600">Click to upload image</span>
-                        <span className="text-xs text-gray-500 mt-1">PNG, JPG up to 5MB</span>
+                        <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600">Click to upload media</span>
+                        <span className="text-xs text-gray-500 mt-1">Images (auto-compressed), Video (max 50MB)</span>
                     </div>
                 )}
                 <input
                     ref={fileInputRef}
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     onChange={handleFileChange}
                     className="hidden"
                     disabled={isUploading}

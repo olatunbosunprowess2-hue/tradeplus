@@ -5,6 +5,7 @@ export interface CreateOfferDto {
     targetListingId: string;
     offeredItems?: { listingId: string; quantity: number }[];
     offeredCashCents?: number;
+    currencyCode?: string;
     message?: string;
 }
 
