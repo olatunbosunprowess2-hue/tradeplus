@@ -487,6 +487,8 @@ export default function OffersPage() {
                             <OfferCard
                                 offer={offer}
                                 type="history"
+                                currentUserId={user?.id}
+                                onViewDetails={handleViewDetails}
                             />
                         </div>
                     ))}
