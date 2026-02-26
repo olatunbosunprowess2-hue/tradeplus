@@ -81,6 +81,7 @@ export default function MarketFeed() {
         isFetchingNextPage,
         status,
         error,
+        isFetching,
     } = useInfiniteQuery({
         queryKey: ['listings', search, type, condition, paymentMode, minPrice, maxPrice, categoryId, isDistressSale, countryId, regionId],
         queryFn: async ({ pageParam = 1 }) => {
@@ -289,7 +290,7 @@ export default function MarketFeed() {
 
                     <div ref={ref} className="h-4" />
 
-                    {!isLoading && listings.length === 0 && (
+                    {!isLoading && !isFetching && listings.length === 0 && (
                         <div className="text-center py-12 bg-white rounded-xl border border-gray-100 shadow-sm">
                             <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-3">
                                 <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

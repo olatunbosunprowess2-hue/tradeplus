@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { useInView } from 'react-intersection-observer';
 import apiClient from '@/lib/api-client';
@@ -19,17 +19,20 @@ export default function CommunityFeed() {
     const [savedIds, setSavedIds] = useState<string[]>([]);
     const debounceRef = useRef<NodeJS.Timeout | null>(null);
     const searchParams = useSearchParams();
+    const router = useRouter();
+    const pathname = usePathname();
 
     // Auto-open create modal if create=true query param is present
     useEffect(() => {
         if (searchParams.get('create') === 'true') {
             setShowCreateModal(true);
-            // Clean up the URL param without re-navigation
-            const url = new URL(window.location.href);
-            url.searchParams.delete('create');
-            window.history.replaceState({}, '', url.toString());
+            // Clean up the URL param without re-navigation using Next.js router
+            const params = new URLSearchParams(searchParams.toString());
+            params.delete('create');
+            const newUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
+            router.replace(newUrl, { scroll: false });
         }
-    }, [searchParams]);
+    }, [searchParams, pathname, router]);
 
     // Fetch saved post IDs on mount
     useEffect(() => {
@@ -59,6 +62,7 @@ export default function CommunityFeed() {
         isLoading,
         isError,
         error,
+        isFetching,
     } = useInfiniteQuery({
         queryKey: ['community-posts', debouncedSearch],
         queryFn: async ({ pageParam = 1 }) => {
@@ -172,7 +176,7 @@ export default function CommunityFeed() {
             )}
 
             {/* Empty State */}
-            {!isLoading && !isError && allPosts.length === 0 && (
+            {!isLoading && !isFetching && !isError && allPosts.length === 0 && (
                 <div className="text-center py-12 bg-white rounded-xl border border-gray-100">
                     <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
                         <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
