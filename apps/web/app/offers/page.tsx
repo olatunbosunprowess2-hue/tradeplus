@@ -107,25 +107,38 @@ export default function OffersPage() {
         }
     }, [_hasHydrated, isAuthenticated, router]);
 
-    // Fetch offers
+    // Fetch offers and poll for updates
     useEffect(() => {
-        if (isAuthenticated) {
-            fetchOffers();
-            // Fetch community offers (don't set loading if we already have data to avoid glitches)
-            if (communityOffers.length === 0) {
-                setLoadingCommunity(true);
-            }
+        if (!isAuthenticated) return;
+
+        // Initial fetch (shows loading skeleton)
+        fetchOffers();
+        if (communityOffers.length === 0) setLoadingCommunity(true);
+        fetchCommunityOffers();
+
+        // Setup polling every 15 seconds for fast transaction UX
+        const interval = setInterval(() => {
+            fetchOffers(undefined, true); // silent = true
+            fetchCommunityOffers(); // already fetches silently after initial load
+        }, 15000);
+
+        return () => clearInterval(interval);
+
+        function fetchCommunityOffers() {
             apiClient.get('/community-posts/user/my-offers')
                 .then(r => {
-                    // Only update if data changed to prevent flicker
-                    if (JSON.stringify(r.data) !== JSON.stringify(communityOffers)) {
-                        setCommunityOffers(r.data);
-                    }
+                    setCommunityOffers(prev => {
+                        // Only update if data changed to prevent flicker
+                        if (JSON.stringify(r.data) !== JSON.stringify(prev)) {
+                            return r.data;
+                        }
+                        return prev;
+                    });
                 })
                 .catch(() => { })
                 .finally(() => setLoadingCommunity(false));
         }
-    }, [fetchOffers, isAuthenticated]); // Removed communityOffers from dep array since it would cause loop
+    }, [fetchOffers, isAuthenticated]); // Removed communityOffers from dep array since we use functional state update
 
     const receivedOffers = user ? getReceivedOffers(user.id) : [];
     const sentOffers = user ? getSentOffers(user.id) : [];

@@ -7,7 +7,7 @@ interface OffersState {
     isLoading: boolean;
     error: string | null;
 
-    fetchOffers: (role?: 'buyer' | 'seller') => Promise<void>;
+    fetchOffers: (role?: 'buyer' | 'seller', silent?: boolean) => Promise<void>;
     acceptOffer: (id: string) => Promise<void>;
     rejectOffer: (id: string) => Promise<void>;
     counterOffer: (id: string, data: CounterOfferDto) => Promise<void>;
@@ -24,13 +24,14 @@ export const useOffersStore = create<OffersState>((set, get) => ({
     isLoading: false,
     error: null,
 
-    fetchOffers: async (role) => {
-        set({ isLoading: true, error: null });
+    fetchOffers: async (role, silent = false) => {
+        if (!silent) set({ isLoading: true, error: null });
         try {
             const offers = await offersApi.getAll({ role });
-            set({ offers, isLoading: false });
+            set({ offers, isLoading: false, error: null });
         } catch (error: any) {
-            set({ isLoading: false, error: error.message || 'Failed to fetch offers' });
+            if (!silent) set({ isLoading: false, error: error.message || 'Failed to fetch offers' });
+            else set({ error: error.message || 'Failed to fetch offers' });
         }
     },
 
