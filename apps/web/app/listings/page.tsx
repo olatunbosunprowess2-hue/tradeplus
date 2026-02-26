@@ -20,11 +20,8 @@ function ListingsContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
 
-    // Tab state — synced with URL ?tab= param
-    const tabParam = searchParams.get('tab');
-    const [activeTab, setActiveTab] = useState<'market' | 'community'>(
-        tabParam === 'community' ? 'community' : 'market'
-    );
+    // Derive tab directly from URL — single source of truth, no race condition
+    const activeTab: 'market' | 'community' = searchParams.get('tab') === 'community' ? 'community' : 'market';
 
     const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -36,15 +33,7 @@ function ListingsContent() {
         return () => clearInterval(interval);
     }, []);
 
-    // Sync tab state from URL (one-way: URL → state)
-    useEffect(() => {
-        const urlTab = searchParams.get('tab');
-        const nextTab = urlTab === 'community' ? 'community' : 'market';
-        setActiveTab(nextTab);
-    }, [searchParams]);
-
     const handleTabChange = (tab: 'market' | 'community') => {
-        setActiveTab(tab);
         const params = new URLSearchParams(searchParams.toString());
         if (tab === 'community') {
             params.set('tab', 'community');
