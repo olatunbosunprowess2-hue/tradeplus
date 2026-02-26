@@ -1,25 +1,35 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/lib/auth-store';
 import { User, X, CheckCircle2, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import { sanitizeUrl } from '@/lib/utils';
 
+// Public routes where the modal should NEVER appear
+const PUBLIC_ROUTES = ['/', '/login', '/register', '/forgot-password', '/reset-password', '/privacy', '/terms', '/about'];
+
 export default function ProfileCompletionModal() {
     const router = useRouter();
-    const { user, isAuthenticated } = useAuthStore();
+    const pathname = usePathname();
+    const { user, isAuthenticated, _hasHydrated } = useAuthStore();
     const [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => {
-        // 1. Check if user is logged in
+        // 0. Wait for auth store to hydrate from localStorage first
+        if (!_hasHydrated) return;
+
+        // 1. Never show on public/unauthenticated routes
+        if (PUBLIC_ROUTES.includes(pathname)) return;
+
+        // 2. Check if user is actually logged in
         if (!isAuthenticated || !user) return;
 
-        // 2. Check exclusion conditions
+        // 3. Check exclusion conditions
         if (user.status === 'suspended' || user.status === 'banned') return;
 
-        // 3. Check if profile is incomplete
+        // 4. Check if profile is incomplete
         const isProfileIncomplete =
             !user.profile?.avatarUrl ||
             !user.profile?.bio ||
@@ -28,16 +38,17 @@ export default function ProfileCompletionModal() {
 
         if (!isProfileIncomplete) return;
 
-        // 4. Check frequency cap (LocalStorage)
+        // 5. Check frequency cap (LocalStorage)
         const lastDismissed = localStorage.getItem('profile_prompt_dismissed_at');
         if (lastDismissed) {
             const daysSinceDismissal = (Date.now() - parseInt(lastDismissed)) / (1000 * 60 * 60 * 24);
             if (daysSinceDismissal < 3) return;
         }
 
-        // 5. Show modal immediately
-        setIsOpen(true);
-    }, [isAuthenticated, user]);
+        // 6. Show modal after a slight delay so the page renders first
+        const timer = setTimeout(() => setIsOpen(true), 800);
+        return () => clearTimeout(timer);
+    }, [_hasHydrated, isAuthenticated, user, pathname]);
 
     const handleDismiss = () => {
         setIsOpen(false);

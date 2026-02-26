@@ -4,6 +4,18 @@
 
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
+import {
+  Handshake,
+  Scale,
+  ArrowRightLeft,
+  Sparkles,
+  Users,
+  Package,
+  Repeat,
+  RefreshCcw,
+  BoxSelect,
+  PackageSearch
+} from 'lucide-react';
 
 export default function LandingPage() {
   const [activeUsers, setActiveUsers] = useState(0);
@@ -54,111 +66,137 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
-      {/* Hero Section with Mesh Gradient */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Animated Mesh Gradient Background */}
-        <div className="absolute inset-0 mesh-gradient" />
+      {/* ================================================================== */}
+      {/* HERO SECTION — "Africa's Trusted Marketplace" */}
+      {/* ================================================================== */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(135deg, #0b2948 0%, #143d6b 30%, #1a5ba8 60%, #2468c0 100%)' }}>
 
-        {/* Floating Shapes */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {/* Large floating circle */}
-          <div className="absolute top-1/4 -left-20 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-float" />
-          <div className="absolute bottom-1/4 -right-20 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-float-delayed" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-3xl animate-float-slow" />
+        {/* ---- Flowing Wave Lines (thick + visible like the reference) ---- */}
+        <svg className="absolute inset-0 w-full h-full z-0 pointer-events-none" preserveAspectRatio="none" viewBox="0 0 1440 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+          {/* Primary flowing wave – thick */}
+          <path d="M-100 550 C 200 300 400 700 700 450 C 1000 200 1200 600 1540 400" stroke="rgba(255,255,255,0.15)" strokeWidth="3" fill="none" />
+          <path d="M-100 600 C 250 350 450 750 750 500 C 1050 250 1250 650 1540 450" stroke="rgba(255,255,255,0.08)" strokeWidth="2" fill="none" />
+          {/* Secondary wave – medium */}
+          <path d="M-100 400 Q 200 600 500 400 T 1100 400 T 1540 400" stroke="rgba(255,255,255,0.12)" strokeWidth="2.5" fill="none" />
+          <path d="M-100 350 Q 300 500 600 350 T 1200 350 T 1540 350" stroke="rgba(255,255,255,0.07)" strokeWidth="1.5" fill="none" />
+          {/* Dashed accent wave */}
+          <path d="M-100 700 C 300 500 500 800 800 600 C 1100 400 1300 700 1540 550" stroke="rgba(255,255,255,0.10)" strokeWidth="2" strokeDasharray="12 8" fill="none" />
+          <path d="M-100 250 Q 400 450 700 250 T 1540 250" stroke="rgba(255,255,255,0.06)" strokeWidth="1.5" strokeDasharray="6 6" fill="none" />
+          {/* Thin connecting lines */}
+          <path d="M-100 480 C 200 380 600 580 900 480 C 1200 380 1400 480 1540 420" stroke="rgba(255,255,255,0.05)" strokeWidth="1" fill="none" />
+          <path d="M-50 650 Q 350 550 700 650 T 1500 650" stroke="rgba(255,255,255,0.08)" strokeWidth="1.5" fill="none" />
+        </svg>
 
-          {/* Small decorative elements */}
-          <div className="absolute top-20 right-1/4 w-3 h-3 bg-white/30 rounded-full animate-float" />
-          <div className="absolute top-1/3 left-1/5 w-2 h-2 bg-white/20 rounded-full animate-float-delayed" />
-          <div className="absolute bottom-1/3 right-1/3 w-4 h-4 bg-purple-300/30 rounded-full animate-float-slow" />
+        {/* ---- Small Decorative Shapes (triangles, dots, diamonds) ---- */}
+        <div className="absolute inset-0 z-[1] pointer-events-none overflow-hidden">
+          {/* Triangles */}
+          <svg className="absolute top-[18%] left-[20%] w-3 h-3 opacity-20 animate-float" viewBox="0 0 12 12"><polygon points="6,0 12,12 0,12" fill="white" /></svg>
+          <svg className="absolute top-[30%] right-[25%] w-4 h-4 opacity-15 animate-float delay-200" viewBox="0 0 12 12"><polygon points="6,0 12,12 0,12" fill="white" /></svg>
+          <svg className="absolute bottom-[35%] left-[35%] w-2 h-2 opacity-25 animate-float delay-500" viewBox="0 0 12 12"><polygon points="6,0 12,12 0,12" fill="white" /></svg>
+          <svg className="absolute top-[55%] right-[15%] w-3 h-3 opacity-10 animate-float delay-300" viewBox="0 0 12 12"><polygon points="6,0 12,12 0,12" fill="white" /></svg>
+          <svg className="absolute bottom-[25%] right-[40%] w-2.5 h-2.5 opacity-20 animate-float" viewBox="0 0 12 12"><polygon points="6,0 12,12 0,12" fill="white" /></svg>
+          {/* Dots */}
+          <div className="absolute top-[12%] right-[30%] w-2 h-2 bg-white/20 rounded-full animate-pulse" />
+          <div className="absolute bottom-[20%] left-[15%] w-1.5 h-1.5 bg-white/15 rounded-full" />
+          <div className="absolute top-[40%] left-[45%] w-1 h-1 bg-white/25 rounded-full animate-pulse" />
+          <div className="absolute bottom-[45%] right-[10%] w-2 h-2 bg-white/10 rounded-full" />
+          {/* Diamonds */}
+          <svg className="absolute top-[22%] left-[60%] w-3 h-3 opacity-15 animate-float delay-100" viewBox="0 0 12 12"><polygon points="6,0 12,6 6,12 0,6" fill="white" /></svg>
+          <svg className="absolute bottom-[30%] left-[8%] w-2.5 h-2.5 opacity-20 animate-float delay-300" viewBox="0 0 12 12"><polygon points="6,0 12,6 6,12 0,6" fill="white" /></svg>
         </div>
 
-        {/* Grid pattern overlay */}
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)
-            `,
-            backgroundSize: '50px 50px'
-          }}
-        />
+        {/* ---- Scattered Naked Line-Art Icons ---- */}
+        {/* These are positioned absolutely across the viewport to feel organic, NOT in boxes */}
+        <div className="absolute inset-0 z-[2] pointer-events-none hidden md:block">
+          {/* Left side icons */}
+          <div className="absolute top-[12%] left-[6%] text-white/[0.18] animate-float"><Handshake size={44} strokeWidth={1.2} /></div>
+          <div className="absolute top-[38%] left-[4%] text-white/[0.15] animate-float delay-200"><Scale size={40} strokeWidth={1.2} /></div>
+          <div className="absolute top-[62%] left-[7%] text-white/[0.18] animate-float delay-500"><ArrowRightLeft size={38} strokeWidth={1.2} /></div>
+          <div className="absolute bottom-[15%] left-[5%] text-white/[0.12] animate-float delay-300"><RefreshCcw size={34} strokeWidth={1.2} /></div>
 
-        {/* Content */}
-        <div className="container mx-auto px-4 py-20 relative z-10">
-          <div className="max-w-5xl mx-auto text-center">
-            {/* Logo Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-8 animate-fade-in">
-              <img
-                src="/logo-transparent.png"
-                alt="BarterWave"
-                className="w-8 h-8 object-contain"
-              />
-              <span className="text-white/90 text-sm font-medium">The Future of Trading is Here</span>
-            </div>
+          {/* Right side icons */}
+          <div className="absolute top-[10%] right-[7%] text-white/[0.15] animate-float delay-100"><Package size={42} strokeWidth={1.2} /></div>
+          <div className="absolute top-[35%] right-[5%] text-white/[0.18] animate-float delay-300"><Users size={40} strokeWidth={1.2} /></div>
+          <div className="absolute top-[58%] right-[8%] text-white/[0.15] animate-float delay-500"><BoxSelect size={36} strokeWidth={1.2} /></div>
+          <div className="absolute bottom-[12%] right-[6%] text-white/[0.12] animate-float"><PackageSearch size={38} strokeWidth={1.2} /></div>
 
-            {/* Main Heading */}
-            <h1 className="text-hero text-white mb-6 animate-slide-up font-display">
-              Buy, Sell & Trade
-              <span className="block mt-2 gradient-text-hero">
-                Anything You Want
-              </span>
+          {/* Corner & mid-screen accents */}
+          <div className="absolute top-[8%] left-[30%] text-white/[0.10] animate-float delay-300"><Sparkles size={30} strokeWidth={1.2} /></div>
+          <div className="absolute bottom-[20%] right-[28%] text-white/[0.10] animate-float delay-100"><Repeat size={32} strokeWidth={1.2} /></div>
+        </div>
+
+        {/* Mobile: show fewer icons */}
+        <div className="absolute inset-0 z-[2] pointer-events-none md:hidden">
+          <div className="absolute top-[15%] left-[5%] text-white/[0.15] animate-float"><Handshake size={32} strokeWidth={1.2} /></div>
+          <div className="absolute top-[50%] left-[3%] text-white/[0.12] animate-float delay-200"><Scale size={28} strokeWidth={1.2} /></div>
+          <div className="absolute bottom-[25%] left-[6%] text-white/[0.15] animate-float delay-500"><ArrowRightLeft size={30} strokeWidth={1.2} /></div>
+          <div className="absolute top-[12%] right-[5%] text-white/[0.12] animate-float delay-100"><Package size={30} strokeWidth={1.2} /></div>
+          <div className="absolute top-[45%] right-[4%] text-white/[0.15] animate-float delay-300"><Users size={28} strokeWidth={1.2} /></div>
+          <div className="absolute bottom-[18%] right-[6%] text-white/[0.12] animate-float"><BoxSelect size={28} strokeWidth={1.2} /></div>
+        </div>
+
+        {/* ---- Main Content ---- */}
+        <div className="container mx-auto px-4 py-20 relative z-10 flex flex-col items-center justify-center">
+
+          <div className="text-center w-full max-w-5xl">
+            {/* Brand Name — Big bold and crisp */}
+            <h1 className="text-[3.5rem] sm:text-[4.5rem] md:text-[6rem] lg:text-[7.5rem] font-extrabold text-white tracking-tight animate-slide-up leading-[1.05] font-display" style={{ textShadow: '0 2px 30px rgba(0,0,0,0.15)' }}>
+              BarterWave
             </h1>
 
-            {/* Subtitle */}
-            <p className="text-xl md:text-2xl text-white/80 mb-10 max-w-3xl mx-auto animate-slide-up delay-200 leading-relaxed">
-              The revolutionary marketplace where you can pay with cash,
-              barter items, or combine both. <span className="text-white font-semibold">Your items, your rules.</span>
+            {/* Tagline */}
+            <p className="mt-3 md:mt-5 text-lg sm:text-xl md:text-2xl lg:text-3xl text-white/90 font-normal animate-slide-up delay-200 tracking-wide" style={{ textShadow: '0 1px 8px rgba(0,0,0,0.1)' }}>
+              Africa&apos;s Trusted Marketplace
             </p>
+          </div>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up delay-300">
-              <Link
-                href="/register"
-                className="group relative inline-flex items-center justify-center gap-2 bg-white text-gray-900 px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 hover:scale-105 shadow-2xl hover:shadow-white/25"
-              >
-                <span>Get Started Free</span>
-                <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </Link>
-              <Link
-                href="/listings"
-                className="group inline-flex items-center justify-center gap-2 glass text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 hover:bg-white/20"
-              >
-                <span>Browse Marketplace</span>
-                <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </Link>
+          {/* CTA Buttons */}
+          <div className="mt-14 md:mt-20 flex flex-col sm:flex-row gap-4 justify-center animate-slide-up delay-300 w-full px-4 max-w-xl mx-auto">
+            <Link
+              href="/register"
+              className="group relative inline-flex items-center justify-center gap-2 bg-white text-[#0d3363] px-8 py-4 rounded-xl font-bold text-base sm:text-lg transition-all duration-300 hover:scale-[1.04] shadow-xl hover:shadow-white/25"
+            >
+              <span>Get Started Free</span>
+              <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </Link>
+            <Link
+              href="/listings"
+              className="group inline-flex items-center justify-center gap-2 bg-white/10 border border-white/25 text-white px-8 py-4 rounded-xl font-bold text-base sm:text-lg transition-all duration-300 hover:bg-white/20 hover:scale-[1.04] backdrop-blur-sm"
+            >
+              <span>Browse Marketplace</span>
+              <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </Link>
+          </div>
+
+          {/* Trust Badges */}
+          <div className="mt-10 flex flex-wrap justify-center gap-3 sm:gap-6 animate-fade-in delay-500 pb-8">
+            <div className="flex items-center gap-1.5 text-white/85 bg-white/[0.08] px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium">
+              <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <span>100% Free to Join</span>
             </div>
-
-            {/* Trust Indicators */}
-            <div className="mt-16 flex flex-wrap justify-center gap-8 animate-fade-in delay-500">
-              <div className="flex items-center gap-2 text-white/70">
-                <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                <span className="text-sm font-medium">100% Free to Join</span>
-              </div>
-              <div className="flex items-center gap-2 text-white/70">
-                <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                <span className="text-sm font-medium">Verified Users</span>
-              </div>
-              <div className="flex items-center gap-2 text-white/70">
-                <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                <span className="text-sm font-medium">Secure Transactions</span>
-              </div>
+            <div className="flex items-center gap-1.5 text-white/85 bg-white/[0.08] px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium">
+              <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <span>Verified Users</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-white/85 bg-white/[0.08] px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium">
+              <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <span>Secure Transactions</span>
             </div>
           </div>
         </div>
 
         {/* Bottom Wave */}
-        <div className="absolute bottom-0 left-0 right-0">
+        <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none">
           <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
             <path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="white" />
           </svg>
@@ -520,6 +558,6 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
-    </div>
+    </div >
   );
 }
