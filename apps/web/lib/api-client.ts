@@ -21,10 +21,10 @@ apiClient.interceptors.request.use((config) => {
     if (config.url) {
         let rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333/api';
 
-        if (process.env.NODE_ENV === 'production') {
-            // PROXY MODE: Always use relative /api in production browser environment to avoid CORS/Mixed Content
-            // Vercel will handle the routing via next.config.js rewrites
-            rawApiUrl = '/api';
+        if (!rawApiUrl.includes('localhost') && !rawApiUrl.endsWith('/api')) {
+            // Safety: ensure production domain ends with /api if trailing slash is missing
+            rawApiUrl = rawApiUrl.endsWith('/') ? rawApiUrl.slice(0, -1) : rawApiUrl;
+            rawApiUrl += '/api';
         } else if (rawApiUrl.includes('localhost') && !rawApiUrl.endsWith('/api')) {
             // Dev safety: ensure localhost ends with /api
             rawApiUrl = rawApiUrl.endsWith('/') ? rawApiUrl.slice(0, -1) : rawApiUrl;
