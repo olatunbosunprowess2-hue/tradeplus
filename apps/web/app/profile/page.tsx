@@ -5,6 +5,7 @@ import { useAuthStore } from '@/lib/auth-store';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import EditProfileModal from '@/components/EditProfileModal';
+import DeleteAccountModal from '@/components/DeleteAccountModal';
 import ReviewList from '@/components/ReviewList';
 import apiClient from '@/lib/api-client';
 import toast from 'react-hot-toast';
@@ -46,6 +47,7 @@ export default function ProfilePage() {
     const [editingPost, setEditingPost] = useState<CommunityPost | null>(null);
     const [isMounted, setIsMounted] = useState(false);
     const [isPaymentLoading, setIsPaymentLoading] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     // Initial Mount Check
     useEffect(() => {
@@ -599,6 +601,25 @@ export default function ProfilePage() {
                         </div>
                     )}
                 </div>
+
+                {/* Danger Zone */}
+                <div className="mt-8 bg-white rounded-2xl shadow-sm border border-red-200 overflow-hidden">
+                    <div className="px-6 py-4 border-b border-red-100 bg-red-50">
+                        <h3 className="text-sm font-bold text-red-700 uppercase tracking-wider">Danger Zone</h3>
+                    </div>
+                    <div className="p-6 flex items-center justify-between">
+                        <div>
+                            <h4 className="font-semibold text-gray-900">Delete Account</h4>
+                            <p className="text-sm text-gray-500 mt-0.5">Permanently delete your account and all associated data.</p>
+                        </div>
+                        <button
+                            onClick={() => setShowDeleteModal(true)}
+                            className="px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition shadow-sm active:scale-95"
+                        >
+                            Delete Account
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <EditProfileModal
@@ -631,6 +652,10 @@ export default function ProfilePage() {
                 onUseCredit={handleUseCredit}
                 creditsAvailable={user?.spotlightCredits}
                 isLoading={isPaymentLoading}
+            />
+            <DeleteAccountModal
+                isOpen={showDeleteModal}
+                onClose={() => setShowDeleteModal(false)}
             />
         </div >
     );

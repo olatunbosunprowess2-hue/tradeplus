@@ -167,6 +167,9 @@ export default function MarketFeed() {
 
     const handleClearSearch = () => {
         setSearchQuery('');
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete('search');
+        router.replace(`/listings?${params.toString()}`, { scroll: false });
     };
 
     const isLoading = status === 'pending';

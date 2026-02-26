@@ -276,4 +276,59 @@ export class UsersService {
         // Return full user object to keep auth store in sync
         return this.findOne(userId);
     }
+
+    /**
+     * Soft-delete a user account.
+     * - Sets deletedAt timestamp
+     * - Anonymizes email to prevent re-registration conflicts
+     * - Clears refresh tokens
+     * - Deactivates all active listings
+     */
+    async deleteAccount(userId: string) {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+        });
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        // Use a transaction to ensure atomicity
+        await this.prisma.$transaction(async (tx) => {
+            // 1. Soft-delete the user and anonymize PII
+            await tx.user.update({
+                where: { id: userId },
+                data: {
+                    deletedAt: new Date(),
+                    email: `deleted_${userId}@barterwave.com`,
+                    firstName: 'Deleted',
+                    lastName: 'User',
+                    passwordHash: '',
+                    refreshToken: null,
+                    phoneNumber: null,
+                    faceVerificationUrl: null,
+                    idDocumentFrontUrl: null,
+                    idDocumentBackUrl: null,
+                },
+            });
+
+            // 2. Clear profile data
+            await tx.userProfile.updateMany({
+                where: { userId },
+                data: {
+                    displayName: 'Deleted User',
+                    bio: null,
+                    avatarUrl: null,
+                },
+            });
+
+            // 3. Deactivate all active listings
+            await tx.listing.updateMany({
+                where: { sellerId: userId, status: 'active' },
+                data: { status: 'inactive' },
+            });
+        });
+
+        return { message: 'Account deleted successfully' };
+    }
 }

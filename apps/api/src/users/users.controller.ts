@@ -1,4 +1,4 @@
-import { Controller, Get, Body, Patch, UseGuards, Request, UseInterceptors, UploadedFiles, Query, Param } from '@nestjs/common';
+import { Controller, Get, Body, Patch, Delete, UseGuards, Request, UseInterceptors, UploadedFiles, Query, Param } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -136,5 +136,11 @@ export class UsersController {
             console.error('Error stack:', error.stack);
             throw error;
         }
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Delete('account')
+    async deleteAccount(@Request() req) {
+        return this.usersService.deleteAccount(req.user.id);
     }
 }
