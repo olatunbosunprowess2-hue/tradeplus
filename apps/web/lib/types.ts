@@ -290,6 +290,8 @@ export interface PostComment {
     author: PostAuthor;
     content: string;
     createdAt: string;
+    parentId?: string | null;
+    replies?: PostComment[];
 }
 
 export interface PostOffer {

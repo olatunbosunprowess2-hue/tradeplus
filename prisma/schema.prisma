@@ -948,8 +948,14 @@ model PostComment {
   content   String        @db.Text
   createdAt DateTime      @default(now()) @map("created_at") @db.Timestamptz
 
+  // Nested Replies Support
+  parentId  String?       @map("parent_id") @db.Uuid
+  parent    PostComment?  @relation("CommentToComment", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   PostComment[] @relation("CommentToComment")
+
   @@map("post_comments")
   @@index([postId, createdAt])
+  @@index([parentId]) // Fast lookup for replies
 }
 
 model PostOffer {

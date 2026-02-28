@@ -482,13 +482,37 @@ export default function CreateListingPage() {
                                     {formData.type === 'PHYSICAL' && (
                                         <div>
                                             <label className="block text-sm font-bold text-gray-700 mb-2">Quantity</label>
-                                            <input
-                                                type="number"
-                                                min="1"
-                                                value={formData.quantity}
-                                                onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 1 })}
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
-                                            />
+                                            <div className="flex items-center border border-gray-300 rounded-xl overflow-hidden w-full">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setFormData(prev => ({ ...prev, quantity: Math.max(1, prev.quantity - 1) }))}
+                                                    disabled={formData.quantity <= 1}
+                                                    className="px-4 py-3 text-lg font-bold text-gray-600 hover:bg-gray-100 active:bg-gray-200 transition disabled:opacity-30 disabled:cursor-not-allowed select-none"
+                                                >
+                                                    −
+                                                </button>
+                                                <input
+                                                    type="text"
+                                                    inputMode="numeric"
+                                                    pattern="[0-9]*"
+                                                    value={formData.quantity}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value.replace(/[^0-9]/g, '');
+                                                        setFormData({ ...formData, quantity: val === '' ? 1 : Math.max(1, parseInt(val)) });
+                                                    }}
+                                                    onBlur={() => {
+                                                        if (formData.quantity < 1) setFormData({ ...formData, quantity: 1 });
+                                                    }}
+                                                    className="flex-1 text-center py-3 text-lg font-bold text-gray-900 border-x border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset bg-white min-w-0"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setFormData(prev => ({ ...prev, quantity: prev.quantity + 1 }))}
+                                                    className="px-4 py-3 text-lg font-bold text-gray-600 hover:bg-gray-100 active:bg-gray-200 transition select-none"
+                                                >
+                                                    +
+                                                </button>
+                                            </div>
                                         </div>
                                     )}
                                 </div>

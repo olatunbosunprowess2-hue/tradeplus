@@ -304,7 +304,6 @@ export class UsersService {
                     firstName: 'Deleted',
                     lastName: 'User',
                     passwordHash: '',
-                    refreshToken: null,
                     phoneNumber: null,
                     faceVerificationUrl: null,
                     idDocumentFrontUrl: null,

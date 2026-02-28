@@ -278,7 +278,7 @@ export class CommunityPostsService {
         if (!post) throw new NotFoundException('Post not found');
 
         return this.prisma.postComment.findMany({
-            where: { postId },
+            where: { postId, parentId: null }, // Only fetch top-level comments
             include: {
                 author: {
                     select: {
@@ -287,6 +287,18 @@ export class CommunityPostsService {
                         profile: { select: { displayName: true, avatarUrl: true } },
                     },
                 },
+                replies: { // Include nested replies
+                    include: {
+                        author: {
+                            select: {
+                                id: true, firstName: true, lastName: true,
+                                isVerified: true,
+                                profile: { select: { displayName: true, avatarUrl: true } },
+                            },
+                        },
+                    },
+                    orderBy: { createdAt: 'asc' },
+                }
             },
             orderBy: { createdAt: 'asc' },
         });
@@ -296,11 +308,22 @@ export class CommunityPostsService {
         const post = await this.prisma.communityPost.findUnique({ where: { id: postId } });
         if (!post) throw new NotFoundException('Post not found');
 
+        if (dto.parentId) {
+            const parentComment = await this.prisma.postComment.findUnique({
+                where: { id: dto.parentId }
+            });
+            if (!parentComment) throw new NotFoundException('Parent comment not found');
+            if (parentComment.postId !== postId) {
+                throw new ForbiddenException('Parent comment does not belong to this post');
+            }
+        }
+
         const comment = await this.prisma.postComment.create({
             data: {
                 postId,
                 authorId: userId,
                 content: dto.content,
+                parentId: dto.parentId || null,
             },
             include: {
                 author: {
@@ -310,6 +333,17 @@ export class CommunityPostsService {
                         profile: { select: { displayName: true, avatarUrl: true } },
                     },
                 },
+                replies: {
+                    include: {
+                        author: {
+                            select: {
+                                id: true, firstName: true, lastName: true,
+                                isVerified: true,
+                                profile: { select: { displayName: true, avatarUrl: true } },
+                            },
+                        }
+                    }
+                }
             },
         });
 

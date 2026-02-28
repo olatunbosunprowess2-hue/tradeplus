@@ -42,6 +42,10 @@ export class CreateCommentDto {
     @IsString()
     @MaxLength(1000)
     content: string;
+
+    @IsOptional()
+    @IsString()
+    parentId?: string;
 }
 
 export class CreatePostOfferDto {
