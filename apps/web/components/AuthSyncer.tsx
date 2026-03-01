@@ -10,6 +10,14 @@ export function AuthSyncer() {
     const _hasHydrated = useAuthStore((state) => state._hasHydrated);
 
     useEffect(() => {
+        const handleLogoutEvent = () => {
+            useAuthStore.getState().logout();
+        };
+        window.addEventListener('auth:logout', handleLogoutEvent);
+        return () => window.removeEventListener('auth:logout', handleLogoutEvent);
+    }, []);
+
+    useEffect(() => {
         if (isAuthenticated && _hasHydrated) {
             // Refresh profile immediately/on mount to ensure role is up to date
             refreshProfile();

@@ -106,6 +106,8 @@ apiClient.interceptors.response.use(
             // Prevent infinite loops if refresh endpoint itself returns 401
             if (originalRequest.url?.includes('/auth/refresh')) {
                 if (typeof window !== 'undefined') {
+                    window.dispatchEvent(new Event('auth:logout'));
+
                     // Clear persisted auth state to break the loop
                     localStorage.removeItem('auth-storage');
                     localStorage.removeItem('accessToken');
@@ -161,6 +163,8 @@ apiClient.interceptors.response.use(
             } catch (refreshError) {
                 // If refresh fails, logout
                 if (typeof window !== 'undefined') {
+                    window.dispatchEvent(new Event('auth:logout'));
+
                     // Clear persisted auth state to break the loop
                     localStorage.removeItem('auth-storage');
                     localStorage.removeItem('accessToken');
