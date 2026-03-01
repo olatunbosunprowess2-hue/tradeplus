@@ -96,7 +96,8 @@ export default function Navbar() {
     if (_hasHydrated && isAuthenticated) {
       const timer = setTimeout(() => {
         fetchUnreadCount();
-        const interval = setInterval(fetchUnreadCount, 30000);
+        // Reduce polling frequency from 30s to 3 minutes to prevent network spam
+        const interval = setInterval(fetchUnreadCount, 180000);
         return () => clearInterval(interval);
       }, 1000);
       return () => clearTimeout(timer);
