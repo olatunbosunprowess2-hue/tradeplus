@@ -64,7 +64,8 @@ export default function CommunityFeed() {
         error,
         isFetching,
     } = useInfiniteQuery({
-        queryKey: ['community-posts', debouncedSearch],
+        // CRITICAL FIX: Add countryId to queryKey so it refetches cleanly when auth hydrates
+        queryKey: ['community-posts', debouncedSearch, user?.profile?.countryId],
         queryFn: async ({ pageParam = 1 }) => {
             const params = new URLSearchParams({ page: String(pageParam), limit: '15' });
             if (debouncedSearch) params.append('search', debouncedSearch);
@@ -176,7 +177,7 @@ export default function CommunityFeed() {
             )}
 
             {/* Empty State */}
-            {!isLoading && !isFetching && !isError && allPosts.length === 0 && (
+            {!isLoading && !isError && allPosts.length === 0 && (
                 <div className="text-center py-12 bg-white rounded-xl border border-gray-100">
                     <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
                         <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
