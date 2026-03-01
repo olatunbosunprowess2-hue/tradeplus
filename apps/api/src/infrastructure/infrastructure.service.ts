@@ -23,13 +23,22 @@ export class InfrastructureService {
 
     constructor(private configService: ConfigService) {
         // Initialize R2 (S3 Client)
-        const accountId = this.configService.get<string>('CLOUDFLARE_ACCOUNT_ID');
-        const accessKeyId = this.configService.get<string>('CLOUDFLARE_R2_ACCESS_KEY_ID');
-        const secretAccessKey = this.configService.get<string>('CLOUDFLARE_R2_SECRET_ACCESS_KEY');
-        const endpoint = this.configService.get<string>('CLOUDFLARE_R2_ENDPOINT');
+        // Support both CLOUDFLARE_* (local) and shorter R2_* (Koyeb) naming conventions
+        const accountId = this.configService.get<string>('CLOUDFLARE_ACCOUNT_ID')
+            || this.configService.get<string>('R2_ACCOUNT_ID');
+        const accessKeyId = this.configService.get<string>('CLOUDFLARE_R2_ACCESS_KEY_ID')
+            || this.configService.get<string>('R2_ACCESS_KEY_ID');
+        const secretAccessKey = this.configService.get<string>('CLOUDFLARE_R2_SECRET_ACCESS_KEY')
+            || this.configService.get<string>('R2_SECRET_ACCESS_KEY');
+        const endpoint = this.configService.get<string>('CLOUDFLARE_R2_ENDPOINT')
+            || (accountId ? `https://${accountId}.r2.cloudflarestorage.com` : undefined);
 
-        this.r2BucketName = this.configService.get<string>('CLOUDFLARE_R2_BUCKET_NAME') || 'barterwave-media';
-        this.r2CustomDomain = this.configService.get<string>('CLOUDFLARE_R2_CUSTOM_DOMAIN') || 'https://images.barterwave.com';
+        this.r2BucketName = this.configService.get<string>('CLOUDFLARE_R2_BUCKET_NAME')
+            || this.configService.get<string>('R2_BUCKET_NAME')
+            || 'barterwave-media';
+        this.r2CustomDomain = this.configService.get<string>('CLOUDFLARE_R2_CUSTOM_DOMAIN')
+            || this.configService.get<string>('CUSTOM_DOMAIN')
+            || 'https://images.barterwave.com';
 
         if (accessKeyId && secretAccessKey && endpoint) {
             this.s3Client = new S3Client({
@@ -42,7 +51,7 @@ export class InfrastructureService {
             });
             this.logger.log('✅ Cloudflare R2 Client initialized');
         } else {
-            this.logger.warn('⚠️ Cloudflare R2 configuration missing');
+            this.logger.warn(`⚠️ Cloudflare R2 configuration missing (accessKey: ${!!accessKeyId}, secret: ${!!secretAccessKey}, endpoint: ${!!endpoint})`);
         }
 
         // Initialize Resend

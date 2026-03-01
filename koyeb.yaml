@@ -35,9 +35,15 @@ services:
         value: "false"
       - key: PORT
         value: "3333"
-      - key: CLOUDINARY_CLOUD_NAME
-        value: diw6hacrd
-      - key: CLOUDINARY_API_KEY
-        value: "572684465831296"
-      - key: CLOUDINARY_API_SECRET
-        value: im2XOD2TtDoDbem0pd23L9pQ4-k
+      - key: CLOUDFLARE_ACCOUNT_ID
+        value: a2ce0b1d8ba4b511d8047af29f1e5c32
+      - key: CLOUDFLARE_R2_ACCESS_KEY_ID
+        value: ac0396a7d42d2df635e151c3930497c2
+      - key: CLOUDFLARE_R2_SECRET_ACCESS_KEY
+        value: c0edeb7d3aa15d4b50c6b85b20398f0e82d4e8a2315e85f54bce1d056f7a3235
+      - key: CLOUDFLARE_R2_ENDPOINT
+        value: https://a2ce0b1d8ba4b511d8047af29f1e5c32.r2.cloudflarestorage.com
+      - key: CLOUDFLARE_R2_BUCKET_NAME
+        value: barterwave-media
+      - key: CLOUDFLARE_R2_CUSTOM_DOMAIN
+        value: https://images.barterwave.com
