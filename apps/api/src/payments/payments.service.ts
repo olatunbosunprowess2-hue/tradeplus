@@ -51,7 +51,7 @@ export class PaymentsService {
         const reference = `BW_${type}_${userId.slice(0, 8)}_${Date.now()}`;
 
         // Create pending purchase record
-        await this.prisma.purchase.create({
+        const purchase = await this.prisma.purchase.create({
             data: {
                 userId,
                 type,
@@ -62,6 +62,22 @@ export class PaymentsService {
                 status: 'pending',
             },
         });
+
+        // Bypassing Paystack for free/0-cost items
+        if (amount === 0) {
+            await this.processPurchase(purchase);
+
+            await this.prisma.purchase.update({
+                where: { id: purchase.id },
+                data: { status: 'completed' }
+            });
+
+            const callbackUrl = `${this.configService.get('FRONTEND_URL') || 'http://localhost:3000'}/payment/callback?reference=${reference}`;
+            return {
+                authorizationUrl: callbackUrl,
+                reference
+            };
+        }
 
         // Call Paystack API
         const response = await fetch(`${this.paystackBaseUrl}/transaction/initialize`, {

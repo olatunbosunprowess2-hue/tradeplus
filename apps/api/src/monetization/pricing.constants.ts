@@ -41,7 +41,11 @@ export type PurchaseType = typeof PURCHASE_TYPES[keyof typeof PURCHASE_TYPES];
 export type Currency = 'NGN' | 'USD';
 
 export const getPrice = (type: PurchaseType, currency: Currency = 'NGN'): number => {
-    const key = type === 'premium' ? 'EMPIRE_STATUS' : type.toUpperCase() as keyof typeof PRICING;
-    const priceSet = PRICING[key as keyof typeof PRICING] as { NGN: number; USD: number };
-    return priceSet[currency];
+    let key = type.toUpperCase() as keyof typeof PRICING;
+    if (type === 'premium') key = 'EMPIRE_STATUS' as keyof typeof PRICING;
+    if (type === 'spotlight_3') key = 'SPOTLIGHT_3_DAYS' as keyof typeof PRICING;
+    if (type === 'spotlight_7') key = 'SPOTLIGHT_7_DAYS' as keyof typeof PRICING;
+
+    const priceSet = PRICING[key] as { NGN: number; USD: number };
+    return priceSet ? priceSet[currency] : 0;
 };
