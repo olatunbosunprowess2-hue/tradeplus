@@ -66,283 +66,238 @@ export default function PaywallModal({
     };
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md">
-            <div className="bg-white rounded-[2.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.15)] ring-1 ring-slate-100 w-full max-w-md max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-500">
-                {/* Fixed Header */}
-                <div className={`bg-gradient-to-br ${headerGradient} px-8 pt-8 pb-6 text-white relative flex-shrink-0 overflow-hidden`}>
-                    {/* Decorative Background Elements */}
-                    <div className="absolute -top-10 -right-10 w-48 h-48 bg-white/10 blur-3xl rounded-full pointer-events-none" />
-                    <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-black/10 blur-3xl rounded-full pointer-events-none" />
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm overflow-y-auto">
+            <div className="w-full max-w-5xl my-auto animate-in fade-in zoom-in-95 duration-500 relative">
 
-                    <button
-                        onClick={onClose}
-                        className="absolute top-5 right-5 p-2 rounded-full bg-black/20 hover:bg-white text-white hover:text-slate-900 shadow-sm border border-white/20 backdrop-blur-md transition-all z-20 group/close"
-                        aria-label="Close modal"
-                    >
-                        <X className="w-4 h-4 group-hover/close:rotate-90 transition-transform duration-300" />
-                    </button>
+                {/* Close Button */}
+                <button
+                    onClick={onClose}
+                    className="absolute -top-12 right-0 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all z-20"
+                    aria-label="Close modal"
+                >
+                    <X className="w-5 h-5" />
+                </button>
+
+                {/* Header */}
+                <div className="text-center mb-10">
+                    <h2 className="text-4xl font-black text-white mb-3 tracking-tight drop-shadow-lg flex items-center justify-center gap-3">
+                        <Sparkles className="text-amber-400 w-8 h-8" />
+                        {title}
+                        <Sparkles className="text-amber-400 w-8 h-8" />
+                    </h2>
+                    {subtitle && (
+                        <p className="text-slate-300 text-lg max-w-2xl mx-auto font-medium">
+                            {subtitle}
+                        </p>
+                    )}
 
                     {/* Currency Toggle */}
-                    <div className="absolute top-5 left-8 z-20">
-                        <div className="bg-black/20 backdrop-blur-md p-1 rounded-xl border border-white/10 flex items-center gap-1 shadow-inner">
+                    <div className="flex items-center justify-center gap-2 mt-6">
+                        <div className="bg-slate-900/80 p-1.5 rounded-full border border-slate-700/50 flex">
                             <button
                                 onClick={() => setCurrency('NGN')}
-                                className={`px-2.5 py-1 rounded-lg text-[10px] font-black tracking-wide transition-all flex items-center gap-1.5
-                                    ${currency === 'NGN'
-                                        ? 'bg-white text-slate-900 shadow-md'
-                                        : 'text-white/60 hover:text-white hover:bg-white/10'}
-                                `}
+                                className={`px-4 py-1.5 rounded-full text-sm font-bold tracking-wide transition-all ${currency === 'NGN' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
                             >
-                                <span>🇳🇬</span> NGN
+                                🇳🇬 NGN
                             </button>
                             <button
                                 onClick={() => setCurrency('USD')}
-                                className={`px-2.5 py-1 rounded-lg text-[10px] font-black tracking-wide transition-all flex items-center gap-1.5
-                                    ${currency === 'USD'
-                                        ? 'bg-white text-slate-900 shadow-md'
-                                        : 'text-white/60 hover:text-white hover:bg-white/10'}
-                                `}
+                                className={`px-4 py-1.5 rounded-full text-sm font-bold tracking-wide transition-all ${currency === 'USD' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
                             >
-                                <span>🇺🇸</span> USD
+                                🇺🇸 USD
                             </button>
                         </div>
-                    </div>
-                    <div className="relative z-10 pt-8">
-                        <div className="flex items-center gap-2 mb-2 justify-center">
-                            <Sparkles className="w-5 h-5 text-amber-300 fill-amber-300 animate-pulse-subtle" />
-                            <h2 className="text-2xl font-black tracking-tight text-center drop-shadow-sm">{title}</h2>
-                            <Sparkles className="w-5 h-5 text-amber-300 fill-amber-300 animate-pulse-subtle" />
-                        </div>
-                        {subtitle && <p className="text-white/80 text-sm font-medium text-center max-w-[90%] mx-auto leading-relaxed">{subtitle}</p>}
                     </div>
                 </div>
 
-                {/* Scrollable Container */}
-                <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
-                    {options.map((option) => (
-                        <div key={option.id} className="space-y-3">
-                            <button
+                {/* Pricing Cards Grid */}
+                <div className="flex flex-col md:flex-row items-stretch justify-center gap-6 px-4">
+                    {options.map((option) => {
+                        const isSelected = selectedOption === option.id;
+                        // For the 3-card layout mockup, we emphasize primary or selected
+                        const isFeatured = option.isPrimary || (selectedOption === null && option.isPrimary);
+
+                        return (
+                            <div
+                                key={option.id}
                                 onClick={() => handleSelect(option.id)}
-                                disabled={isLoading}
-                                className={`w-full p-5 rounded-[2rem] border-2 transition-all duration-300 relative group text-left overflow-hidden
-                                    ${option.isPrimary
-                                        ? 'border-blue-500 bg-gradient-to-b from-blue-50/50 to-white shadow-[0_8px_20px_rgb(59,130,246,0.1)] hover:-translate-y-1'
-                                        : 'border-slate-100 hover:border-slate-300 hover:bg-slate-50 hover:shadow-lg hover:-translate-y-0.5 bg-white'
+                                className={`relative flex flex-col rounded-[2rem] border transition-all duration-300 cursor-pointer overflow-hidden
+                                    ${isSelected || isFeatured
+                                        ? 'bg-slate-900 border-blue-500 shadow-[0_0_40px_rgba(59,130,246,0.3)] md:-translate-y-4 md:scale-105 z-10'
+                                        : 'bg-slate-900/60 border-slate-800 hover:border-slate-600 hover:bg-slate-800/80 opacity-90'
                                     }
-                                    ${isLoading && selectedOption === option.id ? 'opacity-60 cursor-wait' : ''}
+                                    ${options.length === 1 ? 'w-full max-w-md mx-auto' : 'flex-1 min-w-[280px] max-w-[340px]'}
                                 `}
                             >
-                                {/* Primary Option Glow Effect */}
-                                {option.isPrimary && (
-                                    <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/5 via-transparent to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                                {/* Featured Glow */}
+                                {(isSelected || isFeatured) && (
+                                    <div className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-blue-500 to-transparent shadow-[0_0_20px_rgba(59,130,246,0.5)]" />
                                 )}
 
-                                {option.badge && (
-                                    <span className={`absolute -top-3 right-6 px-3 py-0.5 text-[10px] font-black text-white rounded-full z-10 border border-white shadow-sm tracking-wide ${option.badgeColor || 'bg-blue-600'}`}>
-                                        {option.badge}
-                                    </span>
-                                )}
-
-                                <div className="flex items-start gap-4 relative z-10">
-                                    <div className={`w-12 h-12 rounded-[1.25rem] flex items-center justify-center flex-shrink-0 shadow-sm transition-transform duration-300 group-hover:scale-105
-                                        ${option.isPrimary
-                                            ? 'bg-gradient-to-br from-blue-500 to-blue-700 text-white'
-                                            : 'bg-slate-100 text-slate-600'
-                                        }`}>
-                                        {option.icon}
-                                    </div>
-
-                                    <div className="flex-1 min-w-0 pt-0.5">
-                                        <div className="flex items-center justify-between mb-0.5">
-                                            <h3 className="font-bold text-slate-900 text-base group-hover:text-blue-600 transition-colors">{option.title}</h3>
-                                            <div className="text-right">
-                                                {option.originalPrices && (
-                                                    <span className="text-[10px] text-slate-400 line-through block font-black">
-                                                        {formatPrice(option.originalPrices[currency], currency)}
-                                                    </span>
-                                                )}
-                                                <span className={`font-black text-lg tracking-tight ${option.isPrimary ? 'text-blue-600' : 'text-slate-900'}`}>
-                                                    {formatPrice(option.prices[currency], currency)}
-                                                </span>
-                                            </div>
+                                {/* Card Header */}
+                                <div className={`p-8 pb-6 text-center border-b ${isSelected || isFeatured ? 'border-slate-800/80' : 'border-slate-800/30'}`}>
+                                    {option.badge && (
+                                        <div className="mb-4">
+                                            <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-white ${option.badgeColor || 'bg-blue-600'}`}>
+                                                {option.badge}
+                                            </span>
                                         </div>
+                                    )}
 
-                                        <p className="text-xs text-slate-500 font-medium mb-3 leading-snug">{option.description}</p>
+                                    <h3 className={`text-xl font-bold mb-2 ${isSelected || isFeatured ? 'text-white' : 'text-slate-300'}`}>
+                                        {option.title}
+                                    </h3>
 
-                                        <div className="flex flex-wrap gap-1.5 mb-2">
-                                            {option.quickFeatures?.map((f, i) => (
-                                                <span key={i} className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-lg ${option.isPrimary ? 'bg-blue-100/50 text-blue-700' : 'bg-slate-100 text-slate-600'}`}>
-                                                    <Check className={`w-3 h-3 ${option.isPrimary ? 'text-blue-600' : 'text-slate-400'}`} />
-                                                    {f}
-                                                </span>
-                                            ))}
-                                        </div>
-
-                                        {option.detailedBenefits && (
-                                            <div className="mt-2 text-right">
-                                                <button
-                                                    onClick={(e) => toggleExpand(e, option.id)}
-                                                    className="text-[10px] font-black text-blue-600 uppercase tracking-tighter hover:underline flex items-center gap-1 ml-auto"
-                                                >
-                                                    {expandedOption === option.id ? 'Show Less' : 'More Information'}
-                                                    <Zap className={`w-3 h-3 ${expandedOption === option.id ? 'rotate-180' : ''} transition-transform`} />
-                                                </button>
-
-                                                {expandedOption === option.id && (
-                                                    <ul className="mt-3 space-y-2 animate-in slide-in-from-top-2 duration-300 text-left">
-                                                        {option.detailedBenefits.map((benefit, i) => (
-                                                            <li key={i} className="flex items-start gap-2">
-                                                                <div className="mt-1 w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0" />
-                                                                <span className="text-[11px] text-slate-600 font-medium leading-normal italic">{benefit}</span>
-                                                            </li>
-                                                        ))}
-                                                    </ul>
-                                                )}
-                                            </div>
+                                    <div className="flex flex-col items-center justify-center my-4">
+                                        {option.originalPrices && (
+                                            <span className="text-sm text-slate-500 line-through font-bold mb-1">
+                                                {formatPrice(option.originalPrices[currency], currency)}
+                                            </span>
                                         )}
-                                    </div>
-                                </div>
-
-                                {isLoading && selectedOption === option.id && (
-                                    <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-3xl backdrop-blur-[1px] z-20">
-                                        <div className="flex items-center gap-2 text-blue-600 py-2 px-4 bg-white rounded-full shadow-lg border border-slate-100">
-                                            <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-                                            <span className="text-sm font-bold">Please wait...</span>
+                                        <div className="flex items-end gap-1 justify-center">
+                                            <span className="text-4xl font-black text-white tracking-tight">
+                                                {formatPrice(option.prices[currency], currency)}
+                                            </span>
                                         </div>
                                     </div>
-                                )}
-                            </button>
 
-                            {/* Free Credit Option for Spotlight */}
-                            {creditsAvailable > 0 && option.id === 'spotlight_7' && onUseCredit && (
-                                <button
-                                    onClick={() => onUseCredit(option.id)}
-                                    disabled={isLoading}
-                                    className="w-full py-4 rounded-3xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xl shadow-blue-100 flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all group overflow-hidden relative"
-                                >
-                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
-
-                                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                                        <Sparkles className="w-4 h-4 text-amber-300 fill-amber-300" />
-                                    </div>
-                                    <div className="text-left">
-                                        <div className="text-[10px] font-black uppercase tracking-widest opacity-80">Premium Perk</div>
-                                        <div className="text-sm font-black">USE 1 FREE CREDIT ({creditsAvailable} left)</div>
-                                    </div>
-                                    <ArrowUpRight className="w-4 h-4 opacity-40 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                                </button>
-                            )}
-                        </div>
-                    ))}
-
-                    {/* Premium Card - Simplified */}
-                    {showPremiumUpsell && (
-                        <div className="space-y-2">
-                            <button
-                                onClick={() => handleSelect('premium')}
-                                disabled={isLoading}
-                                className="w-full mt-2 relative p-6 rounded-[2rem] text-white shadow-[0_15px_40px_rgba(15,23,42,0.6)] hover:shadow-[0_20px_50px_rgba(15,23,42,0.8)] hover:-translate-y-1 transition-all duration-300 overflow-hidden group text-left border border-slate-700 hover:border-slate-500 bg-slate-900"
-                            >
-                                {/* Animated Dark Background Elements */}
-                                <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-black z-0" />
-                                <div className="absolute top-0 right-0 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-amber-500/20 transition-all duration-700 z-0" />
-                                <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl -ml-10 -mb-10 group-hover:bg-blue-500/20 transition-all duration-700 z-0" />
-
-                                <div className="flex items-start gap-4 relative z-10">
-                                    <div className="w-12 h-12 rounded-[1.25rem] bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center flex-shrink-0 shadow-[0_0_20px_rgba(251,191,36,0.5)] border border-white/20 group-hover:scale-110 transition-transform duration-500">
-                                        <Crown className="w-6 h-6 text-white drop-shadow-sm" />
-                                    </div>
-
-                                    <div className="flex-1">
-                                        <h3 className="font-black text-lg tracking-tight uppercase bg-clip-text text-transparent bg-gradient-to-r from-amber-200 to-yellow-400">Empire Status</h3>
-                                        <span className="inline-block mt-0.5 text-[9px] bg-amber-400/20 backdrop-blur-md text-amber-300 px-2 py-0.5 rounded-full font-black border border-amber-400/30">EARLY BIRD: 65% OFF</span>
-                                    </div>
-                                    <div className="text-right flex-shrink-0 pt-1">
-                                        <span className="font-black text-2xl tracking-tighter block text-white drop-shadow-md">
-                                            {currency === 'NGN' ? '₦2,500' : '$4.99'}
-                                        </span>
-                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">/ month</span>
-                                    </div>
-                                </div>
-
-                                <div className="relative z-10 mt-4">
-                                    <p className="text-sm text-slate-300 font-medium mb-4 italic leading-relaxed">
-                                        "Stop counting limits. Start closing deals. Get 2x visibility and 50% off all boosts."
+                                    <p className="text-sm font-medium text-slate-400 leading-relaxed px-2">
+                                        {option.description}
                                     </p>
-
-                                    <div className="flex flex-wrap gap-2">
-                                        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-2.5 py-1.5 flex items-center gap-1.5">
-                                            <BadgeCheck className="w-3.5 h-3.5 text-amber-400" />
-                                            <span className="text-[10px] font-bold text-white">Verified Crown</span>
-                                        </div>
-                                        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-2.5 py-1.5 flex items-center gap-1.5">
-                                            <Star className="w-3.5 h-3.5 text-blue-400" />
-                                            <span className="text-[10px] font-bold text-white">Priority Spot</span>
-                                        </div>
-                                    </div>
                                 </div>
-                            </button>
 
-                            <button
-                                onClick={(e) => toggleExpand(e, 'premium')}
-                                className="w-full text-center text-[10px] font-black text-slate-500 hover:text-slate-900 uppercase tracking-widest transition-colors py-1"
-                            >
-                                {expandedOption === 'premium' ? 'Hide Details' : 'See Everything You Get'}
-                            </button>
-
-                            {expandedOption === 'premium' && (
-                                <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 animate-in slide-in-from-top-2">
-                                    <h4 className="text-[10px] font-black text-slate-400 uppercase mb-3 pr-4">Premium Membership Includes:</h4>
-                                    <ul className="grid grid-cols-1 gap-3 pr-4">
-                                        {[
-                                            { icon: <Check className="text-green-500" />, text: "Unlimited active listings (Up to 10 free)" },
-                                            { icon: <Check className="text-green-500" />, text: "Unlimited chat initiations (Up to 15 free)" },
-                                            { icon: <Check className="text-green-500" />, text: "Unlimited Community Posts & Offers" },
-                                            { icon: <Check className="text-green-500" />, text: "Read Receipts (Seen status)" },
-                                            { icon: <Check className="text-green-500" />, text: "Verified Crown Badge on profile" },
-                                            { icon: <Check className="text-green-500" />, text: "Search results priority (Top placement)" },
-                                            { icon: <Check className="text-green-500" />, text: "50% Discount on all Boosts" },
-                                            { icon: <Check className="text-green-500" />, text: "2 Free Spotlight credits per month" },
-                                        ].map((item, i) => (
-                                            <li key={i} className="flex items-center gap-2 text-xs font-bold text-slate-700">
-                                                {item.icon}
-                                                {item.text}
+                                {/* Features List */}
+                                <div className="p-8 pt-6 flex-1 flex flex-col">
+                                    <ul className="space-y-4 mb-8 flex-1">
+                                        {option.quickFeatures?.map((f, i) => (
+                                            <li key={i} className="flex items-start gap-3 text-sm font-medium text-slate-300">
+                                                <Check className={`w-5 h-5 shrink-0 ${isSelected || isFeatured ? 'text-blue-500' : 'text-slate-500'}`} />
+                                                <span>{f}</span>
                                             </li>
                                         ))}
                                     </ul>
+
+                                    {/* Action Button */}
+                                    <button
+                                        disabled={isLoading}
+                                        className={`w-full py-4 rounded-xl font-bold text-sm tracking-wide transition-all ${isLoading && selectedOption === option.id
+                                                ? 'bg-blue-600/50 text-white cursor-wait relative overflow-hidden'
+                                                : isSelected || isFeatured
+                                                    ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/20'
+                                                    : 'bg-slate-800 hover:bg-slate-700 text-white'
+                                            }`}
+                                    >
+                                        {isLoading && selectedOption === option.id ? (
+                                            <span className="flex items-center justify-center gap-2">
+                                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                Processing...
+                                            </span>
+                                        ) : (
+                                            'Get Started'
+                                        )}
+                                    </button>
                                 </div>
+                            </div>
+                        );
+                    })}
+
+                    {/* Premium Upsell Card (If applicable) */}
+                    {showPremiumUpsell && (
+                        <div
+                            onClick={() => handleSelect('premium')}
+                            className={`relative flex flex-col rounded-[2rem] border transition-all duration-300 cursor-pointer overflow-hidden flex-1 min-w-[280px] max-w-[340px]
+                                ${selectedOption === 'premium'
+                                    ? 'bg-slate-900 border-amber-500 shadow-[0_0_40px_rgba(245,158,11,0.2)] md:-translate-y-4 md:scale-105 z-10'
+                                    : 'bg-slate-900/60 border-slate-800 hover:border-slate-600 hover:bg-slate-800/80 opacity-90'
+                                }
+                            `}
+                        >
+                            {/* Premium Glow */}
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl -mr-10 -mt-10" />
+
+                            {selectedOption === 'premium' && (
+                                <div className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-amber-500 to-transparent shadow-[0_0_20px_rgba(245,158,11,0.5)]" />
                             )}
+
+                            <div className="p-8 pb-6 text-center border-b border-slate-800/30 relative z-10">
+                                <div className="mb-4">
+                                    <span className="inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-amber-900 bg-amber-400">
+                                        Best Value
+                                    </span>
+                                </div>
+
+                                <h3 className="text-xl font-bold mb-2 text-white flex items-center justify-center gap-2">
+                                    <Crown className="w-5 h-5 text-amber-500" />
+                                    Empire Status
+                                </h3>
+
+                                <div className="flex flex-col items-center justify-center my-4">
+                                    <span className="text-sm text-slate-500 line-through font-bold mb-1">
+                                        {currency === 'NGN' ? '₦7,000' : '$14.99'}
+                                    </span>
+                                    <div className="flex items-end gap-1 justify-center">
+                                        <span className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-amber-200 to-amber-500 tracking-tight">
+                                            {formatPrice(currency === 'NGN' ? 2500 : 499, currency)}
+                                        </span>
+                                        <span className="text-slate-500 font-bold mb-1">/mo</span>
+                                    </div>
+                                </div>
+
+                                <p className="text-sm font-medium text-slate-400 leading-relaxed px-2">
+                                    Unlimited privileges. Close deals faster.
+                                </p>
+                            </div>
+
+                            <div className="p-8 pt-6 flex-1 flex flex-col relative z-10">
+                                <ul className="space-y-4 mb-8 flex-1">
+                                    {[
+                                        "Unlimited Listings",
+                                        "Unlimited Chats",
+                                        "Verified Crown Badge",
+                                        "Search Priority",
+                                        "50% Off Boosts",
+                                        "Read Receipts"
+                                    ].map((f, i) => (
+                                        <li key={i} className="flex items-start gap-3 text-sm font-medium text-slate-300">
+                                            <Check className={`w-5 h-5 flex-shrink-0 ${selectedOption === 'premium' ? 'text-amber-500' : 'text-slate-500'}`} />
+                                            <span>{f}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+
+                                <button
+                                    disabled={isLoading}
+                                    className={`w-full py-4 rounded-xl font-bold text-sm tracking-wide transition-all ${isLoading && selectedOption === 'premium'
+                                            ? 'bg-amber-500/50 text-white cursor-wait'
+                                            : selectedOption === 'premium'
+                                                ? 'bg-amber-500 hover:bg-amber-400 text-amber-950 shadow-lg shadow-amber-900/20'
+                                                : 'bg-slate-800 hover:bg-slate-700 text-white'
+                                        }`}
+                                >
+                                    {isLoading && selectedOption === 'premium' ? (
+                                        <span className="flex items-center justify-center gap-2">
+                                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            Processing...
+                                        </span>
+                                    ) : (
+                                        'Upgrade to Empire'
+                                    )}
+                                </button>
+                            </div>
                         </div>
                     )}
                 </div>
 
-                {/* Fixed Footer */}
-                <div className="px-8 py-4 bg-slate-50/50 border-t border-slate-100 text-center flex-shrink-0">
+                <div className="text-center mt-8">
                     <button
                         onClick={onClose}
-                        className="text-slate-500 text-xs font-bold hover:text-slate-800 transition-colors uppercase tracking-widest"
+                        className="text-slate-500 text-sm font-medium hover:text-white transition-colors tracking-wide"
                     >
-                        Maybe later
+                        Skip for now
                     </button>
                 </div>
-            </div >
-
-            <style jsx>{`
-                .custom-scrollbar::-webkit-scrollbar {
-                    width: 4px;
-                }
-                .custom-scrollbar::-webkit-scrollbar-track {
-                    background: transparent;
-                }
-                .custom-scrollbar::-webkit-scrollbar-thumb {
-                    background: #E2E8F0;
-                    border-radius: 10px;
-                }
-                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                    background: #CBD5E1;
-                }
-            `}</style>
-        </div >
+            </div>
+        </div>
     );
 }
 

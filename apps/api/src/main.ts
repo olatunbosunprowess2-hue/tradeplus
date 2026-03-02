@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -36,7 +37,11 @@ async function bootstrap() {
   });
 
   // Create the NestJS application instance
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  // Trust Proxy (Cloudflare / Load Balancers)
+  // Essential for the ThrottlerModule to read correct Client IPs instead of Cloudflare IPs
+  app.set('trust proxy', 1);
 
   // COMPRESSION MIDDLEWARE
   // Compresses response bodies for all requests (reduces bandwidth by 70-90%)

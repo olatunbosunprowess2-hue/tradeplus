@@ -72,6 +72,13 @@ export class InfrastructureService {
     }
 
     /**
+     * Uploads a video explicitly to R2.
+     */
+    async uploadVideo(file: Express.Multer.File): Promise<{ url: string }> {
+        return this.uploadFile(file, 'video');
+    }
+
+    /**
      * Internal method to handle file uploads to R2
      */
     private async uploadFile(file: Express.Multer.File, type: 'image' | 'video'): Promise<{ url: string }> {

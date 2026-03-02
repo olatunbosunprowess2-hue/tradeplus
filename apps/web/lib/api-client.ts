@@ -14,7 +14,8 @@ export const apiClient = axios.create({
  * Robust Request Interceptor
  * 1. Explicitly prepends the API_URL to relative paths (prevents /api stripping bug)
  * 2. Manually injects Authorization header from localStorage (cross-origin tunnel fallback)
- * 3. Provides debug logging in development
+ * 3. Injects X-XSRF-TOKEN for CSRF protection on state-changing requests
+ * 4. Provides debug logging in development
  */
 apiClient.interceptors.request.use((config) => {
     // 1. URL Construction
@@ -70,7 +71,16 @@ apiClient.interceptors.request.use((config) => {
         }
     }
 
-    // 3. FormData handling - delete Content-Type to let browser set it with boundary
+    // 3. CSRF Protection (Double Submit Cookie)
+    // Manually extract the XSRF-TOKEN cookie and attach it as a header for state-changing requests
+    if (typeof window !== 'undefined' && config.method && ['post', 'put', 'delete', 'patch'].includes(config.method.toLowerCase())) {
+        const match = document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]*)/);
+        if (match && match[1]) {
+            config.headers['X-XSRF-TOKEN'] = match[1];
+        }
+    }
+
+    // 4. FormData handling - delete Content-Type to let browser set it with boundary
     if (config.data instanceof FormData) {
         delete config.headers['Content-Type'];
     }

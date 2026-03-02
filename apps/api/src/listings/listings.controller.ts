@@ -13,6 +13,7 @@ import {
     UploadedFiles,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager';
 import { multerConfig } from '../common/configs/multer.config';
 import { ListingsService } from './listings.service';
 import { CreateListingDto } from './dto/create-listing.dto';
@@ -46,15 +47,24 @@ export class ListingsController {
             console.log('Creating listing for user:', req.user.id);
             // console.log('DTO:', JSON.stringify(createListingDto, null, 2));
 
-            if (files.images && files.images.length > 0) {
-                const uploadPromises = files.images.map(file => this.infrastructureService.uploadImage(file));
-                const uploadResults = await Promise.all(uploadPromises);
-                createListingDto.imageUrls = uploadResults.map(res => res.url);
-            }
+            if ((files?.images && files.images.length > 0) || (files?.video && files.video.length > 0)) {
+                // Upload all media concurrently
+                const imageUploadPromises = (files?.images || []).map(file =>
+                    this.infrastructureService.uploadImage(file).then(res => res.url)
+                );
 
-            if (files.video && files.video.length > 0) {
-                const uploadResult = await this.infrastructureService.uploadImage(files.video[0]);
-                createListingDto.videoUrl = uploadResult.url;
+                const videoUploadPromise = files?.video && files.video.length > 0
+                    ? this.infrastructureService.uploadVideo(files.video[0]).then(res => res.url)
+                    : Promise.resolve(null);
+
+                // Wait for all uploads to finish simultaneously
+                const [uploadedImageUrls, uploadedVideoUrl] = await Promise.all([
+                    Promise.all(imageUploadPromises),
+                    videoUploadPromise
+                ]);
+
+                if (uploadedImageUrls.length > 0) createListingDto.imageUrls = uploadedImageUrls;
+                if (uploadedVideoUrl) createListingDto.videoUrl = uploadedVideoUrl;
             }
 
             return await this.listingsService.create(req.user.id, createListingDto);
@@ -64,11 +74,17 @@ export class ListingsController {
         }
     }
 
+    @UseInterceptors(CacheInterceptor)
+    @CacheKey('public_listings_feed')
+    @CacheTTL(15000) // 15 seconds
     @Get()
     findAll(@Query() query: ListingQueryDto) {
         return this.listingsService.findAll(query);
     }
 
+    @UseInterceptors(CacheInterceptor)
+    @CacheKey('public_featured_listings')
+    @CacheTTL(30000) // 30 seconds
     @Get('featured')
     getFeatured() {
         return this.listingsService.getFeaturedListings(12);

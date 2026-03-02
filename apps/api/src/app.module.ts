@@ -1,5 +1,7 @@
 import { Module, NestModule, MiddlewareConsumer, Logger } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { CacheModule } from '@nestjs/cache-manager';
+import { CsrfMiddleware } from './common/middleware/csrf.middleware';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
@@ -82,6 +84,21 @@ import { CommunityPostsModule } from './community-posts/community-posts.module';
                 allowUnknown: true, // Allow extra env vars
             },
         }),
+        CacheModule.registerAsync({
+            isGlobal: true,
+            useFactory: () => {
+                if (process.env.CACHE_STORE === 'redis') {
+                    return {
+                        url: process.env.REDIS_URL,
+                        ttl: 60000,
+                    };
+                }
+                return {
+                    ttl: 30000,
+                    max: 200,
+                };
+            },
+        }),
         ThrottlerModule.forRoot([{
             ttl: 60000, // 60 seconds
             limit: 100, // 100 requests per ttl
@@ -143,6 +160,7 @@ import { CommunityPostsModule } from './community-posts/community-posts.module';
 export class AppModule implements NestModule {
     // Trigger rebuild for new UploadsModule
     configure(consumer: MiddlewareConsumer) {
+        consumer.apply(CsrfMiddleware).forRoutes('*');
         consumer.apply(LoggerMiddleware).forRoutes('(.*)');
     }
 }
