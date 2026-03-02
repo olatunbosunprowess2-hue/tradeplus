@@ -223,10 +223,12 @@ export default function CreateListingPage() {
             form.append('type', formData.type);
             if (formData.condition) form.append('condition', formData.condition);
             form.append('categoryId', formData.categoryId.toString());
+            // Currency mapping block
+            form.append('currencyCode', formData.currency);
+
             if (formData.priceCents && parseFloat(formData.priceCents) > 0) {
                 form.append('priceCents', (parseFloat(formData.priceCents) * 100).toString());
             }
-            form.append('currencyCode', formData.currency);
             form.append('quantity', formData.quantity.toString());
 
             // Downpayment (Verified Brands only)

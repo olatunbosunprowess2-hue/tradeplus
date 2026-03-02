@@ -15,17 +15,17 @@ export async function compressImage(file: File): Promise<File> {
         return file;
     }
 
-    // Skip if already small enough (under 2MB)
-    if (file.size <= 2 * 1024 * 1024) {
+    // Skip if already extremely small (under 500KB) and is webp
+    if (file.size <= 0.5 * 1024 * 1024 && file.type === 'image/webp') {
         return file;
     }
 
     const options = {
-        maxSizeMB: 2,
+        maxSizeMB: 0.5,
         maxWidthOrHeight: 1200,
         useWebWorker: true,
         preserveExif: false,
-        fileType: file.type as string,
+        fileType: 'image/webp',
     };
 
     try {

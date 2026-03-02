@@ -47,27 +47,34 @@ export class ListingsController {
             console.log('Creating listing for user:', req.user.id);
             // console.log('DTO:', JSON.stringify(createListingDto, null, 2));
 
-            if ((files?.images && files.images.length > 0) || (files?.video && files.video.length > 0)) {
-                // Upload all media concurrently
-                const imageUploadPromises = (files?.images || []).map(file =>
+            if (files?.images && files.images.length > 0) {
+                // Upload images concurrently (these are tiny WebPs now, so it's instant)
+                const imageUploadPromises = files.images.map(file =>
                     this.infrastructureService.uploadImage(file).then(res => res.url)
                 );
 
-                const videoUploadPromise = files?.video && files.video.length > 0
-                    ? this.infrastructureService.uploadVideo(files.video[0]).then(res => res.url)
-                    : Promise.resolve(null);
-
-                // Wait for all uploads to finish simultaneously
-                const [uploadedImageUrls, uploadedVideoUrl] = await Promise.all([
-                    Promise.all(imageUploadPromises),
-                    videoUploadPromise
-                ]);
-
+                const uploadedImageUrls = await Promise.all(imageUploadPromises);
                 if (uploadedImageUrls.length > 0) createListingDto.imageUrls = uploadedImageUrls;
-                if (uploadedVideoUrl) createListingDto.videoUrl = uploadedVideoUrl;
             }
 
-            return await this.listingsService.create(req.user.id, createListingDto);
+            // Create the listing in the database immediately to unblock the UI
+            const listing = await this.listingsService.create(req.user.id, createListingDto);
+
+            // Fire and forget the heavy video upload in the background (up to 50MB) 
+            if (files?.video && files.video.length > 0) {
+                this.infrastructureService.uploadVideo(files.video[0])
+                    .then(res => {
+                        if (res?.url) {
+                            this.listingsService.updateVideoUrl(listing.id, res.url);
+                        }
+                    })
+                    .catch(err => {
+                        // Silent failure for user, logged for admin.
+                        console.error('Background video upload failed for listing', listing.id, err);
+                    });
+            }
+
+            return listing;
         } catch (error) {
             console.error('Error in ListingsController.create:', error.message);
             throw error;

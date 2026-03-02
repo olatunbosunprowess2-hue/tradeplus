@@ -165,10 +165,22 @@ export class ListingsService {
                 ...listing,
                 priceCents: listing.priceCents ? Number(listing.priceCents) : null,
                 downpaymentCents: listing.downpaymentCents ? Number(listing.downpaymentCents) : null,
+                hasVideo: !!listing.videoUrl
             };
         } catch (error) {
             console.error('Error in ListingsService.create:', error);
             throw error;
+        }
+    }
+
+    async updateVideoUrl(id: string, url: string) {
+        try {
+            await this.prisma.listing.update({
+                where: { id },
+                data: { videoUrl: url }
+            });
+        } catch (error) {
+            console.error(`Failed to update video URL for background upload on listing ${id}:`, error);
         }
     }
 

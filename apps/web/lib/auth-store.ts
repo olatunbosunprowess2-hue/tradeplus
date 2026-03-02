@@ -368,10 +368,10 @@ export const useAuthStore = create<AuthState>()(
             partialize: (state) => {
                 // Persistent store mainly for user profile data for UX
                 // Auth validity is now determined by the cookie/token.
-                // We do NOT persist isAuthenticated to prevent "ghost logins" 
-                // where the UI thinks the user is logged in but the token is expired.
+                // We persist isAuthenticated so the UI doesn't flash a logged-out
+                // state while checking the HttpOnly cookie in the background.
 
-                const { user, ...rest } = state;
+                const { user, isAuthenticated, ...rest } = state;
                 const sanitizedUser = user ? {
                     ...user,
                     faceVerificationUrl: undefined,
@@ -381,6 +381,7 @@ export const useAuthStore = create<AuthState>()(
 
                 return {
                     user: sanitizedUser,
+                    isAuthenticated,
                 };
             },
             onRehydrateStorage: () => (state) => {
