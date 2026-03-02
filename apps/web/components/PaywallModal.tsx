@@ -61,6 +61,7 @@ export default function PaywallModal({
     };
 
     const formatPrice = (price: number, curr: 'NGN' | 'USD') => {
+        if (price === 0) return 'FREE';
         if (curr === 'NGN') return `₦${price.toLocaleString()}`;
         return `$${(price / 100).toFixed(2)}`;
     };
@@ -181,10 +182,10 @@ export default function PaywallModal({
                                     <button
                                         disabled={isLoading}
                                         className={`w-full py-4 rounded-xl font-bold text-sm tracking-wide transition-all ${isLoading && selectedOption === option.id
-                                                ? 'bg-blue-600/50 text-white cursor-wait relative overflow-hidden'
-                                                : isSelected || isFeatured
-                                                    ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/20'
-                                                    : 'bg-slate-800 hover:bg-slate-700 text-white'
+                                            ? 'bg-blue-600/50 text-white cursor-wait relative overflow-hidden'
+                                            : isSelected || isFeatured
+                                                ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/20'
+                                                : 'bg-slate-800 hover:bg-slate-700 text-white'
                                             }`}
                                     >
                                         {isLoading && selectedOption === option.id ? (
@@ -233,11 +234,11 @@ export default function PaywallModal({
 
                                 <div className="flex flex-col items-center justify-center my-4">
                                     <span className="text-sm text-slate-500 line-through font-bold mb-1">
-                                        {currency === 'NGN' ? '₦7,000' : '$14.99'}
+                                        {currency === 'NGN' ? '₦10,000' : '$14.99'}
                                     </span>
                                     <div className="flex items-end gap-1 justify-center">
                                         <span className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-amber-200 to-amber-500 tracking-tight">
-                                            {formatPrice(currency === 'NGN' ? 2500 : 499, currency)}
+                                            {formatPrice(currency === 'NGN' ? 5000 : 700, currency)}
                                         </span>
                                         <span className="text-slate-500 font-bold mb-1">/mo</span>
                                     </div>
@@ -268,10 +269,10 @@ export default function PaywallModal({
                                 <button
                                     disabled={isLoading}
                                     className={`w-full py-4 rounded-xl font-bold text-sm tracking-wide transition-all ${isLoading && selectedOption === 'premium'
-                                            ? 'bg-amber-500/50 text-white cursor-wait'
-                                            : selectedOption === 'premium'
-                                                ? 'bg-amber-500 hover:bg-amber-400 text-amber-950 shadow-lg shadow-amber-900/20'
-                                                : 'bg-slate-800 hover:bg-slate-700 text-white'
+                                        ? 'bg-amber-500/50 text-white cursor-wait'
+                                        : selectedOption === 'premium'
+                                            ? 'bg-amber-500 hover:bg-amber-400 text-amber-950 shadow-lg shadow-amber-900/20'
+                                            : 'bg-slate-800 hover:bg-slate-700 text-white'
                                         }`}
                                 >
                                     {isLoading && selectedOption === 'premium' ? (
@@ -351,29 +352,14 @@ export function DistressBoostModal({
             headerGradient="from-slate-900 to-slate-800"
             options={[
                 {
-                    id: 'cross_list',
-                    title: 'Cross-List to Marketplace',
-                    description: 'Push your ad to the main feed where everyone sees it.',
-                    prices: { NGN: 0, USD: 0 },
-                    icon: <MapPin className="w-6 h-6" />,
-                    badge: 'FREE',
-                    badgeColor: 'bg-green-600',
-                    quickFeatures: ['All users', 'Main feed spot', 'Permanent'],
-                    detailedBenefits: [
-                        "Moves your listing from the side-feed to the central marketplace stream",
-                        "Increases organic engagement by up to 300%",
-                        "Perfect for moving inventory quickly to clear space"
-                    ]
-                },
-                {
                     id: 'aggressive_boost',
                     title: 'Aggressive Targeted Boost',
                     description: '"Don\'t wait for buyers. We\'ll ping the 10 most interested people instantly."',
-                    prices: { NGN: 1000, USD: 299 },
+                    prices: { NGN: 0, USD: 0 },
                     icon: <Bell className="w-6 h-6 fill-current" />,
                     isPrimary: true,
-                    badge: 'BEST VALUE',
-                    badgeColor: 'bg-red-600',
+                    badge: 'FREE (LIMITED TIME)',
+                    badgeColor: 'bg-green-600',
                     quickFeatures: ['Smart Pings', 'In-Region', 'High Intent'],
                     detailedBenefits: [
                         "Proprietary Smart Targeting notifies the Top 10 users currently searching for items like yours",
