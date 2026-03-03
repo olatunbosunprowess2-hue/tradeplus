@@ -72,12 +72,40 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     }
 
     const price = listing.priceCents
-        ? `${listing.currencyCode || 'NGN'} ${(listing.priceCents / 100).toLocaleString()}`
+        ? `${listing.currencyCode || 'USD'} ${(listing.priceCents / 100).toLocaleString()}`
         : 'Contact for Price';
 
+    const title = `${listing.title} - ${price} | BarterWave`;
+    const description = listing.description
+        ? `${listing.description.substring(0, 150)}...`
+        : `Check out ${listing.title} on BarterWave. Price: ${price}. Trade safely on the global marketplace.`;
+
+    const imageUrl = listing.images?.[0]?.url || '/og-image.png';
+
     return {
-        title: `${listing.title} | BarterWave`,
-        description: listing.description || `Check out this listing on BarterWave: ${listing.title} - ${price}`,
+        title,
+        description,
+        openGraph: {
+            title,
+            description,
+            url: `/listings/${id}`,
+            type: 'article',
+            siteName: 'BarterWave',
+            images: [
+                {
+                    url: imageUrl,
+                    width: 1200,
+                    height: 630,
+                    alt: listing.title,
+                }
+            ],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title,
+            description,
+            images: [imageUrl],
+        },
     };
 }
 

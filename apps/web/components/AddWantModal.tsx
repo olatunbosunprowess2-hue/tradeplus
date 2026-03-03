@@ -125,14 +125,13 @@ export default function AddWantModal({ isOpen, onClose }: AddWantModalProps) {
                                     <option value="">Select Country...</option>
                                     <option value="Nigeria">Nigeria</option>
                                     <option value="Ghana">Ghana</option>
-                                    <option value="Kenya">Kenya</option>
-                                    <option value="South Africa">South Africa</option>
+                                    <option value="United States">United States</option>
+                                    <option value="United Kingdom">United Kingdom</option>
                                     <option value="Egypt">Egypt</option>
                                     <option value="Tanzania">Tanzania</option>
                                     <option value="Ethiopia">Ethiopia</option>
                                     <option value="Rwanda">Rwanda</option>
                                     <option value="Uganda">Uganda</option>
-                                    <option value="Cameroon">Cameroon</option>
                                     <option value="Ivory Coast">Ivory Coast</option>
                                     <option value="Senegal">Senegal</option>
                                     <option value="Morocco">Morocco</option>

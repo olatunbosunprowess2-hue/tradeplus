@@ -9,23 +9,24 @@ import { Providers } from './providers';
 const outfit = Outfit({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://barterwave.com'),
   title: {
-    default: 'BarterWave - Buy, Sell & Trade Across Africa',
-    template: '%s | BarterWave',
+    default: 'BarterWave | Global Marketplace to Buy, Sell & Barter Trade',
+    template: '%s | BarterWave Marketplace',
   },
-  description: 'Africa\'s trusted marketplace for buying, selling, and trading goods. Verified sellers and easy barter trading.',
+  description: 'The trusted global marketplace for buying, selling, and trading goods value-for-value. Discover local and international deals, secure payments, and verified sellers.',
   keywords: [
-    'buy and sell Africa',
-    'online marketplace Africa',
-    'barter trading',
-    'secure payment',
-    'sell items online',
-    'buy used items',
-    'trade goods Africa',
-    'secure marketplace',
-    'verified sellers',
+    'global marketplace',
+    'barter trading platform',
+    'buy and sell online',
+    'secure online trading',
+    'sell used items',
+    'buy secondhand goods',
+    'trade items online',
+    'verified sellers marketplace',
     'distress sales',
-    'African marketplace',
+    'international marketplace',
+    'peer to peer trading'
   ],
   authors: [{ name: 'BarterWave' }],
   creator: 'BarterWave',
@@ -45,21 +46,21 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     siteName: 'BarterWave',
-    title: 'BarterWave - Buy, Sell & Trade Across Africa',
-    description: 'Africa\'s trusted marketplace for buying, selling, and trading goods. Verified sellers and secure transactions.',
+    title: 'BarterWave | Global Marketplace to Buy, Sell & Barter Trade',
+    description: 'The trusted global marketplace for buying, selling, and trading goods value-for-value. Discover deals, secure payments, and verified sellers worldwide.',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'BarterWave Marketplace',
+        alt: 'BarterWave Global Marketplace',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'BarterWave - Buy, Sell & Trade Across Africa',
-    description: 'Africa\'s trusted marketplace for buying, selling, and trading goods.',
+    title: 'BarterWave | Buy, Sell & Barter Trade Globally',
+    description: 'The trusted global marketplace for buying, selling, and trading goods value-for-value.',
     images: ['/og-image.png'],
   },
   viewport: {
@@ -86,8 +87,6 @@ export default function RootLayout({
         <meta name="theme-color" content="#2563eb" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://res.cloudinary.com" />
-        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
       </head>
       <body className={`${outfit.className} bg-slate-50`} suppressHydrationWarning>
         <Providers>

@@ -75,9 +75,9 @@ export default function TermsPage() {
                 </section>
 
                 <section className="mb-10">
-                    <h2 className="text-2xl font-bold mb-4">8. Governing Law</h2>
+                    <h2 className="text-2xl font-bold mb-4">8. Governing Law and International Use</h2>
                     <p>
-                        These Terms shall be governed by and defined following the laws of Nigeria, without regard to its conflict of law principles. BarterWave and yourself irrevocably consent that the courts of Nigeria shall have exclusive jurisdiction to resolve any dispute which may arise in connection with these terms.
+                        These Terms shall be governed by and defined following the laws of the State of Delaware, United States, without regard to its conflict of law principles. By accessing BarterWave from outside the United States, you accept full responsibility for compliance with all local laws and acknowledge that your data will be processed and stored in accordance with international frameworks, including but not limited to GDPR and CCPA where applicable.
                     </p>
                 </section>
 

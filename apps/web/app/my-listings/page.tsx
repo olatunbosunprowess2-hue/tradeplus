@@ -92,9 +92,10 @@ export default function MyListingsPage() {
         try {
             const result = await initializePayment(optionId as any, selectedListingId, currency);
             redirectToPaystack(result.authorizationUrl);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Payment initialization failed:', error);
-            toast.error('Failed to initialize payment. Please try again.');
+            const errorMsg = error.response?.data?.message || 'Failed to initialize payment. Please try again.';
+            toast.error(errorMsg);
         } finally {
             setIsPaymentLoading(false);
         }

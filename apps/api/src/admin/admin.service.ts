@@ -177,17 +177,16 @@ export class AdminService {
                 // Address format usually: "123 Street, City, State, Country"
                 const addressLower = user.locationAddress.toLowerCase();
 
-                // Find Nigeria first
-                const nigeria = await this.prisma.country.findFirst({
-                    where: { name: 'Nigeria' }
-                });
+                // Find matching country
+                const countries = await this.prisma.country.findMany();
+                const matchedCountry = countries.find(c => addressLower.includes(c.name.toLowerCase()));
 
-                if (nigeria) {
-                    locationUpdate.countryId = nigeria.id;
+                if (matchedCountry) {
+                    locationUpdate.countryId = matchedCountry.id;
 
                     // Find matching region
                     const regions = await this.prisma.region.findMany({
-                        where: { countryId: nigeria.id }
+                        where: { countryId: matchedCountry.id }
                     });
 
                     const matchedRegion = regions.find(r => addressLower.includes(r.name.toLowerCase()));

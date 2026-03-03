@@ -1,6 +1,6 @@
 /**
  * BarterWave Monetization Pricing Constants
- * All amounts are in kobo (Nigerian currency smallest unit)
+ * All amounts are in the smallest currency unit (e.g., cents)
  * 1 Naira = 100 kobo
  */
 

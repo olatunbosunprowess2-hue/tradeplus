@@ -1,13 +1,13 @@
 # 🌊 BarterWave
 
-**Africa's Trusted Marketplace for Buying, Selling & Trading**
+**The Trusted Global Marketplace for Buying, Selling & Trading**
 
-BarterWave is a modern hybrid marketplace that enables users across Africa to trade goods and services through cash, barter, or a combination of both. Built with security-first principles including escrow protection for distress sales.
+BarterWave is a modern hybrid marketplace that enables users globally to trade goods and services through cash, barter, or a combination of both. Built with security-first principles including escrow protection for distress sales.
 
 ![BarterWave](https://img.shields.io/badge/BarterWave-Marketplace-blue)
 ![License](https://img.shields.io/badge/license-Private-red)
 ![Platform](https://img.shields.io/badge/platform-Web-green)
-![Coverage](https://img.shields.io/badge/coverage-Africa-orange)
+![Coverage](https://img.shields.io/badge/coverage-Global-blue)
 
 ---
 
@@ -236,4 +236,4 @@ This project is proprietary software. All rights reserved.
 
 ---
 
-Built with ❤️ for Africa 🌍
+Built with ❤️ for the world 🌍

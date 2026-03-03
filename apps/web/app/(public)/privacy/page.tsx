@@ -8,7 +8,7 @@ export default function PrivacyPage() {
                 <section className="mb-10">
                     <h2 className="text-2xl font-bold mb-4">1. Introduction</h2>
                     <p>
-                        This Privacy Policy describes how BarterWave ("we," "us," or "our") collects, uses, and shares your personal information when you use our website or mobile application (the "Service"). We are committed to protecting your personal data and your right to privacy in accordance with data protection regulations, including the Nigeria Data Protection Regulation (NDPR) and the General Data Protection Regulation (GDPR) where applicable.
+                        This Privacy Policy describes how BarterWave ("we," "us," or "our") collects, uses, and shares your personal information when you use our website or mobile application (the "Service"). We are committed to protecting your personal data and your right to privacy in accordance with global data protection regulations, including but not limited to the General Data Protection Regulation (GDPR), the California Consumer Privacy Act (CCPA), and other applicable regional laws.
                     </p>
                 </section>
 
@@ -46,7 +46,7 @@ export default function PrivacyPage() {
                     <ul className="list-disc pl-6 space-y-2 mt-4">
                         <li><strong>Consent:</strong> We may process your data if you have given us specific consent to use your personal information for a specific purpose.</li>
                         <li><strong>Performance of a Contract:</strong> Where we have entered into a contract with you, we may process your personal information to fulfill the terms of our contract.</li>
-                        <li><strong>Service Providers:</strong> We may share your information with third-party vendors, service providers, contractors or agents who perform services for us or on our behalf (e.g., Paystack for payments, Cloudinary for image hosting).</li>
+                        <li><strong>Service Providers:</strong> We may share your information with third-party vendors, service providers, contractors or agents who perform services for us or on our behalf (e.g., payment gateways for transactions, Cloudflare for asset hosting).</li>
                         <li><strong>Business Transfers:</strong> We may share or transfer your information in connection with, or during negotiations of, any merger, sale of company assets, financing, or acquisition of all or a portion of our business to another company.</li>
                     </ul>
                 </section>

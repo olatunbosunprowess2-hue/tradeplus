@@ -74,7 +74,7 @@ export class EmailService {
                       <span style="font-size: 24px; color: #ffffff; font-weight: 800;">B</span>
                     </div>
                     <h1 style="margin: 0; font-size: 22px; font-weight: 700; color: #ffffff; letter-spacing: -0.02em;">BarterWave</h1>
-                    <p style="margin: 4px 0 0; font-size: 12px; color: rgba(255,255,255,0.7); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 500;">Africa's Trusted Marketplace</p>
+                    <p style="margin: 4px 0 0; font-size: 12px; color: rgba(255,255,255,0.7); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 500;">The Trusted Marketplace</p>
                   </td>
                 </tr>
               </table>
@@ -105,7 +105,7 @@ export class EmailService {
                       © ${this.year} BarterWave Technologies. All rights reserved.
                     </p>
                     <p style="margin: 6px 0 0; font-size: 11px; color: #d1d5db;">
-                      Lagos, Nigeria • Connecting Africa through trade
+                      Connecting people through trade
                     </p>
                   </td>
                 </tr>
@@ -220,7 +220,7 @@ export class EmailService {
         const content = `
             <h2 style="color: #111827; font-size: 22px; font-weight: 700; margin: 0 0 8px;">Welcome to BarterWave${name ? `, ${name}` : ''}! 👋</h2>
             <p style="color: #4b5563; font-size: 15px; line-height: 1.7; margin: 0 0 24px;">
-                You've joined Africa's fastest-growing marketplace for buying, selling, and bartering goods. Here's how to get started:
+                You've joined the fastest-growing marketplace for buying, selling, and bartering goods. Here's how to get started:
             </p>
 
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">

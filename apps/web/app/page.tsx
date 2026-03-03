@@ -67,7 +67,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
       {/* ================================================================== */}
-      {/* HERO SECTION — "Africa's Trusted Marketplace" */}
+      {/* HERO SECTION — "The Trusted Global Marketplace" */}
       {/* ================================================================== */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(135deg, #0b2948 0%, #143d6b 30%, #1a5ba8 60%, #2468c0 100%)' }}>
 
@@ -146,7 +146,7 @@ export default function LandingPage() {
 
             {/* Tagline */}
             <p className="mt-3 md:mt-5 text-lg sm:text-xl md:text-2xl lg:text-3xl text-white/90 font-normal animate-slide-up delay-200 tracking-wide" style={{ textShadow: '0 1px 8px rgba(0,0,0,0.1)' }}>
-              Africa&apos;s Trusted Marketplace
+              The Trusted Global Marketplace
             </p>
           </div>
 
@@ -508,7 +508,7 @@ export default function LandingPage() {
                 <span className="text-white font-bold text-lg">BarterWave</span>
               </div>
               <p className="text-xs leading-relaxed text-gray-500">
-                Africa's trusted marketplace for buying, selling, and trading goods.
+                The trusted global marketplace for buying, selling, and trading goods.
               </p>
             </div>
 

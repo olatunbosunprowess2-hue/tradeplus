@@ -55,7 +55,7 @@ export default function DiscoverPage() {
             Discover Amazing Deals
           </h1>
           <p className="text-xl text-white/90 mb-6">
-            Buy, sell, and barter with trusted sellers across Nigeria
+            Buy, sell, and barter with trusted sellers globally
           </p>
           <Link
             href="/listings"

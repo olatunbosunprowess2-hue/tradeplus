@@ -101,7 +101,34 @@ export class PaymentsService {
             }),
         });
 
-        const data: PaystackInitResponse = await response.json();
+        let data: PaystackInitResponse = await response.json();
+
+        // If Paystack rejects 'USD' because the merchant isn't authorized for international currency yet, fallback to NGN equivalents
+        if (!data.status && currency === 'USD' && data.message?.toLowerCase().includes('currency')) {
+            console.warn(`Paystack rejected USD. Falling back to NGN for ${type}`);
+            const fallbackAmount = getPrice(type, 'NGN');
+            const fallbackResponse = await fetch(`${this.paystackBaseUrl}/transaction/initialize`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${this.paystackSecretKey}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email,
+                    amount: fallbackAmount,
+                    currency: 'NGN',
+                    reference,
+                    callback_url: `${this.configService.get('FRONTEND_URL') || 'http://localhost:3000'}/payment/callback`,
+                    metadata: {
+                        userId,
+                        type,
+                        listingId,
+                        currency: 'NGN',
+                    },
+                }),
+            });
+            data = await fallbackResponse.json();
+        }
 
         if (!data.status) {
             throw new BadRequestException(data.message || 'Failed to initialize payment');

@@ -100,13 +100,20 @@ async function seedEssentials() {
     console.log('✅ Roles seeded');
 
     // Create Countries
-    let nigeria = await prisma.country.findUnique({ where: { code: 'NG' } });
-    if (!nigeria) {
-        nigeria = await prisma.country.create({
-            data: { name: 'Nigeria', code: 'NG' }
+    const countries = [
+        { code: 'US', name: 'United States' },
+        { code: 'GB', name: 'United Kingdom' },
+        { code: 'NG', name: 'Nigeria' }
+    ];
+
+    for (const c of countries) {
+        await prisma.country.upsert({
+            where: { code: c.code },
+            update: { name: c.name },
+            create: { name: c.name, code: c.code }
         });
     }
-    console.log(`✅ Nigeria country ensured (ID: ${nigeria.id})`);
+    console.log('✅ Base countries ensured');
 
     // Create Categories
     const categories = [
@@ -171,9 +178,9 @@ async function seedDevelopment() {
             roleId: adminRole?.id,
             firstName: 'Admin',
             lastName: 'User',
-            city: 'Lagos',
-            state: 'Lagos',
-            locationAddress: 'Ikoyi, Lagos, Nigeria',
+            city: 'New York',
+            state: 'NY',
+            locationAddress: 'Manhattan, NY, USA',
         },
         create: {
             id: USERS.ADMIN,
@@ -183,24 +190,24 @@ async function seedDevelopment() {
             roleId: adminRole?.id,
             firstName: 'Admin',
             lastName: 'User',
-            city: 'Lagos',
-            state: 'Lagos',
-            locationAddress: 'Ikoyi, Lagos, Nigeria',
+            city: 'New York',
+            state: 'NY',
+            locationAddress: 'Manhattan, NY, USA',
             profile: { create: { displayName: 'Admin User', bio: 'System Administrator' } },
         },
     });
 
     // Mock Users
     const users = [
-        { id: USERS.JOHN, email: 'john@example.com', firstName: 'John', lastName: 'Doe', name: 'John Doe', bio: 'Tech enthusiast', city: 'Lagos', state: 'Lagos', address: 'Victoria Island, Lagos, Nigeria' },
-        { id: USERS.SARAH, email: 'sarah@example.com', firstName: 'Sarah', lastName: 'Smith', name: 'Sarah Smith', bio: 'Fashion blogger', city: 'Abuja', state: 'FCT', address: 'Wuse 2, Abuja, Nigeria' },
-        { id: USERS.MIKE, email: 'mike@example.com', firstName: 'Mike', lastName: 'Johnson', name: 'Mike Johnson', bio: 'Fitness collector', city: 'Port Harcourt', state: 'Rivers', address: 'GRA, Port Harcourt, Nigeria' },
-        { id: USERS.FIXIT, email: 'fixit@example.com', firstName: 'Felix', lastName: 'Okafor', name: 'FixIt Pro', bio: 'Plumbing Services', city: 'Ibadan', state: 'Oyo', address: 'Bodija, Ibadan, Nigeria' },
-        { id: USERS.DEV, email: 'dev@example.com', firstName: 'David', lastName: 'Eze', name: 'CodeMaster', bio: 'Web Dev', city: 'Lagos', state: 'Lagos', address: 'Lekki Phase 1, Lagos, Nigeria' },
-        { id: USERS.MUSIC, email: 'music@example.com', firstName: 'Melody', lastName: 'Nwosu', name: 'Melody Music', bio: 'Music Lessons', city: 'Enugu', state: 'Enugu', address: 'Independence Layout, Enugu, Nigeria' },
+        { id: USERS.JOHN, email: 'john@example.com', firstName: 'John', lastName: 'Doe', name: 'John Doe', bio: 'Tech enthusiast', city: 'New York', state: 'NY', address: 'Brooklyn, NY, USA' },
+        { id: USERS.SARAH, email: 'sarah@example.com', firstName: 'Sarah', lastName: 'Smith', name: 'Sarah Smith', bio: 'Fashion blogger', city: 'London', state: 'ENG', address: 'Camden Town, London, UK' },
+        { id: USERS.MIKE, email: 'mike@example.com', firstName: 'Mike', lastName: 'Johnson', name: 'Mike Johnson', bio: 'Fitness collector', city: 'Los Angeles', state: 'CA', address: 'Beverly Hills, CA, USA' },
+        { id: USERS.FIXIT, email: 'fixit@example.com', firstName: 'Felix', lastName: 'Okafor', name: 'FixIt Pro', bio: 'Plumbing Services', city: 'Lagos', state: 'Lagos', address: 'Bodija, Lagos, Nigeria' },
+        { id: USERS.DEV, email: 'dev@example.com', firstName: 'David', lastName: 'Eze', name: 'CodeMaster', bio: 'Web Dev', city: 'San Francisco', state: 'CA', address: 'SOMA, SF, USA' },
+        { id: USERS.MUSIC, email: 'music@example.com', firstName: 'Melody', lastName: 'Nwosu', name: 'Melody Music', bio: 'Music Lessons', city: 'London', state: 'ENG', address: 'SoHo, London, UK' },
         // --- Dedicated Trade Test Users ---
-        { id: 'bbbbbbbb-0000-0000-0000-000000000001', email: 'testbuyer@barterwave.com', firstName: 'Test', lastName: 'Buyer', name: 'Test Buyer', bio: 'Professional Trade Tester', city: 'Lagos', state: 'Lagos', address: 'Test Lab', isVerified: true, isEmailVerified: true },
-        { id: 'bbbbbbbb-0000-0000-0000-000000000002', email: 'testseller@barterwave.com', firstName: 'Test', lastName: 'Seller', name: 'Test Seller', bio: 'Professional Trade Tester', city: 'Lagos', state: 'Lagos', address: 'Test Lab', isVerified: true, isEmailVerified: true },
+        { id: 'bbbbbbbb-0000-0000-0000-000000000001', email: 'testbuyer@barterwave.com', firstName: 'Test', lastName: 'Buyer', name: 'Test Buyer', bio: 'Professional Trade Tester', city: 'New York', state: 'NY', address: 'Test Lab', isVerified: true, isEmailVerified: true },
+        { id: 'bbbbbbbb-0000-0000-0000-000000000002', email: 'testseller@barterwave.com', firstName: 'Test', lastName: 'Seller', name: 'Test Seller', bio: 'Professional Trade Tester', city: 'New York', state: 'NY', address: 'Test Lab', isVerified: true, isEmailVerified: true },
     ];
 
     for (const u of users) {
@@ -236,22 +243,22 @@ async function seedDevelopment() {
     console.log('✅ Mock Users created');
 
     // Mock Listings
-    // Needs nigeria ID
-    const nigeria = await prisma.country.findUnique({ where: { code: 'NG' } });
-    if (!nigeria) throw new Error('Nigeria not found');
+    const usInfo = await prisma.country.findUnique({ where: { code: 'US' } });
+    const ukInfo = await prisma.country.findUnique({ where: { code: 'GB' } });
+    const ngInfo = await prisma.country.findUnique({ where: { code: 'NG' } });
 
     const listings = [
-        { id: LISTINGS.IPHONE, title: 'iPhone 13 Pro Max', price: 85000000, seller: USERS.JOHN, cat: 3, img: '/seed/iphone.png' },
-        { id: LISTINGS.TV, title: 'Samsung 55" 4K TV', price: 45000000, seller: USERS.SARAH, cat: 1, img: '/seed/tv.png' },
-        { id: LISTINGS.MACBOOK, title: 'MacBook Pro M2', price: 0, seller: USERS.JOHN, cat: 1, img: '/seed/macbook.png' },
-        { id: LISTINGS.PS5, title: 'PlayStation 5', price: 55000000, seller: USERS.MIKE, cat: 1, img: '/seed/ps5.png' },
-        { id: LISTINGS.HANDBAG, title: 'Designer Handbag', price: 12000000, seller: USERS.SARAH, cat: 2, img: '/seed/handbag.png' },
-        { id: LISTINGS.PLUMBING, title: 'Plumbing Services', price: 1500000, seller: USERS.FIXIT, cat: 8, img: '/seed/plumbing.png' },
-        { id: LISTINGS.WEBDEV, title: 'Web Development', price: 25000000, seller: USERS.DEV, cat: 8, img: '/seed/webdev.png' },
-        { id: LISTINGS.PIANO, title: 'Piano Lessons', price: 500000, seller: USERS.MUSIC, cat: 10, img: '/seed/piano.png' },
+        { id: LISTINGS.IPHONE, title: 'iPhone 13 Pro Max', price: 85000, seller: USERS.JOHN, cat: 3, img: '/seed/iphone.png', cur: 'USD', country: usInfo?.id },
+        { id: LISTINGS.TV, title: 'Samsung 55" 4K TV', price: 45000, seller: USERS.SARAH, cat: 1, img: '/seed/tv.png', cur: 'GBP', country: ukInfo?.id },
+        { id: LISTINGS.MACBOOK, title: 'MacBook Pro M2', price: 0, seller: USERS.JOHN, cat: 1, img: '/seed/macbook.png', cur: 'USD', country: usInfo?.id },
+        { id: LISTINGS.PS5, title: 'PlayStation 5', price: 55000, seller: USERS.MIKE, cat: 1, img: '/seed/ps5.png', cur: 'USD', country: usInfo?.id },
+        { id: LISTINGS.HANDBAG, title: 'Designer Handbag', price: 12000, seller: USERS.SARAH, cat: 2, img: '/seed/handbag.png', cur: 'GBP', country: ukInfo?.id },
+        { id: LISTINGS.PLUMBING, title: 'Plumbing Services', price: 1500000, seller: USERS.FIXIT, cat: 8, img: '/seed/plumbing.png', cur: 'NGN', country: ngInfo?.id },
+        { id: LISTINGS.WEBDEV, title: 'Web Development', price: 25000, seller: USERS.DEV, cat: 8, img: '/seed/webdev.png', cur: 'USD', country: usInfo?.id },
+        { id: LISTINGS.PIANO, title: 'Piano Lessons', price: 5000, seller: USERS.MUSIC, cat: 10, img: '/seed/piano.png', cur: 'GBP', country: ukInfo?.id },
         // --- Dedicated Trade Test Listings ---
-        { id: 'cccccccc-0000-0000-0000-000000000001', title: 'Vintage Leather Jacket (Test Item 1)', price: 500000, seller: 'bbbbbbbb-0000-0000-0000-000000000002', cat: 2, img: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500&auto=format&fit=crop' },
-        { id: 'cccccccc-0000-0000-0000-000000000002', title: 'Wireless Headphones (Test Item 2)', price: 1200000, seller: 'bbbbbbbb-0000-0000-0000-000000000002', cat: 1, img: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop' },
+        { id: 'cccccccc-0000-0000-0000-000000000001', title: 'Vintage Leather Jacket (Test Item 1)', price: 5000, seller: 'bbbbbbbb-0000-0000-0000-000000000002', cat: 2, img: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500&auto=format&fit=crop', cur: 'USD', country: usInfo?.id },
+        { id: 'cccccccc-0000-0000-0000-000000000002', title: 'Wireless Headphones (Test Item 2)', price: 12000, seller: 'bbbbbbbb-0000-0000-0000-000000000002', cat: 1, img: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop', cur: 'USD', country: usInfo?.id },
     ];
 
     for (const l of listings) {
@@ -263,14 +270,14 @@ async function seedDevelopment() {
                 title: l.title,
                 description: `Description for ${l.title}`,
                 priceCents: BigInt(l.price),
-                currencyCode: 'NGN',
+                currencyCode: l.cur,
                 condition: 'used',
                 quantity: 1,
                 allowCash: true,
                 allowBarter: true,
                 sellerId: l.seller,
                 categoryId: l.cat,
-                countryId: nigeria.id,
+                countryId: l.country,
                 images: { create: { url: l.img, sortOrder: 0 } },
             },
         });

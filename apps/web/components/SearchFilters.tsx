@@ -86,12 +86,12 @@ export default function SearchFilters({ onApply }: { onApply?: () => void }) {
                     params.set('countryId', detectedId);
                     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
                 } else if (!detectedId && !hasAutoAppliedCountry.current) {
-                    // Fallback to Nigeria (Primary Market) if detection fails
-                    const nigeriaId = '1';
+                    // Fallback to a default country id if detection fails (e.g. 1 could be US in the new seeded DB)
+                    const defaultCountryId = '1';
                     hasAutoAppliedCountry.current = true;
-                    setCountryId(nigeriaId);
+                    setCountryId(defaultCountryId);
                     const params = new URLSearchParams(searchParams.toString());
-                    params.set('countryId', nigeriaId);
+                    params.set('countryId', defaultCountryId);
                     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
                 }
 

@@ -12,7 +12,7 @@ interface StepProps {
 
 export default function StepPhone({ onNext, onBack }: StepProps) {
     const { user, updateProfile } = useAuthStore();
-    const [countryCode, setCountryCode] = useState('+234'); // Default to Nigeria
+    const [countryCode, setCountryCode] = useState('+1'); // Default to US/Global
     const [phoneNumber, setPhoneNumber] = useState(user?.phoneNumber?.replace(/^\+\d+/, '') || '');
     const [loading, setLoading] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);

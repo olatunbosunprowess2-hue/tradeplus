@@ -92,9 +92,13 @@ export default function StepLocation({ onNext, onBack }: StepProps) {
             }
         } catch (e) {
             console.warn('Auto-detect country failed, using default:', e);
-            // Fallback to Nigeria if available
-            const ng = countriesList.find(c => c.code === 'NG');
-            if (ng && !country) setCountry(ng);
+            if (countriesList.length > 0) {
+                // Priority: Try to find US, else use first available
+                const defaultCountry = countriesList.find(c => c.code === 'US') || countriesList[0];
+                if (defaultCountry) {
+                    setCountry(defaultCountry);
+                }
+            }
         }
     };
 

@@ -48,7 +48,7 @@ export default function BusinessAddressModal({ isOpen, onClose, onComplete }: Bu
                     // Auto-select country based on priority:
                     // 1. Logged in user profile
                     // 2. IP detection
-                    // 3. Fallback to Nigeria (ID 1)
+                    // 3. Fallback to a default country (ID 1)
                     let targetCountryId: number | null = null;
 
                     if (user?.profile?.countryId) {
@@ -59,7 +59,7 @@ export default function BusinessAddressModal({ isOpen, onClose, onComplete }: Bu
                     }
 
                     // Final fallback
-                    if (!targetCountryId) targetCountryId = 1; // Nigeria
+                    if (!targetCountryId) targetCountryId = 1; // Default Country
 
                     setSelectedCountryId(targetCountryId);
                 })

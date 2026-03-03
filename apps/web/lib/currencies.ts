@@ -174,5 +174,23 @@ export function getGroupedCurrencies() {
     };
 }
 
-// Default currency (can be changed based on user preference or location)
-export const DEFAULT_CURRENCY = 'NGN';
+// Default currency fallback
+export const DEFAULT_CURRENCY = 'USD';
+
+/**
+ * Smartly detect currency from browser locale
+ * Falls back to USD if detection fails or currency is unsupported
+ */
+export function getSmartDefaultCurrency(): string {
+    if (typeof window === 'undefined') return DEFAULT_CURRENCY;
+
+    try {
+        const userLocaleCurrency = Intl.NumberFormat().resolvedOptions().currency;
+        if (userLocaleCurrency && getCurrencyByCode(userLocaleCurrency)) {
+            return userLocaleCurrency;
+        }
+        return DEFAULT_CURRENCY;
+    } catch (e) {
+        return DEFAULT_CURRENCY;
+    }
+}
