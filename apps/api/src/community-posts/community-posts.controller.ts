@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Request, UseInterceptors } from '@nestjs/common';
+import { CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager';
 import { CommunityPostsService } from './community-posts.service';
 import { CreatePostDto, UpdatePostDto, CreateCommentDto, CreatePostOfferDto, QueryPostsDto } from './dto/community-posts.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -12,6 +13,9 @@ export class CommunityPostsController {
     // PUBLIC FEED (with optional auth for personalized results)
     // ==================
     @UseGuards(OptionalJwtAuthGuard)
+    @UseInterceptors(CacheInterceptor)
+    @CacheKey('public_community_feed')
+    @CacheTTL(15000) // 15 seconds
     @Get()
     findAll(@Request() req, @Query() query: QueryPostsDto) {
         return this.postsService.findAll(query, req.user?.id);

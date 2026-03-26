@@ -76,7 +76,7 @@ export default function PublicProfilePage() {
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
             {/* Header / Cover */}
-            <div className="h-48 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 relative">
+            <div className="h-48 bg-blue-600 relative">
                 <div className="absolute inset-0 bg-black/10"></div>
             </div>
 

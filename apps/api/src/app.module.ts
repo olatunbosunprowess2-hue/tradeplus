@@ -1,6 +1,7 @@
 import { Module, NestModule, MiddlewareConsumer, Logger } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
+import { redisStore } from 'cache-manager-redis-yet';
 import { CsrfMiddleware } from './common/middleware/csrf.middleware';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -86,11 +87,20 @@ import { CommunityPostsModule } from './community-posts/community-posts.module';
         }),
         CacheModule.registerAsync({
             isGlobal: true,
-            useFactory: (): any => {
+            useFactory: async () => {
                 if (process.env.CACHE_STORE === 'redis') {
-                    return {
+                    const store = await redisStore({
+                        socket: {
+                            host: process.env.REDIS_HOST || process.env.REDIS_URL?.replace('redis://', '').split(':')[0],
+                            port: process.env.REDIS_PORT ? parseInt(process.env.REDIS_PORT) : 6379,
+                            tls: process.env.REDIS_URL?.includes('upstash') ? true : undefined,
+                        },
+                        password: process.env.REDIS_PASSWORD || process.env.REDIS_URL?.split('@')[0]?.split(':')[2],
                         url: process.env.REDIS_URL,
                         ttl: 60000,
+                    });
+                    return {
+                        store,
                     };
                 }
                 return {

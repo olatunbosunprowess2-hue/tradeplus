@@ -75,13 +75,7 @@ function HomeContent() {
       {/* GUEST HERO BANNER — only for unauthenticated visitors        */}
       {/* ============================================================ */}
       {!isAuthenticated && showGuestBanner && (
-        <div className="relative bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white overflow-hidden">
-          {/* Decorative elements */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute -top-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
-            <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
-          </div>
-
+        <div className="relative bg-blue-600 text-white overflow-hidden">
           <div className="container mx-auto px-4 max-w-7xl relative z-10">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-5 sm:py-6">
               <div className="flex-1 text-center sm:text-left">
@@ -124,7 +118,7 @@ function HomeContent() {
       )}
 
       {/* Compact Hero with Rotating Slides (for all users) */}
-      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white py-4 md:py-5">
+      <div className="bg-blue-600 text-white py-4 md:py-5">
         <div className="container mx-auto px-4 max-w-7xl">
           <div className="flex items-center justify-center gap-3 text-center">
             <span className="text-2xl transition-all duration-500" key={currentSlide}>

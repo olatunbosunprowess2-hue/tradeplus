@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
@@ -80,12 +80,9 @@ function isBrand(author: PostAuthor): boolean {
 
 function VerifiedBadge() {
     return (
-        <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-bold shadow-sm border border-blue-100 ml-1">
-            <svg className="w-3 h-3 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-            Verified
-        </span>
+        <svg className="w-4 h-4 text-blue-500 ml-0.5" fill="currentColor" viewBox="0 0 20 20" title="Verified">
+            <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+        </svg>
     );
 }
 
@@ -283,21 +280,13 @@ export default function PostCard({ post: initialPost, onDelete, onUpdate, savedI
                                 {author.tier === 'premium' && <PremiumBadge size="xs" />}
                             </div>
                         </div>
-                        <div className="flex flex-wrap items-center gap-2">
-                            <span className="text-xs text-gray-400">{timeAgo(post.createdAt)}</span>
-                            {post.status === 'resolved' ? (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-[10px] font-bold uppercase tracking-wide">
-                                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-                                    Resolved
-                                </span>
-                            ) : (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-bold uppercase tracking-wide">
-                                    <span className="relative flex h-2 w-2">
-                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                                    </span>
-                                    Active
-                                </span>
+                        <div className="flex flex-wrap items-center gap-1.5 text-xs text-gray-500">
+                            <span>{timeAgo(post.createdAt)}</span>
+                            {post.status === 'resolved' && (
+                                <>
+                                    <span className="w-1 h-1 rounded-full bg-gray-300"></span>
+                                    <span className="font-medium">Resolved</span>
+                                </>
                             )}
                         </div>
                     </div>

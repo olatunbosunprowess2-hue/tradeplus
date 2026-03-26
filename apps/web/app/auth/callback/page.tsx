@@ -67,7 +67,7 @@ export default function AuthCallbackPage() {
     }, [searchParams, router, setAuth, success, showError]);
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        <div className="min-h-screen flex items-center justify-center bg-slate-50">
             <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 max-w-md w-full mx-4 text-center">
                 {status === 'processing' && (
                     <>

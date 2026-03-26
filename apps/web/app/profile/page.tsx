@@ -250,7 +250,7 @@ export default function ProfilePage() {
     return (
         <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white pb-20">
             {/* Header / Cover */}
-            <div className="h-48 relative bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600">
+            <div className="h-48 relative bg-blue-600">
                 <div className="absolute inset-0 bg-[url('data:image/svg+xml,...')] opacity-10"></div>
                 <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/30 to-transparent"></div>
             </div>
