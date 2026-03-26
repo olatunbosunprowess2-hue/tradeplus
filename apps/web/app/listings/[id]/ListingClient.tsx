@@ -18,6 +18,7 @@ import VerificationBlockModal from '@/components/VerificationBlockModal';
 import DistressBadge from '@/components/DistressBadge';
 import PremiumBadge from '@/components/PremiumBadge';
 import BrandBadge from '@/components/BrandBadge';
+import GuestActionModal from '@/components/GuestActionModal';
 import { ChatLimitModal } from '@/components/PaywallModal';
 import { checkChatLimit, initializePayment, redirectToPaystack } from '@/lib/payments-api';
 
@@ -51,6 +52,8 @@ export default function ListingClient({ listing: initialListing }: ListingClient
     const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
     const [showChatLimitModal, setShowChatLimitModal] = useState(false);
     const [isPaymentLoading, setIsPaymentLoading] = useState(false);
+    const [showGuestModal, setShowGuestModal] = useState(false);
+    const [guestAction, setGuestAction] = useState('interact with listings');
 
     const { makeOffer } = useOffersStore();
     const { listings } = useListingsStore();
@@ -105,7 +108,8 @@ export default function ListingClient({ listing: initialListing }: ListingClient
     const handleContactSeller = async () => {
         if (!listing) return;
         if (!isAuthenticated) {
-            router.push('/login');
+            setGuestAction('message sellers');
+            setShowGuestModal(true);
             return;
         }
 
@@ -498,7 +502,8 @@ export default function ListingClient({ listing: initialListing }: ListingClient
                                             <button
                                                 onClick={() => {
                                                     if (!isAuthenticated) {
-                                                        router.push('/login');
+                                                        setGuestAction('make an offer');
+                                                        setShowGuestModal(true);
                                                         return;
                                                     }
                                                     if (user && !user.isVerified) {
@@ -860,6 +865,13 @@ export default function ListingClient({ listing: initialListing }: ListingClient
                 onClose={() => setShowChatLimitModal(false)}
                 onSelectOption={handleChatPaywallSelect}
                 isLoading={isPaymentLoading}
+            />
+
+            {/* Guest Sign-Up Modal */}
+            <GuestActionModal
+                isOpen={showGuestModal}
+                onClose={() => setShowGuestModal(false)}
+                action={guestAction}
             />
 
         </div>

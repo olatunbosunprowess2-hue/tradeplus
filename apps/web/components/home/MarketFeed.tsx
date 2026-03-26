@@ -3,7 +3,7 @@
 import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useInView } from 'react-intersection-observer';
 import { useState, useEffect } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import apiClient from '@/lib/api-client';
 import type { Listing, PaginatedResponse } from '@/lib/types';
 import ListingCard from '@/components/ListingCard';
@@ -35,6 +35,8 @@ export default function MarketFeed() {
     const queryClient = useQueryClient();
     const searchParams = useSearchParams();
     const router = useRouter();
+    const pathname = usePathname();
+    const basePath = pathname === '/' ? '/' : '/listings';
     const search = searchParams.get('search') || '';
     const type = searchParams.get('type') || undefined;
     const condition = searchParams.get('condition') || undefined;
@@ -70,7 +72,7 @@ export default function MarketFeed() {
         // Only update URL if the search has actually changed
         const newSearch = params.get('search') || '';
         if (newSearch !== search) {
-            router.push(`/listings?${params.toString()}`, { scroll: false });
+            router.push(`${basePath}?${params.toString()}`, { scroll: false });
         }
     }, [debouncedSearch]);
 
@@ -169,7 +171,7 @@ export default function MarketFeed() {
         setSearchQuery('');
         const params = new URLSearchParams(searchParams.toString());
         params.delete('search');
-        router.replace(`/listings?${params.toString()}`, { scroll: false });
+        router.replace(`${basePath}?${params.toString()}`, { scroll: false });
     };
 
     const isLoading = status === 'pending';

@@ -56,14 +56,14 @@ export default function Navbar() {
   // Sync searchQuery with URL on mount and when URL changes
   useEffect(() => {
     const urlSearch = searchParams.get('search') || '';
-    if (urlSearch !== searchQuery && pathname.startsWith('/listings')) {
+    if (urlSearch !== searchQuery && (pathname === '/' || pathname.startsWith('/listings'))) {
       setSearchQuery(urlSearch);
     }
   }, [searchParams, pathname]);
 
   // Auto-search when debounced value changes (only on listings pages)
   useEffect(() => {
-    if (!isMounted || !pathname.startsWith('/listings')) return;
+    if (!isMounted || (pathname !== '/' && !pathname.startsWith('/listings'))) return;
 
     const currentUrlSearch = searchParams.get('search') || '';
 
@@ -77,7 +77,7 @@ export default function Navbar() {
       }
 
       startTransition(() => {
-        router.push(`/listings?${params.toString()}`, { scroll: false });
+        router.push(`/?${params.toString()}`, { scroll: false });
       });
     }
   }, [debouncedSearch, isMounted, pathname, router, searchParams]);
@@ -108,15 +108,15 @@ export default function Navbar() {
     e.preventDefault();
     // Immediate search on Enter key
     if (searchQuery.trim()) {
-      router.push(`/listings?search=${encodeURIComponent(searchQuery.trim())}`);
+      router.push(`/?search=${encodeURIComponent(searchQuery.trim())}`);
     } else {
-      router.push('/listings');
+      router.push('/');
     }
   };
 
   const navLinks = [
     {
-      href: '/listings',
+      href: '/',
       label: 'Browse',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -183,10 +183,7 @@ export default function Navbar() {
     return null;
   }
 
-  // Hide navbar on homepage for unauthenticated users only
-  if (pathname === '/' && !isAuthenticated) {
-    return null;
-  }
+  // Navbar now always shows on homepage (marketplace feed is the landing page)
 
   // Hide navbar on specific auth pages for everyone
   const hiddenPages = ['/login', '/register'];
@@ -199,7 +196,7 @@ export default function Navbar() {
 
   // Logo Component
   const Logo = () => (
-    <Link href="/listings" className="flex items-center gap-2.5 group shrink-0">
+    <Link href="/" className="flex items-center gap-2.5 group shrink-0">
       {/* Logo Icon */}
       <div className="relative w-8 h-8">
         <Image
@@ -263,7 +260,7 @@ export default function Navbar() {
             <Logo />
 
             {/* Search Bar - Desktop - Only on listings pages */}
-            {pathname.startsWith('/listings') && (
+            {(pathname === '/' || pathname.startsWith('/listings')) && (
               <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-md mx-4">
                 <div className="relative w-full">
                   <input

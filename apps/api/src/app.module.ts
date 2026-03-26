@@ -86,7 +86,7 @@ import { CommunityPostsModule } from './community-posts/community-posts.module';
         }),
         CacheModule.registerAsync({
             isGlobal: true,
-            useFactory: () => {
+            useFactory: (): any => {
                 if (process.env.CACHE_STORE === 'redis') {
                     return {
                         url: process.env.REDIS_URL,

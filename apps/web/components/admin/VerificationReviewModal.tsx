@@ -12,20 +12,17 @@ interface ModalProps {
     onDecision: (userId: string, decision: 'APPROVE' | 'REJECT', reason?: string) => void;
 }
 
-
-
 export default function VerificationReviewModal({ user, onClose, onDecision }: ModalProps) {
     const [rejectReason, setRejectReason] = useState('');
     const [isRejecting, setIsRejecting] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
 
     const handleApprove = async () => {
-        if (isProcessing) return; // Prevent multiple clicks
+        if (isProcessing) return;
         setIsProcessing(true);
 
         toast.success(`Approved ${user.profile?.displayName}`);
         await onDecision(user.id, 'APPROVE');
-        // Don't reset isProcessing - modal will close
     };
 
     const handleRejectClick = () => {
@@ -38,14 +35,12 @@ export default function VerificationReviewModal({ user, onClose, onDecision }: M
             return;
         }
 
-        if (isProcessing) return; // Prevent multiple clicks
+        if (isProcessing) return;
         setIsProcessing(true);
 
         console.log(`Sending rejection email to ${user.email}. Reason: ${rejectReason}`);
         toast.success(`Rejected ${user.profile?.displayName}. Email sent.`);
-        // Pass rejection reason to onDecision
         await onDecision(user.id, 'REJECT', rejectReason);
-        // Don't reset isProcessing - modal will close
     };
 
     const handleTemplateChange = (templateId: string) => {
@@ -60,8 +55,14 @@ export default function VerificationReviewModal({ user, onClose, onDecision }: M
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto flex flex-col">
+        <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            onClick={onClose}
+        >
+            <div
+                className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto flex flex-col"
+                onClick={(e) => e.stopPropagation()}
+            >
 
                 {/* Header */}
                 <div className="p-6 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white z-10">
@@ -69,7 +70,7 @@ export default function VerificationReviewModal({ user, onClose, onDecision }: M
                         <h2 className="text-2xl font-bold text-gray-900">Review Verification</h2>
                         <p className="text-gray-500">User: {user.firstName} {user.lastName} ({user.email})</p>
                     </div>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -77,27 +78,51 @@ export default function VerificationReviewModal({ user, onClose, onDecision }: M
                 </div>
 
                 {/* Content */}
-                <div className="p-6 space-y-8">
+                <div className="p-6 space-y-6">
 
-                    {/* User Details */}
+                    {/* Profile Info + Selfie side by side */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="bg-gray-50 p-4 rounded-xl">
-                            <h3 className="font-semibold text-gray-700 mb-2">Profile Info</h3>
-                            <div className="space-y-2 text-sm">
-                                <p><span className="text-gray-600 font-semibold">Name:</span> <span className="text-gray-900">{user.firstName} {user.lastName}</span></p>
-                                <p><span className="text-gray-600 font-semibold">Bio:</span> <span className="text-gray-900">{user.profile?.bio || 'N/A'}</span></p>
-                                <p><span className="text-gray-600 font-semibold">Phone:</span> <span className="text-gray-900">{user.phoneNumber}</span></p>
-                                <p><span className="text-gray-600 font-semibold">Location:</span> <span className="text-gray-900">{user.locationAddress}</span></p>
+                        {/* Profile Info */}
+                        <div className="bg-gray-50 p-5 rounded-xl">
+                            <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                Profile Info
+                            </h3>
+                            <div className="space-y-2.5 text-sm">
+                                <div className="flex justify-between">
+                                    <span className="text-gray-500">Name</span>
+                                    <span className="text-gray-900 font-medium">{user.firstName} {user.lastName}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-500">Bio</span>
+                                    <span className="text-gray-900 font-medium text-right max-w-[60%] truncate">{user.profile?.bio || 'N/A'}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-500">Phone</span>
+                                    <span className="text-gray-900 font-medium">{user.phoneNumber || 'N/A'}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-500">Location</span>
+                                    <span className="text-gray-900 font-medium text-right max-w-[60%] truncate">{user.locationAddress || 'N/A'}</span>
+                                </div>
                             </div>
                         </div>
 
                         {/* Selfie */}
-                        <div className="bg-gray-50 p-4 rounded-xl">
-                            <h3 className="font-semibold text-gray-700 mb-2">Live Selfie</h3>
-                            <div className="aspect-video bg-black rounded-lg overflow-hidden">
+                        <div className="bg-gray-50 p-5 rounded-xl">
+                            <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                Verification Selfie
+                            </h3>
+                            <div className="aspect-[4/3] bg-black rounded-lg overflow-hidden">
                                 <img
-                                    src={sanitizeUrl(user.faceVerificationUrl) || 'https://placehold.co/400x300?text=No+Image'}
-                                    alt="Selfie"
+                                    src={sanitizeUrl(user.faceVerificationUrl) || 'https://placehold.co/400x300?text=No+Selfie'}
+                                    alt="Verification Selfie"
                                     className="w-full h-full object-cover"
                                     onError={(e) => {
                                         e.currentTarget.src = 'https://placehold.co/400x300?text=Error+Loading+Image';
@@ -107,36 +132,14 @@ export default function VerificationReviewModal({ user, onClose, onDecision }: M
                         </div>
                     </div>
 
-                    {/* ID Documents */}
-                    <div>
-                        <h3 className="font-semibold text-gray-700 mb-4">Government ID</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <p className="text-sm text-gray-500 mb-2">Front Side</p>
-                                <div className="aspect-[3/2] bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
-                                    <img
-                                        src={sanitizeUrl(user.idDocumentFrontUrl) || 'https://placehold.co/600x400?text=No+Image'}
-                                        alt="ID Front"
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => {
-                                            e.currentTarget.src = 'https://placehold.co/600x400?text=Error+Loading+Image';
-                                        }}
-                                    />
-                                </div>
-                            </div>
-                            <div>
-                                <p className="text-sm text-gray-500 mb-2">Back Side</p>
-                                <div className="aspect-[3/2] bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
-                                    <img
-                                        src={sanitizeUrl(user.idDocumentBackUrl) || 'https://placehold.co/600x400?text=No+Image'}
-                                        alt="ID Back"
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => {
-                                            e.currentTarget.src = 'https://placehold.co/600x400?text=Error+Loading+Image';
-                                        }}
-                                    />
-                                </div>
-                            </div>
+                    {/* Verification checklist for reviewer */}
+                    <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
+                        <h4 className="text-sm font-semibold text-blue-800 mb-2">Review Checklist</h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs text-blue-700">
+                            <span>✓ Face is clearly visible & centered</span>
+                            <span>✓ Good lighting, not blurry</span>
+                            <span>✓ No sunglasses, masks, or filters</span>
+                            <span>✓ Only one person in the photo</span>
                         </div>
                     </div>
 
@@ -166,7 +169,7 @@ export default function VerificationReviewModal({ user, onClose, onDecision }: M
                                 value={rejectReason}
                                 onChange={(e) => setRejectReason(e.target.value)}
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none"
-                                placeholder="e.g. ID image is blurry, Name does not match profile..."
+                                placeholder="e.g. Selfie is blurry, face not clearly visible, wearing sunglasses..."
                                 rows={3}
                             />
                             <div className="flex gap-3 justify-end">

@@ -50,8 +50,6 @@ export class UsersController {
     @UseInterceptors(FileFieldsInterceptor([
         { name: 'avatar', maxCount: 1 },
         { name: 'faceVerification', maxCount: 1 },
-        { name: 'idDocumentFront', maxCount: 1 },
-        { name: 'idDocumentBack', maxCount: 1 },
     ], multerConfig))
     async updateProfile(
         @Request() req,
@@ -59,8 +57,6 @@ export class UsersController {
         @UploadedFiles() files: {
             avatar?: Express.Multer.File[],
             faceVerification?: Express.Multer.File[],
-            idDocumentFront?: Express.Multer.File[],
-            idDocumentBack?: Express.Multer.File[]
         }
     ) {
         try {
@@ -69,8 +65,6 @@ export class UsersController {
             console.log('📎 Files received:', {
                 avatar: files?.avatar?.length || 0,
                 faceVerification: files?.faceVerification?.length || 0,
-                idDocumentFront: files?.idDocumentFront?.length || 0,
-                idDocumentBack: files?.idDocumentBack?.length || 0,
             });
 
             // Map uploaded files to DTO fields
@@ -91,26 +85,6 @@ export class UsersController {
                     console.log('✅ Face verification uploaded to R2:', dto.faceVerificationUrl);
                 } catch (uploadError) {
                     console.error('❌ Failed to upload face verification:', uploadError);
-                    throw uploadError;
-                }
-            }
-            if (files?.idDocumentFront?.[0]) {
-                try {
-                    const result = await this.infrastructureService.uploadImage(files.idDocumentFront[0]);
-                    dto.idDocumentFrontUrl = result.url;
-                    console.log('✅ ID Front uploaded to R2:', dto.idDocumentFrontUrl);
-                } catch (uploadError) {
-                    console.error('❌ Failed to upload ID Front:', uploadError);
-                    throw uploadError;
-                }
-            }
-            if (files?.idDocumentBack?.[0]) {
-                try {
-                    const result = await this.infrastructureService.uploadImage(files.idDocumentBack[0]);
-                    dto.idDocumentBackUrl = result.url;
-                    console.log('✅ ID Back uploaded to R2:', dto.idDocumentBackUrl);
-                } catch (uploadError) {
-                    console.error('❌ Failed to upload ID Back:', uploadError);
                     throw uploadError;
                 }
             }

@@ -23,7 +23,16 @@ export class CommunityPostsService {
         const where: any = { status: { in: ['active', 'resolved'] } };
 
         if (query.countryId) {
-            where.countryId = Number(query.countryId);
+            // Show posts from user's country AND posts with no country (global/untagged)
+            where.AND = [
+                ...(where.AND || []),
+                {
+                    OR: [
+                        { countryId: Number(query.countryId) },
+                        { countryId: null },
+                    ],
+                },
+            ];
         }
 
         if (query.search) {

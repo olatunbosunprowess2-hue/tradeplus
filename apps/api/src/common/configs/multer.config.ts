@@ -6,7 +6,7 @@ export const multerConfig = {
     storage: diskStorage({
         destination: (req, file, cb) => {
             // Distinguish between public and private fields
-            const privateFields = ['faceVerification', 'idDocumentFront', 'idDocumentBack'];
+            const privateFields = ['faceVerification'];
             const isPrivate = privateFields.includes(file.fieldname);
 
             const uploadPath = isPrivate ? './private-uploads' : './uploads';

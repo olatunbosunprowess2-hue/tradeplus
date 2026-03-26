@@ -2,22 +2,19 @@ import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Re
 import { CommunityPostsService } from './community-posts.service';
 import { CreatePostDto, UpdatePostDto, CreateCommentDto, CreatePostOfferDto, QueryPostsDto } from './dto/community-posts.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 
 @Controller('community-posts')
 export class CommunityPostsController {
     constructor(private readonly postsService: CommunityPostsService) { }
 
     // ==================
-    // PUBLIC FEED
+    // PUBLIC FEED (with optional auth for personalized results)
     // ==================
+    @UseGuards(OptionalJwtAuthGuard)
     @Get()
-    findAll(@Query() query: QueryPostsDto) {
-        return this.postsService.findAll(query);
-    }
-
-    @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.postsService.findOne(id);
+    findAll(@Request() req, @Query() query: QueryPostsDto) {
+        return this.postsService.findAll(query, req.user?.id);
     }
 
     // ==================
@@ -103,5 +100,13 @@ export class CommunityPostsController {
     @Post(':id/offers')
     makeOffer(@Request() req, @Param('id') id: string, @Body() dto: CreatePostOfferDto) {
         return this.postsService.makeOffer(req.user.id, id, dto);
+    }
+
+    // ==================
+    // SINGLE POST (must be LAST — :id would swallow named routes above)
+    // ==================
+    @Get(':id')
+    findOne(@Param('id') id: string) {
+        return this.postsService.findOne(id);
     }
 }

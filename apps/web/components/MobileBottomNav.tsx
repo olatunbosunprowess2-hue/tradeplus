@@ -40,10 +40,7 @@ export default function MobileBottomNav() {
         return null;
     }
 
-    // Hide for unauthenticated on homepage too
-    if (pathname === '/' && !isAuthenticated) {
-        return null;
-    }
+    // MobileBottomNav is for authenticated users only (guests use the Navbar CTA buttons)
 
     // Only show for authenticated users (except maybe some more public pages if we add them)
     if (!isAuthenticated) return null;
@@ -63,7 +60,7 @@ export default function MobileBottomNav() {
 
     const navItems = [
         {
-            href: '/listings',
+            href: '/',
             label: 'Home',
             icon: (
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -228,7 +225,7 @@ export default function MobileBottomNav() {
                                 </button>
 
                                 <button
-                                    onClick={() => { setShowSellSheet(false); router.push('/listings?tab=community&create=true'); }}
+                                    onClick={() => { setShowSellSheet(false); router.push('/?tab=community&create=true'); }}
                                     className="w-full flex items-center gap-4 p-4 rounded-2xl bg-purple-50 border border-purple-100 hover:bg-purple-100 transition text-left"
                                 >
                                     <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">

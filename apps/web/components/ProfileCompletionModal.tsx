@@ -72,8 +72,14 @@ export default function ProfileCompletionModal() {
     const progress = Math.round((completedSteps / totalSteps) * 100);
 
     return (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-            <div className="w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 relative">
+        <div
+            className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
+            onClick={handleDismiss}
+        >
+            <div
+                className="w-full max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 relative"
+                onClick={(e) => e.stopPropagation()}
+            >
 
                 {/* Close Button */}
                 <button
