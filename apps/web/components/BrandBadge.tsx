@@ -20,22 +20,19 @@ export default function BrandBadge({ size = 'sm' }: { size?: 'xs' | 'sm' | 'md' 
     return (
         <span
             className={`${sizeClasses[size]} inline-flex items-center font-bold rounded-full 
-            bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-white 
-            shadow-md shadow-amber-200/50 border border-amber-300/50
-            whitespace-nowrap animate-shimmer`}
-            style={{
-                backgroundSize: '200% 100%',
-            }}
+            bg-amber-50 text-amber-600 
+            shadow-sm border border-amber-200/60
+            whitespace-nowrap`}
             title="Official Brand — Verified by BarterWave"
         >
             <svg
-                className={`${iconSizes[size]} drop-shadow-sm`}
-                viewBox="0 0 24 24"
+                className={`${iconSizes[size]} drop-shadow-sm text-yellow-500`}
+                viewBox="0 0 20 20"
                 fill="currentColor"
             >
-                <path d="M12 1l3.09 6.26L22 8.27l-5 4.87 1.18 6.88L12 16.77l-6.18 3.25L7 13.14 2 8.27l6.91-1.01L12 1z" />
+                <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
-            <span className="drop-shadow-sm">Official Brand</span>
+            <span>Brand</span>
         </span>
     );
 }

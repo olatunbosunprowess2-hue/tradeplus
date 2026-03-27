@@ -284,17 +284,22 @@ export default function PostCard({ post: initialPost, onDelete, onUpdate, savedI
                         </div>
                         <div className="flex flex-wrap items-center gap-1.5 text-xs text-gray-500">
                             <span>{timeAgo(post.createdAt)}</span>
-                            {post.status === 'resolved' && (
-                                <>
-                                    <span className="w-1 h-1 rounded-full bg-gray-300"></span>
-                                    <span className="font-medium">Resolved</span>
-                                </>
-                            )}
                         </div>
                     </div>
 
                     {/* TOP ACTIONS */}
                     <div className="flex items-center gap-1">
+                        {/* Status Icon */}
+                        {post.status === 'resolved' ? (
+                            <div className="flex items-center justify-center p-1 mr-1 text-gray-400 bg-gray-50 rounded-full border border-gray-100" title="Resolved">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
+                            </div>
+                        ) : (
+                            <div className="flex items-center justify-center p-2 mr-1" title="Active">
+                                <div className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)] animate-pulse"></div>
+                            </div>
+                        )}
+
                         <ShareButton
                             title={`Post by ${getDisplayName(author)}`}
                             text={post.content.substring(0, 100)}
