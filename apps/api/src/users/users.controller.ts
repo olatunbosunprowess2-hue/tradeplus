@@ -60,33 +60,14 @@ export class UsersController {
         }
     ) {
         try {
-            console.log('📥 Received profile update request for user:', req.user.id);
-            console.log('📋 DTO fields:', Object.keys(dto));
-            console.log('📎 Files received:', {
-                avatar: files?.avatar?.length || 0,
-                faceVerification: files?.faceVerification?.length || 0,
-            });
-
             // Map uploaded files to DTO fields
             if (files?.avatar?.[0]) {
-                try {
-                    const result = await this.infrastructureService.uploadImage(files.avatar[0]);
-                    dto.avatarUrl = result.url;
-                    console.log('✅ Avatar uploaded to R2:', dto.avatarUrl);
-                } catch (uploadError) {
-                    console.error('❌ Failed to upload avatar:', uploadError);
-                    throw uploadError;
-                }
+                const result = await this.infrastructureService.uploadImage(files.avatar[0]);
+                dto.avatarUrl = result.url;
             }
             if (files?.faceVerification?.[0]) {
-                try {
-                    const result = await this.infrastructureService.uploadImage(files.faceVerification[0]);
-                    dto.faceVerificationUrl = result.url;
-                    console.log('✅ Face verification uploaded to R2:', dto.faceVerificationUrl);
-                } catch (uploadError) {
-                    console.error('❌ Failed to upload face verification:', uploadError);
-                    throw uploadError;
-                }
+                const result = await this.infrastructureService.uploadImage(files.faceVerification[0]);
+                dto.faceVerificationUrl = result.url;
             }
 
             // Handle numeric conversion for coordinates if sent as strings (multipart/form-data sends everything as strings)
@@ -98,16 +79,11 @@ export class UsersController {
             // Handle boolean conversion
             if (typeof dto.onboardingCompleted === 'string') {
                 dto.onboardingCompleted = dto.onboardingCompleted === 'true';
-                console.log('✅ Onboarding completed set to:', dto.onboardingCompleted);
             }
 
-            console.log('💾 Saving to database...');
-            const result = await this.usersService.updateProfile(req.user.id, dto);
-            console.log('✅ Profile updated successfully');
-            return result;
+            return await this.usersService.updateProfile(req.user.id, dto);
         } catch (error) {
-            console.error('❌ Error updating profile:', error);
-            console.error('Error stack:', error.stack);
+            console.error('Error updating profile:', error.message);
             throw error;
         }
     }

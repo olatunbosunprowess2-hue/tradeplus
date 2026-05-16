@@ -2,6 +2,7 @@ import {
     Injectable,
     UnauthorizedException,
     ConflictException,
+    Logger,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -16,6 +17,8 @@ import { ActivityService } from '../activity/activity.service';
 
 @Injectable()
 export class AuthService {
+    private readonly logger = new Logger('AuthService');
+
     constructor(
         private prisma: PrismaService,
         private jwtService: JwtService,
@@ -87,10 +90,10 @@ export class AuthService {
         // Send welcome email asynchronously (don't await to not block registration)
         this.emailService.sendWelcome(user.email, user.profile?.displayName || '')
             .then((sent) => {
-                console.log(`📧 Welcome email ${sent ? 'sent' : 'failed'} to ${user.email}`);
+                this.logger.debug(`Welcome email ${sent ? 'sent' : 'failed'} to ${user.email}`);
             })
             .catch((err) => {
-                console.error(`📧 Welcome email error for ${user.email}:`, err);
+                this.logger.warn(`Welcome email error for ${user.email}: ${err.message}`);
             });
 
         return result;
@@ -129,7 +132,7 @@ export class AuthService {
                 dto.password,
             );
         } catch (err) {
-            console.error('[Login] argon2.verify error:', err);
+            this.logger.error(`argon2.verify error: ${err.message}`, err.stack);
             throw new UnauthorizedException('Invalid credentials');
         }
 
@@ -149,7 +152,7 @@ export class AuthService {
                     }
                 });
             } catch (updateErr) {
-                console.error('[Login] Prisma update error:', updateErr);
+                this.logger.error(`Failed to update login attempts: ${updateErr.message}`);
                 // Continue to throw Unauthorized even if update fails
             }
 
@@ -180,7 +183,7 @@ export class AuthService {
 
         // Trigger Activity Feed (fire-and-forget)
         this.activityService.handleUserLogin(user.id, '127.0.0.1').catch(err => {
-            console.error('Failed to trigger activity feed for login:', err);
+            this.logger.warn(`Failed to trigger activity feed for login: ${err.message}`);
         });
 
         // Generate tokens

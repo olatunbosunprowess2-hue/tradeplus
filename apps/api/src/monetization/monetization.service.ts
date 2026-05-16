@@ -1,4 +1,4 @@
-import { Injectable, Inject, forwardRef } from '@nestjs/common';
+import { Injectable, Inject, forwardRef, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { EmailService } from '../email/email.service';
@@ -27,6 +27,8 @@ export interface CommunityLimitResult {
 
 @Injectable()
 export class MonetizationService {
+    private readonly logger = new Logger('MonetizationService');
+
     constructor(
         private prisma: PrismaService,
         @Inject(forwardRef(() => NotificationsService))
@@ -355,8 +357,7 @@ export class MonetizationService {
             return { success: false, message: 'Listing not found.' };
         }
 
-        console.log(`🚀 [AGGRESSIVE BOOST] Listing: "${listing.title}" (${listingId})`);
-        console.log(`   Category: ${listing.category.name} | Region: ${listing.region?.name || 'none'}`);
+        this.logger.debug(`[AGGRESSIVE BOOST] Listing: "${listing.title}" (${listingId}) | Category: ${listing.category.name} | Region: ${listing.region?.name || 'none'}`);
 
         // ========================================
         // STEP 1: BROAD FETCH (Cold Start Safe)
@@ -400,7 +401,7 @@ export class MonetizationService {
             take: 50, // Broad pool for scoring
         });
 
-        console.log(`   📊 Pool fetched: ${eligibleUsers.length} active users in region`);
+        this.logger.debug(`[AGGRESSIVE BOOST] Pool: ${eligibleUsers.length} active users in region`);
 
         // ========================================
         // STEP 2: IN-MEMORY SCORING
@@ -434,11 +435,7 @@ export class MonetizationService {
         const highIntentCount = topUsers.filter(u => u.score > 10).length;
         const topScore = topUsers[0]?.score || 0;
 
-        console.log(`   🎯 Scoring Summary:`);
-        console.log(`      🏆 High-Intent Users (score > 10): ${highIntentCount}`);
-        console.log(`      💡 Active Fallback Users: ${topUsers.length - highIntentCount}`);
-        console.log(`      🔥 Top Score: ${topScore}`);
-        console.log(`   Final: Notifying ${userIds.length} buyers`);
+        this.logger.debug(`[AGGRESSIVE BOOST] Scoring: ${highIntentCount} high-intent, ${topUsers.length - highIntentCount} fallback, top=${topScore}. Notifying ${userIds.length} buyers`);
 
         // ========================================
         // STEP 4: EXECUTE NOTIFICATIONS
@@ -459,7 +456,7 @@ export class MonetizationService {
                 }
             );
 
-            console.log(`   ✅ Sent ${notificationCount} in-app notifications`);
+            this.logger.debug(`[AGGRESSIVE BOOST] Sent ${notificationCount} in-app notifications`);
 
             // Update user spam counters (async, don't block)
             for (const user of topUsers) {
@@ -473,7 +470,7 @@ export class MonetizationService {
                         boostNotificationResetAt: needsReset ? now : undefined,
                     }
                 }).catch(err => {
-                    console.error(`   ⚠️ Failed to update spam counter for user ${user.id}:`, err.message);
+                    this.logger.warn(`[AGGRESSIVE BOOST] Failed to update spam counter for user ${user.id}: ${err.message}`);
                 });
             }
 
@@ -483,7 +480,7 @@ export class MonetizationService {
                 message: `🚀 Your listing is now boosted! We notified ${userIds.length} active buyers in ${regionName}.`
             };
         } else {
-            console.log(`   ⚠️ No eligible users found - boost flags set but no notifications sent`);
+            this.logger.debug(`[AGGRESSIVE BOOST] No eligible users found — boost flags set but no notifications sent`);
             return {
                 success: true,
                 message: `✨ Your listing is now boosted and cross-listed! Potential buyers in your area will be notified as they browse.`

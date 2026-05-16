@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { MonetizationService } from '../monetization/monetization.service';
@@ -16,6 +16,7 @@ interface PaystackInitResponse {
 
 @Injectable()
 export class PaymentsService {
+    private readonly logger = new Logger('PaymentsService');
     private readonly paystackSecretKey: string;
     private readonly paystackBaseUrl = 'https://api.paystack.co';
 
@@ -105,7 +106,7 @@ export class PaymentsService {
 
         // If Paystack rejects 'USD' because the merchant isn't authorized for international currency yet, fallback to NGN equivalents
         if (!data.status && currency === 'USD' && data.message?.toLowerCase().includes('currency')) {
-            console.warn(`Paystack rejected USD. Falling back to NGN for ${type}`);
+            this.logger.warn(`Paystack rejected USD. Falling back to NGN for ${type}`);
             const fallbackAmount = getPrice(type, 'NGN');
             const fallbackResponse = await fetch(`${this.paystackBaseUrl}/transaction/initialize`, {
                 method: 'POST',
@@ -150,7 +151,7 @@ export class PaymentsService {
         });
 
         if (!purchase) {
-            console.error(`Purchase not found for reference: ${reference}`);
+            this.logger.error(`Purchase not found for reference: ${reference}`);
             return { success: false, message: 'Transaction record not found.' };
         }
 
@@ -235,7 +236,7 @@ export class PaymentsService {
 
         if (event.event === 'subscription.create' || event.event === 'invoice.payment_failed') {
             // Handle subscription events if needed
-            console.log('Subscription event:', event.event, event.data);
+            this.logger.debug(`Subscription event: ${event.event}`);
         }
     }
 }

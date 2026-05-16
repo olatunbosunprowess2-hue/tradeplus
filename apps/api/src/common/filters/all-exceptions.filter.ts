@@ -73,13 +73,25 @@ export class AllExceptionsFilter implements ExceptionFilter {
             // Log critical errors for monitoring
             if (status === HttpStatus.INTERNAL_SERVER_ERROR) {
                 try {
+                    // Redact sensitive fields from request body before logging
+                    const SENSITIVE_FIELDS = ['password', 'passwordHash', 'refreshToken', 'currentPassword', 'newPassword'];
+                    let sanitizedBody = request.body;
+                    if (request.body && typeof request.body === 'object') {
+                        sanitizedBody = { ...request.body };
+                        for (const field of SENSITIVE_FIELDS) {
+                            if (field in sanitizedBody) {
+                                sanitizedBody[field] = '[REDACTED]';
+                            }
+                        }
+                    }
+
                     const logEntry = {
                         timestamp: new Date().toISOString(),
                         type: 'INTERNAL_SERVER_ERROR',
                         method: request.method,
                         url: request.url,
                         user: (request as any).user?.id || 'anonymous',
-                        body: request.body,
+                        body: sanitizedBody,
                         error: exception instanceof Error ? {
                             name: exception.name,
                             message: exception.message,

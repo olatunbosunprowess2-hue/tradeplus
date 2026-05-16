@@ -2,6 +2,7 @@ import {
     Injectable,
     NotFoundException,
     ForbiddenException,
+    Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateListingDto } from './dto/create-listing.dto';
@@ -118,16 +119,6 @@ export class ListingsService {
                     : undefined,
             };
 
-            // Log debug info to file
-            try {
-                const fs = require('fs');
-                const logPath = 'C:/Users/PC/Desktop/BarterWave/BarterWave/debug_listing.log';
-                fs.appendFileSync(logPath, `\n[${new Date().toISOString()}] PRISMA CREATE DATA: ${JSON.stringify(prismaData, (key, value) =>
-                    typeof value === 'bigint' ? value.toString() : value
-                    , 2)}\n`);
-            } catch (e) {
-                console.error('Failed to write debug log:', e);
-            }
 
             const listing = await this.prisma.listing.create({
                 data: prismaData,
@@ -438,21 +429,8 @@ export class ListingsService {
         // Validate UUID format to prevent 500 errors from Prisma
         const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-        // Log to file for deep tracing
-        try {
-            const fs = require('fs');
-            const logPath = 'C:/Users/PC/Desktop/BarterWave/BarterWave/debug_api.log';
-            fs.appendFileSync(logPath, `\n[${new Date().toISOString()}] findOne called for ID: ${id}`);
-        } catch (e) {
-            console.error('Failed to write debug log:', e);
-        }
 
         if (!uuidRegex.test(id)) {
-            try {
-                const fs = require('fs');
-                const logPath = 'C:/Users/PC/Desktop/BarterWave/BarterWave/debug_api.log';
-                fs.appendFileSync(logPath, `\n[${new Date().toISOString()}] findOne: Invalid UUID format: ${id}`);
-            } catch (e) { }
             throw new NotFoundException('Invalid listing ID format');
         }
 
@@ -480,11 +458,6 @@ export class ListingsService {
             });
 
             if (!listing) {
-                try {
-                    const fs = require('fs');
-                    const logPath = 'C:/Users/PC/Desktop/BarterWave/BarterWave/debug_api.log';
-                    fs.appendFileSync(logPath, `\n[${new Date().toISOString()}] findOne: Listing not found in DB: ${id}`);
-                } catch (e) { }
                 throw new NotFoundException('Listing not found');
             }
 
@@ -494,19 +467,10 @@ export class ListingsService {
                 downpaymentCents: listing.downpaymentCents ? Number(listing.downpaymentCents) : null,
             };
 
-            try {
-                const fs = require('fs');
-                const logPath = 'C:/Users/PC/Desktop/BarterWave/BarterWave/debug_api.log';
-                fs.appendFileSync(logPath, `\n[${new Date().toISOString()}] findOne: Successfully returning listing: ${listing.title}`);
-            } catch (e) { }
+
 
             return result;
         } catch (error) {
-            try {
-                const fs = require('fs');
-                const logPath = 'C:/Users/PC/Desktop/BarterWave/BarterWave/debug_api.log';
-                fs.appendFileSync(logPath, `\n[${new Date().toISOString()}] findOne ERROR for ${id}: ${error.message}\n${error.stack}`);
-            } catch (e) { }
 
             if (error instanceof NotFoundException) throw error;
             console.error(`[ERROR] Unexpected failure in findOne(${id}):`, error);
@@ -700,7 +664,7 @@ export class ListingsService {
             },
         });
 
-        console.log(`📋 [VIEW TRACKED] User ${userId.slice(0, 8)}... viewed listing ${listingId.slice(0, 8)}... (category: ${listing.categoryId})`);
+
     }
 
 }

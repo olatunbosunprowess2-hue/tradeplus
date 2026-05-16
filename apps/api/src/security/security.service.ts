@@ -59,6 +59,8 @@ export class SecurityService {
 
             const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
             const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+            const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+            const sixMonthsAgo = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000);
 
             const [fingerprints, notifications, recentlyViewed] = await this.prisma.$transaction([
                 this.prisma.deviceFingerprint.deleteMany({
@@ -72,8 +74,32 @@ export class SecurityService {
                 }),
             ]);
 
+            // Additional cleanup: audit logs, email verifications, expired IP blocks
+            const [auditLogs, emailVerifications, expiredIps] = await this.prisma.$transaction([
+                this.prisma.auditLog.deleteMany({
+                    where: { createdAt: { lt: ninetyDaysAgo } },
+                }),
+                this.prisma.emailVerification.deleteMany({
+                    where: { createdAt: { lt: sevenDaysAgo } },
+                }),
+                this.prisma.blockedIp.deleteMany({
+                    where: {
+                        expiresAt: { not: null, lt: new Date() },
+                    },
+                }),
+            ]);
+
+            // Hard-delete soft-deleted records older than 6 months (these are invisible to the app)
+            const [staleListings] = await this.prisma.$transaction([
+                this.prisma.listing.deleteMany({
+                    where: { deletedAt: { not: null, lt: sixMonthsAgo } },
+                }),
+            ]);
+
             this.logger.log(
-                `Cleanup complete: ${fingerprints.count} fingerprints, ${notifications.count} notifications, ${recentlyViewed.count} recently-viewed records deleted.`
+                `Cleanup complete: ${fingerprints.count} fingerprints, ${notifications.count} notifications, ${recentlyViewed.count} recently-viewed, ` +
+                `${auditLogs.count} audit logs, ${emailVerifications.count} email verifications, ${expiredIps.count} expired IP blocks, ` +
+                `${staleListings.count} soft-deleted listings purged.`
             );
         } catch (error) {
             this.logger.warn(`Cleanup failed: ${error.message}`);

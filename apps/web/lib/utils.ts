@@ -18,7 +18,9 @@ export function formatDate(date: string | Date): string {
     month: 'long',
     day: 'numeric',
   }).format(new Date(date));
-} export function sanitizeUrl(url?: string): string {
+}
+
+export function sanitizeUrl(url?: string): string {
   if (!url) return '';
 
   // Handle Cloudinary URLs - Upgrade to HTTPS

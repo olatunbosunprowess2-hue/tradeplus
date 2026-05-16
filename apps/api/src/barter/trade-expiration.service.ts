@@ -12,7 +12,7 @@ export class TradeExpirationService {
         private notificationsService: NotificationsService,
     ) { }
 
-    @Cron(CronExpression.EVERY_MINUTE)
+    @Cron(CronExpression.EVERY_5_MINUTES)
     async handleExpiredTrades() {
         const now = new Date();
 

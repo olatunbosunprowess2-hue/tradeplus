@@ -1,5 +1,7 @@
 'use client';
 
+import { useId } from 'react';
+
 interface PremiumBadgeProps {
     size?: 'xs' | 'sm' | 'md' | 'lg';
     showLabel?: boolean;
@@ -15,6 +17,8 @@ export default function PremiumBadge({
     showLabel = false,
     className = ''
 }: PremiumBadgeProps) {
+    const gradientId = useId();
+
     const sizeClasses = {
         xs: 'w-3.5 h-3.5',
         sm: 'w-4 h-4',
@@ -47,7 +51,7 @@ export default function PremiumBadge({
                 >
                     {/* Gold gradient background */}
                     <defs>
-                        <linearGradient id="premiumGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" stopColor="#F59E0B" />
                             <stop offset="50%" stopColor="#FBBF24" />
                             <stop offset="100%" stopColor="#F59E0B" />
@@ -57,7 +61,7 @@ export default function PremiumBadge({
                     {/* Check badge shape (like Twitter Blue) */}
                     <path
                         d="M9.75 11.25L12 13.5L16.5 9M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
-                        fill="url(#premiumGold)"
+                        fill={`url(#${gradientId})`}
                         stroke="#854D0E"
                         strokeWidth="0.5"
                     />

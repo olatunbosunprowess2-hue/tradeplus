@@ -11,11 +11,38 @@ export const apiClient = axios.create({
 });
 
 /**
+ * Clears all persisted auth state and redirects to login if on a protected route.
+ * Extracted to avoid duplication between the refresh-401 and refresh-failure branches.
+ */
+function clearAuthAndRedirect(): void {
+    if (typeof window === 'undefined') return;
+
+    window.dispatchEvent(new Event('auth:logout'));
+
+    // Clear persisted auth state to break any refresh loops
+    localStorage.removeItem('auth-storage');
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('rememberMe');
+    sessionStorage.removeItem('auth-storage');
+    sessionStorage.removeItem('accessToken');
+    sessionStorage.removeItem('refreshToken');
+
+    // Only redirect if NOT on a public page
+    const publicPaths = ['/', '/listings', '/about', '/contact', '/help', '/terms', '/privacy'];
+    const currentPath = window.location.pathname;
+    const isPublicPath = publicPaths.includes(currentPath) || currentPath.startsWith('/listings/');
+
+    if (!isPublicPath && !currentPath.includes('/login') && !currentPath.includes('/register')) {
+        window.location.href = '/login';
+    }
+}
+
+/**
  * Robust Request Interceptor
  * 1. Explicitly prepends the API_URL to relative paths (prevents /api stripping bug)
  * 2. Manually injects Authorization header from localStorage (cross-origin tunnel fallback)
  * 3. Injects X-XSRF-TOKEN for CSRF protection on state-changing requests
- * 4. Provides debug logging in development
  */
 apiClient.interceptors.request.use((config) => {
     // 1. URL Construction
@@ -55,8 +82,6 @@ apiClient.interceptors.request.use((config) => {
     }
 
     // 2. Token Injection (Manual fallback for cross-origin tunnels where cookies are blocked)
-    // Check the correct storage based on rememberMe setting
-    // Check the correct storage based on rememberMe setting
     // Skip for auth endpoints to prevent sending stale tokens
     const isAuthRequest = config.url?.includes('/auth/login') || config.url?.includes('/auth/register');
 
@@ -85,11 +110,6 @@ apiClient.interceptors.request.use((config) => {
         delete config.headers['Content-Type'];
     }
 
-    // 4. Debug logging in development
-    if (process.env.NODE_ENV !== 'production' && typeof window !== 'undefined') {
-        console.log(`🚀 [API Request] ${config.method?.toUpperCase()} ${config.url}`);
-    }
-
     return config;
 }, (error) => {
     return Promise.reject(error);
@@ -115,26 +135,7 @@ apiClient.interceptors.response.use(
 
             // Prevent infinite loops if refresh endpoint itself returns 401
             if (originalRequest.url?.includes('/auth/refresh')) {
-                if (typeof window !== 'undefined') {
-                    window.dispatchEvent(new Event('auth:logout'));
-
-                    // Clear persisted auth state to break the loop
-                    localStorage.removeItem('auth-storage');
-                    localStorage.removeItem('accessToken');
-                    localStorage.removeItem('refreshToken');
-                    localStorage.removeItem('rememberMe');
-                    sessionStorage.removeItem('auth-storage');
-                    sessionStorage.removeItem('accessToken');
-                    sessionStorage.removeItem('refreshToken');
-                    // Only redirect if NOT on a public page
-                    const publicPaths = ['/', '/listings', '/about', '/contact', '/help', '/terms', '/privacy'];
-                    const currentPath = window.location.pathname;
-                    const isPublicPath = publicPaths.includes(currentPath) || currentPath.startsWith('/listings/');
-
-                    if (!isPublicPath && !currentPath.includes('/login') && !currentPath.includes('/register')) {
-                        window.location.href = '/login';
-                    }
-                }
+                clearAuthAndRedirect();
                 return Promise.reject(error);
             }
 
@@ -149,7 +150,6 @@ apiClient.interceptors.response.use(
                 }
 
                 // 2. Call refresh endpoint with token in body (fallback for missing cookies)
-                // We access the raw response to get data
                 const response = await apiClient.post('/auth/refresh', { refreshToken: storedRefreshToken });
                 const { accessToken, refreshToken } = response.data;
 
@@ -172,26 +172,7 @@ apiClient.interceptors.response.use(
                 return apiClient(originalRequest);
             } catch (refreshError) {
                 // If refresh fails, logout
-                if (typeof window !== 'undefined') {
-                    window.dispatchEvent(new Event('auth:logout'));
-
-                    // Clear persisted auth state to break the loop
-                    localStorage.removeItem('auth-storage');
-                    localStorage.removeItem('accessToken');
-                    localStorage.removeItem('refreshToken');
-                    localStorage.removeItem('rememberMe');
-                    sessionStorage.removeItem('auth-storage');
-                    sessionStorage.removeItem('accessToken');
-                    sessionStorage.removeItem('refreshToken');
-                    // Only redirect if NOT on a public page
-                    const publicPaths = ['/', '/listings', '/about', '/contact', '/help', '/terms', '/privacy'];
-                    const currentPath = window.location.pathname;
-                    const isPublicPath = publicPaths.includes(currentPath) || currentPath.startsWith('/listings/');
-
-                    if (!isPublicPath && !currentPath.includes('/login') && !currentPath.includes('/register')) {
-                        window.location.href = '/login';
-                    }
-                }
+                clearAuthAndRedirect();
                 return Promise.reject(refreshError);
             }
         }

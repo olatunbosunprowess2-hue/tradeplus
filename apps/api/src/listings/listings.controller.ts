@@ -11,6 +11,7 @@ import {
     Request,
     UseInterceptors,
     UploadedFiles,
+    Logger,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager';
@@ -27,6 +28,8 @@ import { InfrastructureService } from '../infrastructure/infrastructure.service'
 
 @Controller('listings')
 export class ListingsController {
+    private readonly logger = new Logger('ListingsController');
+
     constructor(
         private readonly listingsService: ListingsService,
         private readonly infrastructureService: InfrastructureService
@@ -44,8 +47,6 @@ export class ListingsController {
         @UploadedFiles() files: { images?: Express.Multer.File[], video?: Express.Multer.File[] },
     ) {
         try {
-            console.log('Creating listing for user:', req.user.id);
-            // console.log('DTO:', JSON.stringify(createListingDto, null, 2));
 
             if (files?.images && files.images.length > 0) {
                 // Upload images concurrently (these are tiny WebPs now, so it's instant)
@@ -70,13 +71,13 @@ export class ListingsController {
                     })
                     .catch(err => {
                         // Silent failure for user, logged for admin.
-                        console.error('Background video upload failed for listing', listing.id, err);
+                        this.logger.error(`Background video upload failed for listing ${listing.id}`, err.stack);
                     });
             }
 
             return listing;
         } catch (error) {
-            console.error('Error in ListingsController.create:', error.message);
+            this.logger.error(`Error in create: ${error.message}`, error.stack);
             throw error;
         }
     }

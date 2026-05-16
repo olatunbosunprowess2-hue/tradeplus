@@ -65,12 +65,19 @@ export class BarterService {
             throw new BadRequestException('You have already made the maximum number of offers (2) for this listing');
         }
 
-        // Validate offered items belong to user
+        // Validate offered items belong to user (batched to avoid N+1)
         if (dto.offeredItems && dto.offeredItems.length > 0) {
+            const offeredListingIds = dto.offeredItems.map(item => item.listingId);
+
+            // Single batch fetch instead of N individual queries
+            const offeredListings = await this.prisma.listing.findMany({
+                where: { id: { in: offeredListingIds } },
+            });
+
+            const listingMap = new Map(offeredListings.map(l => [l.id, l]));
+
             for (const item of dto.offeredItems) {
-                const listing = await this.prisma.listing.findUnique({
-                    where: { id: item.listingId },
-                });
+                const listing = listingMap.get(item.listingId);
 
                 if (!listing) {
                     throw new NotFoundException(`Offered listing ${item.listingId} not found`);
@@ -740,7 +747,7 @@ export class BarterService {
             updateData.timerPausedAt = null; // Clear pause state
 
             // Atomic quantity reduction and status updates using a transaction
-            return await this.prisma.$transaction(async (tx) => {
+            await this.prisma.$transaction(async (tx) => {
                 const updatedOffer = await tx.barterOffer.update({
                     where: { id: offerId },
                     data: updateData,
@@ -754,12 +761,7 @@ export class BarterService {
                     },
                 });
 
-                // 1. Update target listing (the one the offer was made for)
-                // Note: For now we assume quantity 1 for the main listing in a swap, 
-                // but we should ideally handle quantity if the model supports it per trade.
-                // Looking at schema, BarterOffer doesn't have a quantity field directly, 
-                // it's an offer for the whole listing (or 1 unit of it).
-                // Let's assume 1 unit for the main listing.
+                // 1. Update target listing quantity (1 unit per swap)
                 const newTargetQuantity = Math.max(0, updatedOffer.listing.quantity - 1);
                 await tx.listing.update({
                     where: { id: updatedOffer.listingId },
@@ -780,20 +782,15 @@ export class BarterService {
                         }
                     });
                 }
-
-                // 3. Revalidate other pending offers since quantities changed
             });
 
-            // Revalidate outside transaction to avoid potential deadlocks/wait
+            // Revalidate outside transaction to avoid potential deadlocks
             await this.validateInTradeQuantities(validOffer.listingId, validOffer.sellerId);
             if (validOffer.items) {
                 for (const item of validOffer.items) {
                     await this.validateInTradeQuantities(item.offeredListingId, validOffer.buyerId);
                 }
             }
-
-
-
 
             // Fetch the final state to return
             return this.getOffer(offerId, userId);

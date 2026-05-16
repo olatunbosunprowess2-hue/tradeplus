@@ -2,11 +2,15 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-    // TEMPORARILY DISABLED FOR MOCK AUTH
-    // The middleware checks cookies, but mock auth uses localStorage
-    // Will re-enable when switching back to real backend authentication
+    // Auth is handled server-side by the API (JWT in Authorization header).
+    // This middleware applies security headers to all responses.
+    const response = NextResponse.next();
 
-    return NextResponse.next();
+    response.headers.set('X-Content-Type-Options', 'nosniff');
+    response.headers.set('X-Frame-Options', 'DENY');
+    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+    return response;
 }
 
 export const config = {
