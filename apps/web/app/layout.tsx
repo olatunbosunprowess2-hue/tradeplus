@@ -63,10 +63,8 @@ export const metadata: Metadata = {
     description: 'The trusted global marketplace for buying, selling, and trading goods value-for-value.',
     images: ['/og-image.png'],
   },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 5,
+  alternates: {
+    canonical: './',
   },
   category: 'marketplace',
   manifest: '/manifest.json',
@@ -74,6 +72,12 @@ export const metadata: Metadata = {
     icon: '/favicon.ico',
     apple: '/apple-touch-icon.png',
   },
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({

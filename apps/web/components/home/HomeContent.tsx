@@ -70,6 +70,9 @@ export default function HomeContent() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
+      {/* Visually hidden h1 for SEO */}
+      <h1 className="sr-only">BarterWave - Nigeria&apos;s Trusted Swap, Barter, and Distress Sale Marketplace</h1>
+
       {/* ============================================================ */}
       {/* GUEST HERO BANNER — only for unauthenticated visitors        */}
       {/* ============================================================ */}

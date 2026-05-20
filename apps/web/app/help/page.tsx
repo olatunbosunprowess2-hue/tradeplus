@@ -1,6 +1,10 @@
-'use client';
-
+import { Metadata } from 'next';
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+    title: 'Help & Support',
+    description: 'Find answers to frequently asked questions about bartering, payment options, safety, account verification, and disputes on BarterWave.',
+};
 
 export default function HelpPage() {
     const faqs = [

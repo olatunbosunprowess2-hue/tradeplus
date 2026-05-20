@@ -45,6 +45,22 @@ export default async function HomePage() {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'WebSite',
+            'name': 'BarterWave',
+            'url': 'https://barterwave.com',
+            'potentialAction': {
+              '@type': 'SearchAction',
+              'target': 'https://barterwave.com/listings?search={search_term_string}',
+              'query-input': 'required name=search_term_string'
+            }
+          })
+        }}
+      />
       <Suspense fallback={
         <div className="min-h-screen bg-gray-50 py-4">
           <SkeletonStyles />

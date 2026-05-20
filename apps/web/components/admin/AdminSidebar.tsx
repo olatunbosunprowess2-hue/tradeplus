@@ -25,7 +25,11 @@ function NotificationBadge({ count, pulse = false }: { count: number; pulse?: bo
     );
 }
 
-export default function AdminSidebar() {
+interface AdminSidebarProps {
+    onClose?: () => void;
+}
+
+export default function AdminSidebar({ onClose }: AdminSidebarProps = {}) {
     const pathname = usePathname();
     const { user } = useAuthStore();
     const [counts, setCounts] = useState<SidebarCounts | null>(null);
@@ -222,11 +226,24 @@ export default function AdminSidebar() {
                     <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                         Admin Panel
                     </h2>
-                    {totalPending > 0 && (
-                        <span className="flex items-center justify-center min-w-[24px] h-6 px-2 text-xs font-bold text-white bg-red-500 rounded-full animate-pulse">
-                            {totalPending > 99 ? '99+' : totalPending}
-                        </span>
-                    )}
+                    <div className="flex items-center gap-2">
+                        {totalPending > 0 && (
+                            <span className="flex items-center justify-center min-w-[24px] h-6 px-2 text-xs font-bold text-white bg-red-500 rounded-full animate-pulse">
+                                {totalPending > 99 ? '99+' : totalPending}
+                            </span>
+                        )}
+                        {onClose && (
+                            <button
+                                onClick={onClose}
+                                className="md:hidden p-1 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none"
+                                aria-label="Close Sidebar"
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        )}
+                    </div>
                 </div>
                 {totalPending > 0 && (
                     <p className="text-xs text-gray-500 mt-1">

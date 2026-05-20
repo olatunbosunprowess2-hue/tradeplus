@@ -1,3 +1,10 @@
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: 'Terms of Service',
+    description: 'Read the terms and conditions for using BarterWave, Nigeria\'s trusted global marketplace for buying, selling, and bartering items.',
+};
+
 export default function TermsPage() {
     return (
         <div className="container mx-auto px-4 py-12 max-w-5xl">

@@ -70,28 +70,32 @@ export default function GoogleCallbackPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-slate-50">
-            <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 max-w-md w-full mx-4 text-center border border-white/40">
+            <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 max-w-md w-full mx-4 text-center border border-white/40 relative overflow-hidden">
+                {status === 'processing' && (
+                    <div className="absolute top-0 left-0 right-0 h-[3px] bg-blue-50 overflow-hidden">
+                        <div className="h-full bg-gradient-to-r from-blue-500 via-indigo-600 to-blue-500 animate-loading-bar" />
+                    </div>
+                )}
+
                 {status === 'processing' && (
                     <div className="flex flex-col items-center animate-in fade-in duration-500">
-                        <div className="relative w-20 h-20 mb-8 flex items-center justify-center">
-                            {/* Pulsing glow rings */}
-                            <div className="absolute inset-0 bg-blue-100 rounded-full animate-[ping_3s_ease-in-out_infinite]" />
-                            <div className="absolute inset-2 bg-indigo-100 rounded-full animate-[ping_3s_ease-in-out_infinite_1s]" />
-                            <div className="relative w-16 h-16 bg-white rounded-full flex items-center justify-center overflow-hidden shadow-sm border border-gray-100">
+                        <div className="relative w-20 h-20 mb-6 flex items-center justify-center">
+                            <div className="relative w-16 h-16 bg-white rounded-2xl flex items-center justify-center overflow-hidden shadow-sm border border-gray-100">
                                 <div className="w-10 h-10 relative">
-                                    <Image src="/logo-transparent.png" alt="BarterWave Logo" fill className="object-contain animate-pulse" priority />
+                                    <Image src="/logo-transparent.png" alt="BarterWave Logo" fill className="object-contain" priority />
                                 </div>
                             </div>
                         </div>
                         <h1 className="text-2xl font-bold text-gray-900 mb-3">
                             Verifying session
                         </h1>
-                        <div className="flex items-center gap-3 text-blue-700 bg-blue-50 px-5 py-2 rounded-full border border-blue-100">
-                            <svg className="w-4 h-4 animate-spin text-blue-600" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                            </svg>
-                            <span className="font-medium text-sm">Waiting for Google...</span>
+                        <div className="flex items-center gap-1.5 text-gray-600 bg-gray-50 px-5 py-2.5 rounded-xl border border-gray-100">
+                            <span className="font-medium text-sm">Securing session</span>
+                            <span className="flex items-center gap-1 ml-1.5">
+                                <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-dot-1" />
+                                <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-dot-2" />
+                                <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-dot-3" />
+                            </span>
                         </div>
                     </div>
                 )}

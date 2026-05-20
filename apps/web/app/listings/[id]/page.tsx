@@ -117,5 +117,28 @@ export default async function ListingPage(props: Props) {
         notFound();
     }
 
-    return <ListingClient listing={listing} />;
+    const productSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        'name': listing.title,
+        'description': listing.description || `Check out ${listing.title} on BarterWave.`,
+        'image': listing.images?.map((img: any) => img.url) || [],
+        'offers': {
+            '@type': 'Offer',
+            'price': listing.priceCents ? listing.priceCents / 100 : 0,
+            'priceCurrency': listing.currencyCode || 'NGN',
+            'availability': listing.status === 'ACTIVE' ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+            'url': `https://barterwave.com/listings/${listing.id}`
+        }
+    };
+
+    return (
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+            />
+            <ListingClient listing={listing} />
+        </>
+    );
 }
