@@ -4,6 +4,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import Webcam from 'react-webcam';
 import { useAuthStore } from '@/lib/auth-store';
 import { toast } from 'react-hot-toast';
+import { compressImage } from '@/lib/image-compression';
 
 interface StepProps {
     onComplete: () => void;
@@ -35,6 +36,7 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
     const [showCamera, setShowCamera] = useState(false);
     const [showCameraModal, setShowCameraModal] = useState(false);
     const [activeGuideSlide, setActiveGuideSlide] = useState(0);
+    const [cameraError, setCameraError] = useState<string | null>(null);
 
     // Auto-cycle the good/bad selfie guide
     useEffect(() => {
@@ -47,6 +49,7 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
         if (imageSrc) {
             setSelfie(imageSrc);
             setShowCamera(false);
+            setCameraError(null);
         }
     }, [webcamRef]);
 
@@ -57,7 +60,59 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
     const confirmCameraPermission = () => {
         setShowCameraModal(false);
         setShowCamera(true);
+        setCameraError(null);
     };
+
+    const handleUserMediaError = useCallback((error: string | DOMException) => {
+        console.error('Webcam media error:', error);
+        let errorMsg = 'Failed to access camera.';
+        if (typeof error === 'string') {
+            errorMsg = error;
+        } else if (error instanceof DOMException) {
+            if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+                errorMsg = 'Camera access was denied. Please allow camera permissions in your settings, or upload a photo instead.';
+            } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+                errorMsg = 'No camera device found on this system.';
+            } else if (error.message) {
+                errorMsg = error.message;
+            }
+        }
+        setCameraError(errorMsg);
+        toast.error(errorMsg);
+    }, []);
+
+    const handleFileUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            if (!file.type.startsWith('image/')) {
+                toast.error('Please upload an image file');
+                return;
+            }
+            
+            try {
+                // Compress image to ensure it's optimal size and handles large mobile uploads
+                const compressedFile = await compressImage(file);
+                
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setSelfie(reader.result as string);
+                    setShowCamera(false);
+                    setCameraError(null);
+                };
+                reader.readAsDataURL(compressedFile);
+            } catch (err) {
+                console.error("Compression error:", err);
+                // Fallback to original file
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setSelfie(reader.result as string);
+                    setShowCamera(false);
+                    setCameraError(null);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    }, []);
 
     const handleSubmit = async () => {
         if (!selfie) {
@@ -255,13 +310,19 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
                 <div className="relative w-full h-72 bg-black rounded-2xl overflow-hidden flex items-center justify-center group shadow-lg">
                     {selfie ? (
                         <img src={selfie} alt="Selfie" className="w-full h-full object-cover" />
-                    ) : showCamera ? (
+                    ) : showCamera && !cameraError ? (
                         <>
                             <Webcam
                                 audio={false}
                                 ref={webcamRef}
                                 screenshotFormat="image/jpeg"
                                 className="w-full h-full object-cover"
+                                videoConstraints={{
+                                    facingMode: 'user'
+                                }}
+                                mirrored={true}
+                                onUserMediaError={handleUserMediaError}
+                                onUserMedia={() => setCameraError(null)}
                             />
                             {/* Face alignment overlay */}
                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -276,8 +337,12 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
                             </div>
-                            <p className="text-gray-400 font-medium">Camera is off</p>
-                            <p className="text-gray-500 text-xs mt-1">Tap below to start</p>
+                            <p className="text-gray-400 font-medium">
+                                {cameraError ? 'Camera Error' : 'Camera is off'}
+                            </p>
+                            <p className="text-gray-500 text-xs mt-1 max-w-[200px] mx-auto leading-normal">
+                                {cameraError ? cameraError : 'Tap below to start'}
+                            </p>
                         </div>
                     )}
 
@@ -298,6 +363,7 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
                         onClick={() => {
                             setSelfie(null);
                             setShowCamera(true);
+                            setCameraError(null);
                         }}
                         className="w-full py-3 border-2 border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 font-semibold transition-all hover:border-gray-300 flex items-center justify-center gap-2"
                     >
@@ -306,28 +372,64 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
                         </svg>
                         Retake Selfie
                     </button>
-                ) : showCamera ? (
-                    <button
-                        onClick={captureSelfie}
-                        className="w-full py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-bold transition-all shadow-lg shadow-blue-500/25 active:scale-[0.98] flex items-center justify-center gap-2"
-                    >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        Capture Photo
-                    </button>
+                ) : showCamera && !cameraError ? (
+                    <div className="flex flex-col gap-3">
+                        <button
+                            onClick={captureSelfie}
+                            className="w-full py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-bold transition-all shadow-lg shadow-blue-500/25 active:scale-[0.98] flex items-center justify-center gap-2"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            Capture Photo
+                        </button>
+                        
+                        <label className="w-full py-2.5 border border-dashed border-gray-300 rounded-xl text-gray-500 hover:bg-gray-50 text-sm font-semibold transition-all hover:border-blue-400 flex items-center justify-center gap-2 cursor-pointer">
+                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                            Upload photo instead
+                            <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={handleFileUpload}
+                            />
+                        </label>
+                    </div>
                 ) : (
-                    <button
-                        onClick={handleStartCamera}
-                        className="w-full py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-bold transition-all shadow-lg shadow-blue-500/25 active:scale-[0.98] flex items-center justify-center gap-2"
-                    >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        Start Camera
-                    </button>
+                    <div className="flex flex-col gap-3">
+                        <button
+                            onClick={handleStartCamera}
+                            className="w-full py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-bold transition-all shadow-lg shadow-blue-500/25 active:scale-[0.98] flex items-center justify-center gap-2"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            Start Camera
+                        </button>
+                        
+                        <div className="relative flex py-1 items-center">
+                            <div className="flex-grow border-t border-gray-100"></div>
+                            <span className="flex-shrink mx-3 text-gray-400 text-[10px] font-bold uppercase tracking-wider">or</span>
+                            <div className="flex-grow border-t border-gray-100"></div>
+                        </div>
+
+                        <label className="w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-600 hover:bg-gray-50 font-semibold transition-all hover:border-blue-400 flex items-center justify-center gap-2 cursor-pointer">
+                            <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                            Upload Photo from Device
+                            <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={handleFileUpload}
+                            />
+                        </label>
+                    </div>
                 )}
             </div>
 
