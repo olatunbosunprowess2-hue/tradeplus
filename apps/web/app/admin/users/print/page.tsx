@@ -241,7 +241,7 @@ export default function UserPrintParamsPage() {
                 <section className="mb-10">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="w-2 h-6 bg-indigo-600 rounded-full"></div>
-                        <h2 className="text-lg font-bold text-slate-900">Identity Verification Documents</h2>
+                        <h2 className="text-lg font-bold text-slate-900">Selfie Verification</h2>
                     </div>
 
                     <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 flex items-start gap-3 print:bg-transparent print:border-slate-300">
@@ -253,53 +253,18 @@ export default function UserPrintParamsPage() {
                         </p>
                     </div>
 
-                    {/* Photo Grid */}
-                    <div className="space-y-8">
-                        {/* Selfie */}
-                        <div className="break-inside-avoid mb-6">
-                            <div className="flex items-center justify-between mb-3">
-                                <h3 className="font-semibold text-slate-700">1. Live Selfie Verification</h3>
-                                <span className="text-xs text-slate-500">Face Match</span>
-                            </div>
-                            <div className="bg-slate-100 rounded-xl overflow-hidden border border-slate-200 h-[250px] flex items-center justify-center">
-                                {user.faceVerificationUrl ? (
-                                    <img src={getImageUrl(user.faceVerificationUrl)} alt="Selfie Verification" className="max-w-full max-h-full object-contain" crossOrigin="anonymous" />
-                                ) : (
-                                    <p className="text-slate-400 italic">No selfie provided</p>
-                                )}
-                            </div>
+                    {/* Selfie Photo */}
+                    <div className="break-inside-avoid mb-6">
+                        <div className="flex items-center justify-between mb-3">
+                            <h3 className="font-semibold text-slate-700">Live Selfie Verification</h3>
+                            <span className="text-xs text-slate-500">Face Match</span>
                         </div>
-
-                        {/* ID Documents - Both on same row for print */}
-                        <div className="grid grid-cols-2 gap-4 print:gap-6">
-                            {/* ID Front */}
-                            <div className="break-inside-avoid">
-                                <div className="flex items-center justify-between mb-2">
-                                    <h3 className="font-semibold text-slate-700 text-sm">2. ID Front</h3>
-                                    <span className="text-xs bg-slate-200 px-2 py-0.5 rounded text-slate-600">{user.idDocumentType || 'ID'}</span>
-                                </div>
-                                <div className="bg-slate-100 rounded-xl overflow-hidden border border-slate-200 h-[200px] print:h-[250px] flex items-center justify-center">
-                                    {user.idDocumentFrontUrl ? (
-                                        <img src={getImageUrl(user.idDocumentFrontUrl)} alt="ID Front" className="max-w-full max-h-full object-contain" crossOrigin="anonymous" />
-                                    ) : (
-                                        <p className="text-slate-400 italic">Not provided</p>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* ID Back */}
-                            <div className="break-inside-avoid">
-                                <div className="flex items-center justify-between mb-2">
-                                    <h3 className="font-semibold text-slate-700 text-sm">3. ID Back</h3>
-                                </div>
-                                <div className="bg-slate-100 rounded-xl overflow-hidden border border-slate-200 h-[200px] print:h-[250px] flex items-center justify-center">
-                                    {user.idDocumentBackUrl ? (
-                                        <img src={getImageUrl(user.idDocumentBackUrl)} alt="ID Back" className="max-w-full max-h-full object-contain" crossOrigin="anonymous" />
-                                    ) : (
-                                        <p className="text-slate-400 italic">Not provided</p>
-                                    )}
-                                </div>
-                            </div>
+                        <div className="bg-slate-100 rounded-xl overflow-hidden border border-slate-200 flex items-center justify-center" style={{ minHeight: '300px', maxHeight: '500px' }}>
+                            {user.faceVerificationUrl ? (
+                                <img src={getImageUrl(user.faceVerificationUrl)} alt="Selfie Verification" className="max-w-full max-h-[500px] object-contain" crossOrigin="anonymous" />
+                            ) : (
+                                <p className="text-slate-400 italic py-16">No selfie provided</p>
+                            )}
                         </div>
                     </div>
                 </section>

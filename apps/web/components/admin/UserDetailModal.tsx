@@ -18,9 +18,6 @@ interface UserDetailModalProps {
         locationLat?: number;
         locationLng?: number;
         verificationStatus: string;
-        idDocumentType?: string;
-        idDocumentFrontUrl?: string;
-        idDocumentBackUrl?: string;
         faceVerificationUrl?: string;
         createdAt: string;
         profile?: {
@@ -172,7 +169,7 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
                         </div>
 
                         {/* Body */}
-                        <div className="p-6 overflow-y-auto max-h-[60vh]">
+                        <div className={`p-6 overflow-y-auto max-h-[calc(90vh-140px)] ${user.verificationStatus === 'PENDING' ? 'pb-24' : ''}`}>
                             {/* User Info Grid */}
                             <div className="grid grid-cols-2 gap-4 mb-6">
                                 <div className="bg-gray-50 rounded-xl p-4">
@@ -183,11 +180,7 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
                                     <p className="text-xs text-gray-500 uppercase font-bold mb-1">Phone Number</p>
                                     <p className="text-sm font-semibold text-gray-900">{user.phoneNumber || 'Not provided'}</p>
                                 </div>
-                                <div className="bg-gray-50 rounded-xl p-4">
-                                    <p className="text-xs text-gray-500 uppercase font-bold mb-1">ID Document Type</p>
-                                    <p className="text-sm font-semibold text-gray-900 capitalize">{user.idDocumentType?.replace('_', ' ') || 'Not provided'}</p>
-                                </div>
-                                <div className="bg-gray-50 rounded-xl p-4">
+                                <div className="bg-gray-50 rounded-xl p-4 col-span-2">
                                     <p className="text-xs text-gray-500 uppercase font-bold mb-1">Joined</p>
                                     <p className="text-sm font-semibold text-gray-900">{formatDate(user.createdAt)}</p>
                                 </div>
@@ -295,97 +288,52 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
                                 </div>
                             )}
 
-                            {/* Identity Documents Section */}
+                            {/* Selfie Verification Section */}
                             <div className="border-t border-gray-200 pt-6">
                                 <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                                     <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                     </svg>
-                                    Identity Documents (For Investigation)
+                                    Selfie Verification
                                 </h3>
 
                                 <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-4">
                                     <p className="text-sm text-yellow-800">
-                                        <strong>⚠️ Confidential:</strong> These documents are stored securely for verification and fraud investigation purposes only. Handle with care and in accordance with data protection regulations.
+                                        <strong>⚠️ Confidential:</strong> This photo is stored securely for verification and fraud investigation purposes only. Handle with care and in accordance with data protection regulations.
                                     </p>
                                 </div>
 
-                                <div className="grid grid-cols-3 gap-4">
-                                    {/* Face Verification */}
-                                    <div className="bg-gray-50 rounded-xl p-4">
-                                        <p className="text-xs text-gray-500 uppercase font-bold mb-2">Selfie Verification</p>
-                                        {user.faceVerificationUrl ? (
-                                            <div
-                                                className="relative aspect-square rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-blue-500 transition"
-                                                onClick={() => setActiveImageUrl(user.faceVerificationUrl!)}
-                                            >
-                                                <Image
-                                                    src={sanitizeUrl(user.faceVerificationUrl!)}
-                                                    alt="Face verification"
-                                                    fill
-                                                    className="object-cover"
-                                                />
-                                                <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition flex items-center justify-center">
-                                                    <span className="text-white opacity-0 hover:opacity-100 font-semibold">View Full</span>
-                                                </div>
+                                <div className="bg-gray-50 rounded-xl p-4">
+                                    <p className="text-xs text-gray-500 uppercase font-bold mb-3">Selfie Photo</p>
+                                    {user.faceVerificationUrl ? (
+                                        <div
+                                            className="relative w-full rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-blue-500 transition"
+                                            style={{ minHeight: '280px', maxHeight: '400px' }}
+                                            onClick={() => setActiveImageUrl(user.faceVerificationUrl!)}
+                                        >
+                                            <Image
+                                                src={sanitizeUrl(user.faceVerificationUrl!)}
+                                                alt="Face verification"
+                                                fill
+                                                className="object-contain"
+                                                sizes="(max-width: 768px) 100vw, 600px"
+                                            />
+                                            <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition flex items-end justify-center pb-3">
+                                                <span className="text-white bg-black/50 px-3 py-1 rounded-full text-xs font-semibold opacity-0 hover:opacity-100 transition">Click to view full size</span>
                                             </div>
-                                        ) : (
-                                            <div className="aspect-square bg-gray-200 rounded-lg flex items-center justify-center">
-                                                <span className="text-gray-400 text-sm">Not provided</span>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* ID Front */}
-                                    <div className="bg-gray-50 rounded-xl p-4">
-                                        <p className="text-xs text-gray-500 uppercase font-bold mb-2">ID Front</p>
-                                        {user.idDocumentFrontUrl ? (
-                                            <div
-                                                className="relative aspect-square rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-blue-500 transition"
-                                                onClick={() => setActiveImageUrl(user.idDocumentFrontUrl!)}
-                                            >
-                                                <Image
-                                                    src={sanitizeUrl(user.idDocumentFrontUrl!)}
-                                                    alt="ID Front"
-                                                    fill
-                                                    className="object-cover"
-                                                />
-                                            </div>
-                                        ) : (
-                                            <div className="aspect-square bg-gray-200 rounded-lg flex items-center justify-center">
-                                                <span className="text-gray-400 text-sm">Not provided</span>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* ID Back */}
-                                    <div className="bg-gray-50 rounded-xl p-4">
-                                        <p className="text-xs text-gray-500 uppercase font-bold mb-2">ID Back</p>
-                                        {user.idDocumentBackUrl ? (
-                                            <div
-                                                className="relative aspect-square rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-blue-500 transition"
-                                                onClick={() => setActiveImageUrl(user.idDocumentBackUrl!)}
-                                            >
-                                                <Image
-                                                    src={sanitizeUrl(user.idDocumentBackUrl!)}
-                                                    alt="ID Back"
-                                                    fill
-                                                    className="object-cover"
-                                                />
-                                            </div>
-                                        ) : (
-                                            <div className="aspect-square bg-gray-200 rounded-lg flex items-center justify-center">
-                                                <span className="text-gray-400 text-sm">Not provided</span>
-                                            </div>
-                                        )}
-                                    </div>
+                                        </div>
+                                    ) : (
+                                        <div className="h-48 bg-gray-200 rounded-lg flex items-center justify-center">
+                                            <span className="text-gray-400 text-sm">No selfie provided</span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
 
                         {/* Actions for Pending Verification */}
                         {user.verificationStatus === 'PENDING' && (
-                            <div className="bg-white border-t border-gray-200 p-4 absolute bottom-0 left-0 right-0 rounded-b-2xl flex justify-between items-center z-10 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+                            <div className="bg-white border-t border-gray-200 p-4 sticky bottom-0 left-0 right-0 rounded-b-2xl flex justify-between items-center z-10 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
                                 <p className="text-sm font-medium text-gray-600">Verification Pending</p>
                                 <div className="flex gap-3">
                                     <button

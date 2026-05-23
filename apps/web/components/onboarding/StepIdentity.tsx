@@ -37,6 +37,7 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
     const [showCameraModal, setShowCameraModal] = useState(false);
     const [activeGuideSlide, setActiveGuideSlide] = useState(0);
     const [cameraError, setCameraError] = useState<string | null>(null);
+    const [cameraRetryKey, setCameraRetryKey] = useState(0);
 
     // Auto-cycle the good/bad selfie guide
     useEffect(() => {
@@ -61,6 +62,12 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
         setShowCameraModal(false);
         setShowCamera(true);
         setCameraError(null);
+    };
+
+    const handleRetryCamera = () => {
+        setCameraRetryKey(prev => prev + 1);
+        setCameraError(null);
+        setShowCamera(true);
     };
 
     const handleUserMediaError = useCallback((error: string | DOMException) => {
@@ -142,6 +149,42 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
             toast.error(`Error: ${errorMessage}`);
             setLoading(false);
         }
+    };
+
+    const getInstructions = () => {
+        if (typeof window === 'undefined') return null;
+        const ua = navigator.userAgent;
+        const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        const isChrome = /CriOS/.test(ua);
+        
+        if (isIOS) {
+            if (isChrome) {
+                return (
+                    <ol className="text-left text-xs text-red-600 space-y-1.5 mt-3 list-decimal pl-5 leading-normal">
+                        <li>Open iOS <strong>Settings</strong> app</li>
+                        <li>Scroll down and tap <strong>Chrome</strong></li>
+                        <li>Toggle <strong>Camera</strong> permission to <strong>ON</strong></li>
+                        <li>Return to Chrome, reload page & try again</li>
+                    </ol>
+                );
+            }
+            return (
+                <ol className="text-left text-xs text-red-600 space-y-1.5 mt-3 list-decimal pl-5 leading-normal">
+                    <li>Tap the <strong>aA</strong> settings icon in your Safari address bar</li>
+                    <li>Tap <strong>Website Settings</strong></li>
+                    <li>Change Camera access to <strong>Ask</strong> or <strong>Allow</strong></li>
+                    <li>Reload the page or tap <strong>Retry Camera</strong></li>
+                </ol>
+            );
+        }
+        
+        return (
+            <ol className="text-left text-xs text-red-600 space-y-1.5 mt-3 list-decimal pl-5 leading-normal">
+                <li>Tap the settings/lock icon in your browser address bar</li>
+                <li>Ensure <strong>Camera</strong> access is set to <strong>Allow</strong></li>
+                <li>Tap <strong>Retry Camera</strong> below</li>
+            </ol>
+        );
     };
 
     return (
@@ -304,15 +347,36 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
             </div>
 
             {/* ================================================ */}
+            {/* CAMERA PERMISSION DENIED BANNER                   */}
+            {/* ================================================ */}
+            {cameraError && (
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center shrink-0">
+                        <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                        </svg>
+                    </div>
+                    <div className="flex-1">
+                        <p className="text-sm font-bold text-red-800">Camera access is blocked</p>
+                        <p className="text-xs text-red-700 mt-0.5 leading-relaxed">
+                            Your browser has denied camera access. To take a selfie, you need to enable camera permissions in your browser settings. Alternatively, you can upload a photo directly from your device.
+                        </p>
+                        {getInstructions()}
+                    </div>
+                </div>
+            )}
+
+            {/* ================================================ */}
             {/* CAMERA / SELFIE AREA                             */}
             {/* ================================================ */}
             <div className="space-y-3">
-                <div className="relative w-full h-72 bg-black rounded-2xl overflow-hidden flex items-center justify-center group shadow-lg">
+                <div className={`relative w-full h-72 bg-black rounded-2xl overflow-hidden flex items-center justify-center group shadow-lg`}>
                     {selfie ? (
                         <img src={selfie} alt="Selfie" className="w-full h-full object-cover" />
                     ) : showCamera && !cameraError ? (
                         <>
                             <Webcam
+                                key={cameraRetryKey}
                                 audio={false}
                                 ref={webcamRef}
                                 screenshotFormat="image/jpeg"
@@ -330,18 +394,24 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
                             </div>
                         </>
                     ) : (
-                        <div className="text-center p-6">
-                            <div className="w-20 h-20 bg-gray-800/80 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-gray-700 transition-all group-hover:scale-110">
-                                <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
+                        <div className="text-center p-6 w-full">
+                            <div className={`w-20 h-20 ${cameraError ? 'bg-red-900/40' : 'bg-gray-800/80'} rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-gray-700 transition-all group-hover:scale-110`}>
+                                {cameraError ? (
+                                    <svg className="w-10 h-10 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                                    </svg>
+                                ) : (
+                                    <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                )}
                             </div>
-                            <p className="text-gray-400 font-medium">
-                                {cameraError ? 'Camera Error' : 'Camera is off'}
+                            <p className={`${cameraError ? 'text-red-400' : 'text-gray-400'} font-medium`}>
+                                {cameraError ? 'Camera Access Denied' : 'Camera is off'}
                             </p>
-                            <p className="text-gray-500 text-xs mt-1 max-w-[200px] mx-auto leading-normal">
-                                {cameraError ? cameraError : 'Tap below to start'}
+                            <p className="text-gray-500 text-xs mt-1 max-w-[220px] mx-auto leading-normal">
+                                {cameraError ? 'Enable camera in your browser settings or upload a photo below' : 'Tap below to start'}
                             </p>
                         </div>
                     )}
@@ -390,6 +460,37 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                             </svg>
                             Upload photo instead
+                            <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={handleFileUpload}
+                            />
+                        </label>
+                    </div>
+                ) : cameraError ? (
+                    <div className="flex flex-col gap-3">
+                        <button
+                            onClick={handleRetryCamera}
+                            className="w-full py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-bold transition-all shadow-lg shadow-blue-500/25 active:scale-[0.98] flex items-center justify-center gap-2"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            Retry Camera
+                        </button>
+                        
+                        <div className="relative flex py-1 items-center">
+                            <div className="flex-grow border-t border-gray-100"></div>
+                            <span className="flex-shrink mx-3 text-gray-400 text-[10px] font-bold uppercase tracking-wider">or</span>
+                            <div className="flex-grow border-t border-gray-100"></div>
+                        </div>
+
+                        <label className="w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-600 hover:bg-gray-50 font-semibold transition-all hover:border-blue-400 flex items-center justify-center gap-2 cursor-pointer">
+                            <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                            Upload Photo from Device
                             <input
                                 type="file"
                                 accept="image/*"
