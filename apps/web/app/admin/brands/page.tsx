@@ -1,9 +1,10 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import apiClient from '@/lib/api-client';
 import { sanitizeUrl } from '@/lib/utils';
 import ActionConfirmModal from '@/components/admin/ActionConfirmModal';
+import toast from 'react-hot-toast';
 
 interface BrandApplication {
     id: string;
@@ -131,7 +132,7 @@ export default function AdminBrandsPage() {
             setSelectedApp(null);
             setConfirmAction(prev => ({ ...prev, open: false }));
         } catch (err: any) {
-            alert(err.response?.data?.message || 'Failed to execute action');
+            toast.error(err.response?.data?.message || 'Failed to execute action');
         } finally {
             setActionLoading(null);
         }
@@ -149,7 +150,7 @@ export default function AdminBrandsPage() {
             setRejectReason('');
             setShowRejectInput(false);
         } catch (err: any) {
-            alert(err.response?.data?.message || 'Failed to reject');
+            toast.error(err.response?.data?.message || 'Failed to reject');
         } finally {
             setActionLoading(null);
         }

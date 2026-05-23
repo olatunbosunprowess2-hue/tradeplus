@@ -56,11 +56,11 @@ export default function VerificationReviewModal({ user, onClose, onDecision }: M
 
     return (
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-2 pb-8 sm:p-4"
             onClick={onClose}
         >
             <div
-                className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto flex flex-col"
+                className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[88vh] max-h-[88dvh] md:max-h-[90vh] md:max-h-[90dvh] overflow-y-auto flex flex-col"
                 onClick={(e) => e.stopPropagation()}
             >
 
@@ -119,15 +119,23 @@ export default function VerificationReviewModal({ user, onClose, onDecision }: M
                                 </svg>
                                 Verification Selfie
                             </h3>
-                            <div className="aspect-[4/3] bg-black rounded-lg overflow-hidden">
+                            <div className="aspect-[4/3] bg-black rounded-lg overflow-hidden cursor-zoom-in relative group" title="Click to view full size">
                                 <img
                                     src={sanitizeUrl(user.faceVerificationUrl) || 'https://placehold.co/400x300?text=No+Selfie'}
                                     alt="Verification Selfie"
-                                    className="w-full h-full object-cover"
+                                    className="w-full h-full object-contain"
+                                    onClick={() => {
+                                        if (user.faceVerificationUrl) {
+                                            window.open(sanitizeUrl(user.faceVerificationUrl), '_blank');
+                                        }
+                                    }}
                                     onError={(e) => {
                                         e.currentTarget.src = 'https://placehold.co/400x300?text=Error+Loading+Image';
                                     }}
                                 />
+                                <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded pointer-events-none opacity-0 group-hover:opacity-100 transition">
+                                    🔍 Click to expand
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -168,47 +176,47 @@ export default function VerificationReviewModal({ user, onClose, onDecision }: M
                             <textarea
                                 value={rejectReason}
                                 onChange={(e) => setRejectReason(e.target.value)}
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none"
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm"
                                 placeholder="e.g. Selfie is blurry, face not clearly visible, wearing sunglasses..."
                                 rows={3}
                             />
-                            <div className="flex gap-3 justify-end">
+                            <div className="flex flex-col-reverse sm:flex-row gap-2.5 justify-end">
                                 <button
                                     onClick={() => setIsRejecting(false)}
                                     disabled={isProcessing}
-                                    className="px-4 py-2 text-gray-600 hover:bg-gray-200 rounded-lg font-medium disabled:opacity-50"
+                                    className="w-full sm:w-auto px-4 py-2 text-gray-600 hover:bg-gray-200 rounded-lg font-medium disabled:opacity-50 text-sm sm:text-base"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     onClick={handleConfirmReject}
                                     disabled={isProcessing}
-                                    className={`px-6 py-2 rounded-lg font-bold shadow-sm ${isProcessing ? 'bg-gray-400' : 'bg-red-600 hover:bg-red-700'} text-white`}
+                                    className={`w-full sm:w-auto px-6 py-2 rounded-lg font-bold shadow-sm ${isProcessing ? 'bg-gray-400' : 'bg-red-600 hover:bg-red-700'} text-white text-sm sm:text-base`}
                                 >
                                     {isProcessing ? 'Processing...' : 'Confirm Rejection'}
                                 </button>
                             </div>
                         </div>
                     ) : (
-                        <div className="flex gap-4 justify-end">
+                        <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 justify-end">
                             <button
                                 onClick={onClose}
                                 disabled={isProcessing}
-                                className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition disabled:opacity-50"
+                                className="w-full sm:w-auto px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition disabled:opacity-50 text-sm sm:text-base"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={handleRejectClick}
                                 disabled={isProcessing}
-                                className="px-6 py-3 bg-white border border-red-200 text-red-600 rounded-xl font-bold hover:bg-red-50 transition disabled:opacity-50"
+                                className="w-full sm:w-auto px-6 py-3 bg-white border border-red-200 text-red-600 rounded-xl font-bold hover:bg-red-50 transition disabled:opacity-50 text-sm sm:text-base"
                             >
                                 Reject
                             </button>
                             <button
                                 onClick={handleApprove}
                                 disabled={isProcessing}
-                                className={`px-8 py-3 rounded-xl font-bold shadow-lg transition transform ${isProcessing ? 'bg-gray-400' : 'bg-green-600 hover:bg-green-700 hover:-translate-y-0.5'} text-white`}
+                                className={`w-full sm:w-auto px-8 py-3 rounded-xl font-bold shadow-lg transition transform ${isProcessing ? 'bg-gray-400' : 'bg-green-600 hover:bg-green-700 hover:-translate-y-0.5'} text-white text-sm sm:text-base`}
                             >
                                 {isProcessing ? 'Processing...' : 'Approve Verification'}
                             </button>

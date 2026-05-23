@@ -127,7 +127,7 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
                     />
 
                     {/* Modal Content */}
-                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[80vh] md:max-h-[90vh] overflow-hidden flex flex-col">
+                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[88vh] max-h-[88dvh] md:max-h-[90vh] md:max-h-[90dvh] overflow-hidden flex flex-col">
                         {/* Header */}
                         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6">
                             <div className="flex justify-between items-start">
@@ -169,7 +169,7 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
                         </div>
 
                         {/* Body */}
-                        <div className={`p-6 overflow-y-auto flex-1 ${user.verificationStatus === 'PENDING' ? 'pb-6' : ''}`}>
+                        <div className={`p-4 sm:p-6 overflow-y-auto flex-1 scrollbar-thin ${user.verificationStatus === 'PENDING' ? 'pb-32 sm:pb-8' : 'pb-12 sm:pb-8'}`} style={{ WebkitOverflowScrolling: 'touch' }}>
                             {/* User Info Grid */}
                             <div className="grid grid-cols-2 gap-4 mb-6">
                                 <div className="bg-gray-50 rounded-xl p-4">
@@ -387,7 +387,7 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
                         <div className="relative max-w-4xl max-h-[90vh] w-full h-full">
                             <Image
                                 src={sanitizeUrl(activeImageUrl)}
-                                alt="Full size document"
+                                alt="Full size selfie"
                                 fill
                                 className="object-contain"
                                 draggable={false}
@@ -409,7 +409,7 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
                 confirmColor={actionModal.type === 'APPROVE' ? 'green' : 'red'}
                 showInput={actionModal.type === 'REJECT'}
                 inputLabel="Rejection Reason"
-                inputPlaceholder="Please explain why the documents were rejected (e.g., blurry image, name mismatch)..."
+                inputPlaceholder="Please explain why the selfie was rejected (e.g., blurry selfie, face covered, mismatch)..."
             />
         </>
     );

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import apiClient from '@/lib/api-client';
+import toast from 'react-hot-toast';
 
 interface PromoteListingModalProps {
     listingId: string;
@@ -62,7 +63,7 @@ export default function PromoteListingModal({
             onSuccess();
             onClose();
         } catch (error: any) {
-            alert(error.response?.data?.message || 'Failed to promote listing');
+            toast.error(error.response?.data?.message || 'Failed to promote listing');
         } finally {
             setPromoting(false);
         }

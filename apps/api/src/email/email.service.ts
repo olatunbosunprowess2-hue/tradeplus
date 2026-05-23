@@ -1,4 +1,4 @@
-﻿import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InfrastructureService } from '../infrastructure/infrastructure.service';
 
@@ -173,15 +173,20 @@ export class EmailService {
      */
     private callout(text: string, type: 'warning' | 'info' | 'danger' | 'success' = 'warning'): string {
         const styles = {
-            warning: { bg: '#fffbeb', border: '#fde68a', text: '#92400e', icon: '⚠️' },
-            info: { bg: '#eff6ff', border: '#bfdbfe', text: '#1e40af', icon: 'ℹ️' },
-            danger: { bg: '#fef2f2', border: '#fecaca', text: '#991b1b', icon: '🚨' },
-            success: { bg: '#f0fdf4', border: '#bbf7d0', text: '#166534', icon: '✅' },
+            warning: { bg: '#fffbeb', border: '#fde68a', text: '#92400e', dot: '#f59e0b' },
+            info: { bg: '#eff6ff', border: '#bfdbfe', text: '#1e40af', dot: '#3b82f6' },
+            danger: { bg: '#fef2f2', border: '#fecaca', text: '#991b1b', dot: '#ef4444' },
+            success: { bg: '#f0fdf4', border: '#bbf7d0', text: '#166534', dot: '#22c55e' },
         };
         const s = styles[type];
         return `
         <div style="background: ${s.bg}; border: 1px solid ${s.border}; border-radius: 10px; padding: 14px 18px; margin: 20px 0;">
-          <p style="color: ${s.text}; margin: 0; font-size: 14px; line-height: 1.5;">${s.icon} ${text}</p>
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+            <td style="vertical-align: top; padding-right: 10px;">
+              <div style="width: 8px; height: 8px; background: ${s.dot}; border-radius: 50%; margin-top: 5px;"></div>
+            </td>
+            <td><p style="color: ${s.text}; margin: 0; font-size: 14px; line-height: 1.5;">${text}</p></td>
+          </tr></table>
         </div>`;
     }
 
@@ -218,7 +223,7 @@ export class EmailService {
 
     async sendWelcome(email: string, name: string): Promise<boolean> {
         const content = `
-            <h2 style="color: #111827; font-size: 22px; font-weight: 700; margin: 0 0 8px;">Welcome to BarterWave${name ? `, ${name}` : ''}! 👋</h2>
+            <h2 style="color: #111827; font-size: 22px; font-weight: 700; margin: 0 0 8px;">Welcome to BarterWave${name ? `, ${name}` : ''}!</h2>
             <p style="color: #4b5563; font-size: 15px; line-height: 1.7; margin: 0 0 24px;">
                 You've joined the fastest-growing marketplace for buying, selling, and bartering goods. Here's how to get started:
             </p>
@@ -276,7 +281,7 @@ export class EmailService {
 
         return this.send({
             to: email,
-            subject: 'Welcome to BarterWave — let\'s get started! 🎉',
+            subject: `Welcome to BarterWave — let's get started!`,
             html: this.wrapLayout(content, `Welcome to BarterWave${name ? `, ${name}` : ''}!`),
             text: `Welcome to BarterWave${name ? `, ${name}` : ''}! Start exploring at ${this.frontendUrl}/listings`,
         });
@@ -316,7 +321,6 @@ export class EmailService {
     async sendVerificationApproved(email: string, name: string): Promise<boolean> {
         const content = `
             ${this.highlightBox(`
-                <div style="font-size: 48px; margin-bottom: 8px;">✅</div>
                 <h2 style="color: #059669; font-size: 22px; font-weight: 700; margin: 0;">Identity Verified!</h2>
             `, '#f0fdf4', '#a7f3d0')}
 
@@ -336,7 +340,7 @@ export class EmailService {
 
         return this.send({
             to: email,
-            subject: '✅ Your BarterWave account is now verified!',
+            subject: 'Your BarterWave account is now verified!',
             html: this.wrapLayout(content, `Your BarterWave identity has been verified.`),
             text: `Congratulations${name ? `, ${name}` : ''}! Your BarterWave account is now verified.`,
         });
@@ -357,9 +361,9 @@ export class EmailService {
             <p style="color: #4b5563; font-size: 14px; font-weight: 600; margin: 0 0 8px;">Before resubmitting, please ensure:</p>
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 24px;">
               <tr><td style="padding: 6px 0; color: #4b5563; font-size: 14px;">• Photos are clear and well-lit</td></tr>
-              <tr><td style="padding: 6px 0; color: #4b5563; font-size: 14px;">• All document corners are visible</td></tr>
-              <tr><td style="padding: 6px 0; color: #4b5563; font-size: 14px;">• Text and information are readable</td></tr>
-              <tr><td style="padding: 6px 0; color: #4b5563; font-size: 14px;">• Selfie matches the ID photo</td></tr>
+              <tr><td style="padding: 6px 0; color: #4b5563; font-size: 14px;">• Your full face is clearly visible (no hats, masks, or heavy filters)</td></tr>
+              <tr><td style="padding: 6px 0; color: #4b5563; font-size: 14px;">• Only one person is in the frame</td></tr>
+              <tr><td style="padding: 6px 0; color: #4b5563; font-size: 14px;">• It's a live selfie (not a screenshot or photo of a screen)</td></tr>
             </table>
 
             ${this.ctaButton('Resubmit Verification →', `${this.frontendUrl}/verification`)}
@@ -383,7 +387,6 @@ export class EmailService {
     ): Promise<boolean> {
         const content = `
             ${this.highlightBox(`
-                <div style="font-size: 40px; margin-bottom: 8px;">💰</div>
                 <p style="color: #059669; font-size: 13px; font-weight: 600; margin: 0 0 4px; text-transform: uppercase; letter-spacing: 1px;">Payment Secured in Escrow</p>
                 <p style="color: #065f46; font-size: 32px; font-weight: 800; margin: 0;">${currency} ${amount.toLocaleString()}</p>
             `, '#ecfdf5', '#a7f3d0')}
@@ -403,7 +406,7 @@ export class EmailService {
 
         return this.send({
             to: sellerEmail,
-            subject: `💰 Payment secured: ${itemTitle}`,
+            subject: `Payment secured: ${itemTitle}`,
             html: this.wrapLayout(content, `${buyerName} paid ${currency} ${amount.toLocaleString()} for ${itemTitle}`),
             text: `Payment secured for ${itemTitle}! ${currency} ${amount.toLocaleString()} from ${buyerName}. Meet the buyer safely - funds will be released when they confirm receipt.`,
         });
@@ -418,10 +421,9 @@ export class EmailService {
     ): Promise<boolean> {
         const content = `
             ${this.highlightBox(`
-                <div style="font-size: 40px; margin-bottom: 8px;">🎉</div>
-                <p style="color: #ffffff; font-size: 13px; font-weight: 600; margin: 0 0 4px; text-transform: uppercase; letter-spacing: 1px;">Payment Released</p>
-                <p style="color: #ffffff; font-size: 32px; font-weight: 800; margin: 0;">${currency} ${amount.toLocaleString()}</p>
-            `.replace('color: #ffffff', 'color: #065f46'), '#ecfdf5', '#a7f3d0')}
+                <p style="color: #065f46; font-size: 13px; font-weight: 600; margin: 0 0 4px; text-transform: uppercase; letter-spacing: 1px;">Payment Released</p>
+                <p style="color: #065f46; font-size: 32px; font-weight: 800; margin: 0;">${currency} ${amount.toLocaleString()}</p>
+            `, '#ecfdf5', '#a7f3d0')}
 
             <p style="color: #4b5563; font-size: 15px; line-height: 1.7; margin: 0 0 8px;">
                 Hi${sellerName ? ` ${sellerName}` : ''}, the buyer has confirmed receipt of:
@@ -438,7 +440,7 @@ export class EmailService {
 
         return this.send({
             to: sellerEmail,
-            subject: `🎉 Payment released: ${currency} ${amount.toLocaleString()}`,
+            subject: `Payment released: ${currency} ${amount.toLocaleString()}`,
             html: this.wrapLayout(content, `Your payment of ${currency} ${amount.toLocaleString()} has been released.`),
             text: `Payment released! ${currency} ${amount.toLocaleString()} for ${itemTitle} has been sent to your account.`,
         });
@@ -457,7 +459,6 @@ export class EmailService {
     ): Promise<boolean> {
         const content = `
             ${this.highlightBox(`
-                <div style="font-size: 40px; margin-bottom: 8px;">📬</div>
                 <h2 style="color: #4338ca; font-size: 20px; font-weight: 700; margin: 0;">You've Got an Offer!</h2>
             `, '#eef2ff', '#c7d2fe')}
 
@@ -476,7 +477,7 @@ export class EmailService {
 
         return this.send({
             to: sellerEmail,
-            subject: `📬 New offer on "${listingTitle}"`,
+            subject: `New offer on "${listingTitle}"`,
             html: this.wrapLayout(content, `${buyerName} made an offer on ${listingTitle}`),
             text: `New offer from ${buyerName} on "${listingTitle}": ${offerDetails}. View at ${this.frontendUrl}/offers`,
         });
@@ -490,7 +491,6 @@ export class EmailService {
     ): Promise<boolean> {
         const content = `
             ${this.highlightBox(`
-                <div style="font-size: 40px; margin-bottom: 8px;">🎉</div>
                 <h2 style="color: #059669; font-size: 20px; font-weight: 700; margin: 0;">Offer Accepted!</h2>
             `, '#f0fdf4', '#a7f3d0')}
 
@@ -509,7 +509,7 @@ export class EmailService {
 
         return this.send({
             to: buyerEmail,
-            subject: `✅ Your offer on "${listingTitle}" was accepted!`,
+            subject: `Your offer on "${listingTitle}" was accepted!`,
             html: this.wrapLayout(content, `${sellerName} accepted your offer on ${listingTitle}`),
             text: `Your offer on "${listingTitle}" was accepted by ${sellerName}! Visit ${this.frontendUrl}/offers to continue.`,
         });
@@ -552,7 +552,6 @@ export class EmailService {
     ): Promise<boolean> {
         const content = `
             ${this.highlightBox(`
-                <div style="font-size: 40px; margin-bottom: 8px;">↩️</div>
                 <h2 style="color: #92400e; font-size: 20px; font-weight: 700; margin: 0;">Counter Offer Received</h2>
             `, '#fffbeb', '#fde68a')}
 
@@ -567,7 +566,7 @@ export class EmailService {
 
         return this.send({
             to: buyerEmail,
-            subject: `↩️ Counter offer on "${listingTitle}"`,
+            subject: `Counter offer on "${listingTitle}"`,
             html: this.wrapLayout(content, `${sellerName} sent a counter offer on "${listingTitle}"`),
             text: `Counter offer from ${sellerName} on "${listingTitle}": ${counterDetails}. Review at ${this.frontendUrl}/offers`,
         });
@@ -598,7 +597,7 @@ export class EmailService {
 
         return this.send({
             to: recipientEmail,
-            subject: `💬 New message from ${senderName}`,
+            subject: `New message from ${senderName}`,
             html: this.wrapLayout(content, `${senderName}: "${messagePreview}"`),
             text: `New message from ${senderName}: "${messagePreview}". Reply at ${this.frontendUrl}/messages`,
         });
@@ -614,7 +613,6 @@ export class EmailService {
     ): Promise<boolean> {
         const content = `
             ${this.highlightBox(`
-                <div style="font-size: 40px; margin-bottom: 8px;">✅</div>
                 <h2 style="color: #1e40af; font-size: 20px; font-weight: 700; margin: 0 0 4px;">Order Confirmed</h2>
                 <p style="color: #6b7280; font-size: 13px; margin: 0;">Order #${orderNumber}</p>
             `, '#eff6ff', '#bfdbfe')}
@@ -634,7 +632,7 @@ export class EmailService {
 
         return this.send({
             to: buyerEmail,
-            subject: `🛒 Order confirmed: #${orderNumber}`,
+            subject: `Order confirmed: #${orderNumber}`,
             html: this.wrapLayout(content, `Order #${orderNumber} confirmed — ${itemTitle}`),
             text: `Order #${orderNumber} confirmed! ${itemTitle} - ${currency} ${amount.toLocaleString()}. View at ${this.frontendUrl}/history`,
         });
@@ -648,7 +646,6 @@ export class EmailService {
     ): Promise<boolean> {
         const content = `
             ${this.highlightBox(`
-                <div style="font-size: 40px; margin-bottom: 8px;">🌟</div>
                 <p style="color: #6d28d9; font-size: 13px; font-weight: 600; margin: 0 0 4px; text-transform: uppercase; letter-spacing: 1px;">New Role Assigned</p>
                 <p style="color: #4c1d95; font-size: 24px; font-weight: 800; margin: 0;">${roleName}</p>
             `, '#f5f3ff', '#ddd6fe')}
@@ -668,7 +665,7 @@ export class EmailService {
 
         return this.send({
             to: email,
-            subject: `🌟 You've been promoted to ${roleName}`,
+            subject: `You've been promoted to ${roleName}`,
             html: this.wrapLayout(content, `You've been appointed as ${roleName} on BarterWave.`),
             text: `Congratulations! You've been appointed as ${roleName}. ${description}. Access your dashboard at ${this.frontendUrl}/admin`,
         });
@@ -707,7 +704,6 @@ export class EmailService {
     ): Promise<boolean> {
         const content = `
             ${this.highlightBox(`
-                <div style="font-size: 40px; margin-bottom: 8px;">⚠️</div>
                 <h2 style="color: #dc2626; font-size: 20px; font-weight: 700; margin: 0;">Account Suspended</h2>
             `, '#fef2f2', '#fecaca')}
 
@@ -727,7 +723,7 @@ export class EmailService {
 
         return this.send({
             to: email,
-            subject: '⚠️ BarterWave — Account status update',
+            subject: 'BarterWave — Account status update',
             html: this.wrapLayout(content, 'Important update regarding your BarterWave account.'),
             text: `Your BarterWave account has been suspended. Reason: ${reason}. Contact support if you believe this is a mistake.`,
         });
@@ -740,7 +736,6 @@ export class EmailService {
     async sendPasswordChanged(email: string, name: string): Promise<boolean> {
         const content = `
             ${this.highlightBox(`
-                <div style="font-size: 40px; margin-bottom: 8px;">🔒</div>
                 <h2 style="color: #166534; font-size: 20px; font-weight: 700; margin: 0;">Password Changed</h2>
             `, '#f0fdf4', '#bbf7d0')}
 
@@ -753,7 +748,7 @@ export class EmailService {
 
         return this.send({
             to: email,
-            subject: '🔒 BarterWave — Password changed',
+            subject: 'BarterWave — Password changed',
             html: this.wrapLayout(content, 'Your password was changed.'),
             text: `Hi${name ? ` ${name}` : ''}, your BarterWave password was changed. If this wasn't you, reset your password immediately.`,
         });
@@ -775,7 +770,6 @@ export class EmailService {
 
         const content = `
             ${this.highlightBox(`
-                <div style="font-size: 40px; margin-bottom: 8px;">🔥</div>
                 <h2 style="color: #dc2626; font-size: 20px; font-weight: 700; margin: 0;">Hot Deal Alert!</h2>
                 <p style="color: #6b7280; font-size: 13px; margin: 4px 0 0;">Based on your interests</p>
             `, '#fff7ed', '#fed7aa')}
@@ -786,7 +780,7 @@ export class EmailService {
 
             <div style="background: #f9fafb; border-radius: 12px; padding: 20px; margin: 16px 0; border: 2px solid #f97316;">
               <h3 style="color: #111827; margin: 0 0 6px; font-size: 17px; font-weight: 700;">${listingTitle}</h3>
-              <p style="color: #f97316; font-weight: 600; margin: 0; font-size: 14px;">📂 ${categoryName}</p>
+              <p style="color: #f97316; font-weight: 600; margin: 0; font-size: 14px;">${categoryName}</p>
             </div>
 
             ${this.ctaButton('View This Deal →', listingLink, 'linear-gradient(135deg, #f97316, #dc2626)')}
@@ -798,7 +792,7 @@ export class EmailService {
 
         return this.send({
             to: email,
-            subject: `🔥 Hot deal: "${listingTitle}" in ${categoryName}!`,
+            subject: `Hot deal: "${listingTitle}" in ${categoryName}!`,
             html: this.wrapLayout(content, `Hot deal in ${categoryName}: ${listingTitle} by ${sellerName}`),
             text: `Hot Deal Alert! ${sellerName} is selling "${listingTitle}" in ${categoryName}. Check it out: ${listingLink}`,
         });

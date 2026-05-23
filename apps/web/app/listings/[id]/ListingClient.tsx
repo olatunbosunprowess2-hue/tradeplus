@@ -21,6 +21,7 @@ import BrandBadge from '@/components/BrandBadge';
 import GuestActionModal from '@/components/GuestActionModal';
 import { ChatLimitModal } from '@/components/PaywallModal';
 import { checkChatLimit, initializePayment, redirectToPaystack } from '@/lib/payments-api';
+import toast from 'react-hot-toast';
 
 interface ListingClientProps {
     listing: Listing;
@@ -97,11 +98,14 @@ export default function ListingClient({ listing: initialListing }: ListingClient
                 message: offerData.message,
             });
 
-            alert('Offer sent successfully! The seller will be notified.');
+            toast.success('Offer sent successfully! The seller will be notified.');
             setIsOfferModalOpen(false);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to send offer:', error);
-            alert('Failed to send offer. Please try again.');
+            const errorMsg = error.response?.data?.message
+                ? (Array.isArray(error.response.data.message) ? error.response.data.message.join(', ') : error.response.data.message)
+                : (error.message || 'Failed to send offer. Please try again.');
+            toast.error(errorMsg);
         }
     };
 
@@ -133,9 +137,12 @@ export default function ListingClient({ listing: initialListing }: ListingClient
         try {
             const result = await initializePayment(optionId as any, undefined, currency);
             redirectToPaystack(result.authorizationUrl);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Payment initialization failed:', error);
-            alert('Failed to initialize payment. Please try again.');
+            const errorMsg = error.response?.data?.message
+                ? (Array.isArray(error.response.data.message) ? error.response.data.message.join(', ') : error.response.data.message)
+                : (error.message || 'Failed to initialize payment. Please try again.');
+            toast.error(errorMsg);
         } finally {
             setIsPaymentLoading(false);
         }

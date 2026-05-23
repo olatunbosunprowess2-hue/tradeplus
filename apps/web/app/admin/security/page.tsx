@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { apiClient } from '../../../lib/api-client';
 import { useAuthStore } from '../../../lib/auth-store';
+import toast from 'react-hot-toast';
 
 interface SuspiciousIp {
     ip: string;
@@ -35,11 +36,11 @@ export default function SecurityPage() {
 
         try {
             await apiClient.post('/admin/security/block-ip', { ip, reason: 'Manual Block via Admin Panel' });
-            alert(`IP ${ip} has been blocked.`);
+            toast.success(`IP ${ip} has been blocked.`);
             fetchData(); // Refresh list
         } catch (error) {
             console.error('Failed to block IP', error);
-            alert('Failed to block IP');
+            toast.error('Failed to block IP');
         }
     };
 

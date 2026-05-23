@@ -37,22 +37,76 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
     const [showCameraModal, setShowCameraModal] = useState(false);
     const [activeGuideSlide, setActiveGuideSlide] = useState(0);
     const [cameraError, setCameraError] = useState<string | null>(null);
+    const [cameraErrorType, setCameraErrorType] = useState<'permission' | 'not_found' | 'other' | null>(null);
     const [cameraRetryKey, setCameraRetryKey] = useState(0);
+    const [cameraInitializing, setCameraInitializing] = useState(false);
+    const initTimeoutRef = useRef<any>(null);
 
     // Auto-cycle the good/bad selfie guide
     useEffect(() => {
         const timer = setInterval(() => setActiveGuideSlide(s => (s + 1) % 2), 4000);
-        return () => clearInterval(timer);
+        return () => {
+            clearInterval(timer);
+            if (initTimeoutRef.current) {
+                clearTimeout(initTimeoutRef.current);
+            }
+        };
     }, []);
 
     const captureSelfie = useCallback(() => {
-        const imageSrc = webcamRef.current?.getScreenshot();
+        if (!webcamRef.current) {
+            toast.error("Camera is not initialized. Please try starting the camera again.");
+            return;
+        }
+
+        const video = webcamRef.current.video;
+        if (!video || video.readyState < 2) {
+            toast.error("Camera stream is not fully ready yet. Please wait a moment and try again.");
+            return;
+        }
+
+        const imageSrc = webcamRef.current.getScreenshot();
         if (imageSrc) {
             setSelfie(imageSrc);
             setShowCamera(false);
+            setCameraInitializing(false);
             setCameraError(null);
+            setCameraErrorType(null);
+            if (initTimeoutRef.current) {
+                clearTimeout(initTimeoutRef.current);
+            }
+            toast.success("Selfie captured successfully!");
+        } else {
+            toast.error("Failed to capture image. Please try again.");
         }
     }, [webcamRef]);
+
+    const startCameraSession = () => {
+        setShowCamera(true);
+        setCameraError(null);
+        setCameraErrorType(null);
+        setCameraInitializing(true);
+        
+        if (initTimeoutRef.current) {
+            clearTimeout(initTimeoutRef.current);
+        }
+        
+        initTimeoutRef.current = setTimeout(() => {
+            setCameraInitializing(prev => {
+                if (prev) {
+                    const warningMsg = 'Camera is taking too long to start. Please make sure you have allowed camera permission in your browser, or upload a photo instead.';
+                    setCameraError(warningMsg);
+                    setCameraErrorType('other');
+                    toast(warningMsg, {
+                        icon: '⚠️',
+                        duration: 6000,
+                    });
+                    return false;
+                }
+                return prev;
+            });
+        }, 6000);
+    };
 
     const handleStartCamera = () => {
         setShowCameraModal(true);
@@ -60,31 +114,36 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
 
     const confirmCameraPermission = () => {
         setShowCameraModal(false);
-        setShowCamera(true);
-        setCameraError(null);
+        startCameraSession();
     };
 
     const handleRetryCamera = () => {
         setCameraRetryKey(prev => prev + 1);
-        setCameraError(null);
-        setShowCamera(true);
+        startCameraSession();
     };
 
     const handleUserMediaError = useCallback((error: string | DOMException) => {
         console.error('Webcam media error:', error);
         let errorMsg = 'Failed to access camera.';
+        let errorType: 'permission' | 'not_found' | 'other' = 'other';
         if (typeof error === 'string') {
             errorMsg = error;
+            if (error.toLowerCase().includes('denied') || error.toLowerCase().includes('permission') || error.toLowerCase().includes('allow')) {
+                errorType = 'permission';
+            }
         } else if (error instanceof DOMException) {
             if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
                 errorMsg = 'Camera access was denied. Please allow camera permissions in your settings, or upload a photo instead.';
+                errorType = 'permission';
             } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
                 errorMsg = 'No camera device found on this system.';
+                errorType = 'not_found';
             } else if (error.message) {
                 errorMsg = error.message;
             }
         }
         setCameraError(errorMsg);
+        setCameraErrorType(errorType);
         toast.error(errorMsg);
     }, []);
 
@@ -105,6 +164,7 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
                     setSelfie(reader.result as string);
                     setShowCamera(false);
                     setCameraError(null);
+                    setCameraErrorType(null);
                 };
                 reader.readAsDataURL(compressedFile);
             } catch (err) {
@@ -115,6 +175,7 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
                     setSelfie(reader.result as string);
                     setShowCamera(false);
                     setCameraError(null);
+                    setCameraErrorType(null);
                 };
                 reader.readAsDataURL(file);
             }
@@ -152,6 +213,14 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
     };
 
     const getInstructions = () => {
+        if (cameraErrorType === 'not_found') {
+            return (
+                <p className="text-xs text-red-600 mt-2 font-medium">
+                    Please make sure your camera is plugged in, powered on, and recognized by your system. If you don't have a camera, you can upload a photo from your device.
+                </p>
+            );
+        }
+
         if (typeof window === 'undefined') return null;
         const ua = navigator.userAgent;
         const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -357,9 +426,15 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
                         </svg>
                     </div>
                     <div className="flex-1">
-                        <p className="text-sm font-bold text-red-800">Camera access is blocked</p>
+                        <p className="text-sm font-bold text-red-800">
+                            {cameraErrorType === 'permission' && 'Camera Permission Blocked'}
+                            {cameraErrorType === 'not_found' && 'No Camera Detected'}
+                            {cameraErrorType === 'other' && 'Camera Error'}
+                        </p>
                         <p className="text-xs text-red-700 mt-0.5 leading-relaxed">
-                            Your browser has denied camera access. To take a selfie, you need to enable camera permissions in your browser settings. Alternatively, you can upload a photo directly from your device.
+                            {cameraErrorType === 'permission' && 'Your browser has denied camera access. To take a selfie, you need to enable camera permissions in your settings. Alternatively, you can upload a photo directly from your device.'}
+                            {cameraErrorType === 'not_found' && 'We could not detect a camera device. Please connect a webcam or upload a photo directly from your device.'}
+                            {cameraErrorType === 'other' && cameraError}
                         </p>
                         {getInstructions()}
                     </div>
@@ -372,9 +447,18 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
             <div className="space-y-3">
                 <div className={`relative w-full h-72 bg-black rounded-2xl overflow-hidden flex items-center justify-center group shadow-lg`}>
                     {selfie ? (
-                        <img src={selfie} alt="Selfie" className="w-full h-full object-cover" />
+                        <img src={selfie} alt="Selfie" className="w-full h-full object-contain bg-slate-950" />
                     ) : showCamera && !cameraError ? (
                         <>
+                            {cameraInitializing && (
+                                <div className="absolute inset-0 z-10 bg-black flex flex-col items-center justify-center space-y-3 p-4">
+                                    <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                                    <p className="text-gray-400 text-sm font-semibold">Requesting camera access...</p>
+                                    <p className="text-gray-500 text-xs text-center leading-relaxed font-medium">
+                                        Please allow camera permissions if prompted by your browser.
+                                    </p>
+                                </div>
+                            )}
                             <Webcam
                                 key={cameraRetryKey}
                                 audio={false}
@@ -385,11 +469,24 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
                                     facingMode: 'user'
                                 }}
                                 mirrored={true}
-                                onUserMediaError={handleUserMediaError}
-                                onUserMedia={() => setCameraError(null)}
+                                onUserMediaError={(err) => {
+                                    setCameraInitializing(false);
+                                    if (initTimeoutRef.current) {
+                                        clearTimeout(initTimeoutRef.current);
+                                    }
+                                    handleUserMediaError(err);
+                                }}
+                                onUserMedia={() => {
+                                    setCameraInitializing(false);
+                                    setCameraError(null);
+                                    setCameraErrorType(null);
+                                    if (initTimeoutRef.current) {
+                                        clearTimeout(initTimeoutRef.current);
+                                    }
+                                }}
                             />
                             {/* Face alignment overlay */}
-                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
                                 <div className="w-40 h-52 border-2 border-white/40 rounded-[50%] animate-pulse" style={{ animationDuration: '3s' }} />
                             </div>
                         </>
@@ -408,10 +505,16 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
                                 )}
                             </div>
                             <p className={`${cameraError ? 'text-red-400' : 'text-gray-400'} font-medium`}>
-                                {cameraError ? 'Camera Access Denied' : 'Camera is off'}
+                                {cameraErrorType === 'permission' && 'Camera Permission Blocked'}
+                                {cameraErrorType === 'not_found' && 'No Camera Detected'}
+                                {cameraErrorType === 'other' && 'Camera Error'}
+                                {!cameraError && 'Camera is off'}
                             </p>
                             <p className="text-gray-500 text-xs mt-1 max-w-[220px] mx-auto leading-normal">
-                                {cameraError ? 'Enable camera in your browser settings or upload a photo below' : 'Tap below to start'}
+                                {cameraErrorType === 'permission' && 'Enable camera in your settings or upload a photo below'}
+                                {cameraErrorType === 'not_found' && 'Connect a camera or upload a photo below'}
+                                {cameraErrorType === 'other' && 'Check connection or upload a photo below'}
+                                {!cameraError && 'Tap below to start'}
                             </p>
                         </div>
                     )}
@@ -434,6 +537,7 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
                             setSelfie(null);
                             setShowCamera(true);
                             setCameraError(null);
+                            setCameraErrorType(null);
                         }}
                         className="w-full py-3 border-2 border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 font-semibold transition-all hover:border-gray-300 flex items-center justify-center gap-2"
                     >

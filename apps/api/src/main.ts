@@ -127,7 +127,7 @@ async function bootstrap() {
     origin: allowedOrigins,
     credentials: true,  // Allow cookies to be sent with requests
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-XSRF-TOKEN', 'X-CSRF-TOKEN'],
   });
 
   // Start the server

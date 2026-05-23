@@ -35,6 +35,7 @@ export class ActivityGateway implements OnGatewayConnection, OnGatewayDisconnect
         client.on('join', (userId: string) => {
             if (userId) {
                 client.join(`user:${userId}`);
+                (client as any).userId = userId;
                 this.logger.log(`Client ${client.id} joined room: user:${userId}`);
 
                 // Immediately update status on join
@@ -45,11 +46,12 @@ export class ActivityGateway implements OnGatewayConnection, OnGatewayDisconnect
 
     @SubscribeMessage('heartbeat')
     async handleHeartbeat(
-        @MessageBody() data: { userId: string },
+        @MessageBody() data: { userId?: string } | undefined,
         @ConnectedSocket() client: Socket,
     ) {
-        if (data.userId) {
-            await this.activityService.updateLastActive(data.userId);
+        const userId = (client as any).userId || data?.userId;
+        if (userId) {
+            await this.activityService.updateLastActive(userId);
         }
     }
 

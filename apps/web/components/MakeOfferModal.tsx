@@ -6,6 +6,7 @@ import { listingsApi } from '@/lib/listings-api';
 import type { Listing } from '@/lib/types';
 import { sanitizeUrl } from '@/lib/utils';
 import { getGroupedCurrencies } from '@/lib/currencies';
+import toast from 'react-hot-toast';
 
 interface MakeOfferModalProps {
     isOpen: boolean;
@@ -131,7 +132,7 @@ export default function MakeOfferModal({ isOpen, onClose, listing, onSubmit }: M
         if (offerType === 'cash' || offerType === 'both') {
             parsedCashAmount = parseFloat(cashAmount);
             if (isNaN(parsedCashAmount)) {
-                alert('Please enter a valid cash amount');
+                toast.error('Please enter a valid cash amount');
                 return;
             }
         }
@@ -140,7 +141,7 @@ export default function MakeOfferModal({ isOpen, onClose, listing, onSubmit }: M
         if (listing.downpaymentCents && listing.downpaymentCents > 0) {
             const cashCents = parsedCashAmount ? Math.round(parsedCashAmount * 100) : 0;
             if (cashCents < listing.downpaymentCents) {
-                alert(`This listing requires a minimum downpayment of ${(listing.currencyCode || 'NGN')} ${(listing.downpaymentCents / 100).toLocaleString()}. Please increase your cash offer.`);
+                toast.error(`This listing requires a minimum downpayment of ${(listing.currencyCode || 'NGN')} ${(listing.downpaymentCents / 100).toLocaleString()}. Please increase your cash offer.`);
                 return;
             }
         }

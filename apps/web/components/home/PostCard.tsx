@@ -234,7 +234,7 @@ export default function PostCard({ post: initialPost, onDelete, onUpdate, savedI
 
     const handleToggleSave = async () => {
         if (!user) {
-            alert('Please login to save posts.');
+            toast.error('Please login to save posts.');
             return;
         }
 

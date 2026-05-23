@@ -179,7 +179,7 @@ export default function AdminDashboardPage() {
             await apiClient.patch(`/admin/users/${userId}/status`, { status: 'suspended' });
             fetchData();
         } catch (error) {
-            alert('Failed to ban user');
+            toast.error('Failed to ban user');
         }
     };
 

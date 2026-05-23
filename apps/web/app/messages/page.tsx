@@ -19,10 +19,34 @@ export default function MessagesPage() {
         }
     }, [_hasHydrated, isAuthenticated, router]);
 
+    // Poll conversations list every 5 seconds to keep online status and unread counters active
     useEffect(() => {
-        if (isAuthenticated) {
+        if (!isAuthenticated) return;
+
+        fetchConversations();
+
+        const interval = setInterval(() => {
             fetchConversations();
-        }
+        }, 5000);
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                fetchConversations();
+            }
+        };
+
+        const handleFocus = () => {
+            fetchConversations();
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('focus', handleFocus);
+
+        return () => {
+            clearInterval(interval);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('focus', handleFocus);
+        };
     }, [fetchConversations, isAuthenticated]);
 
     const getTimeAgo = (timestamp: number) => {

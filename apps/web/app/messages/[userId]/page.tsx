@@ -55,35 +55,55 @@ export default function ChatPage() {
 
     // Fetch conversation data directly if not in store
     useEffect(() => {
+        let cancelled = false;
+
         const loadConversation = async () => {
+            // 1. Instant check: already in the store? Skip all network calls.
+            const existingConv = conversations.find(c => c.participantId === participantId);
+            if (existingConv) {
+                setIsLoadingConversation(false);
+                return;
+            }
+
             setIsLoadingConversation(true);
+
+            // Safety timeout: never let the spinner hang longer than 8 seconds
+            const safetyTimeout = setTimeout(() => {
+                if (!cancelled) setIsLoadingConversation(false);
+            }, 8000);
+
             try {
-                // First try to find in existing store
-                const existingConv = conversations.find(c => c.participantId === participantId);
-                if (existingConv) {
-                    setIsLoadingConversation(false);
-                    return;
-                }
+                // 2. Fire both requests in parallel — whichever resolves first wins
+                const [convListResult, directResult] = await Promise.allSettled([
+                    fetchConversations(),
+                    messagesApi.getConversationByParticipant(participantId),
+                ]);
 
-                // If not in store, fetch all conversations first
-                await fetchConversations();
+                if (cancelled) return;
 
-                // Check again
-                const refreshedConv = useMessagesStore.getState().conversations.find(c => c.participantId === participantId);
-                if (!refreshedConv) {
-                    const conv = await messagesApi.getConversationByParticipant(participantId);
-                    if (conv) {
-                        setConversationData(conv);
-                    }
+                // Check store again after fetchConversations resolved
+                const refreshedConv = useMessagesStore.getState().conversations.find(
+                    c => c.participantId === participantId
+                );
+
+                if (refreshedConv) {
+                    // Found in the refreshed list — no need for directResult
+                } else if (directResult.status === 'fulfilled' && directResult.value) {
+                    // Not in list but found via direct lookup
+                    setConversationData(directResult.value);
                 }
+                // If neither found, the "Start a New Conversation" screen renders
             } catch (error) {
                 console.error('Failed to load conversation:', error);
             } finally {
-                setIsLoadingConversation(false);
+                clearTimeout(safetyTimeout);
+                if (!cancelled) setIsLoadingConversation(false);
             }
         };
 
         loadConversation();
+
+        return () => { cancelled = true; };
     }, [participantId]); // Remove conversations.length to avoid re-triggering on every list update
 
     useEffect(() => {
@@ -113,16 +133,36 @@ export default function ChatPage() {
         }
     }, [conversationId, messages, markAsRead, currentUserId]);
 
-    // Polling for new messages every 5 seconds
+    // Polling for new messages every 5 seconds + immediate fetch on visibility/focus
     useEffect(() => {
         if (!conversationId || conversationId.startsWith('temp-')) return;
 
-        const interval = setInterval(() => {
+        const triggerFetch = () => {
             fetchMessages(conversationId);
-        }, 5000);
+            fetchConversations();
+        };
 
-        return () => clearInterval(interval);
-    }, [conversationId, fetchMessages]);
+        const interval = setInterval(triggerFetch, 5000);
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                triggerFetch();
+            }
+        };
+
+        const handleFocus = () => {
+            triggerFetch();
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('focus', handleFocus);
+
+        return () => {
+            clearInterval(interval);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('focus', handleFocus);
+        };
+    }, [conversationId, fetchMessages, fetchConversations]);
 
     // WebSocket Heartbeat & Activity
     useEffect(() => {
@@ -135,19 +175,37 @@ export default function ChatPage() {
 
         socketRef.current = socket;
 
+        const sendHeartbeat = () => {
+            if (socket.connected) {
+                socket.emit('heartbeat');
+            }
+        };
+
         socket.on('connect', () => {
             socket.emit('join', currentUserId);
+            sendHeartbeat();
         });
 
         // Heartbeat every 30s
-        const heartbeatInterval = setInterval(() => {
-            if (socket.connected) {
-                socket.emit('heartbeat', { userId: currentUserId });
+        const heartbeatInterval = setInterval(sendHeartbeat, 30000);
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                sendHeartbeat();
             }
-        }, 30000);
+        };
+
+        const handleFocus = () => {
+            sendHeartbeat();
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('focus', handleFocus);
 
         return () => {
             clearInterval(heartbeatInterval);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('focus', handleFocus);
             socket.disconnect();
         };
     }, [currentUserId]);
@@ -174,7 +232,7 @@ export default function ChatPage() {
         const file = e.target.files?.[0];
         if (file) {
             if (file.size > 10 * 1024 * 1024) { // 10MB limit
-                alert('File is too large (max 10MB)');
+                toast.error('File is too large (max 10MB)');
                 return;
             }
             setSelectedFile(file);

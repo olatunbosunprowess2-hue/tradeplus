@@ -1,12 +1,31 @@
 import imageCompression from 'browser-image-compression';
 
 /**
+ * Helper to get image dimensions.
+ */
+function getImageDimensions(file: File): Promise<{ width: number; height: number }> {
+    return new Promise((resolve) => {
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+        img.onload = () => {
+            URL.revokeObjectURL(url);
+            resolve({ width: img.naturalWidth, height: img.naturalHeight });
+        };
+        img.onerror = () => {
+            URL.revokeObjectURL(url);
+            resolve({ width: 0, height: 0 });
+        };
+        img.src = url;
+    });
+}
+
+/**
  * Compresses an image file before upload.
- * - Max width: 1200px
- * - Max size: 2MB
- * - Output format: JPEG/WebP (auto)
+ * - Max width/height: 1920px
+ * - Max size: 500KB (0.5MB)
+ * - Output format: WebP
  *
- * If the file is already under 2MB and small enough, it passes through quickly.
+ * If the file is already under 500KB and within 1920px dimensions, it passes through quickly.
  * Videos and non-image files are returned as-is.
  */
 export async function compressImage(file: File): Promise<File> {
@@ -15,17 +34,24 @@ export async function compressImage(file: File): Promise<File> {
         return file;
     }
 
-    // Skip if already extremely small (under 500KB) and is webp
+    // Skip if already extremely small (under 500KB), is webp, AND is within 1920px dimensions
     if (file.size <= 0.5 * 1024 * 1024 && file.type === 'image/webp') {
-        return file;
+        try {
+            const dims = await getImageDimensions(file);
+            if (dims.width > 0 && dims.width <= 1920 && dims.height <= 1920) {
+                return file;
+            }
+        } catch (e) {
+            console.warn('Failed to check image dimensions, proceeding with compression:', e);
+        }
     }
 
     const options = {
         maxSizeMB: 0.5,
-        maxWidthOrHeight: 1200,
+        maxWidthOrHeight: 1920,
         useWebWorker: true,
         preserveExif: false,
-        fileType: 'image/webp',
+        fileType: 'image/webp' as const,
     };
 
     try {

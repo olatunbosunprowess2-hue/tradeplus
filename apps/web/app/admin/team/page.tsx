@@ -5,6 +5,7 @@ import { useAuthStore } from '@/lib/auth-store';
 import { useRouter } from 'next/navigation';
 import apiClient from '@/lib/api-client';
 import { sanitizeUrl } from '@/lib/utils';
+import toast from 'react-hot-toast';
 
 interface Role {
     id: string;
@@ -130,7 +131,7 @@ export default function TeamManagementPage() {
             setSelectedMember(null);
             setSelectedRole('');
         } catch (error: any) {
-            alert(error.response?.data?.message || 'Failed to assign role');
+            toast.error(error.response?.data?.message || 'Failed to assign role');
         } finally {
             setAssigning(false);
         }
@@ -191,7 +192,7 @@ export default function TeamManagementPage() {
             setSearchQuery('');
             setSearchResults([]);
         } catch (error: any) {
-            alert(error.response?.data?.message || 'Failed to add team member');
+            toast.error(error.response?.data?.message || 'Failed to add team member');
         } finally {
             setAdding(false);
         }

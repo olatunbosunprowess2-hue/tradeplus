@@ -11,6 +11,7 @@ import apiClient from '@/lib/api-client'; // Imported apiClient
 import { CommunityPost } from '@/lib/types'; // Imported types
 import Link from 'next/link';
 import { sanitizeUrl } from '@/lib/utils';
+import toast from 'react-hot-toast';
 
 export default function WantsPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -131,7 +132,7 @@ export default function WantsPage() {
                                 } else {
                                     const fullMessage = `${shareContent.title}\n\n${shareContent.text}\n\n${url}`;
                                     navigator.clipboard.writeText(fullMessage);
-                                    alert('Link copied to clipboard!');
+                                    toast.success('Link copied to clipboard!');
                                 }
                             }}
                             className="flex items-center gap-2 bg-white text-gray-700 border border-gray-200 px-5 py-2.5 rounded-xl font-medium hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"

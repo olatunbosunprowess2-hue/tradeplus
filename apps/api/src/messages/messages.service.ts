@@ -266,8 +266,8 @@ export class MessagesService {
                 ],
             },
             include: {
-                buyer: { select: { id: true, email: true, profile: { select: { displayName: true, avatarUrl: true } } } },
-                seller: { select: { id: true, email: true, profile: { select: { displayName: true, avatarUrl: true } } } },
+                buyer: { select: { id: true, email: true, profile: { select: { displayName: true, avatarUrl: true, lastActiveAt: true } } } },
+                seller: { select: { id: true, email: true, profile: { select: { displayName: true, avatarUrl: true, lastActiveAt: true } } } },
                 listing: { select: { id: true, title: true, images: { take: 1, orderBy: { sortOrder: 'asc' } } } },
                 barterOffer: true, // Include full offer details for P2P action panel
             },
@@ -285,6 +285,7 @@ export class MessagesService {
             participantId: participant.id,
             participantName: participant.profile?.displayName || participant.email,
             participantAvatar: participant.profile?.avatarUrl,
+            participantLastActiveAt: participant.profile?.lastActiveAt,
             listingContext: conversation.listing ? {
                 id: conversation.listing.id,
                 title: conversation.listing.title,

@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import apiClient from '@/lib/api-client';
 import imageCompression from 'browser-image-compression';
+import toast from 'react-hot-toast';
 
 interface ImageUploadProps {
     onUploadComplete: (url: string) => void;
@@ -29,7 +30,7 @@ export default function ImageUpload({ onUploadComplete, maxFiles = 3 }: ImageUpl
         }
 
         if (isVideo && file.size > 50 * 1024 * 1024) {
-            alert('Video size must not exceed 50MB');
+            toast.error('Video size must not exceed 50MB');
             setError('Video must be less than 50MB');
             return;
         }

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAuthStore } from '@/lib/auth-store';
 import apiClient from '@/lib/api-client';
+import toast from 'react-hot-toast';
 
 export default function ReportModal({ postId, onClose }: { postId: string; onClose: () => void }) {
     const [reason, setReason] = useState('');
@@ -16,7 +17,7 @@ export default function ReportModal({ postId, onClose }: { postId: string; onClo
 
         // GUEST CHECK: Prevent 401 logout
         if (!useAuthStore.getState().user) {
-            alert('You must be logged in to report a post.');
+            toast.error('You must be logged in to report a post.');
             onClose();
             return;
         }

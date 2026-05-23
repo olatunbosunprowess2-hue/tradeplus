@@ -55,27 +55,27 @@ export const ADMIN_TEMPLATES: AdminTemplate[] = [
     // Verification Rejection
     {
         id: 'verify_reject_blurry',
-        label: 'Blurry Documents',
+        label: 'Blurry Selfie',
         type: 'verification_reject',
-        message: 'Your identity verification was rejected because the images provided were too blurry or unreadable. Please re-upload clear, high-resolution photos of your ID.',
+        message: 'Your identity verification was rejected because the selfie image provided was too blurry, dark, or unreadable. Please capture a clear, well-lit selfie.',
     },
     {
-        id: 'verify_reject_expired',
-        label: 'Expired ID',
+        id: 'verify_reject_invalid_image',
+        label: 'Invalid Selfie Image',
         type: 'verification_reject',
-        message: 'Your identity verification was rejected because the identification document provided has expired. Please provide a valid, current ID.',
+        message: 'Your identity verification was rejected because the photo uploaded was not a real-time, authentic selfie (e.g., photo of a photo, screenshot, or pre-existing image). Please capture a live selfie using your camera.',
     },
     {
         id: 'verify_reject_mismatch',
-        label: 'Name Mismatch',
+        label: 'Profile Mismatch',
         type: 'verification_reject',
-        message: 'Your identity verification was rejected because the name on your ID does not match the name on your BarterWave profile. Please ensure your profile details match your official documents.',
+        message: 'Your identity verification was rejected because the selfie provided does not match the profile details or name on your BarterWave profile. Please ensure your profile details are accurate and reflect your identity.',
     },
     {
-        id: 'verify_reject_face',
-        label: 'Face/ID Mismatch',
+        id: 'verify_reject_face_hidden',
+        label: 'Face Covered or Hidden',
         type: 'verification_reject',
-        message: 'Your identity verification was rejected because the selfie provided does not match the photo on the ID card. Please ensure you provide a clear selfie that matches your identification.',
+        message: 'Your identity verification was rejected because your face was partially covered, not fully visible, or multiple people were in the image. Please upload a clear selfie of only your face.',
     },
 
     // Verification Approval

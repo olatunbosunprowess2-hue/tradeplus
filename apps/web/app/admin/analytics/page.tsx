@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuthStore } from '@/lib/auth-store';
 import { useRouter } from 'next/navigation';
 import apiClient from '@/lib/api-client';
+import toast from 'react-hot-toast';
 
 interface KPIData {
     users: { current: number; prev: number; delta: number };
@@ -89,15 +90,16 @@ export default function AnalyticsDashboardPage() {
             document.body.appendChild(link);
             link.click();
             link.remove();
+            toast.success('Report exported successfully');
         } catch (error) {
             console.error('Export failed:', error);
-            alert('Failed to export data');
+            toast.error('Failed to export data');
         }
     };
 
     const handlePromoteListing = (listingId: string) => {
         // TODO: Open promote modal
-        alert(`Promote listing ${listingId} - Feature coming soon!`);
+        toast('Promote feature coming soon!', { icon: '⭐' });
     };
 
     const getDeltaColor = (delta: number) => {
