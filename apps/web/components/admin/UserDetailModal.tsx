@@ -120,14 +120,14 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
         <>
             {/* Modal Backdrop */}
             <div className="fixed inset-0 z-50 overflow-y-auto">
-                <div className="flex min-h-full items-center justify-center p-4">
+                <div className="flex min-h-full items-center justify-center p-4 pb-24 md:pb-4">
                     <div
                         className="fixed inset-0 bg-black/60 backdrop-blur-sm"
                         onClick={onClose}
                     />
 
                     {/* Modal Content */}
-                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden">
+                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[80vh] md:max-h-[90vh] overflow-hidden flex flex-col">
                         {/* Header */}
                         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6">
                             <div className="flex justify-between items-start">
@@ -169,7 +169,7 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
                         </div>
 
                         {/* Body */}
-                        <div className={`p-6 overflow-y-auto max-h-[calc(90vh-140px)] ${user.verificationStatus === 'PENDING' ? 'pb-24' : ''}`}>
+                        <div className={`p-6 overflow-y-auto flex-1 ${user.verificationStatus === 'PENDING' ? 'pb-6' : ''}`}>
                             {/* User Info Grid */}
                             <div className="grid grid-cols-2 gap-4 mb-6">
                                 <div className="bg-gray-50 rounded-xl p-4">
@@ -333,21 +333,23 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
 
                         {/* Actions for Pending Verification */}
                         {user.verificationStatus === 'PENDING' && (
-                            <div className="bg-white border-t border-gray-200 p-4 sticky bottom-0 left-0 right-0 rounded-b-2xl flex justify-between items-center z-10 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
-                                <p className="text-sm font-medium text-gray-600">Verification Pending</p>
-                                <div className="flex gap-3">
-                                    <button
-                                        onClick={() => setActionModal({ open: true, type: 'REJECT' })}
-                                        className="px-4 py-2 bg-red-100 text-red-700 hover:bg-red-200 font-semibold rounded-lg transition"
-                                    >
-                                        Reject
-                                    </button>
-                                    <button
-                                        onClick={() => setActionModal({ open: true, type: 'APPROVE' })}
-                                        className="px-4 py-2 bg-green-600 text-white hover:bg-green-700 font-semibold rounded-lg transition shadow-sm"
-                                    >
-                                        Approve
-                                    </button>
+                            <div className="bg-white border-t border-gray-200 p-4 rounded-b-2xl flex-shrink-0 z-10 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                    <p className="text-sm font-medium text-gray-600 text-center sm:text-left">Verification Pending</p>
+                                    <div className="flex gap-3 w-full sm:w-auto">
+                                        <button
+                                            onClick={() => setActionModal({ open: true, type: 'REJECT' })}
+                                            className="flex-1 sm:flex-initial px-5 py-3 sm:py-2 bg-red-100 text-red-700 hover:bg-red-200 font-semibold rounded-lg transition text-center"
+                                        >
+                                            Reject
+                                        </button>
+                                        <button
+                                            onClick={() => setActionModal({ open: true, type: 'APPROVE' })}
+                                            className="flex-1 sm:flex-initial px-5 py-3 sm:py-2 bg-green-600 text-white hover:bg-green-700 font-semibold rounded-lg transition shadow-sm text-center"
+                                        >
+                                            Approve
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         )}
