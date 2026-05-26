@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import TradeStepper from './TradeStepper';
 import TradeCompleteModal from './TradeCompleteModal';
 import apiClient from '@/lib/api-client';
@@ -16,14 +16,13 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
     const [isLoading, setIsLoading] = useState(false);
     const [disputeReason, setDisputeReason] = useState('');
     const [showDisputeModal, setShowDisputeModal] = useState(false);
+    const [showConfirmExchange, setShowConfirmExchange] = useState(false);
 
-    // TradeCompleteModal visibility state locally (controlled via status check but also closable)
-    const [showCompleteModal, setShowCompleteModal] = useState(
-        offer.status === 'completed' && (!offer.isSellerFulfilled || !offer.isBuyerFulfilled) // Just a hacky way to test if we JUST completed it. Usually we rely on a flag or state. 
-        // Actually, let's just show it if status is completed and they haven't closed it yet in this session.
-    );
-    // Let's rely on a session-storage flag so it flashes once
-    useState(() => {
+    // TradeCompleteModal visibility
+    const [showCompleteModal, setShowCompleteModal] = useState(false);
+
+    // Show completion modal once per session when trade is newly completed
+    useEffect(() => {
         if (typeof window !== 'undefined' && offer.status === 'completed') {
             const hasSeen = sessionStorage.getItem(`seen_complete_${offer.id}`);
             if (!hasSeen) {
@@ -31,7 +30,7 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
                 sessionStorage.setItem(`seen_complete_${offer.id}`, 'true');
             }
         }
-    });
+    }, [offer.status, offer.id]);
 
     const isSeller = offer.sellerId === currentUserId;
     const isBuyer = offer.buyerId === currentUserId;
@@ -153,13 +152,29 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
                                             <span>✓</span>
                                             <span>You Confirmed</span>
                                         </div>
+                                    ) : showConfirmExchange ? (
+                                        <div className="flex items-center gap-1.5">
+                                            <button
+                                                onClick={() => setShowConfirmExchange(false)}
+                                                className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full text-xs font-bold transition"
+                                            >
+                                                Cancel
+                                            </button>
+                                            <button
+                                                onClick={handleVerifyPickup}
+                                                disabled={isLoading}
+                                                className="px-4 py-2 bg-green-600 hover:bg-green-700 active:scale-95 text-white rounded-full text-xs font-bold transition shadow-sm whitespace-nowrap"
+                                            >
+                                                {isLoading ? 'Confirming...' : 'Yes, Confirm'}
+                                            </button>
+                                        </div>
                                     ) : (
                                         <button
-                                            onClick={handleVerifyPickup}
+                                            onClick={() => setShowConfirmExchange(true)}
                                             disabled={isLoading}
                                             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white rounded-full text-xs font-bold transition shadow-sm whitespace-nowrap"
                                         >
-                                            {isLoading ? 'Confirming...' : 'Confirm Exchange'}
+                                            Confirm Exchange
                                         </button>
                                     )}
                                 </div>

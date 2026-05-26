@@ -33,7 +33,6 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
     const [selfie, setSelfie] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [showCamera, setShowCamera] = useState(true);
-    const [showCameraModal, setShowCameraModal] = useState(false);
     const [activeGuideSlide, setActiveGuideSlide] = useState(0);
     const [cameraError, setCameraError] = useState<string | null>(null);
     const [cameraErrorType, setCameraErrorType] = useState<'permission' | 'not_found' | 'other' | null>(null);
@@ -52,9 +51,19 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
         };
     }, []);
 
-    // Auto-start camera session on mount to maximize camera efficiency
+    // Auto-start camera session on mount & clean up camera stream on unmount
     useEffect(() => {
         startCameraSession();
+        return () => {
+            // Stop all active camera tracks to release hardware (turns off LED, saves battery)
+            if (webcamRef.current?.video?.srcObject) {
+                const tracks = (webcamRef.current.video.srcObject as MediaStream).getTracks();
+                tracks.forEach(track => track.stop());
+            }
+            if (initTimeoutRef.current) {
+                clearTimeout(initTimeoutRef.current);
+            }
+        };
     }, []);
 
     const captureSelfie = useCallback(() => {
@@ -124,21 +133,35 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setSelfie(reader.result as string);
-                setShowCamera(false);
-                setCameraInitializing(false);
-                setCameraError(null);
-                setCameraErrorType(null);
-                if (initTimeoutRef.current) {
-                    clearTimeout(initTimeoutRef.current);
-                }
-                toast.success("Photo uploaded successfully!");
-            };
-            reader.readAsDataURL(file);
+        if (!file) return;
+
+        // Validate file type
+        const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
+        if (!ALLOWED_TYPES.includes(file.type)) {
+            toast.error('Please upload a valid image file (JPEG, PNG, or WebP).');
+            return;
         }
+
+        // Validate file size (max 10MB)
+        const MAX_SIZE_MB = 10;
+        if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+            toast.error(`Image is too large. Maximum size is ${MAX_SIZE_MB}MB.`);
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setSelfie(reader.result as string);
+            setShowCamera(false);
+            setCameraInitializing(false);
+            setCameraError(null);
+            setCameraErrorType(null);
+            if (initTimeoutRef.current) {
+                clearTimeout(initTimeoutRef.current);
+            }
+            toast.success('Photo uploaded successfully!');
+        };
+        reader.readAsDataURL(file);
     };
 
     const handleUserMediaError = useCallback((error: string | DOMException) => {
@@ -157,6 +180,12 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
             } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
                 errorMsg = 'No camera device found on this system.';
                 errorType = 'not_found';
+            } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+                errorMsg = 'Camera is already in use by another application. Please close other apps using the camera and try again.';
+                errorType = 'other';
+            } else if (error.name === 'OverconstrainedError') {
+                errorMsg = 'Camera does not support the requested settings. Retrying with default settings...';
+                errorType = 'other';
             } else if (error.message) {
                 errorMsg = error.message;
             }
@@ -192,6 +221,7 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
             console.error('Error submitting verification:', error);
             const errorMessage = error.response?.data?.message || error.message || 'Failed to submit verification';
             toast.error(`Error: ${errorMessage}`);
+        } finally {
             setLoading(false);
         }
     };
@@ -254,46 +284,6 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
 
     return (
         <div className="space-y-6 relative">
-            {/* Camera Permission Modal */}
-            {showCameraModal && (
-                <div
-                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
-                    onClick={() => setShowCameraModal(false)}
-                >
-                    <div
-                        className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl animate-in zoom-in-95 duration-200"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                        </div>
-                        <h3 className="text-xl font-bold text-center text-gray-900 mb-2">Enable Camera Access</h3>
-                        <p className="text-gray-500 text-center mb-6">
-                            We need access to your camera to take a selfie for identity verification.
-                        </p>
-                        <div className="flex flex-col gap-3">
-                            <button
-                                onClick={() => {
-                                    setShowCameraModal(false);
-                                    startCameraSession();
-                                }}
-                                className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition"
-                            >
-                                Enable Camera
-                            </button>
-                            <button
-                                onClick={() => setShowCameraModal(false)}
-                                className="w-full py-3 text-gray-500 font-medium hover:bg-gray-50 rounded-xl transition"
-                            >
-                                Cancel
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* Header */}
             <div className="text-center mb-2">
