@@ -32,7 +32,7 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
     const webcamRef = useRef<Webcam>(null);
     const [selfie, setSelfie] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
-    const [showCamera, setShowCamera] = useState(false);
+    const [showCamera, setShowCamera] = useState(true);
     const [showCameraModal, setShowCameraModal] = useState(false);
     const [activeGuideSlide, setActiveGuideSlide] = useState(0);
     const [cameraError, setCameraError] = useState<string | null>(null);
@@ -50,6 +50,11 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
                 clearTimeout(initTimeoutRef.current);
             }
         };
+    }, []);
+
+    // Auto-start camera session on mount to maximize camera efficiency
+    useEffect(() => {
+        startCameraSession();
     }, []);
 
     const captureSelfie = useCallback(() => {
@@ -90,10 +95,11 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
             clearTimeout(initTimeoutRef.current);
         }
         
+        // Extended timeout to 12 seconds to prevent early warning banners on slow mobile devices
         initTimeoutRef.current = setTimeout(() => {
             setCameraInitializing(prev => {
                 if (prev) {
-                    const warningMsg = 'Camera is taking too long to start. Please make sure you have allowed camera permission in your browser, or upload a photo instead.';
+                    const warningMsg = 'Camera request timed out. Please verify camera permissions or upload a photo below.';
                     setCameraError(warningMsg);
                     setCameraErrorType('other');
                     toast(warningMsg, {
@@ -104,21 +110,35 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
                 }
                 return prev;
             });
-        }, 6000);
+        }, 12000);
     };
 
     const handleStartCamera = () => {
-        setShowCameraModal(true);
-    };
-
-    const confirmCameraPermission = () => {
-        setShowCameraModal(false);
         startCameraSession();
     };
 
     const handleRetryCamera = () => {
         setCameraRetryKey(prev => prev + 1);
         startCameraSession();
+    };
+
+    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setSelfie(reader.result as string);
+                setShowCamera(false);
+                setCameraInitializing(false);
+                setCameraError(null);
+                setCameraErrorType(null);
+                if (initTimeoutRef.current) {
+                    clearTimeout(initTimeoutRef.current);
+                }
+                toast.success("Photo uploaded successfully!");
+            };
+            reader.readAsDataURL(file);
+        }
     };
 
     const handleUserMediaError = useCallback((error: string | DOMException) => {
@@ -256,7 +276,10 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
                         </p>
                         <div className="flex flex-col gap-3">
                             <button
-                                onClick={confirmCameraPermission}
+                                onClick={() => {
+                                    setShowCameraModal(false);
+                                    startCameraSession();
+                                }}
                                 className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition"
                             >
                                 Enable Camera
@@ -442,7 +465,7 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
                                 screenshotFormat="image/jpeg"
                                 className="w-full h-full object-cover"
                                 videoConstraints={{
-                                    facingMode: 'user'
+                                    facingMode: { ideal: 'user' }
                                 }}
                                 mirrored={true}
                                 onUserMediaError={(err) => {
@@ -561,6 +584,19 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
                         </button>
                     </div>
                 )}
+
+                {/* Subtle photo upload fallback */}
+                <div className="text-center pt-1.5">
+                    <label className="text-xs text-gray-400 hover:text-blue-500 active:text-blue-600 transition cursor-pointer select-none font-medium underline underline-offset-4 decoration-gray-300 hover:decoration-blue-400">
+                        Unable to use camera? Upload photo instead
+                        <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleFileUpload}
+                        />
+                    </label>
+                </div>
             </div>
 
             {/* Info Note */}
