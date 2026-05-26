@@ -16,6 +16,7 @@ import { ChatLimitModal, FirstChatModal } from '@/components/PaywallModal';
 import { checkChatLimit, initializePayment, redirectToPaystack } from '@/lib/payments-api';
 import toast from 'react-hot-toast';
 import { sanitizeUrl } from '@/lib/utils';
+import apiClient from '@/lib/api-client';
 
 export default function ChatPage() {
     const params = useParams();
@@ -48,6 +49,29 @@ export default function ChatPage() {
     const [hasFetchedMessages, setHasFetchedMessages] = useState(false);
     const [isPaymentLoading, setIsPaymentLoading] = useState(false);
     const socketRef = useRef<Socket | null>(null);
+
+    const [showMenu, setShowMenu] = useState(false);
+    const [showDisputeModal, setShowDisputeModal] = useState(false);
+    const [disputeReason, setDisputeReason] = useState('');
+    const [isDisputing, setIsDisputing] = useState(false);
+
+    const handleDispute = async () => {
+        if (!disputeReason.trim()) {
+            toast.error('Please provide a reason');
+            return;
+        }
+        setIsDisputing(true);
+        try {
+            await apiClient.post(`/barter/offers/${conversation?.barterOffer?.id}/dispute`, { reason: disputeReason });
+            toast.success('Dispute raised successfully. Admin notified.');
+            setShowDisputeModal(false);
+            fetchConversations();
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || 'Failed to raise dispute');
+        } finally {
+            setIsDisputing(false);
+        }
+    };
 
     // Find conversation with this participant
     const conversation = conversations.find(c => c.participantId === participantId) || conversationData;
@@ -413,11 +437,26 @@ export default function ChatPage() {
 
                     <div className="flex-1 min-w-0">
                         <h2 className="font-bold text-gray-900 truncate">{conversation.participantName}</h2>
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                            <span className={`w-2 h-2 rounded-full ${isOnline(conversation.participantLastActiveAt) ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-gray-300'}`}></span>
-                            <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">
-                                {isOnline(conversation.participantLastActiveAt) ? 'Online Now' : 'Offline'}
-                            </p>
+                        <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                            <div className="flex items-center gap-1.5">
+                                <span className={`w-2 h-2 rounded-full ${isOnline(conversation.participantLastActiveAt) ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-gray-300'}`}></span>
+                                <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">
+                                    {isOnline(conversation.participantLastActiveAt) ? 'Online Now' : 'Offline'}
+                                </p>
+                            </div>
+                            {conversation.barterOffer && ['accepted', 'awaiting_fulfillment', 'awaiting_meetup'].includes(conversation.barterOffer.status) && conversation.barterOffer.timerExpiresAt && currentUserId && (
+                                <>
+                                    <span className="text-gray-300">•</span>
+                                    <TradeTimerBar
+                                        offer={conversation.barterOffer}
+                                        currentUserId={currentUserId}
+                                        variant="compact"
+                                        onUpdate={() => {
+                                            fetchConversations();
+                                        }}
+                                    />
+                                </>
+                            )}
                         </div>
                     </div>
 
@@ -434,33 +473,44 @@ export default function ChatPage() {
                         </Link>
                     )}
 
-                    <button
-                        onClick={() => setShowReportModal(true)}
-                        className="p-2 text-gray-400 hover:text-red-500 transition"
-                        title="Report User"
-                    >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
-
-            {/* Trade Timer Bar — sticky below header */}
-            {conversation.barterOffer?.status === 'accepted' && conversation.barterOffer?.timerExpiresAt && currentUserId && (
-                <div className="bg-white border-b border-gray-200 px-4 py-2">
-                    <div className="container mx-auto max-w-4xl">
-                        <TradeTimerBar
-                            offer={conversation.barterOffer}
-                            currentUserId={currentUserId}
-                            onUpdate={(updatedOffer) => {
-                                // Refresh conversations to get updated timer data
-                                fetchConversations();
-                            }}
-                        />
+                    {/* Action Dropdown Menu */}
+                    <div className="relative">
+                        <button
+                            onClick={() => setShowMenu(!showMenu)}
+                            className="p-2 text-gray-400 hover:text-gray-700 transition rounded-full hover:bg-gray-100"
+                            title="More Actions"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                            </svg>
+                        </button>
+                        {showMenu && (
+                            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-1.5 z-50 animate-in fade-in slide-in-from-top-1">
+                                <button
+                                    onClick={() => {
+                                        setShowMenu(false);
+                                        setShowReportModal(true);
+                                    }}
+                                    className="w-full text-left px-4 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                >
+                                    ⚠️ Report User
+                                </button>
+                                {conversation.barterOffer && ['accepted', 'awaiting_fulfillment', 'awaiting_meetup'].includes(conversation.barterOffer.status) && (
+                                    <button
+                                        onClick={() => {
+                                            setShowMenu(false);
+                                            setShowDisputeModal(true);
+                                        }}
+                                        className="w-full text-left px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-50 flex items-center gap-2 border-t border-gray-50"
+                                    >
+                                        🚨 Dispute Trade
+                                    </button>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
-            )}
+            </div>
 
             {/* Downpayment Tracker */}
             {conversation.barterOffer?.downpaymentStatus && conversation.barterOffer.downpaymentStatus !== 'none' && currentUserId && (
@@ -549,6 +599,13 @@ export default function ChatPage() {
 
                             // System message (special styling)
                             if (isSystemMessage) {
+                                // Filter out redundant safety warnings that are already covered by our terms modal
+                                if (
+                                    message.content?.includes('Stay Safe') ||
+                                    message.content?.includes('Safety First')
+                                ) {
+                                    return null;
+                                }
                                 return (
                                     <div key={message.id} className="flex justify-center my-4">
                                         <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-full px-4 py-2 max-w-sm">
@@ -738,6 +795,42 @@ export default function ChatPage() {
                 isOpen={showFirstChatModal}
                 onClose={() => setShowFirstChatModal(false)}
             />
+
+            {/* Dispute Modal */}
+            {showDisputeModal && (
+                <div className="fixed inset-0 bg-black/50 z-[120] flex items-center justify-center p-4">
+                    <div className="bg-white rounded-2xl w-full max-w-md p-6">
+                        <h3 className="text-lg font-bold text-red-600 flex items-center gap-2 mb-2">
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                            Emergency Dispute / Report Issue
+                        </h3>
+                        <p className="text-sm text-gray-600 mb-4">
+                            If the item is not as described, or there is a serious issue during meetup, detail the reason here. This will freeze the trade and alert BarterWave support instantly.
+                        </p>
+                        <textarea
+                            value={disputeReason}
+                            onChange={(e) => setDisputeReason(e.target.value)}
+                            placeholder="Please explain the issue in detail..."
+                            className="w-full border-2 border-gray-200 rounded-xl p-3 mb-4 focus:border-red-500 focus:ring-0 min-h-[100px]"
+                        />
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setShowDisputeModal(false)}
+                                className="flex-1 py-3 text-gray-600 font-bold bg-gray-100 hover:bg-gray-200 rounded-xl"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleDispute}
+                                disabled={isDisputing}
+                                className="flex-1 py-3 text-white font-bold bg-red-600 hover:bg-red-700 rounded-xl flex justify-center items-center"
+                            >
+                                {isDisputing ? 'Sending...' : 'Raise Dispute'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

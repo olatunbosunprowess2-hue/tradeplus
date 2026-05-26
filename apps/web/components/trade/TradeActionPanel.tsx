@@ -14,7 +14,6 @@ interface TradeActionPanelProps {
 
 export default function TradeActionPanel({ offer, currentUserId, onUpdate }: TradeActionPanelProps) {
     const [isLoading, setIsLoading] = useState(false);
-    const [verifyPin, setVerifyPin] = useState('');
     const [disputeReason, setDisputeReason] = useState('');
     const [showDisputeModal, setShowDisputeModal] = useState(false);
 
@@ -42,6 +41,10 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
     const otherHasLocked = (isBuyer && offer.isSellerLocked) || (isSeller && offer.isBuyerLocked);
 
     const hasFulfilled = (isBuyer && offer.isBuyerFulfilled) || (isSeller && offer.isSellerFulfilled);
+    const otherHasFulfilled = (isBuyer && offer.isSellerFulfilled) || (isSeller && offer.isBuyerFulfilled);
+    const otherPartyName = isBuyer 
+        ? offer.seller?.profile?.displayName || offer.seller?.email || 'Seller' 
+        : offer.buyer?.profile?.displayName || offer.buyer?.email || 'Buyer';
 
     const handleLockDeal = async () => {
         setIsLoading(true);
@@ -56,12 +59,10 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
         }
     };
 
-    const handleVerifyPickup = async (usePin: boolean) => {
+    const handleVerifyPickup = async () => {
         setIsLoading(true);
         try {
-            await apiClient.post(`/barter/offers/${offer.id}/verify-pickup`, {
-                pin: usePin ? verifyPin : undefined
-            });
+            await apiClient.post(`/barter/offers/${offer.id}/verify-pickup`);
             toast.success('Fulfillment verified!');
             if (offer.status !== 'completed') {
                 // Determine if this hit completed
@@ -94,10 +95,10 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
     };
 
     return (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-4">
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden mb-3">
 
             {/* Visual Stepper */}
-            <div className="px-6 py-4 bg-gray-50/50 border-b border-gray-100">
+            <div className="px-4 py-2.5 bg-gray-50/50 border-b border-gray-100">
                 <TradeStepper
                     status={offer.status}
                     isBuyerLocked={offer.isBuyerLocked}
@@ -106,13 +107,13 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
             </div>
 
             {/* Action Area */}
-            <div className="px-6 py-5">
+            <div className="px-4 py-3">
 
                 {/* 1. Commitment Phase */}
                 {offer.status === 'accepted' && (
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm flex-wrap">
                         <div className="flex items-center gap-2">
-                            <span className="font-bold text-gray-900">Lock Deal</span>
+                            <span className="font-bold text-gray-900 text-xs">Lock Deal</span>
                             <span className="text-xs text-gray-500 hidden sm:inline">(Starts 7-day Meetup Timer)</span>
                         </div>
                         <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -138,78 +139,59 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
                 {/* 2. Meetup/Fulfillment Phase */}
                 {offer.status === 'awaiting_fulfillment' && (
                     <div className="space-y-3 shrink-0 relative mt-2 pt-2 border-t border-gray-100">
-                        {isBuyer ? (
-                            <div className="bg-blue-50/50 rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-blue-100">
-                                <div className="space-y-1">
-                                    <h3 className="font-bold text-blue-900 text-sm">Your Pickup PIN</h3>
-                                    <p className="text-[11px] text-blue-700 leading-tight">Give this to the seller only after inspecting the item.</p>
+                        <div className="bg-slate-50 border border-slate-100 rounded-xl p-3.5 flex flex-col gap-3">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div>
+                                    <h3 className="font-extrabold text-slate-800 text-sm">Fulfillment Confirmation</h3>
+                                    <p className="text-[11px] text-slate-500 leading-normal max-w-xs mt-0.5">
+                                        Once you have physically exchanged the items, verified shipment, or received what was agreed, confirm it below.
+                                    </p>
                                 </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="text-xl font-black text-blue-600 tracking-widest bg-white py-1 px-4 rounded-md shadow-sm border border-blue-100">
-                                        {offer.pickupPin}
-                                    </div>
-                                    <button
-                                        onClick={() => handleVerifyPickup(false)}
-                                        disabled={isLoading || hasFulfilled}
-                                        className={`px-3 py-1.5 rounded-md font-bold uppercase text-[10px] whitespace-nowrap transition-all ${hasFulfilled
-                                            ? 'bg-green-100 text-green-700 cursor-not-allowed hidden sm:block'
-                                            : 'bg-white text-blue-600 border border-blue-200 hover:bg-blue-100'
-                                            }`}
-                                    >
-                                        {hasFulfilled ? 'Sent' : 'Approve w/o PIN'}
-                                    </button>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="bg-green-50/50 rounded-lg p-3 sm:p-4 border border-green-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                <div className="space-y-1">
-                                    <h3 className="font-bold text-green-900 text-sm">Verify Buyer's PIN</h3>
-                                    <p className="text-[11px] text-green-700 leading-tight">Enter their 6-digit PIN to complete the trade.</p>
-                                    {otherHasLocked && !hasFulfilled && (
-                                        <p className="text-[10px] text-orange-600 font-bold bg-orange-100 px-2 py-0.5 rounded w-fit">Manual approval sent by buyer</p>
+                                <div className="flex items-center gap-2 flex-shrink-0">
+                                    {hasFulfilled ? (
+                                        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-700 rounded-full text-[10px] font-extrabold border border-green-200 shadow-inner">
+                                            <span>✓</span>
+                                            <span>You Confirmed</span>
+                                        </div>
+                                    ) : (
+                                        <button
+                                            onClick={handleVerifyPickup}
+                                            disabled={isLoading}
+                                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white rounded-full text-xs font-bold transition shadow-sm whitespace-nowrap"
+                                        >
+                                            {isLoading ? 'Confirming...' : 'Confirm Exchange'}
+                                        </button>
                                     )}
                                 </div>
-                                <div className="flex flex-col gap-2">
-                                    <div className="flex items-center justify-end gap-2">
-                                        <input
-                                            type="text"
-                                            maxLength={6}
-                                            value={verifyPin}
-                                            onChange={(e) => setVerifyPin(e.target.value.replace(/\D/g, ''))}
-                                            placeholder="000000"
-                                            className="w-28 text-center font-bold text-lg tracking-wider rounded-md border-green-300 py-1 focus:ring-green-500 shadow-sm"
-                                        />
-                                        <button
-                                            onClick={() => handleVerifyPickup(true)}
-                                            disabled={isLoading || verifyPin.length !== 6}
-                                            className="bg-green-600 text-white px-4 py-1.5 font-bold uppercase text-[11px] rounded-md hover:bg-green-700 disabled:opacity-50 shadow-sm"
-                                        >
-                                            Verify
-                                        </button>
-                                    </div>
-
-                                    <button
-                                        onClick={() => handleVerifyPickup(false)}
-                                        disabled={isLoading || hasFulfilled}
-                                        className={`px-3 py-1.5 rounded border uppercase text-[10px] font-bold text-center transition-all ${hasFulfilled
-                                            ? 'bg-green-100 text-green-700 border-green-200 cursor-not-allowed'
-                                            : 'bg-white text-green-600 border-green-200 hover:bg-green-50'
-                                            }`}
-                                    >
-                                        {hasFulfilled ? 'Manual Approval Sent' : 'Approve Manually w/o PIN'}
-                                    </button>
-                                </div>
                             </div>
-                        )}
+
+                            {otherHasFulfilled && (
+                                <div className="bg-emerald-50 border border-emerald-100/60 rounded-xl px-3 py-2 flex items-center gap-2 mt-1">
+                                    <span className="flex h-2 w-2 relative">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                    </span>
+                                    <p className="text-[10px] text-emerald-800 font-bold">
+                                        {otherPartyName} has confirmed receipt. Once you confirm, the trade will finalize!
+                                    </p>
+                                </div>
+                            )}
+
+                            {!otherHasFulfilled && hasFulfilled && (
+                                <p className="text-[10px] text-slate-400 font-semibold italic mt-0.5">
+                                    Awaiting confirmation from {otherPartyName}...
+                                </p>
+                            )}
+                        </div>
 
                         {/* Emergency Brake / Dispute Button */}
-                        <div className="text-center pt-2">
+                        <div className="text-center pt-1.5">
                             <button
                                 onClick={() => setShowDisputeModal(true)}
-                                className="text-xs font-bold text-red-500 hover:text-red-700 uppercase tracking-widest flex items-center justify-center gap-1 mx-auto"
+                                className="text-[10px] font-bold text-red-500 hover:text-red-700 uppercase tracking-wider flex items-center justify-center gap-1 mx-auto"
                             >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                                Report Issue / Reject Item
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                                Report Issue / Dispute
                             </button>
                         </div>
                     </div>

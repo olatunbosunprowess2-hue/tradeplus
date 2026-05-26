@@ -4,11 +4,13 @@ import { useState, useEffect, useCallback } from 'react';
 import type { BarterOffer } from '@/lib/types';
 import { offersApi } from '@/lib/offers-api';
 import { useToastStore } from '@/lib/toast-store';
+import apiClient from '@/lib/api-client';
 
 interface TradeTimerBarProps {
     offer: BarterOffer;
     currentUserId: string;
     onUpdate?: (updatedOffer: BarterOffer) => void;
+    variant?: 'full' | 'compact';
 }
 
 function getTimerState(expiresAt: string, pausedAt?: string | null) {
@@ -80,17 +82,20 @@ function getTimerColor(remaining: number, isPaused: boolean, isMeetupPhase: bool
     };
 }
 
-export default function TradeTimerBar({ offer, currentUserId, onUpdate }: TradeTimerBarProps) {
+export default function TradeTimerBar({ offer, currentUserId, onUpdate, variant = 'full' }: TradeTimerBarProps) {
     const [remaining, setRemaining] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
     const [isExpired, setIsExpired] = useState(false);
     const [extending, setExtending] = useState(false);
+    const [locking, setLocking] = useState(false);
     const { addToast } = useToastStore();
 
     const isSeller = offer.sellerId === currentUserId;
     const isBuyer = offer.buyerId === currentUserId;
     const isMeetupPhase = offer.status === 'awaiting_meetup';
     const canExtend = offer.extensionCount < 3;
+
+    const hasLocked = (isBuyer && (offer as any).isBuyerLocked) || (isSeller && (offer as any).isSellerLocked);
 
     // Calculate timer state
     const updateTimer = useCallback(() => {
@@ -132,6 +137,67 @@ export default function TradeTimerBar({ offer, currentUserId, onUpdate }: TradeT
             setExtending(false);
         }
     };
+
+    const handleLockDeal = async () => {
+        setLocking(true);
+        try {
+            await apiClient.post(`/barter/offers/${offer.id}/lock`);
+            addToast('success', 'Deal locked! Awaiting other party.');
+            onUpdate?.(offer);
+        } catch (error: any) {
+            addToast('error', error.response?.data?.message || 'Failed to lock deal');
+        } finally {
+            setLocking(false);
+        }
+    };
+
+    if (variant === 'compact') {
+        const minutes = remaining / 60000;
+        let textCol = 'text-emerald-600 bg-emerald-50 border-emerald-100';
+        if (isPaused) {
+            textCol = 'text-blue-600 bg-blue-50 border-blue-100';
+        } else if (isMeetupPhase) {
+            textCol = 'text-indigo-600 bg-indigo-50 border-indigo-100';
+        } else if (minutes <= 5) {
+            textCol = 'text-red-600 bg-red-50 border-red-100 animate-pulse';
+        } else if (minutes <= 10) {
+            textCol = 'text-amber-600 bg-amber-50 border-amber-100';
+        }
+
+        return (
+            <div className="flex items-center gap-1.5 flex-wrap animate-in fade-in zoom-in-95 duration-500">
+                <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border ${textCol} tabular-nums`}>
+                    <span>⏱</span>
+                    <span>{timeDisplay}</span>
+                    {isPaused && <span className="text-[9px] font-medium opacity-85">(paused)</span>}
+                </span>
+
+                {/* Action Buttons */}
+                {offer.status === 'accepted' && !hasLocked && (
+                    <button
+                        onClick={handleLockDeal}
+                        disabled={locking}
+                        className="inline-flex items-center gap-0.5 px-2.5 py-0.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold transition-all active:scale-95 disabled:opacity-50 shadow-sm"
+                    >
+                        <span>🔒</span>
+                        <span>Lock Deal</span>
+                    </button>
+                )}
+
+                {canExtend && !isExpired && !isPaused && (
+                    <button
+                        onClick={handleExtend}
+                        disabled={extending}
+                        className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-[10px] font-bold transition-all disabled:opacity-50 shadow-xs"
+                        title={isSeller ? "Extend timer by 30 mins" : "Request extension"}
+                    >
+                        <span className="text-[11px] font-black text-blue-600">+</span>
+                        <span>{isSeller ? '30m' : 'Req'}</span>
+                    </button>
+                )}
+            </div>
+        );
+    }
 
     return (
         <div className={`
@@ -182,11 +248,9 @@ export default function TradeTimerBar({ offer, currentUserId, onUpdate }: TradeT
                         {extending ? (
                             <span className="animate-spin h-3.5 w-3.5 border-2 border-current border-t-transparent rounded-full" />
                         ) : (
-                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6l4 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                            <span className="font-black text-xs mr-0.5">+</span>
                         )}
-                        {isSeller ? '+30 min' : 'Request Time'}
+                        {isSeller ? '30 min' : 'Request Time'}
                     </button>
                 )}
 

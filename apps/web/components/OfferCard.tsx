@@ -5,6 +5,15 @@ import { BarterOffer } from '@/lib/types';
 import { sanitizeUrl } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 
+const CURRENCY_SYMBOLS: Record<string, string> = {
+    NGN: '₦',
+    USD: '$',
+    EUR: '€',
+    GBP: '£',
+};
+
+const getCurrencySymbol = (code?: string) => CURRENCY_SYMBOLS[code || ''] || code || '$';
+
 interface OfferCardProps {
     offer: BarterOffer;
     type: 'received' | 'sent' | 'history';
@@ -155,7 +164,7 @@ export default function OfferCard({ offer, type, onAccept, onReject, onCounter, 
                                     </svg>
                                 </div>
                                 <p className="font-bold text-gray-900 flex-1">
-                                    Offering <span className="text-green-600">{offer.currencyCode} {((offer.offeredCashCents || 0) / 100).toLocaleString()}</span> cash
+                                    Offering <span className="text-green-600">{getCurrencySymbol(offer.currencyCode)}{((offer.offeredCashCents || 0) / 100).toLocaleString()}</span> cash
                                 </p>
                             </div>
                         )}
@@ -181,7 +190,7 @@ export default function OfferCard({ offer, type, onAccept, onReject, onCounter, 
                                         </svg>
                                     </div>
                                     <p className="font-bold text-gray-900 flex-1">
-                                        Cash: <span className="text-green-600">{offer.currencyCode} {((offer.offeredCashCents || 0) / 100).toLocaleString()}</span>
+                                        Cash: <span className="text-green-600">{getCurrencySymbol(offer.currencyCode)}{((offer.offeredCashCents || 0) / 100).toLocaleString()}</span>
                                     </p>
                                 </div>
                                 <div className="flex items-start gap-2">
@@ -197,10 +206,17 @@ export default function OfferCard({ offer, type, onAccept, onReject, onCounter, 
                             </>
                         )}
                         {offer.message && (
-                            <div className="mt-3 pt-3 border-t border-blue-200">
-                                <p className="text-gray-700 text-sm italic leading-relaxed bg-white p-3 rounded-lg border border-blue-100">
-                                    <span className="font-semibold not-italic text-blue-700">💬 Message: </span>"{offer.message}"
-                                </p>
+                            <div className="mt-3 pt-3 border-t border-slate-100">
+                                <div className="relative p-3.5 bg-slate-50 border-l-4 border-blue-500 rounded-r-xl shadow-sm">
+                                    <div className="absolute top-2 right-3 text-blue-200">
+                                        <svg className="w-6 h-6 opacity-25" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M11.19 12.181c0 1.705-1.202 2.834-2.833 2.834-1.258 0-2.264-.943-2.264-2.2 0-2.296 2.044-4.812 4.654-5.811l.723 1.132c-1.666.912-2.73 2.579-2.73 3.698 0 .157.031.252.094.283.472-.251 1.07-.365 1.547-.365.472 0 .818.157 1.07.409.503.472.743 1.164.743 2.02zm8.81 0c0 1.705-1.202 2.834-2.833 2.834-1.258 0-2.264-.943-2.264-2.2 0-2.296 2.044-4.812 4.654-5.811l.723 1.132c-1.666.912-2.73 2.579-2.73 3.698 0 .157.031.252.094.283.472-.251 1.07-.365 1.547-.365.472 0 .818.157 1.07.409.503.472.743 1.164.743 2.02z" />
+                                        </svg>
+                                    </div>
+                                    <p className="text-slate-600 text-sm font-medium leading-relaxed pr-6 italic">
+                                        "{offer.message}"
+                                    </p>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -211,36 +227,36 @@ export default function OfferCard({ offer, type, onAccept, onReject, onCounter, 
                     <div className="grid grid-cols-2 gap-3 pt-2">
                         <button
                             onClick={() => onAccept?.(offer.id)}
-                            className="px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-bold text-sm hover:from-green-700 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
+                            className="px-4 py-2 md:py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-full font-bold text-sm hover:from-green-700 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
                         >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                             </svg>
                             Accept
                         </button>
                         <button
                             onClick={() => onReject?.(offer.id)}
-                            className="px-4 py-3 bg-white border-2 border-red-500 text-red-600 rounded-xl font-bold text-sm hover:bg-red-50 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
+                            className="px-4 py-2 md:py-2.5 bg-white border-2 border-red-500 text-red-600 rounded-full font-semibold text-sm hover:bg-red-50 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
                         >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
                             </svg>
                             Reject
                         </button>
                         <button
                             onClick={() => onCounter?.(offer)}
-                            className="px-4 py-3 bg-white border-2 border-blue-600 text-blue-600 rounded-xl font-bold text-sm hover:bg-blue-50 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
+                            className="px-4 py-2 md:py-2.5 bg-white border-2 border-blue-600 text-blue-600 rounded-full font-semibold text-sm hover:bg-blue-50 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
                         >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                             </svg>
                             Counter
                         </button>
                         <button
                             onClick={() => onMessage?.(offer)}
-                            className="px-4 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-xl font-bold text-sm hover:bg-gray-50 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
+                            className="px-4 py-2 md:py-2.5 bg-white border-2 border-gray-300 text-gray-700 rounded-full font-semibold text-sm hover:bg-gray-50 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
                         >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                             </svg>
                             Message
@@ -252,13 +268,13 @@ export default function OfferCard({ offer, type, onAccept, onReject, onCounter, 
                     <div className="grid grid-cols-2 gap-3 pt-2">
                         <button
                             onClick={() => onWithdraw?.(offer.id)}
-                            className="px-4 py-3 bg-white border-2 border-red-500 text-red-600 rounded-xl font-bold text-sm hover:bg-red-50 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2"
+                            className="px-4 py-2 md:py-2.5 bg-white border-2 border-red-500 text-red-600 rounded-full font-semibold text-sm hover:bg-red-50 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2"
                         >
                             Withdraw Offer
                         </button>
                         <button
                             onClick={() => onMessage?.(offer)}
-                            className="px-4 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-xl font-bold text-sm hover:bg-gray-50 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2"
+                            className="px-4 py-2 md:py-2.5 bg-white border-2 border-gray-300 text-gray-700 rounded-full font-semibold text-sm hover:bg-gray-50 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2"
                         >
                             💬 Message Seller
                         </button>
@@ -279,9 +295,9 @@ export default function OfferCard({ offer, type, onAccept, onReject, onCounter, 
                         </div>
                         <button
                             onClick={() => onMessage?.(offer)}
-                            className="w-full px-4 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold text-base hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
+                            className="w-full px-4 py-2.5 md:py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full font-bold text-base hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
                         >
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                             </svg>
                             Start Chatting with Seller
@@ -293,13 +309,13 @@ export default function OfferCard({ offer, type, onAccept, onReject, onCounter, 
                     <div className="grid grid-cols-2 gap-3 pt-2">
                         <button
                             onClick={() => onAcceptCounter?.(offer.id)}
-                            className="px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-bold text-sm hover:from-green-700 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg"
+                            className="px-4 py-2 md:py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-full font-bold text-sm hover:from-green-700 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg"
                         >
                             Accept Counter
                         </button>
                         <button
                             onClick={() => router.push(`/listings/${offer.listingId}`)}
-                            className="px-4 py-3 bg-white border-2 border-blue-600 text-blue-600 rounded-xl font-bold text-sm hover:bg-blue-50 transition-all shadow-sm hover:shadow-md">
+                            className="px-4 py-2 md:py-2.5 bg-white border-2 border-blue-600 text-blue-600 rounded-full font-semibold text-sm hover:bg-blue-50 transition-all shadow-sm hover:shadow-md">
                             Make New Offer
                         </button>
                     </div>
@@ -310,9 +326,9 @@ export default function OfferCard({ offer, type, onAccept, onReject, onCounter, 
                         {offer.status === 'accepted' && (
                             <button
                                 onClick={() => onMessage?.(offer)}
-                                className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold text-sm hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                                className="w-full px-4 py-2 md:py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full font-bold text-sm hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
                             >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                 </svg>
                                 Chat with Partner
@@ -321,9 +337,9 @@ export default function OfferCard({ offer, type, onAccept, onReject, onCounter, 
                         {offer.status === 'rejected' && offer.buyerId === currentUserId && (
                             <button
                                 onClick={() => router.push(`/listings/${offer.listingId}`)}
-                                className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold text-sm hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                                className="w-full px-4 py-2 md:py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full font-bold text-sm hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
                             >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                 </svg>
                                 Make New Offer
@@ -332,12 +348,12 @@ export default function OfferCard({ offer, type, onAccept, onReject, onCounter, 
                         <div className="flex gap-3">
                             <button
                                 onClick={() => onViewDetails ? onViewDetails(offer) : router.push(`/listings/${offer.listingId}`)}
-                                className="flex-1 px-4 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-xl font-bold text-sm hover:bg-gray-50 transition-all shadow-sm hover:shadow-md"
+                                className="flex-1 px-4 py-2 md:py-2.5 bg-white border-2 border-gray-300 text-gray-700 rounded-full font-semibold text-sm hover:bg-gray-50 transition-all shadow-sm hover:shadow-md"
                             >
                                 View Details
                             </button>
                             {offer.status === 'accepted' && (
-                                <button className="flex-1 px-4 py-3 bg-white border-2 border-purple-500 text-purple-600 rounded-xl font-bold text-sm hover:bg-purple-50 transition-all shadow-sm hover:shadow-md">
+                                <button className="flex-1 px-4 py-2 md:py-2.5 bg-white border-2 border-purple-500 text-purple-600 rounded-full font-semibold text-sm hover:bg-purple-50 transition-all shadow-sm hover:shadow-md">
                                     Leave Review
                                 </button>
                             )}
@@ -356,9 +372,9 @@ export default function OfferCard({ offer, type, onAccept, onReject, onCounter, 
                                         return (
                                             <button
                                                 onClick={() => onConfirm?.(offer.id)}
-                                                className="w-full px-4 py-3 bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border-2 border-green-200 rounded-xl font-bold text-sm hover:from-green-100 hover:to-emerald-100 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2"
+                                                className="w-full px-4 py-2 md:py-2.5 bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border-2 border-green-200 rounded-full font-semibold text-sm hover:from-green-100 hover:to-emerald-100 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2"
                                             >
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                                 </svg>
                                                 Confirm Item Received
@@ -369,7 +385,7 @@ export default function OfferCard({ offer, type, onAccept, onReject, onCounter, 
                                     // Status Message
                                     if (hasConfirmed && !partnerConfirmed) {
                                         return (
-                                            <div className="text-center p-3 bg-gradient-to-r from-yellow-50 to-amber-50 text-yellow-800 rounded-xl text-sm font-semibold border border-yellow-200">
+                                            <div className="text-center p-2.5 bg-gradient-to-r from-yellow-50 to-amber-50 text-yellow-800 rounded-xl text-sm font-semibold border border-yellow-200">
                                                 Waiting for partner to confirm...
                                             </div>
                                         );
@@ -385,9 +401,9 @@ export default function OfferCard({ offer, type, onAccept, onReject, onCounter, 
                                             return (
                                                 <button
                                                     onClick={() => onViewReceipt?.(offer)}
-                                                    className="w-full px-4 py-3 bg-gradient-to-r from-gray-900 to-gray-800 text-white rounded-xl font-bold text-sm hover:from-gray-800 hover:to-gray-700 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                                                    className="w-full px-4 py-2 md:py-2.5 bg-gradient-to-r from-gray-900 to-gray-800 text-white rounded-full font-bold text-sm hover:from-gray-800 hover:to-gray-700 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
                                                 >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                                     </svg>
                                                     View Official Receipt
@@ -396,7 +412,7 @@ export default function OfferCard({ offer, type, onAccept, onReject, onCounter, 
                                         } else {
                                             return (
                                                 <div className="text-center space-y-2">
-                                                    <div className="p-3 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-800 rounded-xl text-sm font-semibold border border-blue-200">
+                                                    <div className="p-2.5 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-800 rounded-xl text-sm font-semibold border border-blue-200">
                                                         Receipt available after 24h verification period
                                                     </div>
                                                     {availableAt && (

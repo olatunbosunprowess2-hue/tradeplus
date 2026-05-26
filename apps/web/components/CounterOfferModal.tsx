@@ -284,14 +284,14 @@ export default function CounterOfferModal({ isOpen, onClose, offer, onSubmit }: 
                         <button
                             type="button"
                             onClick={onClose}
-                            className="flex-1 px-6 py-3 border-2 border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 transition"
+                            className="flex-1 px-6 py-2 md:py-2.5 border-2 border-gray-300 rounded-full font-semibold text-gray-700 hover:bg-gray-50 transition text-sm"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={(offerType !== 'cash' && selectedListingIds.size === 0)}
-                            className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex-1 px-6 py-2 md:py-2.5 bg-blue-600 text-white rounded-full font-bold hover:bg-blue-700 transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                         >
                             Send Counter Offer
                         </button>

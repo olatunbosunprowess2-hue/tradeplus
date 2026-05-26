@@ -509,8 +509,8 @@ export function FirstChatModal({
                     <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Users className="w-10 h-10" />
                     </div>
-                    <h2 className="text-2xl font-bold mb-2">Safe Trading</h2>
-                    <p className="text-blue-100 text-sm">You're about to start a conversation with a fellow BarterWave member.</p>
+                    <h2 className="text-2xl font-bold mb-2">Safe Trading Terms</h2>
+                    <p className="text-blue-100 text-sm">Please read and acknowledge our safety guidelines before starting this chat.</p>
                 </div>
                 <div className="p-6 space-y-4">
                     <div className="flex gap-4 items-start">
@@ -519,7 +519,16 @@ export function FirstChatModal({
                         </div>
                         <div>
                             <p className="font-bold text-slate-900 text-sm">Stay on Platform</p>
-                            <p className="text-xs text-slate-500">Keep chats on BarterWave for your protection and trade history.</p>
+                            <p className="text-xs text-slate-500">Keep all communication and trade steps inside BarterWave for your protection.</p>
+                        </div>
+                    </div>
+                    <div className="flex gap-4 items-start">
+                        <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center shrink-0">
+                            <ShieldCheck className="w-5 h-5 text-red-600" />
+                        </div>
+                        <div>
+                            <p className="font-bold text-slate-900 text-sm">No Advance Payments</p>
+                            <p className="text-xs text-slate-500 font-semibold text-red-700">Never pay in advance for shipping. Utilize escrow and inspect items first.</p>
                         </div>
                     </div>
                     <div className="flex gap-4 items-start">
@@ -527,15 +536,15 @@ export function FirstChatModal({
                             <Target className="w-5 h-5 text-blue-600" />
                         </div>
                         <div>
-                            <p className="font-bold text-slate-900 text-sm">Be Clear</p>
-                            <p className="text-xs text-slate-500">Discuss trade details, conditions, and meeting spots clearly.</p>
+                            <p className="font-bold text-slate-900 text-sm">Public Meetups Only</p>
+                            <p className="text-xs text-slate-500">Meet in well-lit, public spaces. Always inspect and test items before final approval.</p>
                         </div>
                     </div>
                     <button
                         onClick={onClose}
-                        className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 transition-colors mt-4"
+                        className="w-full py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-bold transition-colors mt-4 uppercase tracking-wider text-xs"
                     >
-                        Got it, Let's Chat!
+                        I Agree & Accept
                     </button>
                 </div>
             </div>

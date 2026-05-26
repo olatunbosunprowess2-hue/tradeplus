@@ -6,6 +6,7 @@ import SideMenu from '@/components/SideMenu';
 import { useOffersStore } from '@/lib/offers-store';
 import { useAuthStore } from '@/lib/auth-store';
 import { useMessagesStore } from '@/lib/messages-store';
+import { useNotificationsStore } from '@/lib/notifications-store';
 import { BarterOffer } from '@/lib/types';
 import apiClient from '@/lib/api-client';
 import OfferCard from '@/components/OfferCard';
@@ -106,6 +107,38 @@ export default function OffersPage() {
             router.push('/login');
         }
     }, [_hasHydrated, isAuthenticated, router]);
+
+    // Clear offer notifications when viewing the offers page
+    useEffect(() => {
+        if (!isAuthenticated) return;
+
+        const clearOfferNotifications = async () => {
+            try {
+                // Fetch latest notifications first
+                await useNotificationsStore.getState().fetchNotifications();
+                
+                const currentNotifications = useNotificationsStore.getState().notifications;
+                const offerTypes = ['NEW_OFFER', 'OFFER_ACCEPTED', 'OFFER_REJECTED', 'OFFER_COUNTERED', 'offer'];
+                
+                const unreadOfferNotifications = currentNotifications.filter(
+                    n => !n.readAt && offerTypes.includes(n.type)
+                );
+
+                if (unreadOfferNotifications.length > 0) {
+                    // Mark each as read
+                    await Promise.all(
+                        unreadOfferNotifications.map(n => useNotificationsStore.getState().markAsRead(n.id))
+                    );
+                    // Update badge count
+                    await useNotificationsStore.getState().fetchUnreadCount();
+                }
+            } catch (err) {
+                console.error('Failed to clear offer notifications:', err);
+            }
+        };
+
+        clearOfferNotifications();
+    }, [isAuthenticated, activeTab]);
 
     // Fetch offers and poll for updates
     useEffect(() => {
