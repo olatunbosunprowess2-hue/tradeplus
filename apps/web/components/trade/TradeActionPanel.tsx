@@ -17,8 +17,6 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
     const [disputeReason, setDisputeReason] = useState('');
     const [showDisputeModal, setShowDisputeModal] = useState(false);
     const [showConfirmExchange, setShowConfirmExchange] = useState(false);
-
-    // TradeCompleteModal visibility
     const [showCompleteModal, setShowCompleteModal] = useState(false);
 
     // Show completion modal once per session when trade is newly completed
@@ -35,7 +33,6 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
     const isSeller = offer.sellerId === currentUserId;
     const isBuyer = offer.buyerId === currentUserId;
 
-    // Check if the current user has locked the deal
     const hasLocked = (isBuyer && offer.isBuyerLocked) || (isSeller && offer.isSellerLocked);
     const otherHasLocked = (isBuyer && offer.isSellerLocked) || (isSeller && offer.isBuyerLocked);
 
@@ -64,7 +61,6 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
             await apiClient.post(`/barter/offers/${offer.id}/verify-pickup`);
             toast.success('Fulfillment verified!');
             if (offer.status !== 'completed') {
-                // Determine if this hit completed
                 setShowCompleteModal(true);
             }
             onUpdate();
@@ -94,10 +90,10 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
     };
 
     return (
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden mb-3">
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
 
-            {/* Visual Stepper */}
-            <div className="px-4 py-2.5 bg-gray-50/50 border-b border-gray-100">
+            {/* Compact Stepper + Action in one row for accepted status */}
+            <div className="px-3 py-2.5">
                 <TradeStepper
                     status={offer.status}
                     isBuyerLocked={offer.isBuyerLocked}
@@ -105,155 +101,143 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
                 />
             </div>
 
-            {/* Action Area */}
-            <div className="px-4 py-3">
-
-                {/* 1. Commitment Phase */}
-                {offer.status === 'accepted' && (
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm flex-wrap">
-                        <div className="flex items-center gap-2">
-                            <span className="font-bold text-gray-900 text-xs">Lock Deal</span>
-                            <span className="text-xs text-gray-500 hidden sm:inline">(Starts 7-day Meetup Timer)</span>
+            {/* ── 1. Commitment Phase ── */}
+            {offer.status === 'accepted' && (
+                <div className="px-3 pb-3">
+                    {otherHasLocked && !hasLocked && (
+                        <div className="flex items-center gap-2 bg-orange-50 border border-orange-100 rounded-lg px-3 py-2 mb-2">
+                            <span className="flex h-2 w-2 relative">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+                            </span>
+                            <p className="text-[11px] text-orange-700 font-bold">{otherPartyName} has locked — waiting for you!</p>
                         </div>
-                        <div className="flex items-center gap-2 w-full sm:w-auto">
-                            {otherHasLocked && !hasLocked && (
-                                <p className="text-xs text-orange-600 font-bold bg-orange-50 px-2 py-1 rounded animate-pulse hidden sm:block">
-                                    Waiting for you!
-                                </p>
-                            )}
-                            <button
-                                onClick={handleLockDeal}
-                                disabled={isLoading || hasLocked}
-                                className={`px-4 py-2 rounded-lg font-bold uppercase tracking-wider text-[11px] transition-all flex-1 sm:flex-none ${hasLocked
-                                    ? 'bg-green-100 text-green-700 cursor-not-allowed'
-                                    : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95 shadow-sm'
-                                    }`}
-                            >
-                                {isLoading ? 'Working...' : hasLocked ? '✓ Locked' : '🔒 Lock Deal'}
-                            </button>
-                        </div>
-                    </div>
-                )}
+                    )}
+                    <button
+                        onClick={handleLockDeal}
+                        disabled={isLoading || hasLocked}
+                        className={`w-full py-2.5 rounded-lg font-bold text-xs transition-all flex items-center justify-center gap-1.5 ${
+                            hasLocked
+                                ? 'bg-green-50 text-green-700 border border-green-200 cursor-default'
+                                : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.98] shadow-sm'
+                        }`}
+                    >
+                        {isLoading ? (
+                            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        ) : hasLocked ? (
+                            <>✓ You've Locked</>
+                        ) : (
+                            <>🔒 Lock Deal</>
+                        )}
+                    </button>
+                    {!hasLocked && (
+                        <p className="text-[10px] text-gray-400 text-center mt-1.5">Both parties must lock to start the exchange phase</p>
+                    )}
+                </div>
+            )}
 
-                {/* 2. Meetup/Fulfillment Phase */}
-                {offer.status === 'awaiting_fulfillment' && (
-                    <div className="space-y-3 shrink-0 relative mt-2 pt-2 border-t border-gray-100">
-                        <div className="bg-slate-50 border border-slate-100 rounded-xl p-3.5 flex flex-col gap-3">
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                <div>
-                                    <h3 className="font-extrabold text-slate-800 text-sm">Fulfillment Confirmation</h3>
-                                    <p className="text-[11px] text-slate-500 leading-normal max-w-xs mt-0.5">
-                                        Once you have physically exchanged the items, verified shipment, or received what was agreed, confirm it below.
-                                    </p>
-                                </div>
-                                <div className="flex items-center gap-2 flex-shrink-0">
-                                    {hasFulfilled ? (
-                                        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-700 rounded-full text-[10px] font-extrabold border border-green-200 shadow-inner">
-                                            <span>✓</span>
-                                            <span>You Confirmed</span>
-                                        </div>
-                                    ) : showConfirmExchange ? (
-                                        <div className="flex items-center gap-1.5">
-                                            <button
-                                                onClick={() => setShowConfirmExchange(false)}
-                                                className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full text-xs font-bold transition"
-                                            >
-                                                Cancel
-                                            </button>
-                                            <button
-                                                onClick={handleVerifyPickup}
-                                                disabled={isLoading}
-                                                className="px-4 py-2 bg-green-600 hover:bg-green-700 active:scale-95 text-white rounded-full text-xs font-bold transition shadow-sm whitespace-nowrap"
-                                            >
-                                                {isLoading ? 'Confirming...' : 'Yes, Confirm'}
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <button
-                                            onClick={() => setShowConfirmExchange(true)}
-                                            disabled={isLoading}
-                                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white rounded-full text-xs font-bold transition shadow-sm whitespace-nowrap"
-                                        >
-                                            Confirm Exchange
-                                        </button>
-                                    )}
-                                </div>
+            {/* ── 2. Fulfillment Phase ── */}
+            {offer.status === 'awaiting_fulfillment' && (
+                <div className="px-3 pb-3 space-y-2">
+                    {otherHasFulfilled && (
+                        <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-2">
+                            <span className="flex h-2 w-2 relative">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                            </span>
+                            <p className="text-[11px] text-emerald-800 font-bold">
+                                {otherPartyName} confirmed — your turn!
+                            </p>
+                        </div>
+                    )}
+
+                    {hasFulfilled ? (
+                        <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg px-3 py-2.5">
+                            <div className="flex items-center gap-2">
+                                <span className="text-green-600 text-sm">✓</span>
+                                <span className="text-xs font-bold text-green-700">You confirmed exchange</span>
                             </div>
-
-                            {otherHasFulfilled && (
-                                <div className="bg-emerald-50 border border-emerald-100/60 rounded-xl px-3 py-2 flex items-center gap-2 mt-1">
-                                    <span className="flex h-2 w-2 relative">
-                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                                    </span>
-                                    <p className="text-[10px] text-emerald-800 font-bold">
-                                        {otherPartyName} has confirmed receipt. Once you confirm, the trade will finalize!
-                                    </p>
-                                </div>
-                            )}
-
-                            {!otherHasFulfilled && hasFulfilled && (
-                                <p className="text-[10px] text-slate-400 font-semibold italic mt-0.5">
-                                    Awaiting confirmation from {otherPartyName}...
-                                </p>
+                            {!otherHasFulfilled && (
+                                <span className="text-[10px] text-gray-400 font-medium italic">Waiting for {otherPartyName}...</span>
                             )}
                         </div>
-
-                        {/* Emergency Brake / Dispute Button */}
-                        <div className="text-center pt-1.5">
-                            <button
-                                onClick={() => setShowDisputeModal(true)}
-                                className="text-[10px] font-bold text-red-500 hover:text-red-700 uppercase tracking-wider flex items-center justify-center gap-1 mx-auto"
-                            >
-                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                                Report Issue / Dispute
-                            </button>
+                    ) : showConfirmExchange ? (
+                        <div className="bg-amber-50 border border-amber-100 rounded-lg p-3">
+                            <p className="text-[11px] text-amber-800 font-bold mb-2">⚠️ Are you sure? This cannot be undone.</p>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => setShowConfirmExchange(false)}
+                                    className="flex-1 py-2 bg-white text-gray-600 rounded-lg text-xs font-bold border border-gray-200 hover:bg-gray-50 transition"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleVerifyPickup}
+                                    disabled={isLoading}
+                                    className="flex-1 py-2 bg-green-600 text-white rounded-lg text-xs font-bold hover:bg-green-700 active:scale-[0.98] transition shadow-sm"
+                                >
+                                    {isLoading ? 'Confirming...' : 'Yes, Confirm'}
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                )}
+                    ) : (
+                        <button
+                            onClick={() => setShowConfirmExchange(true)}
+                            className="w-full py-2.5 bg-blue-600 text-white rounded-lg font-bold text-xs hover:bg-blue-700 active:scale-[0.98] transition shadow-sm flex items-center justify-center gap-1.5"
+                        >
+                            🤝 Confirm Exchange
+                        </button>
+                    )}
 
-                {/* 3. Completed State */}
-                {offer.status === 'completed' && (
-                    <div className="text-center py-4 text-green-700">
-                        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                        </div>
-                        <h3 className="font-bold text-lg text-green-900 mb-1">Trade Complete</h3>
-                        <p className="text-sm font-medium opacity-80">This trade was successfully fulfilled.</p>
+                    {/* Dispute link */}
+                    <button
+                        onClick={() => setShowDisputeModal(true)}
+                        className="w-full text-[10px] font-semibold text-gray-400 hover:text-red-500 py-1 transition flex items-center justify-center gap-1"
+                    >
+                        ⚠️ Report Issue
+                    </button>
+                </div>
+            )}
+
+            {/* ── 3. Completed ── */}
+            {offer.status === 'completed' && (
+                <div className="text-center px-3 pb-3">
+                    <div className="bg-green-50 rounded-lg py-3 flex items-center justify-center gap-2">
+                        <span className="text-green-600 text-lg">🎉</span>
+                        <span className="text-sm font-bold text-green-800">Trade Complete</span>
                     </div>
-                )}
-            </div>
+                </div>
+            )}
 
             {/* Dispute Modal */}
             {showDisputeModal && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl w-full max-w-md p-6">
-                        <h3 className="text-lg font-bold text-red-600 flex items-center gap-2 mb-2">
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                            Emergency Brake (Dispute)
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowDisputeModal(false)}>
+                    <div className="bg-white rounded-2xl w-full max-w-md p-5" onClick={(e) => e.stopPropagation()}>
+                        <h3 className="text-base font-bold text-red-600 flex items-center gap-2 mb-2">
+                            ⚠️ Report Issue / Dispute
                         </h3>
-                        <p className="text-sm text-gray-600 mb-4">
-                            If the item is not as described, or there is a serious issue during meetup, detail the reason here. This will freeze the trade and alert BarterWave support instantly.
+                        <p className="text-xs text-gray-600 mb-3 leading-relaxed">
+                            If the item is not as described or there is a serious issue, explain below. This will freeze the trade and alert BarterWave support.
                         </p>
                         <textarea
                             value={disputeReason}
                             onChange={(e) => setDisputeReason(e.target.value)}
-                            placeholder="Please explain the issue in detail..."
-                            className="w-full border-2 border-gray-200 rounded-xl p-3 mb-4 focus:border-red-500 focus:ring-0 min-h-[100px]"
+                            placeholder="Explain the issue in detail..."
+                            className="w-full border-2 border-gray-200 rounded-xl p-3 mb-3 focus:border-red-400 focus:ring-0 min-h-[80px] text-sm"
                         />
                         <div className="flex gap-2">
                             <button
                                 onClick={() => setShowDisputeModal(false)}
-                                className="flex-1 py-3 text-gray-600 font-bold bg-gray-100 hover:bg-gray-200 rounded-xl"
+                                className="flex-1 py-2.5 text-gray-600 font-bold bg-gray-100 hover:bg-gray-200 rounded-xl text-xs"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={handleDispute}
                                 disabled={isLoading}
-                                className="flex-1 py-3 text-white font-bold bg-red-600 hover:bg-red-700 rounded-xl flex justify-center items-center"
+                                className="flex-1 py-2.5 text-white font-bold bg-red-600 hover:bg-red-700 rounded-xl text-xs flex justify-center items-center"
                             >
-                                {isLoading ? 'Sending...' : 'Raise Dispute'}
+                                {isLoading ? 'Sending...' : 'Submit Dispute'}
                             </button>
                         </div>
                     </div>

@@ -8,10 +8,10 @@ interface TradeStepperProps {
 
 export default function TradeStepper({ status, isBuyerLocked, isSellerLocked }: TradeStepperProps) {
     const steps = [
-        { id: 'accepted', label: 'Accepted' },
-        { id: 'commitment', label: 'Commitment' },
-        { id: 'fulfillment', label: 'Fulfillment' },
-        { id: 'completed', label: 'Completed' }
+        { id: 'accepted', label: 'Accepted', icon: '✓' },
+        { id: 'commitment', label: 'Locked', icon: '🔒' },
+        { id: 'fulfillment', label: 'Exchange', icon: '🤝' },
+        { id: 'completed', label: 'Done', icon: '🎉' }
     ];
 
     // Determine current step index (1-based for visual progress)
@@ -19,72 +19,77 @@ export default function TradeStepper({ status, isBuyerLocked, isSellerLocked }: 
 
     if (status === 'accepted') {
         currentStep = 1;
-        // If someone has started locking, we are visually transitioning to step 2
         if (isBuyerLocked || isSellerLocked) {
             currentStep = 1.5;
         }
     } else if (status === 'awaiting_fulfillment') {
-        currentStep = 3; // Meaning Commitment is done, we are IN the Meetup Phase
+        currentStep = 3;
     } else if (status === 'completed') {
         currentStep = 4;
     } else if (status === 'disputed') {
-        currentStep = 3; // Frozen in meetup
+        currentStep = 3;
     }
 
+    const isDisputed = status === 'disputed';
+
     return (
-        <div className="w-full py-1 pb-4">
-            <div className="flex items-center justify-between relative">
-                {/* Background Track */}
-                <div className="absolute top-1/2 left-0 w-full h-0.5 bg-slate-100 -translate-y-1/2 z-0 rounded-full" />
-
-                {/* Active Track */}
-                <div
-                    className={`absolute top-1/2 left-0 h-0.5 -translate-y-1/2 z-0 rounded-full transition-all duration-700 ${status === 'disputed' ? 'bg-red-500' : 'bg-blue-600'
-                        }`}
-                    style={{ width: `${(Math.min(Math.floor(currentStep), 4) - 1) * 33.33}%` }}
-                />
-
+        <div className="w-full py-1">
+            <div className="flex items-center gap-0">
                 {steps.map((step, index) => {
                     const stepNumber = index + 1;
                     const isCompleted = currentStep > stepNumber || (currentStep === 4 && stepNumber === 4);
                     const isCurrent = Math.floor(currentStep) === stepNumber;
-                    const isDisputed = status === 'disputed' && stepNumber === 3;
-
-                    let circleClass = "w-6 h-6 rounded-full flex items-center justify-center z-10 text-[10px] font-bold border-2 transition-all duration-500 ";
-                    let textClass = "absolute -bottom-4.5 left-1/2 -translate-x-1/2 text-[8px] font-bold uppercase tracking-wider whitespace-nowrap transition-colors duration-500 ";
-
-                    if (isDisputed) {
-                        circleClass += "bg-red-100 border-red-500 text-red-600 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.3)]";
-                        textClass += "text-red-600";
-                    } else if (isCompleted) {
-                        circleClass += "bg-blue-600 border-blue-600 text-white shadow-sm";
-                        textClass += "text-blue-950";
-                    } else if (isCurrent) {
-                        circleClass += "bg-white border-blue-500 text-blue-600 shadow-[0_0_0_3px_rgba(59,130,246,0.06)]";
-                        textClass += "text-blue-600 font-extrabold";
-                    } else {
-                        circleClass += "bg-white border-slate-200 text-slate-400";
-                        textClass += "text-slate-400";
-                    }
+                    const isDisputedStep = isDisputed && stepNumber === 3;
 
                     return (
-                        <div key={step.id} className="relative flex flex-col items-center group">
-                            <div className={circleClass}>
-                                {isDisputed ? '!' : isCompleted ? '✓' : stepNumber}
+                        <React.Fragment key={step.id}>
+                            {/* Connector line (before each step except the first) */}
+                            {index > 0 && (
+                                <div className={`flex-1 h-0.5 rounded-full transition-all duration-500 ${
+                                    isCompleted || (isCurrent && index < Math.floor(currentStep))
+                                        ? isDisputed ? 'bg-red-400' : 'bg-blue-500'
+                                        : 'bg-gray-200'
+                                }`} />
+                            )}
+
+                            {/* Step circle + label */}
+                            <div className="flex flex-col items-center relative">
+                                <div className={`
+                                    w-7 h-7 rounded-full flex items-center justify-center text-xs transition-all duration-500
+                                    ${isDisputedStep
+                                        ? 'bg-red-100 border-2 border-red-400 text-red-600 animate-pulse'
+                                        : isCompleted
+                                            ? 'bg-blue-600 border-2 border-blue-600 text-white'
+                                            : isCurrent
+                                                ? 'bg-white border-2 border-blue-500 text-blue-600 shadow-sm'
+                                                : 'bg-gray-100 border-2 border-gray-200 text-gray-400'
+                                    }
+                                `}>
+                                    {isDisputedStep ? '!' : isCompleted ? '✓' : <span className="text-[11px]">{step.icon}</span>}
+                                </div>
+                                <span className={`
+                                    text-[9px] font-bold mt-1 whitespace-nowrap
+                                    ${isDisputedStep
+                                        ? 'text-red-600'
+                                        : isCompleted
+                                            ? 'text-blue-700'
+                                            : isCurrent
+                                                ? 'text-blue-600'
+                                                : 'text-gray-400'
+                                    }
+                                `}>
+                                    {isDisputedStep ? 'Dispute' : step.label}
+                                </span>
                             </div>
-                            <span className={textClass}>
-                                {isDisputed ? 'DISPUTED' : step.label}
-                            </span>
-                        </div>
+                        </React.Fragment>
                     );
                 })}
             </div>
 
-            {status === 'disputed' && (
-                <div className="mt-6 p-2 bg-red-50 border border-red-100 rounded-lg text-center animate-in fade-in slide-in-from-top-2">
-                    <p className="text-[10px] font-bold text-red-700 uppercase tracking-wider flex items-center justify-center gap-1">
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                        Trade Frozen - Admin Review
+            {isDisputed && (
+                <div className="mt-2 px-2 py-1.5 bg-red-50 border border-red-100 rounded-lg text-center">
+                    <p className="text-[10px] font-bold text-red-700 flex items-center justify-center gap-1">
+                        ⚠️ Trade Frozen — Admin Review
                     </p>
                 </div>
             )}

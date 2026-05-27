@@ -165,37 +165,11 @@ export default function TradeTimerBar({ offer, currentUserId, onUpdate, variant 
         }
 
         return (
-            <div className="flex items-center gap-1.5 flex-wrap animate-in fade-in zoom-in-95 duration-500">
-                <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border ${textCol} tabular-nums`}>
-                    <span>⏱</span>
-                    <span>{timeDisplay}</span>
-                    {isPaused && <span className="text-[9px] font-medium opacity-85">(paused)</span>}
-                </span>
-
-                {/* Action Buttons */}
-                {offer.status === 'accepted' && !hasLocked && (
-                    <button
-                        onClick={handleLockDeal}
-                        disabled={locking}
-                        className="inline-flex items-center gap-0.5 px-2.5 py-0.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold transition-all active:scale-95 disabled:opacity-50 shadow-sm"
-                    >
-                        <span>🔒</span>
-                        <span>Lock Deal</span>
-                    </button>
-                )}
-
-                {canExtend && !isExpired && !isPaused && (
-                    <button
-                        onClick={handleExtend}
-                        disabled={extending}
-                        className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-[10px] font-bold transition-all disabled:opacity-50 shadow-xs"
-                        title={isSeller ? "Extend timer by 30 mins" : "Request extension"}
-                    >
-                        <span className="text-[11px] font-black text-blue-600">+</span>
-                        <span>{isSeller ? '30m' : 'Req'}</span>
-                    </button>
-                )}
-            </div>
+            <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border ${textCol} tabular-nums`}>
+                <span>⏱</span>
+                <span>{timeDisplay}</span>
+                {isPaused && <span className="text-[9px] font-medium opacity-85">(paused)</span>}
+            </span>
         );
     }
 

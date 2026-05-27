@@ -460,18 +460,7 @@ export default function ChatPage() {
                         </div>
                     </div>
 
-                    {/* Quick Actions */}
-                    {conversation.barterOffer?.status === 'accepted' && (
-                        <Link
-                            href="/offers"
-                            className="flex items-center gap-1 px-3 py-1.5 bg-green-50 text-green-700 rounded-full text-xs font-bold border border-green-200 hover:bg-green-100 transition"
-                        >
-                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            Trade Active
-                        </Link>
-                    )}
+
 
                     {/* Action Dropdown Menu */}
                     <div className="relative">
@@ -529,7 +518,7 @@ export default function ChatPage() {
 
             {/* Trade Action Panel (Commitment, Fulfillment, Disputes) */}
             {conversation.barterOffer && ['accepted', 'awaiting_fulfillment', 'completed', 'disputed'].includes(conversation.barterOffer.status) && currentUserId && (
-                <div className="bg-gray-50 border-b border-gray-200 px-4 py-4 pt-6 shadow-inner">
+                <div className="bg-white border-b border-gray-200 px-3 py-2">
                     <div className="container mx-auto max-w-4xl">
                         <TradeActionPanel
                             offer={conversation.barterOffer}
