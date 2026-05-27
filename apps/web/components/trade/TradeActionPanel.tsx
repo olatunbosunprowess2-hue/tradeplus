@@ -125,9 +125,9 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
                         {isLoading ? (
                             <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                         ) : hasLocked ? (
-                            <>✓ You've Locked</>
+                            <>Locked</>
                         ) : (
-                            <>🔒 Lock Deal</>
+                            <>Lock Deal</>
                         )}
                     </button>
                     {!hasLocked && (
@@ -163,7 +163,7 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
                         </div>
                     ) : showConfirmExchange ? (
                         <div className="bg-amber-50 border border-amber-100 rounded-lg p-3">
-                            <p className="text-[11px] text-amber-800 font-bold mb-2">⚠️ Are you sure? This cannot be undone.</p>
+                            <p className="text-[11px] text-amber-800 font-bold mb-2">Are you sure? This cannot be undone.</p>
                             <div className="flex gap-2">
                                 <button
                                     onClick={() => setShowConfirmExchange(false)}
@@ -185,7 +185,7 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
                             onClick={() => setShowConfirmExchange(true)}
                             className="w-full py-2.5 bg-blue-600 text-white rounded-lg font-bold text-xs hover:bg-blue-700 active:scale-[0.98] transition shadow-sm flex items-center justify-center gap-1.5"
                         >
-                            🤝 Confirm Exchange
+                            Confirm Exchange
                         </button>
                     )}
 
@@ -194,7 +194,7 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
                         onClick={() => setShowDisputeModal(true)}
                         className="w-full text-[10px] font-semibold text-gray-400 hover:text-red-500 py-1 transition flex items-center justify-center gap-1"
                     >
-                        ⚠️ Report Issue
+                        Report Issue
                     </button>
                 </div>
             )}
@@ -203,7 +203,7 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
             {offer.status === 'completed' && (
                 <div className="text-center px-3 pb-3">
                     <div className="bg-green-50 rounded-lg py-3 flex items-center justify-center gap-2">
-                        <span className="text-green-600 text-lg">🎉</span>
+                        <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
                         <span className="text-sm font-bold text-green-800">Trade Complete</span>
                     </div>
                 </div>
@@ -214,7 +214,7 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
                 <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowDisputeModal(false)}>
                     <div className="bg-white rounded-2xl w-full max-w-md p-5" onClick={(e) => e.stopPropagation()}>
                         <h3 className="text-base font-bold text-red-600 flex items-center gap-2 mb-2">
-                            ⚠️ Report Issue / Dispute
+                            Report Issue / Dispute
                         </h3>
                         <p className="text-xs text-gray-600 mb-3 leading-relaxed">
                             If the item is not as described or there is a serious issue, explain below. This will freeze the trade and alert BarterWave support.

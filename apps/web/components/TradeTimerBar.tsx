@@ -42,12 +42,12 @@ function formatTime(ms: number): string {
 }
 
 function getTimerColor(remaining: number, isPaused: boolean, isMeetupPhase: boolean): {
-    bg: string; text: string; border: string; ring: string; icon: string; progressBg: string;
+    bg: string; text: string; border: string; ring: string; dotColor: string; progressBg: string;
 } {
     if (isPaused) {
         return {
             bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200',
-            ring: 'ring-blue-400', icon: '⏸️', progressBg: 'bg-blue-400',
+            ring: 'ring-blue-400', dotColor: 'bg-blue-500', progressBg: 'bg-blue-400',
         };
     }
     if (isMeetupPhase) {
@@ -55,30 +55,30 @@ function getTimerColor(remaining: number, isPaused: boolean, isMeetupPhase: bool
         if (days <= 1) {
             return {
                 bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200',
-                ring: 'ring-amber-400', icon: '📅', progressBg: 'bg-amber-400',
+                ring: 'ring-amber-400', dotColor: 'bg-amber-500', progressBg: 'bg-amber-400',
             };
         }
         return {
             bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-200',
-            ring: 'ring-indigo-400', icon: '📅', progressBg: 'bg-indigo-500',
+            ring: 'ring-indigo-400', dotColor: 'bg-indigo-500', progressBg: 'bg-indigo-500',
         };
     }
     const minutes = remaining / 60000;
     if (minutes <= 5) {
         return {
             bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200',
-            ring: 'ring-red-400', icon: '🔴', progressBg: 'bg-red-500',
+            ring: 'ring-red-400', dotColor: 'bg-red-500', progressBg: 'bg-red-500',
         };
     }
     if (minutes <= 10) {
         return {
             bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200',
-            ring: 'ring-amber-400', icon: '🟡', progressBg: 'bg-amber-400',
+            ring: 'ring-amber-400', dotColor: 'bg-amber-500', progressBg: 'bg-amber-400',
         };
     }
     return {
         bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200',
-        ring: 'ring-emerald-400', icon: '🟢', progressBg: 'bg-emerald-500',
+        ring: 'ring-emerald-400', dotColor: 'bg-emerald-500', progressBg: 'bg-emerald-500',
     };
 }
 
@@ -166,7 +166,7 @@ export default function TradeTimerBar({ offer, currentUserId, onUpdate, variant 
 
         return (
             <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border ${textCol} tabular-nums`}>
-                <span>⏱</span>
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 <span>{timeDisplay}</span>
                 {isPaused && <span className="text-[9px] font-medium opacity-85">(paused)</span>}
             </span>
@@ -185,7 +185,7 @@ export default function TradeTimerBar({ offer, currentUserId, onUpdate, variant 
                         w-10 h-10 rounded-full ${colors.bg} flex items-center justify-center
                         border-2 ${colors.border} ${!isPaused && remaining < 300000 ? 'animate-pulse' : ''}
                     `}>
-                        <span className="text-lg">{colors.icon}</span>
+                        <div className={`w-3 h-3 rounded-full ${colors.dotColor}`} />
                     </div>
                     <div className="min-w-0">
                         <div className={`font-mono text-lg font-bold ${colors.text} tabular-nums`}>
@@ -195,7 +195,7 @@ export default function TradeTimerBar({ offer, currentUserId, onUpdate, variant 
                             {isExpired
                                 ? (isMeetupPhase ? 'Meetup deadline expired — under review' : 'Trade timer expired')
                                 : isPaused
-                                    ? '⏸️ Timer Paused: Waiting for Seller to verify payment in their bank app. Trade will not expire while paused.'
+                                    ? 'Timer paused — waiting for seller to verify payment. Trade will not expire while paused.'
                                     : isMeetupPhase
                                         ? 'remaining to meet up & exchange'
                                         : 'remaining to complete trade'

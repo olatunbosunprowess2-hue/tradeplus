@@ -327,27 +327,15 @@ export class BarterService {
         const timerExpiresAt = new Date();
         timerExpiresAt.setMinutes(timerExpiresAt.getMinutes() + timerDuration);
 
-        // Create system messages for trade acceptance + timer education
+        // Create a single concise system message for trade acceptance
         await this.prisma.message.createMany({
             data: [
                 {
                     conversationId: conversation.id,
                     senderId: userId,
-                    body: `🎉 Offer accepted! You can now chat to arrange the exchange for "${offer.listing.title}".`,
+                    body: `Trade accepted \u2014 a ${timerDuration}-minute timer has started. Discuss terms and finalize the exchange before it expires. Meet in a public place and inspect items before confirming.`,
                     messageType: 'system',
                 },
-                {
-                    conversationId: conversation.id,
-                    senderId: userId,
-                    body: `🤝 Trade Started! A ${timerDuration}-minute timer has begun to help you conclude this deal quickly. Please discuss terms, agree on a meetup, or pay the downpayment before the timer runs out to lock in the item!`,
-                    messageType: 'system',
-                },
-                {
-                    conversationId: conversation.id,
-                    senderId: userId,
-                    body: `⚠️ Safety First: Meet in public. Do not pay full price before inspection. Check the item before confirming.`,
-                    messageType: 'system',
-                }
             ],
         });
 
