@@ -370,7 +370,7 @@ export class BarterService {
 
         // Send Notification with conversation link
         await this.notificationsService.create(updated.buyerId, 'OFFER_ACCEPTED', {
-            title: 'Offer Accepted! 🎉',
+            title: 'Offer Accepted',
             message: `Your offer for ${updated.listing.title} was accepted! Start chatting now.`,
             offerId: updated.id,
             listingId: updated.listingId,
@@ -942,7 +942,7 @@ export class BarterService {
 
         // Notify seller that buyer marked payment as sent
         await this.notificationsService.create(updated.sellerId, 'DOWNPAYMENT_PAID', {
-            title: 'Downpayment Sent 💰',
+            title: 'Downpayment Sent',
             message: `${updated.buyer?.profile?.displayName || updated.buyer?.email || 'Buyer'} has marked the downpayment as paid for "${updated.listing.title}". Please confirm receipt.`,
             offerId: updated.id,
             listingId: updated.listingId,
@@ -1087,7 +1087,7 @@ export class BarterService {
 
             // Notify buyer
             await this.notificationsService.create(offer.buyerId, 'TIMER_EXTENDED', {
-                title: 'Time Extended ⏰',
+                title: 'Time Extended',
                 message: `The seller has extended the trade timer by 30 minutes.`,
                 offerId: offer.id,
                 newExpiresAt,
@@ -1097,7 +1097,7 @@ export class BarterService {
         } else {
             // Buyer request flow - Create a notification for the seller
             await this.notificationsService.create(offer.sellerId, 'EXTENSION_REQUEST', {
-                title: 'Extension Requested ⏰',
+                title: 'Extension Requested',
                 message: `The buyer is asking for 30 more minutes to complete the trade.`,
                 offerId: offer.id,
             });
@@ -1208,12 +1208,12 @@ export class BarterService {
 
             // Notify both parties
             await this.notificationsService.create(offer.buyerId, 'TRADE_LOCKED', {
-                title: '🤝 Deal Locked!',
+                title: 'Deal Locked',
                 message: 'Both parties agreed. You have 7 days to meet up.',
                 offerId: offer.id
             });
             await this.notificationsService.create(offer.sellerId, 'TRADE_LOCKED', {
-                title: '🤝 Deal Locked!',
+                title: 'Deal Locked',
                 message: 'Both parties agreed. You have 7 days to meet up.',
                 offerId: offer.id
             });
@@ -1269,12 +1269,12 @@ export class BarterService {
 
             // Send "Congratulations" notifications to trigger TradeCompleteModal
             await this.notificationsService.create(offer.buyerId, 'TRADE_COMPLETED', {
-                title: '🎉 Trade Completed!',
+                title: 'Trade Completed',
                 message: 'Items swapped successfully. Please leave a review.',
                 offerId: offer.id
             });
             await this.notificationsService.create(offer.sellerId, 'TRADE_COMPLETED', {
-                title: '🎉 Trade Completed!',
+                title: 'Trade Completed',
                 message: 'Items swapped successfully. Please leave a review.',
                 offerId: offer.id
             });
@@ -1311,7 +1311,7 @@ export class BarterService {
         // Notify the OTHER party
         const otherPartyId = userId === offer.buyerId ? offer.sellerId : offer.buyerId;
         await this.notificationsService.create(otherPartyId, 'TRADE_DISPUTED', {
-            title: '🚨 Trade Disputed',
+            title: 'Trade Disputed',
             message: 'The other party has flagged an issue with this trade. Support will review it.',
             offerId: offer.id
         });
