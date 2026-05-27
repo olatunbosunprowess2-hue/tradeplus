@@ -14,6 +14,7 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
     const { updateProfile } = useAuthStore();
     const webcamRef = useRef<Webcam>(null);
     const [selfie, setSelfie] = useState<string | null>(null);
+    const [selfieFile, setSelfieFile] = useState<File | null>(null);
     const [loading, setLoading] = useState(false);
     const [showCamera, setShowCamera] = useState(true);
     const [cameraError, setCameraError] = useState<string | null>(null);
@@ -49,6 +50,7 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
         const imageSrc = webcamRef.current.getScreenshot();
         if (imageSrc) {
             setSelfie(imageSrc);
+            setSelfieFile(null);
             setShowCamera(false);
             setCameraInitializing(false);
             setCameraError(null);
@@ -99,7 +101,7 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
         if (!file) return;
 
         const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
-        if (!ALLOWED_TYPES.includes(file.type)) {
+        if (!ALLOWED_TYPES.includes(file.type) && !file.name.match(/\.(jpg|jpeg|png|webp|heic|heif)$/i)) {
             toast.error('Please upload a JPEG, PNG, or WebP image.');
             return;
         }
@@ -107,6 +109,9 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
             toast.error('Image too large. Max 10MB.');
             return;
         }
+
+        // Store the actual file for direct upload
+        setSelfieFile(file);
 
         const reader = new FileReader();
         reader.onloadend = () => {
@@ -166,15 +171,28 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
             formData.append('verificationStatus', 'PENDING');
             formData.append('onboardingCompleted', 'true');
 
-            const res = await fetch(selfie);
-            const blob = await res.blob();
-            formData.append('faceVerification', blob, 'selfie.jpg');
+            if (selfieFile) {
+                // Direct file upload — most reliable path
+                formData.append('faceVerification', selfieFile, selfieFile.name);
+            } else {
+                // Camera capture — convert base64 data URL to blob manually
+                const parts = selfie.split(',');
+                const mime = parts[0].match(/:(.*?);/)?.[1] || 'image/jpeg';
+                const bstr = atob(parts[1]);
+                const u8arr = new Uint8Array(bstr.length);
+                for (let i = 0; i < bstr.length; i++) {
+                    u8arr[i] = bstr.charCodeAt(i);
+                }
+                const blob = new Blob([u8arr], { type: mime });
+                formData.append('faceVerification', blob, 'selfie.jpg');
+            }
 
             await updateProfile(formData);
             toast.success('Verification submitted!');
             onComplete();
         } catch (error: any) {
-            const msg = error.response?.data?.message || error.message || 'Submission failed';
+            console.error('Verification submit error:', error);
+            const msg = error.response?.data?.message || error.message || 'Submission failed. Please try again.';
             toast.error(msg);
         } finally {
             setLoading(false);
@@ -328,8 +346,7 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
                             Upload a photo instead
                             <input
                                 type="file"
-                                accept="image/*"
-                                capture="user"
+                                accept="image/jpeg,image/png,image/webp,image/heic"
                                 className="hidden"
                                 onChange={handleFileUpload}
                             />
