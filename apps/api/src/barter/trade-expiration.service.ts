@@ -56,7 +56,7 @@ export class TradeExpirationService {
                             data: {
                                 conversationId: conversation.id,
                                 senderId: offer.sellerId,
-                                body: '🛑 This trade has been automatically cancelled because the timer expired before completion.',
+                                body: 'This trade has been automatically cancelled because the timer expired before completion.',
                                 messageType: 'system',
                             },
                         });
@@ -64,13 +64,13 @@ export class TradeExpirationService {
 
                     // 4. Notifications
                     await this.notificationsService.create(offer.buyerId, 'TRADE_EXPIRED', {
-                        title: 'Trade Expired ⏰',
+                        title: 'Trade Expired',
                         message: `The trade for "${offer.listing.title}" has expired and was cancelled.`,
                         offerId: offer.id,
                     });
 
                     await this.notificationsService.create(offer.sellerId, 'TRADE_EXPIRED', {
-                        title: 'Trade Expired ⏰',
+                        title: 'Trade Expired',
                         message: `The trade for "${offer.listing.title}" has expired and items have been released.`,
                         offerId: offer.id,
                     });
@@ -118,20 +118,20 @@ export class TradeExpirationService {
                             data: {
                                 conversationId: conversation.id,
                                 senderId: offer.sellerId,
-                                body: '⚠️ The 7-day meetup deadline has passed without a final handshake. This trade has been escalated for admin review. A downpayment was already confirmed so the trade cannot be auto-cancelled. Please contact support if you need assistance.',
+                                body: 'The 7-day meetup deadline has passed without a final handshake. This trade has been escalated for admin review. A downpayment was already confirmed so the trade cannot be auto-cancelled. Please contact support if you need assistance.',
                                 messageType: 'system',
                             },
                         });
                     }
 
                     await this.notificationsService.create(offer.buyerId, 'MEETUP_EXPIRED', {
-                        title: 'Meetup Deadline Passed ⚠️',
+                        title: 'Meetup Deadline Passed',
                         message: `The 7-day meetup window for "${offer.listing.title}" has expired. The trade is under review.`,
                         offerId: offer.id,
                     });
 
                     await this.notificationsService.create(offer.sellerId, 'MEETUP_EXPIRED', {
-                        title: 'Meetup Deadline Passed ⚠️',
+                        title: 'Meetup Deadline Passed',
                         message: `The 7-day meetup window for "${offer.listing.title}" has expired. The trade is under review.`,
                         offerId: offer.id,
                     });
@@ -163,7 +163,7 @@ export class TradeExpirationService {
                 });
 
                 await this.notificationsService.create(offer.buyerId, 'TIMER_WARNING', {
-                    title: '⏰ 10 minutes left!',
+                    title: '10 minutes left',
                     message: `Hurry! Only 10 minutes left to secure your deal for "${offer.listing.title}". Pay or request an extension.`,
                     offerId: offer.id,
                     listingId: offer.listingId,

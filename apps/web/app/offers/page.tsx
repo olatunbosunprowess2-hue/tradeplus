@@ -263,36 +263,20 @@ export default function OffersPage() {
     const handleConfirmAccept = async () => {
         if (!selectedOffer) return;
 
-        // Optimistic UI: Close modal immediately and show an engaging success message
-        const buyer = selectedOffer.buyer;
-        const listing = selectedOffer.listing;
         const offerIdToAccept = selectedOffer.id;
+        const buyerName = selectedOffer.buyer?.profile?.displayName || selectedOffer.buyer?.email || 'the buyer';
 
         setIsActionModalOpen(false);
         setSelectedOffer(null);
-        toast.success('Trade accepted. Opening chat...', { duration: 3000 });
 
         try {
-            // Process the acceptance cleanly in the background
             await acceptOffer(offerIdToAccept);
-
-            // Create conversation context and redirect to chat
-            createConversation(
-                buyer?.id || selectedOffer.buyerId,
-                buyer?.profile?.displayName || buyer?.email || 'Unknown',
-                sanitizeUrl(buyer?.profile?.avatarUrl),
-                {
-                    id: listing?.id || selectedOffer.listingId,
-                    title: listing?.title || 'Listing',
-                    image: sanitizeUrl(listing?.images?.[0]?.url) || ''
-                }
-            );
-
-            router.push(`/messages/${buyer.id}`);
-
+            toast.success(`Offer accepted. You can now chat with ${buyerName} from the Messages tab.`, { duration: 4000 });
+            // Refresh offers list to reflect status change
+            fetchOffers();
         } catch (error) {
             console.error('Failed to accept offer:', error);
-            toast.error('Network delay: Failed to finalize offer. Please try again.');
+            toast.error('Failed to accept offer. Please try again.');
         }
     };
 
