@@ -83,7 +83,6 @@ export class ListingsController {
     }
 
     @UseInterceptors(CacheInterceptor)
-    @CacheKey('public_listings_feed')
     @CacheTTL(15000) // 15 seconds
     @Get()
     findAll(@Query() query: ListingQueryDto) {

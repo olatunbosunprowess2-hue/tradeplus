@@ -40,6 +40,20 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
         setCameraInitializing(true);
         stopCamera();
 
+        // Check if browser environment is not secure context (WebRTC requires HTTPS or localhost)
+        if (typeof window !== 'undefined' && !window.isSecureContext) {
+            setCameraError('Camera access requires a secure connection (HTTPS). Please switch to HTTPS or take a photo instead.');
+            setCameraInitializing(false);
+            return;
+        }
+
+        // Check if mediaDevices is supported at all
+        if (typeof navigator === 'undefined' || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            setCameraError('Camera API is not supported in this browser. Please take a photo instead.');
+            setCameraInitializing(false);
+            return;
+        }
+
         // Ordered list of constraints to try — from ideal to most permissive
         const constraintsList = [
             { video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }, audio: false },
@@ -285,19 +299,37 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
                         Retake
                     </button>
                 ) : cameraError ? (
-                    <div className="space-y-2">
-                        <div className="flex items-center gap-2 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
-                            <svg className="w-4 h-4 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="space-y-3">
+                        <div className="flex items-start gap-2 bg-red-50 border border-red-100 rounded-xl px-3.5 py-3">
+                            <svg className="w-4.5 h-4.5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <p className="text-xs text-red-700 font-medium">Enable camera in browser settings, then retry.</p>
+                            <div>
+                                <p className="text-xs text-red-800 font-semibold">Camera Access Restricted</p>
+                                <p className="text-[11px] text-red-700 mt-0.5 leading-relaxed">{cameraError}</p>
+                            </div>
                         </div>
-                        <button
-                            onClick={() => startCamera()}
-                            className="w-full py-3 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white rounded-full font-bold transition-all shadow-md text-sm"
-                        >
-                            Retry Camera
-                        </button>
+                        <div className="grid grid-cols-2 gap-3">
+                            <button
+                                onClick={() => startCamera()}
+                                className="py-3 bg-white border border-gray-200 hover:bg-gray-50 active:scale-[0.98] text-gray-700 rounded-xl font-bold transition-all shadow-sm text-sm"
+                            >
+                                Retry Camera
+                            </button>
+                            <label className="py-3 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white rounded-xl font-bold transition-all shadow-md text-sm flex items-center justify-center cursor-pointer gap-2">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                Take / Upload
+                                <input
+                                    type="file"
+                                    accept="image/jpeg,image/png,image/webp,image/heic"
+                                    capture="user"
+                                    className="hidden"
+                                    onChange={handleFileUpload}
+                                />
+                            </label>
+                        </div>
                     </div>
                 ) : (
                     <button

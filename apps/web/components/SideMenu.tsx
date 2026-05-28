@@ -171,14 +171,14 @@ export default function SideMenu({ className = '' }: SideMenuProps) {
             {/* Backdrop */}
             {isOpen && (
                 <div
-                    className="fixed inset-0 bg-black/50 z-[9998] transition-opacity"
+                    className="fixed inset-0 bg-black/50 z-[10050] transition-opacity"
                     onClick={() => setIsOpen(false)}
                 />
             )}
 
             {/* Side Drawer */}
             <div
-                className={`fixed top-0 right-0 bottom-0 w-64 max-w-[65vw] bg-white shadow-2xl z-[9999] transform transition-transform duration-300 ease-out flex flex-col ${isOpen ? 'translate-x-0' : 'translate-x-full'
+                className={`fixed top-0 right-0 bottom-0 w-64 max-w-[65vw] bg-white shadow-2xl z-[10060] transform transition-transform duration-300 ease-out flex flex-col ${isOpen ? 'translate-x-0' : 'translate-x-full'
                     }`}
             >
                 {/* Header */}
@@ -283,7 +283,7 @@ export default function SideMenu({ className = '' }: SideMenuProps) {
 
             {/* Logout Confirmation Modal */}
             {showLogoutModal && (
-                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+                <div className="fixed inset-0 z-[10070] flex items-center justify-center p-4">
                     {/* Modal Backdrop */}
                     <div
                         className="absolute inset-0 bg-black/60 backdrop-blur-sm"

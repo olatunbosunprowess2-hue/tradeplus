@@ -48,7 +48,7 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ isOpen, onClose, offer }) =
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-[10050] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden">
                 {/* Close Button */}
                 <button

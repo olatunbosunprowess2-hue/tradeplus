@@ -59,8 +59,10 @@ export default function MakeOfferModal({ isOpen, onClose, listing, onSubmit }: M
             const fetchListings = async () => {
                 setIsLoadingListings(true);
                 try {
-                    const response = await listingsApi.getAll({ sellerId: user.id });
-                    setUserListings(response.data || []);
+                    const response = await listingsApi.getMyListings(1, 100);
+                    // Filter out the target listing itself so it cannot be offered for barter
+                    const filtered = (response.data || []).filter(item => item.id !== listing.id);
+                    setUserListings(filtered);
                 } catch (error) {
                     console.error('Failed to fetch user listings:', error);
                     setUserListings([]); // Set to empty array on error
@@ -70,7 +72,7 @@ export default function MakeOfferModal({ isOpen, onClose, listing, onSubmit }: M
             };
             fetchListings();
         }
-    }, [isOpen, user, offerType]);
+    }, [isOpen, user, offerType, listing.id]);
 
     // Reset offer type when modal opens if needed
     useEffect(() => {
@@ -163,7 +165,7 @@ export default function MakeOfferModal({ isOpen, onClose, listing, onSubmit }: M
     };
 
     return (
-        <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center z-[10050] p-4 animate-in fade-in duration-200">
             <div className="bg-white rounded-2xl w-[95%] max-w-lg p-0 shadow-2xl max-h-[85vh] overflow-y-auto flex flex-col animate-in zoom-in-95 duration-200 mx-auto">
                 {/* Header */}
                 <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-white shrink-0">

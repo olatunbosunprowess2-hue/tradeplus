@@ -36,7 +36,7 @@ export default function ReportModal({ postId, onClose }: { postId: string; onClo
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
+        <div className="fixed inset-0 bg-black/50 z-[10050] flex items-center justify-center p-4" onClick={onClose}>
             <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl" onClick={e => e.stopPropagation()}>
                 {submitted ? (
                     <div className="text-center py-4">

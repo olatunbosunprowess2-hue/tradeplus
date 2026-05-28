@@ -25,7 +25,7 @@ export default function SuspendedAccountModal({
     };
 
     return (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[10050] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-200">
             <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden animate-in zoom-in-95 duration-200">
                 {/* Red Header Banner */}
                 <div className="bg-gradient-to-r from-red-900 via-red-800 to-red-900 px-6 py-5 text-white">

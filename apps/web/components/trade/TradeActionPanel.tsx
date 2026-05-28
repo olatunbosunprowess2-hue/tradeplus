@@ -211,7 +211,7 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
 
             {/* Dispute Modal */}
             {showDisputeModal && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowDisputeModal(false)}>
+                <div className="fixed inset-0 bg-black/50 z-[10050] flex items-center justify-center p-4" onClick={() => setShowDisputeModal(false)}>
                     <div className="bg-white rounded-2xl w-full max-w-md p-5" onClick={(e) => e.stopPropagation()}>
                         <h3 className="text-base font-bold text-red-600 flex items-center gap-2 mb-2">
                             Report Issue / Dispute

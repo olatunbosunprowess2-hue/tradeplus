@@ -21,6 +21,11 @@ export const listingsApi = {
         return response.data;
     },
 
+    getMyListings: async (page?: number, limit?: number) => {
+        const response = await apiClient.get<PaginatedResponse<Listing>>('/listings/my-listings', { params: { page, limit } });
+        return response.data;
+    },
+
     getOne: async (id: string) => {
         const response = await apiClient.get<Listing>(`/listings/${id}`);
         return response.data;

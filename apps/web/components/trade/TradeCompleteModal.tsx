@@ -21,7 +21,7 @@ export default function TradeCompleteModal({
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-blue-900/60 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
+        <div className="fixed inset-0 bg-blue-900/60 backdrop-blur-md flex items-center justify-center z-[10050] p-4 animate-in fade-in duration-300">
             <div className="bg-white rounded-[2rem] w-full max-w-md p-8 shadow-2xl flex flex-col items-center text-center animate-in zoom-in-95 duration-500 overflow-hidden relative">
 
                 {/* Confetti / Celebration Background Effect */}

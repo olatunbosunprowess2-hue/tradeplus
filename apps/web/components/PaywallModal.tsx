@@ -67,7 +67,7 @@ export default function PaywallModal({
     };
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm overflow-y-auto">
+        <div className="fixed inset-0 z-[10050] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm overflow-y-auto">
             <div className="w-full max-w-5xl my-auto animate-in fade-in zoom-in-95 duration-500 relative">
 
                 {/* Close Button */}
@@ -503,7 +503,7 @@ export function FirstChatModal({
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[10050] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
             <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-300">
                 <div className="bg-gradient-to-br from-blue-600 to-indigo-600 p-8 text-white text-center">
                     <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">

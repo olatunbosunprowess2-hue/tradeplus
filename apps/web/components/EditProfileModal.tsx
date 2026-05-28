@@ -128,7 +128,7 @@ export default function EditProfileModal({ isOpen, onClose }: EditProfileModalPr
     };
 
     return (
-        <div className="fixed inset-0 z-[10005] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-md transition-all duration-300">
+        <div className="fixed inset-0 z-[10050] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-md transition-all duration-300">
             <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300 text-left flex flex-col max-h-[92vh] sm:max-h-[90vh]">
                 <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center shrink-0 bg-white">
                     <div>

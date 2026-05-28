@@ -20,7 +20,7 @@ export default function EditPostModal({ post, onClose, onSaved }: { post: Commun
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
+        <div className="fixed inset-0 bg-black/50 z-[10050] flex items-center justify-center p-4" onClick={onClose}>
             <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl" onClick={e => e.stopPropagation()}>
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Edit Post</h3>
                 <textarea

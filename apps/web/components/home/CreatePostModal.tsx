@@ -130,7 +130,7 @@ export default function CreatePostModal({ isOpen, onClose, onCreated }: CreatePo
     };
 
     return (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-start justify-center pt-[10vh] px-4 backdrop-blur-sm transition-all" onClick={onClose}>
+        <div className="fixed inset-0 bg-black/60 z-[10050] flex items-start justify-center pt-[10vh] px-4 backdrop-blur-sm transition-all" onClick={onClose}>
             <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
                 {/* Header */}
                 <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">

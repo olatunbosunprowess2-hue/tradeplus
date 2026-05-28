@@ -50,11 +50,11 @@ export default function OfferActionModal({
 
     return (
         <div
-            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-[2px] animate-in fade-in duration-150"
+            className="fixed inset-0 z-[11000] flex items-center justify-center bg-black/50 backdrop-blur-[2px] p-4 animate-in fade-in duration-150"
             onClick={onClose}
         >
             <div
-                className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md overflow-hidden animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200 shadow-2xl"
+                className="bg-white rounded-2xl w-[95%] sm:max-w-md overflow-hidden animate-in zoom-in-95 duration-200 shadow-2xl flex flex-col max-h-[90vh]"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header — minimal */}

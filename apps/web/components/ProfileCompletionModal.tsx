@@ -73,7 +73,7 @@ export default function ProfileCompletionModal() {
 
     return (
         <div
-            className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
+            className="fixed inset-0 z-[10050] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
             onClick={handleDismiss}
         >
             <div
