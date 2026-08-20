@@ -16,7 +16,6 @@ import {
   Eye,
   EyeOff,
   CheckCircle2,
-  ArrowRight,
   ArrowLeft,
   RefreshCw,
   ShieldCheck,
@@ -390,10 +389,7 @@ export default function RegisterPage() {
                     <span>Sending code...</span>
                   </>
                 ) : (
-                  <>
-                    <span>Continue with Email</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </>
+                  <span>Continue with Email</span>
                 )}
               </button>
 
@@ -490,10 +486,7 @@ export default function RegisterPage() {
                     <span>Verifying code...</span>
                   </>
                 ) : (
-                  <>
-                    <span>Verify Code</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </>
+                  <span>Verify Code</span>
                 )}
               </button>
 
@@ -725,10 +718,7 @@ export default function RegisterPage() {
                     <span>Creating account...</span>
                   </>
                 ) : (
-                  <>
-                    <span>Create Account</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </>
+                  <span>Create Account</span>
                 )}
               </button>
             </form>

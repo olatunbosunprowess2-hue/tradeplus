@@ -14,7 +14,6 @@ import {
   EyeOff,
   AlertCircle,
   Loader2,
-  ArrowRight,
   ArrowLeft,
   CheckCircle2,
   ShieldCheck,
@@ -288,10 +287,7 @@ export default function ResetPasswordPage() {
                     <span>Resetting password...</span>
                   </>
                 ) : (
-                  <>
-                    <span>Reset Password</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </>
+                  <span>Reset Password</span>
                 )}
               </button>
 

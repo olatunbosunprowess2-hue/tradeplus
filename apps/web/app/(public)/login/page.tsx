@@ -15,7 +15,6 @@ import {
   EyeOff,
   AlertCircle,
   Loader2,
-  ArrowRight,
   ShieldCheck,
 } from 'lucide-react';
 
@@ -390,10 +389,7 @@ export default function LoginPage() {
                   <span>{buttonText}</span>
                 </>
               ) : (
-                <>
-                  <span>{buttonText}</span>
-                  <ArrowRight className="w-4 h-4" />
-                </>
+                <span>{buttonText}</span>
               )}
             </button>
           </form>

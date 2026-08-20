@@ -11,7 +11,6 @@ import {
   Mail,
   AlertCircle,
   Loader2,
-  ArrowRight,
   ArrowLeft,
   CheckCircle2,
   KeyRound,
@@ -168,10 +167,7 @@ export default function ForgotPasswordPage() {
                     <span>Sending instructions...</span>
                   </>
                 ) : (
-                  <>
-                    <span>Send Reset Instructions</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </>
+                  <span>Send Reset Instructions</span>
                 )}
               </button>
 
