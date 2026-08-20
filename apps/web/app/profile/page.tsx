@@ -48,6 +48,11 @@ export default function ProfilePage() {
     const [isMounted, setIsMounted] = useState(false);
     const [isPaymentLoading, setIsPaymentLoading] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [imageError, setImageError] = useState(false);
+
+    useEffect(() => {
+        setImageError(false);
+    }, [user?.profile?.avatarUrl]);
 
     // Initial Mount Check
     useEffect(() => {
@@ -261,11 +266,12 @@ export default function ProfilePage() {
                         {/* Avatar */}
                         <div className="relative">
                             <div className="w-32 h-32 rounded-full border-4 border-white bg-white shadow-md overflow-hidden">
-                                {user.profile?.avatarUrl ? (
+                                {user.profile?.avatarUrl && !imageError ? (
                                     <img
                                         src={sanitizeUrl(user.profile.avatarUrl)}
                                         alt="Profile"
                                         className="w-full h-full object-cover"
+                                        onError={() => setImageError(true)}
                                     />
                                 ) : (
                                     <div className="w-full h-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-4xl font-bold">

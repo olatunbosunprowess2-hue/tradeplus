@@ -9,6 +9,10 @@ interface OfferActionModalProps {
     offer: BarterOffer | null;
     action: 'accept' | 'reject' | 'view';
     isProcessing?: boolean;
+    currentUserId?: string;
+    onSetAction?: (action: 'accept' | 'reject' | 'view') => void;
+    onCounter?: (offer: BarterOffer) => void;
+    onMessage?: (offer: BarterOffer) => void;
 }
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
@@ -26,7 +30,11 @@ export default function OfferActionModal({
     onConfirm,
     offer,
     action,
-    isProcessing = false
+    isProcessing = false,
+    currentUserId,
+    onSetAction,
+    onCounter,
+    onMessage
 }: OfferActionModalProps) {
     if (!isOpen || !offer) return null;
 
@@ -119,33 +127,120 @@ export default function OfferActionModal({
                 </div>
 
                 {/* Actions */}
-                <div className={`px-6 pb-6 flex gap-3 ${isView ? '' : 'border-t border-gray-100 pt-4'}`}>
-                    <button
-                        onClick={onClose}
-                        disabled={isProcessing}
-                        className="flex-1 py-2.5 border border-gray-200 rounded-lg font-semibold text-gray-600 hover:bg-gray-50 transition-all text-sm disabled:opacity-50"
-                    >
-                        {isView ? 'Close' : 'Cancel'}
-                    </button>
-                    {!isView && (
-                        <button
-                            onClick={onConfirm}
-                            disabled={isProcessing}
-                            className={`flex-1 py-2.5 rounded-lg font-bold text-white transition-all disabled:opacity-50 text-sm ${
-                                isAccept
-                                    ? 'bg-blue-600 hover:bg-blue-700'
-                                    : 'bg-red-600 hover:bg-red-700'
-                            }`}
-                        >
-                            {isProcessing ? (
-                                <span className="flex items-center justify-center gap-2">
-                                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                    Processing...
-                                </span>
+                <div className={`px-6 pb-6 flex flex-col gap-3 ${isView ? '' : 'border-t border-gray-100 pt-4'}`}>
+                    {isView ? (
+                        offer.status === 'pending' ? (
+                            offer.sellerId === currentUserId ? (
+                                <div className="flex flex-col gap-2.5 w-full">
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => onSetAction?.('accept')}
+                                            className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-sm transition-all shadow-sm active:scale-[0.98] flex items-center justify-center gap-1"
+                                        >
+                                            🤝 Accept Offer
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                onClose();
+                                                onCounter?.(offer);
+                                            }}
+                                            className="flex-1 py-2.5 border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-lg font-bold text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-1"
+                                        >
+                                            🔄 Counter Offer
+                                        </button>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => {
+                                                onClose();
+                                                onMessage?.(offer);
+                                            }}
+                                            className="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-semibold text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-1"
+                                        >
+                                            💬 Message Buyer
+                                        </button>
+                                        <button
+                                            onClick={() => onSetAction?.('reject')}
+                                            className="flex-1 py-2.5 border border-red-200 text-red-600 hover:bg-red-50 rounded-lg font-semibold text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-1"
+                                        >
+                                            ❌ Reject Offer
+                                        </button>
+                                    </div>
+                                    <button
+                                        onClick={onClose}
+                                        className="w-full py-2 mt-1 text-center text-xs text-gray-400 hover:text-gray-600 transition-all font-semibold"
+                                    >
+                                        Close
+                                    </button>
+                                </div>
+                            ) : offer.buyerId === currentUserId ? (
+                                <div className="flex flex-col gap-2 w-full">
+                                    <button
+                                        onClick={() => {
+                                            onClose();
+                                            onMessage?.(offer);
+                                        }}
+                                        className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-sm transition-all shadow-sm active:scale-[0.98] flex items-center justify-center gap-1.5"
+                                    >
+                                        💬 Message Seller
+                                    </button>
+                                    <button
+                                        onClick={onClose}
+                                        className="w-full py-2.5 border border-gray-200 hover:bg-gray-50 text-gray-600 rounded-lg font-semibold text-sm transition-all"
+                                    >
+                                        Close
+                                    </button>
+                                </div>
                             ) : (
-                                isAccept ? 'Accept' : 'Reject'
-                            )}
-                        </button>
+                                <button
+                                    onClick={onClose}
+                                    className="w-full py-2.5 border border-gray-200 hover:bg-gray-50 text-gray-600 rounded-lg font-semibold text-sm transition-all"
+                                >
+                                    Close
+                                </button>
+                            )
+                        ) : (
+                            <button
+                                onClick={onClose}
+                                className="w-full py-2.5 border border-gray-200 hover:bg-gray-50 text-gray-600 rounded-lg font-semibold text-sm transition-all"
+                            >
+                                Close
+                            </button>
+                        )
+                    ) : (
+                        <div className="flex gap-3 w-full">
+                            <button
+                                onClick={() => {
+                                    if (onSetAction) {
+                                        onSetAction('view');
+                                    } else {
+                                        onClose();
+                                    }
+                                }}
+                                disabled={isProcessing}
+                                className="flex-1 py-2.5 border border-gray-200 rounded-lg font-semibold text-gray-600 hover:bg-gray-50 transition-all text-sm disabled:opacity-50"
+                            >
+                                🔙 Back to Details
+                            </button>
+                            <button
+                                onClick={onConfirm}
+                                disabled={isProcessing}
+                                className={`flex-1 py-2.5 rounded-lg font-bold text-white transition-all disabled:opacity-50 text-sm ${
+                                    isAccept
+                                        ? 'bg-blue-600 hover:bg-blue-700'
+                                        : 'bg-red-600 hover:bg-red-700'
+                                }`}
+                            >
+                                {isProcessing ? (
+                                    <span className="flex items-center justify-center gap-2">
+                                        <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                        Processing...
+                                    </span>
+                                ) : (
+                                    isAccept ? '🤝 Confirm Accept' : '❌ Confirm Reject'
+                                )}
+                            </button>
+                        </div>
                     )}
                 </div>
             </div>

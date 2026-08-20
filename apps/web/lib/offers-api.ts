@@ -69,6 +69,11 @@ export const offersApi = {
         return response.data;
     },
 
+    startTimer: async (id: string) => {
+        const response = await apiClient.patch<BarterOffer>(`/barter/offers/${id}/start-timer`);
+        return response.data;
+    },
+
     getBrandSettings: async () => {
         const response = await apiClient.get('/barter/brand-settings');
         return response.data;

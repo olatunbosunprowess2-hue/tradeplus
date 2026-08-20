@@ -324,8 +324,6 @@ export class BarterService {
         });
 
         const timerDuration = brandSettings?.defaultTimerDuration || 60; // Default to 60 minutes
-        const timerExpiresAt = new Date();
-        timerExpiresAt.setMinutes(timerExpiresAt.getMinutes() + timerDuration);
 
         // Create a single concise system message for trade acceptance
         await this.prisma.message.createMany({
@@ -333,7 +331,7 @@ export class BarterService {
                 {
                     conversationId: conversation.id,
                     senderId: userId,
-                    body: `Trade accepted \u2014 a ${timerDuration}-minute timer has started. Discuss terms and finalize the exchange before it expires. Meet in a public place and inspect items before confirming.`,
+                    body: `Trade accepted. The private chat is now active. The ${timerDuration}-minute trade timer will start once you agree to the safety terms at the entry gate of the chat.`,
                     messageType: 'system',
                 },
             ],
@@ -343,7 +341,7 @@ export class BarterService {
             where: { id },
             data: {
                 status: 'accepted',
-                timerExpiresAt,
+                timerExpiresAt: null, // Timer is not started yet
                 // If listing has a downpayment, start the downpayment flow
                 ...(offer.listing.downpaymentCents && Number(offer.listing.downpaymentCents) > 0
                     ? { downpaymentStatus: 'awaiting_payment' }
@@ -1315,6 +1313,63 @@ export class BarterService {
             message: 'The other party has flagged an issue with this trade. Support will review it.',
             offerId: offer.id
         });
+
+        return updated;
+    }
+
+    async startTradeTimer(offerId: string, userId: string) {
+        const offer = await this.prisma.barterOffer.findUnique({
+            where: { id: offerId },
+            include: { listing: true },
+        });
+
+        if (!offer) {
+            throw new NotFoundException('Offer not found');
+        }
+
+        if (offer.sellerId !== userId && offer.buyerId !== userId) {
+            throw new ForbiddenException('You are not involved in this trade');
+        }
+
+        if (offer.status !== 'accepted') {
+            throw new BadRequestException('Trade is not accepted');
+        }
+
+        // If timer is already started, don't restart it
+        if (offer.timerExpiresAt) {
+            return offer;
+        }
+
+        // Fetch Brand Settings for the seller to determine timer duration
+        const brandSettings = await this.prisma.brandSettings.findUnique({
+            where: { userId: offer.sellerId },
+        });
+
+        const timerDuration = brandSettings?.defaultTimerDuration || 60;
+        const timerExpiresAt = new Date();
+        timerExpiresAt.setMinutes(timerExpiresAt.getMinutes() + timerDuration);
+
+        const updated = await this.prisma.barterOffer.update({
+            where: { id: offerId },
+            data: {
+                timerExpiresAt,
+            },
+        });
+
+        // Add a system message in the chat stating that the timer has begun!
+        const conversation = await this.prisma.conversation.findFirst({
+            where: { barterOfferId: offerId },
+        });
+        if (conversation) {
+            await this.prisma.message.create({
+                data: {
+                    conversationId: conversation.id,
+                    senderId: userId,
+                    body: `⏱️ Safety terms agreed! The ${timerDuration}-minute trade timer has officially begun. Coordinate exchange details now.`,
+                    messageType: 'system',
+                },
+            });
+        }
 
         return updated;
     }

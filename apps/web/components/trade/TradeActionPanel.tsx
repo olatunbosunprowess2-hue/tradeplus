@@ -18,6 +18,7 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
     const [showDisputeModal, setShowDisputeModal] = useState(false);
     const [showConfirmExchange, setShowConfirmExchange] = useState(false);
     const [showCompleteModal, setShowCompleteModal] = useState(false);
+    const [showLockCelebration, setShowLockCelebration] = useState(false);
 
     // Show completion modal once per session when trade is newly completed
     useEffect(() => {
@@ -29,6 +30,18 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
             }
         }
     }, [offer.status, offer.id]);
+
+    // Show lock celebration once per session when both parties lock
+    useEffect(() => {
+        if (offer.isBuyerLocked && offer.isSellerLocked) {
+            const hasSeenLock = sessionStorage.getItem(`seen_lock_${offer.id}`);
+            if (!hasSeenLock) {
+                setShowLockCelebration(true);
+                sessionStorage.setItem(`seen_lock_${offer.id}`, 'true');
+                setTimeout(() => setShowLockCelebration(false), 3000);
+            }
+        }
+    }, [offer.isBuyerLocked, offer.isSellerLocked, offer.id]);
 
     const isSeller = offer.sellerId === currentUserId;
     const isBuyer = offer.buyerId === currentUserId;
@@ -47,6 +60,8 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
         try {
             await apiClient.post(`/barter/offers/${offer.id}/lock`);
             toast.success('Deal locked! Awaiting other party.');
+            setShowLockCelebration(true);
+            setTimeout(() => setShowLockCelebration(false), 3000);
             onUpdate();
         } catch (error: any) {
             toast.error(error.response?.data?.message || 'Failed to lock deal');
@@ -90,7 +105,7 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
     };
 
     return (
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden relative">
 
             {/* Compact Stepper + Action in one row for accepted status */}
             <div className="px-3 py-2.5">
@@ -252,6 +267,48 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
                 targetListingImage={offer.listing?.images?.[0]?.url}
                 otherPartyName={isBuyer ? offer.seller?.profile?.displayName : offer.buyer?.profile?.displayName}
             />
+
+            {showLockCelebration && (
+                <div className="absolute inset-0 pointer-events-none overflow-hidden z-50 flex items-center justify-center">
+                    <style>{`
+                        @keyframes floatUp {
+                            0% {
+                                transform: translate(0, 0) scale(0.5);
+                                opacity: 0;
+                            }
+                            15% {
+                                opacity: 1;
+                            }
+                            100% {
+                                transform: translate(var(--tw-translateX), var(--tw-translateY)) scale(1.2);
+                                opacity: 0;
+                            }
+                        }
+                        .animate-sparkle {
+                            animation: floatUp 1.8s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+                        }
+                    `}</style>
+                    {[...Array(24)].map((_, i) => {
+                        const randomX = (Math.random() * 240 - 120).toFixed(0);
+                        const randomY = (Math.random() * -200 - 60).toFixed(0);
+                        const delay = (Math.random() * 0.5).toFixed(2);
+                        const colors = ['bg-amber-400', 'bg-purple-500', 'bg-blue-400', 'bg-emerald-400', 'bg-pink-500', 'bg-indigo-500'];
+                        const color = colors[i % colors.length];
+                        const size = i % 2 === 0 ? 'w-2 h-2' : 'w-1.5 h-1.5';
+                        return (
+                            <div
+                                key={i}
+                                className={`absolute rounded-full ${color} ${size} animate-sparkle`}
+                                style={{
+                                    '--tw-translateX': `${randomX}px`,
+                                    '--tw-translateY': `${randomY}px`,
+                                    animationDelay: `${delay}s`
+                                } as any}
+                            />
+                        );
+                    })}
+                </div>
+            )}
         </div>
     );
 }

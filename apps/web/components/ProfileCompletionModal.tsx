@@ -29,14 +29,16 @@ export default function ProfileCompletionModal() {
         // 3. Check exclusion conditions
         if (user.status === 'suspended' || user.status === 'banned') return;
 
-        // 4. Check if profile is incomplete
-        const isProfileIncomplete =
-            !user.profile?.avatarUrl ||
-            !user.profile?.bio ||
-            !user.phoneNumber ||
-            !user.locationAddress;
+        // 4. Compute profile completion — use the same logic as the progress bar
+        const totalSteps = 4;
+        let completedSteps = 0;
+        if (user.profile?.avatarUrl?.trim()) completedSteps++;
+        if (user.profile?.bio?.trim()) completedSteps++;
+        if (user.phoneNumber?.trim()) completedSteps++;
+        if (user.locationAddress?.trim()) completedSteps++;
 
-        if (!isProfileIncomplete) return;
+        // If profile is fully complete, never show the modal
+        if (completedSteps >= totalSteps) return;
 
         // 5. Check frequency cap (LocalStorage)
         const lastDismissed = localStorage.getItem('profile_prompt_dismissed_at');
@@ -65,10 +67,10 @@ export default function ProfileCompletionModal() {
     // Calculate completion percentage for UI
     const totalSteps = 4;
     let completedSteps = 0;
-    if (user?.profile?.avatarUrl) completedSteps++;
-    if (user?.profile?.bio) completedSteps++;
-    if (user?.phoneNumber) completedSteps++;
-    if (user?.locationAddress) completedSteps++;
+    if (user?.profile?.avatarUrl?.trim()) completedSteps++;
+    if (user?.profile?.bio?.trim()) completedSteps++;
+    if (user?.phoneNumber?.trim()) completedSteps++;
+    if (user?.locationAddress?.trim()) completedSteps++;
     const progress = Math.round((completedSteps / totalSteps) * 100);
 
     return (

@@ -68,7 +68,7 @@ export default function OfferCard({ offer, type, onAccept, onReject, onCounter, 
         if (hasCash && hasItems) return `${cashText} + ${barterItemsText}`;
         if (hasCash) return `${cashText} cash`;
         if (hasItems) return barterItemsText;
-        return 'No offer details';
+        return 'Barter trade';
     })();
 
     const isSeller = offer.sellerId === currentUserId;
@@ -110,7 +110,7 @@ export default function OfferCard({ offer, type, onAccept, onReject, onCounter, 
                         {hasCash && <span className="text-emerald-600">{cashText}</span>}
                         {hasCash && hasItems && <span className="text-gray-400 mx-1">+</span>}
                         {hasItems && <span className="text-blue-600">{barterItemsText}</span>}
-                        {!hasCash && !hasItems && <span className="text-gray-400">No offer details</span>}
+                        {!hasCash && !hasItems && <span className="text-indigo-500 font-medium">Barter trade</span>}
                     </p>
                 </div>
             </div>
@@ -126,48 +126,23 @@ export default function OfferCard({ offer, type, onAccept, onReject, onCounter, 
 
             {/* Actions */}
             {type === 'received' && offer.status === 'pending' && (
-                <div className="px-4 pb-4 flex items-center gap-2">
+                <div className="px-4 pb-4">
                     <button
-                        onClick={() => onAccept?.(offer.id)}
-                        className="flex-1 py-2 bg-blue-600 text-white rounded-lg font-bold text-xs hover:bg-blue-700 active:scale-[0.98] transition-all"
+                        onClick={() => onViewDetails?.(offer)}
+                        className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-bold text-xs active:scale-[0.98] transition-all shadow-sm flex items-center justify-center gap-1.5"
                     >
-                        Accept
-                    </button>
-                    <button
-                        onClick={() => onReject?.(offer.id)}
-                        className="py-2 px-3 text-red-600 font-bold text-xs hover:bg-red-50 rounded-lg transition-all"
-                    >
-                        Reject
-                    </button>
-                    <span className="h-4 w-px bg-gray-200" />
-                    <button
-                        onClick={() => onCounter?.(offer)}
-                        className="py-2 px-3 text-gray-600 font-semibold text-xs hover:bg-gray-50 rounded-lg transition-all"
-                    >
-                        Counter
-                    </button>
-                    <button
-                        onClick={() => onMessage?.(offer)}
-                        className="py-2 px-3 text-gray-600 font-semibold text-xs hover:bg-gray-50 rounded-lg transition-all"
-                    >
-                        Message
+                        🔍 Preview Offer
                     </button>
                 </div>
             )}
 
             {type === 'sent' && offer.status === 'pending' && (
-                <div className="px-4 pb-4 flex items-center gap-2">
+                <div className="px-4 pb-4">
                     <button
-                        onClick={() => onWithdraw?.(offer.id)}
-                        className="py-2 px-4 text-red-600 border border-red-200 font-bold text-xs rounded-lg hover:bg-red-50 transition-all"
+                        onClick={() => onViewDetails?.(offer)}
+                        className="w-full py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-bold text-xs active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
                     >
-                        Withdraw
-                    </button>
-                    <button
-                        onClick={() => onMessage?.(offer)}
-                        className="py-2 px-4 text-gray-600 border border-gray-200 font-semibold text-xs rounded-lg hover:bg-gray-50 transition-all"
-                    >
-                        Message Seller
+                        🔍 Preview Offer
                     </button>
                 </div>
             )}

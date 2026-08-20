@@ -100,6 +100,11 @@ export class BarterController {
         return this.barterService.extendTradeTimer(id, req.user.id);
     }
 
+    @Patch('offers/:id/start-timer')
+    startTradeTimer(@Request() req, @Param('id') id: string) {
+        return this.barterService.startTradeTimer(id, req.user.id);
+    }
+
     // --- PHASE 4 & 5 ARCHITECTURE ---
 
     @UseGuards(VerifiedUserGuard)

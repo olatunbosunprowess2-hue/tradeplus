@@ -264,6 +264,7 @@ export default function OffersPage() {
         if (!selectedOffer) return;
 
         const offerIdToAccept = selectedOffer.id;
+        const offerToNavigate = selectedOffer;
         const buyerName = selectedOffer.buyer?.profile?.displayName || selectedOffer.buyer?.email || 'the buyer';
 
         setIsActionModalOpen(false);
@@ -271,9 +272,9 @@ export default function OffersPage() {
 
         try {
             await acceptOffer(offerIdToAccept);
-            toast.success(`Offer accepted. You can now chat with ${buyerName} from the Messages tab.`, { duration: 4000 });
-            // Refresh offers list to reflect status change
-            fetchOffers();
+            toast.success(`Offer accepted! Opening chat...`, { duration: 3000 });
+            // Navigate to messages immediately
+            handleMessage(offerToNavigate);
         } catch (error) {
             console.error('Failed to accept offer:', error);
             toast.error('Failed to accept offer. Please try again.');
@@ -630,6 +631,10 @@ export default function OffersPage() {
                 offer={selectedOffer}
                 action={actionType}
                 isProcessing={isProcessingAction}
+                currentUserId={user?.id}
+                onSetAction={(act) => setActionType(act as any)}
+                onCounter={handleCounter}
+                onMessage={handleMessage}
             />
         </div>
     );
