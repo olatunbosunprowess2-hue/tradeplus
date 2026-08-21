@@ -20,10 +20,15 @@ export default function MarketplaceHero() {
           {/* Main Hero Value Proposition */}
           <div className="lg:col-span-8 p-6 sm:p-8 lg:p-10 flex flex-col justify-between">
             <div>
-              {/* Badge */}
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-blue-50 border border-blue-100 text-blue-700 text-xs font-semibold mb-4">
-                <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-                <span>Zero-Fee Peer-to-Peer Swaps &amp; Distress Sales</span>
+              {/* Sweet & Professional Announcement Badge */}
+              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-blue-50/70 border border-blue-200/80 text-xs text-slate-800 mb-4 shadow-xs">
+                <span className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-blue-600 text-white font-bold text-[10px] uppercase tracking-wider shadow-xs">
+                  <Sparkles className="w-3 h-3 text-blue-200" />
+                  Zero Fees
+                </span>
+                <span className="font-semibold text-slate-800 text-xs">
+                  Direct Peer-to-Peer Swaps &amp; Distress Liquidation
+                </span>
               </div>
 
               {/* Main Headline */}
