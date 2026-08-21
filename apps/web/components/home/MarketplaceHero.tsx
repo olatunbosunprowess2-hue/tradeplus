@@ -10,63 +10,63 @@ import {
 
 export default function MarketplaceHero() {
   return (
-    <section className="mb-6">
+    <section className="mb-4 sm:mb-6">
       <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
         <div className="grid grid-cols-1 lg:grid-cols-12 items-stretch">
           {/* Main Hero Value Proposition */}
-          <div className="lg:col-span-8 p-6 sm:p-8 lg:p-10 flex flex-col justify-between">
+          <div className="lg:col-span-8 p-5 sm:p-7 lg:p-10 flex flex-col justify-between">
             <div>
               {/* Main Headline */}
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+              <h1 className="text-xl sm:text-2xl lg:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
                 Trade What You Have for What You Need.
               </h1>
 
-              {/* Subheadline */}
-              <p className="mt-3 text-sm sm:text-base text-slate-600 font-normal leading-relaxed max-w-2xl">
+              {/* Subheadline - concise on mobile, detailed on desktop */}
+              <p className="mt-2 sm:mt-3 text-xs sm:text-sm lg:text-base text-slate-600 font-normal leading-relaxed max-w-2xl">
                 Nigeria&apos;s verified marketplace for pure item-for-item swaps, cash-supplemented trades,
                 and urgent distress sales—all backed by 100% escrow buyer protection.
               </p>
             </div>
 
-            {/* CTAs and Trust Bar */}
-            <div className="mt-8 pt-6 border-t border-slate-100">
-              <div className="flex flex-wrap items-center gap-3 mb-5">
+            {/* CTAs and Trust Signals */}
+            <div className="mt-5 sm:mt-8 pt-4 sm:pt-6 border-t border-slate-100">
+              <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 mb-4 sm:mb-5">
                 <Link
                   href="/listings/create"
-                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs sm:text-sm font-bold rounded-md transition-colors shadow-xs flex items-center gap-1.5"
+                  className="flex-1 sm:flex-initial justify-center px-4 sm:px-5 py-2 sm:py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs sm:text-sm font-bold rounded-md transition-colors shadow-xs flex items-center gap-1.5"
                 >
                   <span>+ Post Free Listing</span>
                 </Link>
 
                 <Link
                   href="/distress"
-                  className="px-4 py-2.5 bg-orange-50 hover:bg-orange-100 text-orange-700 text-xs sm:text-sm font-semibold rounded-md border border-orange-200/80 transition-colors flex items-center gap-1.5"
+                  className="flex-1 sm:flex-initial justify-center px-3.5 sm:px-4 py-2 sm:py-2.5 bg-orange-50 hover:bg-orange-100 text-orange-700 text-xs sm:text-sm font-semibold rounded-md border border-orange-200/80 transition-colors flex items-center gap-1.5"
                 >
-                  <Flame className="w-4 h-4 text-orange-500" />
-                  <span>Browse Distress Deals</span>
+                  <Flame className="w-4 h-4 text-orange-500 shrink-0" />
+                  <span>Distress Deals</span>
                 </Link>
               </div>
 
               {/* 3-Point Trust Signals */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-slate-500">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px] sm:text-xs text-slate-500">
                 <div className="flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                  <span>100% Escrow Protection</span>
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span>100% Escrow</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Repeat className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                  <span>Item-for-Item Barter</span>
+                  <Repeat className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                  <span>Item Swaps</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-slate-700 flex-shrink-0" />
-                  <span>Verified Traders Only</span>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-slate-700 shrink-0" />
+                  <span>Verified Traders</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Right Column: Clean Feature Callouts */}
-          <div className="lg:col-span-4 bg-slate-50/80 border-t lg:border-t-0 lg:border-l border-slate-200 p-6 flex flex-col justify-between gap-4">
+          {/* Right Column: Clean Feature Callouts (Hidden on mobile to save vertical space) */}
+          <div className="hidden lg:flex lg:col-span-4 bg-slate-50/80 border-l border-slate-200 p-6 flex-col justify-between gap-4">
             {/* Action Box 1: Distress Liquidation */}
             <div className="bg-white border border-slate-200 rounded-lg p-4 shadow-xs">
               <div className="flex items-center justify-between mb-1.5">
@@ -88,7 +88,7 @@ export default function MarketplaceHero() {
                 href="/distress"
                 className="mt-3 inline-flex items-center text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors"
               >
-                Browse Distress Deals
+                Browse Distress Deals →
               </Link>
             </div>
 
@@ -110,7 +110,7 @@ export default function MarketplaceHero() {
                 href="/wants"
                 className="mt-3 inline-flex items-center text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors"
               >
-                Post on Wants Board
+                Post on Wants Board →
               </Link>
             </div>
           </div>

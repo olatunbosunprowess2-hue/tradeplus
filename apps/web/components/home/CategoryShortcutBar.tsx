@@ -1,7 +1,8 @@
 'use client';
 
+import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Flame, Sparkles, Layers } from 'lucide-react';
+import { Flame, Sparkles, Layers, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface CategoryItem {
   name: string;
@@ -66,10 +67,75 @@ const categories: CategoryItem[] = [
 ];
 
 export default function CategoryShortcutBar() {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScroll = () => {
+    if (!scrollRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+    setCanScrollLeft(scrollLeft > 10);
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+  };
+
+  useEffect(() => {
+    checkScroll();
+    window.addEventListener('resize', checkScroll);
+    return () => window.removeEventListener('resize', checkScroll);
+  }, []);
+
+  const handleScroll = (direction: 'left' | 'right') => {
+    if (!scrollRef.current) return;
+    const scrollAmount = direction === 'left' ? -220 : 220;
+    scrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+  };
+
   return (
-    <section className="mb-6">
-      <div className="bg-white border border-slate-200 rounded-xl p-3.5 sm:p-4 shadow-xs">
-        <div className="flex items-center justify-between gap-1 sm:gap-2 overflow-x-auto pb-1 scrollbar-hide">
+    <section className="mb-4 sm:mb-6">
+      <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4 shadow-xs relative">
+        {/* Header Strip with Scroll Hint */}
+        <div className="flex items-center justify-between pb-2 mb-1 border-b border-slate-100 px-1">
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] font-bold text-slate-800 uppercase tracking-wider">
+              Browse Categories
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1">
+            <span className="text-[10px] text-slate-400 font-medium sm:hidden">
+              Swipe to view more &rarr;
+            </span>
+
+            {/* Desktop / Tablet Scroll Chevrons */}
+            <div className="hidden sm:flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => handleScroll('left')}
+                disabled={!canScrollLeft}
+                className="w-6 h-6 rounded border border-slate-200 bg-slate-50 hover:bg-slate-100 disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center text-slate-600 transition-colors"
+                title="Scroll Left"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => handleScroll('right')}
+                disabled={!canScrollRight}
+                className="w-6 h-6 rounded border border-slate-200 bg-slate-50 hover:bg-slate-100 disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center text-slate-600 transition-colors"
+                title="Scroll Right"
+              >
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Scrollable Category Rail with Visible Peek */}
+        <div
+          ref={scrollRef}
+          onScroll={checkScroll}
+          className="flex items-start gap-2.5 sm:gap-3 overflow-x-auto pt-1.5 pb-1 scroll-smooth scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent"
+        >
           {categories.map((item, i) => {
             const href =
               item.slug === 'distress'
@@ -84,7 +150,7 @@ export default function CategoryShortcutBar() {
               <Link
                 key={i}
                 href={href}
-                className="group flex flex-col items-center gap-2 min-w-[76px] sm:min-w-[86px] p-1.5 sm:p-2 rounded-lg hover:bg-slate-50 transition-all flex-shrink-0 text-center"
+                className="group flex flex-col items-center gap-1.5 w-[74px] sm:w-[84px] p-1.5 rounded-lg hover:bg-slate-50 transition-all shrink-0 text-center"
               >
                 {/* Thumbnail Box */}
                 <div
@@ -106,9 +172,9 @@ export default function CategoryShortcutBar() {
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                     />
                   ) : item.isDistress ? (
-                    <Flame className="w-6 h-6 text-orange-600 animate-pulse" />
+                    <Flame className="w-5 h-5 text-orange-600 animate-pulse" />
                   ) : item.isBrand ? (
-                    <Sparkles className="w-6 h-6 text-amber-600" />
+                    <Sparkles className="w-5 h-5 text-amber-600" />
                   ) : (
                     <Layers className="w-5 h-5 text-white" />
                   )}
@@ -116,7 +182,7 @@ export default function CategoryShortcutBar() {
 
                 {/* Category Label */}
                 <span
-                  className={`text-[11px] sm:text-xs font-semibold leading-tight line-clamp-2 max-w-[80px] transition-colors ${
+                  className={`text-[11px] font-semibold leading-tight line-clamp-2 transition-colors ${
                     item.isDistress
                       ? 'text-orange-700 font-bold'
                       : item.isBrand
