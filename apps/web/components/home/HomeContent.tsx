@@ -63,29 +63,29 @@ export default function HomeContent() {
         {/* ============================================================ */}
         {/* 4. STREAMLINED FEED SUB-NAVIGATION                           */}
         {/* ============================================================ */}
-        <div className="flex items-center justify-between border-b border-slate-200 mb-6 pb-2">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-3 mb-6 bg-white border border-slate-200 rounded-lg p-1.5 shadow-2xs">
+          <div className="flex items-center gap-1.5 w-full sm:w-auto">
             <button
               onClick={() => handleTabChange('market')}
-              className={`flex items-center gap-2 px-4 py-2 text-sm font-bold border-b-2 -mb-2 transition-all ${
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 text-xs font-bold rounded-md transition-all ${
                 activeTab === 'market'
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-slate-500 hover:text-slate-900'
+                  ? 'bg-blue-600 text-white shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
               }`}
             >
-              <ShoppingBag className="w-4 h-4" />
+              <ShoppingBag className="w-3.5 h-3.5" />
               <span>Marketplace Feed</span>
             </button>
 
             <button
               onClick={() => handleTabChange('community')}
-              className={`flex items-center gap-2 px-4 py-2 text-sm font-bold border-b-2 -mb-2 transition-all ${
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 text-xs font-bold rounded-md transition-all ${
                 activeTab === 'community'
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-slate-500 hover:text-slate-900'
+                  ? 'bg-blue-600 text-white shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
               }`}
             >
-              <MessageSquareText className="w-4 h-4" />
+              <MessageSquareText className="w-3.5 h-3.5" />
               <span>Community Feed</span>
             </button>
           </div>

@@ -8,7 +8,21 @@ import dynamic from 'next/dynamic';
 import { useAuthStore } from '@/lib/auth-store';
 import apiClient from '@/lib/api-client';
 import type { CommunityPost, PostAuthor } from '@/lib/types';
-import { Share2, Bookmark, MoreVertical, Send, Twitter, Facebook, Link as LinkIcon, CheckCircle2, ShieldCheck } from 'lucide-react';
+import {
+  Share2,
+  Bookmark,
+  MoreVertical,
+  Send,
+  Twitter,
+  Facebook,
+  Link as LinkIcon,
+  ShieldCheck,
+  MessageSquare,
+  Repeat,
+  Trash2,
+  Edit,
+  Flag,
+} from 'lucide-react';
 import toast from 'react-hot-toast';
 import PremiumBadge from '../PremiumBadge';
 import BrandBadge from '../BrandBadge';
@@ -16,423 +30,486 @@ import BrandBadge from '../BrandBadge';
 // Lazy load heavy interactive components
 const ReportModal = dynamic(() => import('./ReportModal'), { ssr: false });
 const EditPostModal = dynamic(() => import('./EditPostModal'), { ssr: false });
-const OfferForm = dynamic(() => import('./OfferForm'), { ssr: false, loading: () => <div className="p-4 text-center text-sm text-gray-500">Loading offer form...</div> });
-const CommentSection = dynamic(() => import('./CommentSection'), { ssr: false, loading: () => <div className="p-4 text-center text-sm text-gray-500">Loading comments...</div> });
+const OfferForm = dynamic(() => import('./OfferForm'), {
+  ssr: false,
+  loading: () => <div className="p-4 text-center text-xs text-slate-500">Loading offer form...</div>,
+});
+const CommentSection = dynamic(() => import('./CommentSection'), {
+  ssr: false,
+  loading: () => <div className="p-4 text-center text-xs text-slate-500">Loading comments...</div>,
+});
 
-// ============================================================================
-// HELPERS
-// ============================================================================
 function getDisplayName(author: PostAuthor): string {
-    return author.profile?.displayName || author.brandName || [author.firstName, author.lastName].filter(Boolean).join(' ') || 'Anonymous';
+  return (
+    author.profile?.displayName ||
+    author.brandName ||
+    [author.firstName, author.lastName].filter(Boolean).join(' ') ||
+    'Anonymous'
+  );
 }
 
 function getAvatarUrl(author: PostAuthor): string | null {
-    return author.profile?.avatarUrl || null;
+  return author.profile?.avatarUrl || null;
 }
 
 function AvatarPlaceholder({ name }: { name: string }) {
-    const initials = name
-        .split(' ')
-        .map(n => n[0])
-        .slice(0, 2)
-        .join('')
-        .toUpperCase();
+  const initials = name
+    .split(' ')
+    .map((n) => n[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
 
-    const colors = [
-        'bg-red-100 text-red-600', 'bg-orange-100 text-orange-600', 'bg-amber-100 text-amber-600',
-        'bg-green-100 text-green-600', 'bg-emerald-100 text-emerald-600', 'bg-teal-100 text-teal-600',
-        'bg-cyan-100 text-cyan-600', 'bg-blue-100 text-blue-600', 'bg-indigo-100 text-indigo-600',
-        'bg-violet-100 text-violet-600', 'bg-purple-100 text-purple-600', 'bg-fuchsia-100 text-fuchsia-600',
-        'bg-pink-100 text-pink-600', 'bg-rose-100 text-rose-600',
-    ];
+  const colors = [
+    'bg-slate-100 text-slate-700',
+    'bg-blue-50 text-blue-700',
+    'bg-indigo-50 text-indigo-700',
+    'bg-emerald-50 text-emerald-700',
+    'bg-amber-50 text-amber-700',
+  ];
 
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) {
-        hash = name.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    const colorClass = colors[Math.abs(hash) % colors.length];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const colorClass = colors[Math.abs(hash) % colors.length];
 
-    return (
-        <div className={`w-full h-full rounded-full flex items-center justify-center text-xs font-bold border border-gray-100 ${colorClass}`}>
-            {initials}
-        </div>
-    );
+  return (
+    <div
+      className={`w-full h-full rounded-md flex items-center justify-center text-xs font-bold border border-slate-200 ${colorClass}`}
+    >
+      {initials}
+    </div>
+  );
 }
 
 function timeAgo(dateStr: string): string {
-    const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
-    if (seconds < 60) return 'just now';
-    const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return `${minutes}m ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
-    const days = Math.floor(hours / 24);
-    return `${days}d ago`;
+  const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
+  if (seconds < 60) return 'just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
 }
 
 function isVerified(author: PostAuthor): boolean {
-    return author.isVerified || author.verificationStatus === 'VERIFIED';
+  return author.isVerified || author.verificationStatus === 'VERIFIED';
 }
 
 function isBrand(author: PostAuthor): boolean {
-    return author.brandVerificationStatus === 'VERIFIED_BRAND';
+  return author.brandVerificationStatus === 'VERIFIED_BRAND';
 }
 
-function VerifiedBadge() {
-    return (
-        <span title="Verified" className="flex items-center">
-            <svg className="w-4 h-4 text-blue-500 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-        </span>
-    );
-}
+function ShareButton({
+  title,
+  text,
+  url,
+  postId,
+}: {
+  title: string;
+  text: string;
+  url: string;
+  postId: string;
+}) {
+  const [open, setOpen] = useState(false);
 
-// ============================================================================
-// SHARE BUTTON
-// ============================================================================
-function ShareButton({ title, text, url, postId }: { title: string; text: string; url: string; postId: string }) {
-    const [open, setOpen] = useState(false);
+  const shareLinks = [
+    {
+      name: 'WhatsApp',
+      icon: <Send className="w-3.5 h-3.5 text-emerald-600" />,
+      href: `https://wa.me/?text=${encodeURIComponent(title + ' ' + url)}`,
+    },
+    {
+      name: 'Twitter / X',
+      icon: <Twitter className="w-3.5 h-3.5 text-slate-900" />,
+      href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+        text
+      )}&url=${encodeURIComponent(url)}`,
+    },
+    {
+      name: 'Facebook',
+      icon: <Facebook className="w-3.5 h-3.5 text-blue-600" />,
+      href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+    },
+  ];
 
-    const shareLinks = [
-        {
-            name: 'WhatsApp',
-            icon: <Send className="w-4 h-4 text-green-500" />,
-            href: `https://wa.me/?text=${encodeURIComponent(title + ' ' + url)}`,
-        },
-        {
-            name: 'Twitter / X',
-            icon: <Twitter className="w-4 h-4 text-gray-900" />,
-            href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
-        },
-        {
-            name: 'Facebook',
-            icon: <Facebook className="w-4 h-4 text-blue-600" />,
-            href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
-        },
-    ];
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success('Link copied to clipboard!');
+      setOpen(false);
+    } catch {
+      toast.error('Failed to copy link');
+    }
+  };
 
-    const copyToClipboard = async () => {
-        try {
-            await navigator.clipboard.writeText(url);
-            toast.success('Link copied to clipboard!');
-            setOpen(false);
-        } catch {
-            toast.error('Failed to copy link');
-        }
-    };
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className={`p-1.5 rounded-md transition-colors ${
+          open ? 'bg-blue-50 text-blue-600' : 'text-slate-400 hover:text-slate-700 hover:bg-slate-100'
+        }`}
+        title="Share"
+      >
+        <Share2 className="w-4 h-4" />
+      </button>
 
-    const handleNativeShare = async () => {
-        if (navigator.share) {
-            try {
-                await navigator.share({ title, text, url });
-                setOpen(false);
-            } catch (err) {
-                if ((err as Error).name !== 'AbortError') {
-                    toast.error('Could not share');
-                }
-            }
-        }
-    };
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className="absolute right-0 top-8 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-50 min-w-[180px] origin-top-right">
+            <p className="px-3 py-1.5 text-[9px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 mb-0.5">
+              Share Post
+            </p>
 
-    return (
-        <div className="relative">
+            {shareLinks.map((link) => (
+              <a
+                key={link.name}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2.5 px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 transition-colors"
+              >
+                {link.icon}
+                <span>{link.name}</span>
+              </a>
+            ))}
+
+            <div className="h-px bg-slate-100 my-1" />
+
             <button
-                onClick={() => setOpen(!open)}
-                className={`p-1.5 rounded-full transition ${open ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:bg-gray-100'}`}
+              onClick={copyToClipboard}
+              className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 transition-colors text-left"
             >
-                <Share2 className="w-5 h-5" />
+              <LinkIcon className="w-3.5 h-3.5 text-slate-400" />
+              <span>Copy Link</span>
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+interface PostCardProps {
+  post: CommunityPost;
+  onDelete?: (id: string) => void;
+  onUpdate?: (post: CommunityPost) => void;
+  savedIds?: string[];
+  onToggleSave?: (id: string, saved: boolean) => void;
+}
+
+export default function PostCard({
+  post: initialPost,
+  onDelete,
+  onUpdate,
+  savedIds = [],
+  onToggleSave,
+}: PostCardProps) {
+  const user = useAuthStore((s) => s.user);
+  const [post, setPost] = useState(initialPost);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [showComments, setShowComments] = useState(false);
+  const [showOfferForm, setShowOfferForm] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const isOwner = user?.id === post.authorId;
+  const author = post.author;
+  const isSaved = savedIds.includes(post.id);
+
+  const handleDelete = async () => {
+    if (!confirm('Delete this post? This cannot be undone.')) return;
+    setDeleting(true);
+    try {
+      await apiClient.delete(`/community-posts/${post.id}`);
+      onDelete?.(post.id);
+    } catch {}
+    setDeleting(false);
+    setMenuOpen(false);
+  };
+
+  const handlePostUpdated = (updated: CommunityPost) => {
+    setPost(updated);
+    onUpdate?.(updated);
+  };
+
+  const handleToggleSave = async () => {
+    if (!user) {
+      toast.error('Please login to save posts.');
+      return;
+    }
+
+    onToggleSave?.(post.id, !isSaved);
+
+    try {
+      if (isSaved) {
+        await apiClient.delete(`/community-posts/${post.id}/save`);
+      } else {
+        await apiClient.post(`/community-posts/${post.id}/save`);
+      }
+    } catch {
+      onToggleSave?.(post.id, isSaved);
+    }
+  };
+
+  return (
+    <>
+      <div
+        className={`bg-white rounded-lg border border-slate-200 shadow-2xs hover:border-slate-300 transition-all overflow-hidden mb-3 ${
+          deleting ? 'opacity-50 pointer-events-none' : ''
+        }`}
+      >
+        {/* HEADER */}
+        <div className="flex items-start justify-between gap-3 p-3.5 sm:p-4 pb-2">
+          <div className="flex items-start gap-3 min-w-0">
+            {/* Square Avatar */}
+            <Link href={`/profile/${author.id}`} className="shrink-0 relative w-9 h-9">
+              {getAvatarUrl(author) ? (
+                <Image
+                  src={sanitizeUrl(getAvatarUrl(author)!)}
+                  alt={getDisplayName(author)}
+                  fill
+                  className="rounded-md object-cover border border-slate-200 hover:opacity-80 transition"
+                  sizes="36px"
+                />
+              ) : (
+                <AvatarPlaceholder name={getDisplayName(author)} />
+              )}
+            </Link>
+
+            <div className="min-w-0">
+              <div className="flex items-center flex-wrap gap-1.5">
+                <Link
+                  href={`/profile/${author.id}`}
+                  className="font-bold text-slate-900 text-xs sm:text-sm hover:text-blue-600 transition-colors truncate"
+                >
+                  @{getDisplayName(author)}
+                </Link>
+                {isVerified(author) && (
+                  <span
+                    title="Verified User"
+                    className="inline-flex items-center p-0.5 rounded bg-blue-50 border border-blue-200 text-blue-600"
+                  >
+                    <ShieldCheck className="w-3 h-3" />
+                  </span>
+                )}
+                {isBrand(author) && <BrandBadge size="xs" />}
+                {author.tier === 'premium' && <PremiumBadge size="xs" />}
+              </div>
+
+              <p className="text-[11px] text-slate-400 font-medium mt-0.5">
+                {timeAgo(post.createdAt)}
+              </p>
+            </div>
+          </div>
+
+          {/* TOP RIGHT CONTROLS */}
+          <div className="flex items-center gap-1 shrink-0">
+            {post.status === 'resolved' && (
+              <span className="text-[9px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200 px-1.5 py-0.5 rounded mr-1">
+                Resolved
+              </span>
+            )}
+
+            <ShareButton
+              title={`Post by ${getDisplayName(author)}`}
+              text={post.content.substring(0, 100)}
+              url={`${typeof window !== 'undefined' ? window.location.origin : ''}/post/${post.id}`}
+              postId={post.id}
+            />
+
+            <button
+              onClick={handleToggleSave}
+              title={isSaved ? 'Unsave Post' : 'Save Post'}
+              className={`p-1.5 rounded-md transition-colors ${
+                isSaved
+                  ? 'text-blue-600 bg-blue-50'
+                  : 'text-slate-400 hover:text-slate-700 hover:bg-slate-100'
+              }`}
+            >
+              <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
             </button>
 
-            {open && (
+            {/* 3-DOT MENU */}
+            <div className="relative">
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-md transition-colors"
+                title="Options"
+              >
+                <MoreVertical className="w-4 h-4" />
+              </button>
+              {menuOpen && (
                 <>
-                    <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-                    <div className="absolute right-0 top-10 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50 min-w-[200px] overflow-hidden animate-in fade-in zoom-in duration-200 origin-top-right">
-                        <p className="px-4 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest bg-gray-50 mb-1">Share post</p>
-
-                        {shareLinks.map((link) => (
-                            <a
-                                key={link.name}
-                                href={link.href}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={() => setOpen(false)}
-                                className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 transition-colors"
-                            >
-                                {link.icon}
-                                {link.name}
-                            </a>
-                        ))}
-
-                        <div className="h-px bg-gray-100 my-1" />
-
+                  <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
+                  <div className="absolute right-0 top-7 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-20 min-w-[140px]">
+                    {isOwner ? (
+                      <>
                         <button
-                            onClick={copyToClipboard}
-                            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 transition-colors"
+                          onClick={() => {
+                            setShowEditModal(true);
+                            setMenuOpen(false);
+                          }}
+                          className="w-full text-left px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2"
                         >
-                            <LinkIcon className="w-4 h-4 text-gray-400" />
-                            Copy Link
+                          <Edit className="w-3.5 h-3.5 text-slate-500" />
+                          <span>Edit Post</span>
                         </button>
-
-                        {typeof navigator !== 'undefined' && (navigator as any).share && (
-                            <button
-                                onClick={handleNativeShare}
-                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-blue-600 hover:bg-blue-50 transition-colors"
-                            >
-                                <Share2 className="w-4 h-4" />
-                                More Options...
-                            </button>
-                        )}
-                    </div>
-                </>
-            )}
-        </div>
-    );
-}
-
-// ============================================================================
-// MAIN POST CARD
-// ============================================================================
-interface PostCardProps {
-    post: CommunityPost;
-    onDelete?: (id: string) => void;
-    onUpdate?: (post: CommunityPost) => void;
-    savedIds?: string[];
-    onToggleSave?: (id: string, saved: boolean) => void;
-}
-
-export default function PostCard({ post: initialPost, onDelete, onUpdate, savedIds = [], onToggleSave }: PostCardProps) {
-    const user = useAuthStore(s => s.user);
-    const [post, setPost] = useState(initialPost);
-    const [menuOpen, setMenuOpen] = useState(false);
-    const [showComments, setShowComments] = useState(false);
-    const [showOfferForm, setShowOfferForm] = useState(false);
-    const [showReportModal, setShowReportModal] = useState(false);
-    const [showEditModal, setShowEditModal] = useState(false);
-    const [deleting, setDeleting] = useState(false);
-    const [isExpanded, setIsExpanded] = useState(false);
-
-    const isOwner = user?.id === post.authorId;
-    const author = post.author;
-    const isSaved = savedIds.includes(post.id);
-
-    const handleDelete = async () => {
-        if (!confirm('Delete this post? This cannot be undone.')) return;
-        setDeleting(true);
-        try {
-            await apiClient.delete(`/community-posts/${post.id}`);
-            onDelete?.(post.id);
-        } catch { }
-        setDeleting(false);
-        setMenuOpen(false);
-    };
-
-    const handlePostUpdated = (updated: CommunityPost) => {
-        setPost(updated);
-        onUpdate?.(updated);
-    };
-
-    const handleToggleSave = async () => {
-        if (!user) {
-            toast.error('Please login to save posts.');
-            return;
-        }
-
-        // Optimistic update
-        onToggleSave?.(post.id, !isSaved);
-
-        try {
-            if (isSaved) {
-                await apiClient.delete(`/community-posts/${post.id}/save`);
-            } else {
-                await apiClient.post(`/community-posts/${post.id}/save`);
-            }
-        } catch {
-            // Revert on error
-            onToggleSave?.(post.id, isSaved);
-        }
-    };
-
-    return (
-        <>
-            <div className={`bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden transition ${deleting ? 'opacity-50 pointer-events-none' : ''}`}>
-                {/* HEADER */}
-                <div className="flex items-start gap-3 p-4 pb-2">
-                    <Link href={`/profile/${author.id}`} className="shrink-0 relative w-10 h-10">
-                        {getAvatarUrl(author) ? (
-                            <Image
-                                src={sanitizeUrl(getAvatarUrl(author)!)}
-                                alt={getDisplayName(author)}
-                                fill
-                                className="rounded-full object-cover border border-gray-100 hover:opacity-80 transition"
-                                sizes="40px"
-                            />
-                        ) : (
-                            <AvatarPlaceholder name={getDisplayName(author)} />
-                        )}
-                    </Link>
-                    <div className="flex-1 min-w-0">
-                        <div className="flex items-center flex-wrap gap-1.5 mb-0.5">
-                            <Link href={`/profile/${author.id}`} className="font-semibold text-gray-900 text-sm hover:underline">
-                                @{getDisplayName(author)}
-                            </Link>
-                            <div className="flex items-center flex-wrap gap-1">
-                                {isVerified(author) && <VerifiedBadge />}
-                                {isBrand(author) && <BrandBadge size="xs" />}
-                                {author.tier === 'premium' && <PremiumBadge size="xs" />}
-                            </div>
-                        </div>
-                        <div className="flex flex-wrap items-center gap-1.5 text-xs text-gray-500">
-                            <span>{timeAgo(post.createdAt)}</span>
-                        </div>
-                    </div>
-
-                    {/* TOP ACTIONS */}
-                    <div className="flex items-center gap-1">
-                        {/* Status Icon */}
-                        {post.status === 'resolved' ? (
-                            <div className="flex items-center justify-center p-1 mr-1 text-gray-400 bg-gray-50 rounded-full border border-gray-100" title="Resolved">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
-                            </div>
-                        ) : (
-                            <div className="flex items-center justify-center p-2 mr-1" title="Active">
-                                <div className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)] animate-pulse"></div>
-                            </div>
-                        )}
-
-                        <ShareButton
-                            title={`Post by ${getDisplayName(author)}`}
-                            text={post.content.substring(0, 100)}
-                            url={`${typeof window !== 'undefined' ? window.location.origin : ''}/post/${post.id}`}
-                            postId={post.id}
-                        />
-
-                        <button onClick={handleToggleSave} title={isSaved ? "Unsave Post" : "Save Post"} className={`p-1.5 rounded-full transition ${isSaved ? 'text-blue-600 bg-blue-50' : 'text-gray-400 hover:bg-gray-100 hover:text-gray-600'}`}>
-                            {isSaved ? (
-                                <Bookmark className="w-5 h-5 fill-current" />
-                            ) : (
-                                <Bookmark className="w-5 h-5" />
-                            )}
+                        <button
+                          onClick={handleDelete}
+                          className="w-full text-left px-3 py-1.5 text-xs text-rose-600 hover:bg-rose-50 flex items-center gap-2"
+                        >
+                          <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+                          <span>Delete Post</span>
                         </button>
-
-                        {/* 3-DOT MENU */}
-                        <div className="relative">
-                            <button onClick={() => setMenuOpen(!menuOpen)} className="p-1.5 hover:bg-gray-100 rounded-full transition">
-                                <MoreVertical className="w-5 h-5 text-gray-400" />
-                            </button>
-                            {menuOpen && (
-                                <>
-                                    <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
-                                    <div className="absolute right-0 top-8 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-20 min-w-[160px]">
-                                        {isOwner ? (
-                                            <>
-                                                <button onClick={() => { setShowEditModal(true); setMenuOpen(false); }} className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                                                    Edit Post
-                                                </button>
-                                                <button onClick={handleDelete} className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
-                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                                    Delete Post
-                                                </button>
-                                            </>
-                                        ) : (
-                                            <button onClick={() => { setShowReportModal(true); setMenuOpen(false); }} className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
-                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
-                                                Report Post
-                                            </button>
-                                        )}
-                                    </div>
-                                </>
-                            )}
-                        </div>
-                    </div>
-                </div>
-
-                {/* CONTENT */}
-                <div className="px-4 pb-2">
-                    <p className="text-gray-800 text-sm whitespace-pre-wrap leading-relaxed">
-                        {isExpanded || post.content.length <= 800
-                            ? post.content
-                            : `${post.content.substring(0, 800)}... `}
-                        {post.content.length > 800 && (
-                            <button
-                                onClick={() => setIsExpanded(!isExpanded)}
-                                className="text-blue-600 font-bold hover:underline focus:outline-none"
-                            >
-                                {isExpanded ? 'See less' : 'See more'}
-                            </button>
-                        )}
-                    </p>
-                </div>
-
-                {/* HASHTAGS */}
-                {post.hashtags.length > 0 && (
-                    <div className="px-4 pb-2 flex flex-wrap gap-1.5">
-                        {post.hashtags.map(tag => (
-                            <span key={tag} className="text-blue-600 text-xs font-medium">#{tag}</span>
-                        ))}
-                    </div>
-                )}
-
-                {/* IMAGES */}
-                {post.images.length > 0 && (
-                    <div className={`px-4 pb-3 grid gap-1.5 ${post.images.length === 1 ? 'grid-cols-1' : post.images.length === 2 ? 'grid-cols-2' : 'grid-cols-2'}`}>
-                        {post.images.slice(0, 4).map((img, i) => (
-                            <div key={i} className={`relative ${post.images.length === 1 ? 'h-80' : 'h-40'} w-full`}>
-                                <Image
-                                    src={sanitizeUrl(img)}
-                                    alt={`Post image ${i + 1}`}
-                                    fill
-                                    className="rounded-lg object-cover"
-                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                />
-                            </div>
-                        ))}
-                    </div>
-                )}
-
-                {/* ACTION BAR */}
-                <div className="flex items-center border-t border-gray-100 px-2">
-                    <button
+                      </>
+                    ) : (
+                      <button
                         onClick={() => {
-                            if (!user) {
-                                toast.error('Please log in to make an offer.');
-                                return;
-                            }
-                            setShowOfferForm(!showOfferForm); setShowComments(false);
+                          setShowReportModal(true);
+                          setMenuOpen(false);
                         }}
-                        className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium rounded-lg transition ${showOfferForm ? 'text-blue-700 bg-blue-50' : 'text-blue-600 hover:bg-blue-50'}`}
-                    >
-                        <svg className="w-[18px] h-[18px] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                        </svg>
-                        <span>Make Offer{post._count.offers > 0 ? ` (${post._count.offers})` : ''}</span>
-                    </button>
-                    <div className="w-px h-6 bg-gray-100" />
-                    <button
-                        onClick={() => { setShowComments(!showComments); setShowOfferForm(false); }}
-                        className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium rounded-lg transition ${showComments ? 'text-gray-800 bg-gray-50' : 'text-gray-600 hover:bg-gray-50'}`}
-                    >
-                        <svg className="w-[18px] h-[18px] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                        </svg>
-                        <span>Comment{post._count.comments > 0 ? ` (${post._count.comments})` : ''}</span>
-                    </button>
-                </div>
-
-                {/* EXPANDABLE SECTIONS */}
-                {showOfferForm && !isOwner && <OfferForm postId={post.id} postAuthor={author} onClose={() => setShowOfferForm(false)} />}
-                {showOfferForm && isOwner && (
-                    <div className="border-t border-gray-100 px-4 py-3 text-sm text-gray-500 text-center bg-gray-50">
-                        You can&apos;t make an offer on your own post.
-                    </div>
-                )}
-                {showComments && <CommentSection postId={post.id} />}
+                        className="w-full text-left px-3 py-1.5 text-xs text-rose-600 hover:bg-rose-50 flex items-center gap-2"
+                      >
+                        <Flag className="w-3.5 h-3.5 text-rose-500" />
+                        <span>Report Post</span>
+                      </button>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
+          </div>
+        </div>
 
-            {/* MODALS */}
-            {showReportModal && <ReportModal postId={post.id} onClose={() => setShowReportModal(false)} />}
-            {showEditModal && <EditPostModal post={post} onClose={() => setShowEditModal(false)} onSaved={handlePostUpdated} />}
-        </>
-    );
+        {/* CONTENT */}
+        <div className="px-3.5 sm:px-4 pb-2.5">
+          <p className="text-slate-800 text-xs sm:text-sm whitespace-pre-wrap leading-relaxed">
+            {isExpanded || post.content.length <= 600
+              ? post.content
+              : `${post.content.substring(0, 600)}... `}
+            {post.content.length > 600 && (
+              <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="text-blue-600 font-bold hover:underline ml-1"
+              >
+                {isExpanded ? 'See less' : 'See more'}
+              </button>
+            )}
+          </p>
+        </div>
+
+        {/* HASHTAGS */}
+        {post.hashtags.length > 0 && (
+          <div className="px-3.5 sm:px-4 pb-2.5 flex flex-wrap gap-1.5">
+            {post.hashtags.map((tag) => (
+              <span
+                key={tag}
+                className="text-[11px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded"
+              >
+                #{tag}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* IMAGES */}
+        {post.images.length > 0 && (
+          <div
+            className={`px-3.5 sm:px-4 pb-3 grid gap-2 ${
+              post.images.length === 1 ? 'grid-cols-1' : 'grid-cols-2'
+            }`}
+          >
+            {post.images.slice(0, 4).map((img, i) => (
+              <div
+                key={i}
+                className={`relative ${
+                  post.images.length === 1 ? 'h-64 sm:h-72' : 'h-36 sm:h-44'
+                } w-full rounded-md overflow-hidden border border-slate-200`}
+              >
+                <Image
+                  src={sanitizeUrl(img)}
+                  alt={`Post attachment ${i + 1}`}
+                  fill
+                  className="object-cover hover:scale-105 transition-transform duration-300"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ACTION BAR */}
+        <div className="flex items-center gap-2 border-t border-slate-100 p-2 sm:px-4 bg-slate-50/50">
+          <button
+            onClick={() => {
+              if (!user) {
+                toast.error('Please log in to make an offer.');
+                return;
+              }
+              setShowOfferForm(!showOfferForm);
+              setShowComments(false);
+            }}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-bold rounded-md transition-colors ${
+              showOfferForm
+                ? 'bg-blue-600 text-white shadow-2xs'
+                : 'bg-white border border-slate-200 text-blue-600 hover:bg-blue-50 hover:border-blue-200 shadow-2xs'
+            }`}
+          >
+            <Repeat className="w-3.5 h-3.5" />
+            <span>Make Offer{post._count.offers > 0 ? ` (${post._count.offers})` : ''}</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setShowComments(!showComments);
+              setShowOfferForm(false);
+            }}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-bold rounded-md transition-colors ${
+              showComments
+                ? 'bg-slate-800 text-white shadow-2xs'
+                : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 shadow-2xs'
+            }`}
+          >
+            <MessageSquare className="w-3.5 h-3.5" />
+            <span>Comment{post._count.comments > 0 ? ` (${post._count.comments})` : ''}</span>
+          </button>
+        </div>
+
+        {/* EXPANDABLE SECTIONS */}
+        {showOfferForm && !isOwner && (
+          <OfferForm
+            postId={post.id}
+            postAuthor={author}
+            onClose={() => setShowOfferForm(false)}
+          />
+        )}
+        {showOfferForm && isOwner && (
+          <div className="border-t border-slate-100 px-4 py-3 text-xs text-slate-500 text-center bg-slate-50">
+            You cannot make an offer on your own post.
+          </div>
+        )}
+        {showComments && <CommentSection postId={post.id} />}
+      </div>
+
+      {/* MODALS */}
+      {showReportModal && (
+        <ReportModal postId={post.id} onClose={() => setShowReportModal(false)} />
+      )}
+      {showEditModal && (
+        <EditPostModal
+          post={post}
+          onClose={() => setShowEditModal(false)}
+          onSaved={handlePostUpdated}
+        />
+      )}
+    </>
+  );
 }
