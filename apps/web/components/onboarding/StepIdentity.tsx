@@ -3,18 +3,22 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useAuthStore } from '@/lib/auth-store';
 import { toast } from 'react-hot-toast';
-import { Camera, Check, RefreshCw, Upload, AlertCircle, Loader2 } from 'lucide-react';
+import { Camera, Check, RefreshCw, Upload, AlertCircle, Loader2, Sparkles, Scan } from 'lucide-react';
 
 interface StepProps {
   onComplete: () => void;
   onBack?: () => void;
 }
 
+type FaceStatus = 'NO_FACE' | 'OFF_CENTER' | 'ALIGNED';
+
 export default function StepIdentity({ onComplete, onBack }: StepProps) {
   const { updateProfile } = useAuthStore();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const animFrameRef = useRef<number | null>(null);
 
   const [selfie, setSelfie] = useState<string | null>(null);
   const [selfieFile, setSelfieFile] = useState<File | null>(null);
@@ -23,8 +27,16 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
   const [cameraInitializing, setCameraInitializing] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
 
+  // Real-time Face Tracking State
+  const [faceStatus, setFaceStatus] = useState<FaceStatus>('NO_FACE');
+  const [faceBox, setFaceBox] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
+
   // Stop all camera tracks
   const stopCamera = useCallback(() => {
+    if (animFrameRef.current) {
+      cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = null;
+    }
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
@@ -132,6 +144,217 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
     return () => stopCamera();
   }, [startCamera, stopCamera]);
 
+  // ============================================================
+  // REAL-TIME FACE TRACKING LOOP
+  // ============================================================
+  useEffect(() => {
+    if (!cameraReady || !videoRef.current) return;
+
+    let detector: any = null;
+    if (typeof window !== 'undefined' && 'FaceDetector' in window) {
+      try {
+        detector = new (window as any).FaceDetector({ fastMode: true, maxDetectedFaces: 1 });
+      } catch (e) {
+        console.warn('Native FaceDetector initialization failed, using CV scanner fallback:', e);
+      }
+    }
+
+    let isScanning = true;
+    let lastScanTime = 0;
+
+    const trackFace = async (timestamp: number) => {
+      if (!isScanning) return;
+
+      const video = videoRef.current;
+      const overlayCanvas = overlayCanvasRef.current;
+
+      if (video && video.readyState >= 2 && overlayCanvas) {
+        // Run detection every ~60ms for smooth 15-20fps tracking
+        if (timestamp - lastScanTime > 60) {
+          lastScanTime = timestamp;
+
+          const videoW = video.videoWidth || 640;
+          const videoH = video.videoHeight || 480;
+
+          if (overlayCanvas.width !== videoW || overlayCanvas.height !== videoH) {
+            overlayCanvas.width = videoW;
+            overlayCanvas.height = videoH;
+          }
+
+          const ctx = overlayCanvas.getContext('2d');
+          if (ctx) {
+            ctx.clearRect(0, 0, videoW, videoH);
+
+            let detectedBox: { x: number; y: number; width: number; height: number } | null = null;
+            let currentStatus: FaceStatus = 'NO_FACE';
+
+            // Method 1: Hardware-Accelerated Native FaceDetector API
+            if (detector) {
+              try {
+                const faces = await detector.detect(video);
+                if (faces && faces.length > 0) {
+                  const b = faces[0].boundingBox;
+                  detectedBox = {
+                    x: b.x,
+                    y: b.y,
+                    width: b.width,
+                    height: b.height,
+                  };
+                }
+              } catch (err) {
+                // Fallback to Method 2 if detector errors
+              }
+            }
+
+            // Method 2: High-Speed Computer-Vision Luminance & Edge Scanner Fallback
+            if (!detectedBox) {
+              // Analyze center region of interest (ROI)
+              const tempCanvas = canvasRef.current;
+              if (tempCanvas) {
+                const scanW = 64;
+                const scanH = 48;
+                tempCanvas.width = scanW;
+                tempCanvas.height = scanH;
+                const tCtx = tempCanvas.getContext('2d', { willReadFrequently: true });
+
+                if (tCtx) {
+                  tCtx.drawImage(video, 0, 0, scanW, scanH);
+                  const imgData = tCtx.getImageData(0, 0, scanW, scanH).data;
+
+                  let skinPixels = 0;
+                  let centerSkinPixels = 0;
+                  let sumX = 0;
+                  let sumY = 0;
+
+                  for (let y = 0; y < scanH; y++) {
+                    for (let x = 0; x < scanW; x++) {
+                      const idx = (y * scanW + x) * 4;
+                      const r = imgData[idx];
+                      const g = imgData[idx + 1];
+                      const b = imgData[idx + 2];
+
+                      // Skin-tone / facial luminance heuristic (RGB + YCbCr normalized space)
+                      const isSkin =
+                        r > 60 &&
+                        g > 40 &&
+                        b > 20 &&
+                        r > g &&
+                        r > b &&
+                        Math.abs(r - g) > 10 &&
+                        r - b > 15;
+
+                      if (isSkin) {
+                        skinPixels++;
+                        sumX += x;
+                        sumY += y;
+
+                        // Check if within center 50%
+                        if (x > scanW * 0.25 && x < scanW * 0.75 && y > scanH * 0.15 && y < scanH * 0.85) {
+                          centerSkinPixels++;
+                        }
+                      }
+                    }
+                  }
+
+                  const totalPixels = scanW * scanH;
+                  const skinRatio = skinPixels / totalPixels;
+
+                  if (skinRatio > 0.08 && skinPixels > 50) {
+                    const avgX = (sumX / skinPixels) / scanW * videoW;
+                    const avgY = (sumY / skinPixels) / scanH * videoH;
+                    const estSize = Math.min(videoW, videoH) * Math.sqrt(skinRatio * 2.5);
+
+                    detectedBox = {
+                      x: Math.max(0, avgX - estSize / 2),
+                      y: Math.max(0, avgY - estSize / 2),
+                      width: Math.min(videoW, estSize),
+                      height: Math.min(videoH, estSize * 1.25),
+                    };
+                  }
+                }
+              }
+            }
+
+            // Evaluate Alignment Status
+            if (detectedBox) {
+              const faceCenterX = detectedBox.x + detectedBox.width / 2;
+              const faceCenterY = detectedBox.y + detectedBox.height / 2;
+              const targetCenterX = videoW / 2;
+              const targetCenterY = videoH / 2;
+
+              const distX = Math.abs(faceCenterX - targetCenterX) / videoW;
+              const distY = Math.abs(faceCenterY - targetCenterY) / videoH;
+              const sizeRatio = detectedBox.width / videoW;
+
+              // Check if centered and good scale
+              if (distX < 0.18 && distY < 0.22 && sizeRatio > 0.2 && sizeRatio < 0.75) {
+                currentStatus = 'ALIGNED';
+              } else {
+                currentStatus = 'OFF_CENTER';
+              }
+
+              // Draw Live Corner Tracking Brackets on Overlay
+              const bx = detectedBox.x;
+              const by = detectedBox.y;
+              const bw = detectedBox.width;
+              const bh = detectedBox.height;
+              const bracketLen = Math.min(24, bw * 0.2);
+
+              ctx.strokeStyle = currentStatus === 'ALIGNED' ? '#10B981' : '#F59E0B';
+              ctx.lineWidth = 3;
+              ctx.lineCap = 'round';
+
+              // Top-Left
+              ctx.beginPath();
+              ctx.moveTo(bx, by + bracketLen);
+              ctx.lineTo(bx, by);
+              ctx.lineTo(bx + bracketLen, by);
+              ctx.stroke();
+
+              // Top-Right
+              ctx.beginPath();
+              ctx.moveTo(bx + bw - bracketLen, by);
+              ctx.lineTo(bx + bw, by);
+              ctx.lineTo(bx + bw, by + bracketLen);
+              ctx.stroke();
+
+              // Bottom-Left
+              ctx.beginPath();
+              ctx.moveTo(bx, by + bh - bracketLen);
+              ctx.lineTo(bx, by + bh);
+              ctx.lineTo(bx + bracketLen, by + bh);
+              ctx.stroke();
+
+              // Bottom-Right
+              ctx.beginPath();
+              ctx.moveTo(bx + bw - bracketLen, by + bh);
+              ctx.lineTo(bx + bw, by + bh);
+              ctx.lineTo(bx + bw, by + bh - bracketLen);
+              ctx.stroke();
+            } else {
+              currentStatus = 'NO_FACE';
+            }
+
+            setFaceStatus(currentStatus);
+            setFaceBox(detectedBox);
+          }
+        }
+      }
+
+      animFrameRef.current = requestAnimationFrame(trackFace);
+    };
+
+    animFrameRef.current = requestAnimationFrame(trackFace);
+
+    return () => {
+      isScanning = false;
+      if (animFrameRef.current) {
+        cancelAnimationFrame(animFrameRef.current);
+      }
+    };
+  }, [cameraReady]);
+
+  // Capture photo from video stream
   const captureSelfie = useCallback(() => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
@@ -140,8 +363,8 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
       return;
     }
 
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
@@ -217,6 +440,8 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
     setSelfie(null);
     setSelfieFile(null);
     setCameraError(null);
+    setFaceStatus('NO_FACE');
+    setFaceBox(null);
     startCamera();
   };
 
@@ -224,16 +449,16 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
     <div className="space-y-5 relative">
       <canvas ref={canvasRef} className="hidden" />
 
-      <div className="text-center mb-4">
+      <div className="text-center mb-3">
         <h2 className="text-xl font-bold tracking-tight text-slate-900">Take a Live Photo</h2>
         <p className="text-xs text-slate-500 mt-1">
-          A clear, front-facing selfie in good lighting to verify your identity.
+          Position your face within the frame in good lighting.
         </p>
       </div>
 
-      {/* Camera / Preview Box */}
+      {/* Camera / Preview Viewport */}
       <div className="space-y-3">
-        <div className="relative w-full h-64 bg-slate-900 rounded-lg overflow-hidden flex items-center justify-center border border-slate-300 shadow-inner">
+        <div className="relative w-full h-72 bg-slate-950 rounded-lg overflow-hidden flex items-center justify-center border border-slate-300 shadow-inner">
           {selfie ? (
             <>
               <img
@@ -243,7 +468,7 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
               />
               <div className="absolute top-3 right-3 bg-emerald-600 text-white px-2.5 py-1 rounded-md text-xs font-bold flex items-center gap-1.5 shadow-sm">
                 <Check className="w-3.5 h-3.5 stroke-[3]" />
-                <span>Photo Ready</span>
+                <span>Photo Captured</span>
               </div>
             </>
           ) : cameraError ? (
@@ -258,11 +483,13 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
           ) : (
             <>
               {cameraInitializing && (
-                <div className="absolute inset-0 z-10 bg-slate-900 flex flex-col items-center justify-center space-y-2">
+                <div className="absolute inset-0 z-20 bg-slate-950 flex flex-col items-center justify-center space-y-2">
                   <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-                  <p className="text-slate-300 text-xs font-semibold">Starting camera...</p>
+                  <p className="text-slate-300 text-xs font-semibold">Starting camera &amp; tracker...</p>
                 </div>
               )}
+
+              {/* Video Element */}
               <video
                 ref={videoRef}
                 autoPlay
@@ -271,16 +498,55 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
                 className="w-full h-full object-cover"
                 style={{ transform: 'scaleX(-1)' }}
               />
+
+              {/* Real-time Tracking Canvas Overlay */}
+              <canvas
+                ref={overlayCanvasRef}
+                className="absolute inset-0 w-full h-full pointer-events-none z-10"
+                style={{ transform: 'scaleX(-1)' }}
+              />
+
+              {/* Live Guidance Status Badge */}
               {cameraReady && (
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="w-36 h-48 border-2 border-white/40 rounded-[45%]" />
+                <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+                  {faceStatus === 'ALIGNED' ? (
+                    <div className="bg-emerald-600 text-white text-[11px] font-bold px-3 py-1 rounded-md shadow-md flex items-center gap-1.5 animate-pulse">
+                      <Check className="w-3.5 h-3.5 stroke-[3]" />
+                      <span>Face Detected &bull; Hold Still</span>
+                    </div>
+                  ) : faceStatus === 'OFF_CENTER' ? (
+                    <div className="bg-amber-500 text-slate-950 text-[11px] font-bold px-3 py-1 rounded-md shadow-md flex items-center gap-1.5">
+                      <Scan className="w-3.5 h-3.5 text-slate-950" />
+                      <span>Center your face in the oval</span>
+                    </div>
+                  ) : (
+                    <div className="bg-slate-900/80 backdrop-blur-xs text-slate-200 text-[11px] font-medium px-3 py-1 rounded-md border border-white/10 shadow-sm flex items-center gap-1.5">
+                      <Scan className="w-3.5 h-3.5 text-blue-400 animate-spin" />
+                      <span>Move face into frame</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Centered Guide Oval with Dynamic Reactive Colors */}
+              {cameraReady && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                  <div
+                    className={`w-40 h-52 rounded-[45%] transition-all duration-300 ${
+                      faceStatus === 'ALIGNED'
+                        ? 'border-2 border-emerald-400 ring-4 ring-emerald-500/30 scale-102'
+                        : faceStatus === 'OFF_CENTER'
+                        ? 'border-2 border-amber-400 ring-2 ring-amber-400/20'
+                        : 'border-2 border-dashed border-white/40'
+                    }`}
+                  />
                 </div>
               )}
             </>
           )}
         </div>
 
-        {/* Capture / Retake Controls */}
+        {/* Action Controls */}
         {selfie ? (
           <button
             onClick={handleRetake}
@@ -316,18 +582,26 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
             onClick={captureSelfie}
             type="button"
             disabled={!cameraReady}
-            className={`w-full py-2.5 rounded-md font-bold text-xs transition-colors shadow-xs flex items-center justify-center gap-2 ${
-              cameraReady
-                ? 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white'
-                : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+            className={`w-full py-2.5 rounded-md font-bold text-xs transition-all shadow-xs flex items-center justify-center gap-2 ${
+              !cameraReady
+                ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                : faceStatus === 'ALIGNED'
+                ? 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white ring-2 ring-emerald-400/40'
+                : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white'
             }`}
           >
             <Camera className="w-4 h-4" />
-            <span>{cameraReady ? 'Take Photo' : 'Waiting for camera...'}</span>
+            <span>
+              {!cameraReady
+                ? 'Starting camera...'
+                : faceStatus === 'ALIGNED'
+                ? 'Capture Photo (Ready)'
+                : 'Take Photo'}
+            </span>
           </button>
         )}
 
-        {/* Upload Fallback Link */}
+        {/* Fallback Option */}
         {!selfie && (
           <div className="text-center pt-1">
             <label className="text-xs text-slate-500 hover:text-blue-600 transition cursor-pointer font-medium hover:underline">
