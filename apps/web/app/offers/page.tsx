@@ -25,8 +25,13 @@ import {
   ShieldCheck,
   Package,
   ArrowRight,
+  ExternalLink,
+  Clock,
+  Tag,
+  CheckCircle2,
 } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 type Tab = 'received' | 'sent' | 'history' | 'community';
 
@@ -60,6 +65,28 @@ interface CommunityOffer {
       profile?: { displayName?: string; avatarUrl?: string };
     };
   };
+}
+
+function parseOfferContent(text: string): { cleanText: string; imageUrls: string[] } {
+  const photoRegex = /\[Photo\]:\s*(\S+)/g;
+  const imageUrls: string[] = [];
+  let match;
+
+  while ((match = photoRegex.exec(text)) !== null) {
+    imageUrls.push(match[1]);
+  }
+
+  const cleanText = text.replace(photoRegex, '').trim();
+  return { cleanText, imageUrls };
+}
+
+function getTraderInitials(name: string): string {
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
 }
 
 export default function OffersPage() {
@@ -429,73 +456,134 @@ export default function OffersPage() {
               otherPerson.profile?.displayName ||
               [otherPerson.firstName, otherPerson.lastName].filter(Boolean).join(' ') ||
               'Trader';
-            const otherAvatar =
-              sanitizeUrl(otherPerson.profile?.avatarUrl) ||
-              `https://api.dicebear.com/7.x/avataaars/svg?seed=${otherPerson.id}`;
-            const postPreview =
-              offer.post.content.length > 90
-                ? offer.post.content.slice(0, 90) + '...'
-                : offer.post.content;
+            const otherAvatar = otherPerson.profile?.avatarUrl ? sanitizeUrl(otherPerson.profile.avatarUrl) : null;
+            const { cleanText, imageUrls } = parseOfferContent(offer.message);
 
             return (
               <div
                 key={offer.id}
                 id={`offer-${offer.id}`}
-                className="bg-white rounded-lg border border-slate-200 shadow-2xs p-4 scroll-mt-24 hover:border-slate-300 transition-colors"
+                className="bg-white rounded-lg border border-slate-200 shadow-2xs hover:border-slate-300 transition-all overflow-hidden"
               >
-                <div className="flex items-start gap-3">
-                  <img
-                    src={otherAvatar}
-                    alt={otherName}
-                    className="w-9 h-9 rounded-md object-cover border border-slate-200 shrink-0"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span
-                        className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border ${
-                          isSent
-                            ? 'bg-blue-50 text-blue-700 border-blue-200'
-                            : 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                        }`}
-                      >
-                        {isSent ? 'Sent' : 'Received'}
-                      </span>
-                      <span className="text-[11px] text-slate-400 font-medium">
-                        {new Date(offer.createdAt).toLocaleDateString()}
-                      </span>
-                      {otherPerson.isVerified && (
-                        <span className="p-0.5 rounded bg-blue-50 border border-blue-200 text-blue-600">
-                          <ShieldCheck className="w-2.5 h-2.5" />
-                        </span>
-                      )}
-                      {otherPerson.brandVerificationStatus === 'VERIFIED_BRAND' && (
-                        <BrandBadge size="xs" />
-                      )}
-                      {otherPerson.tier === 'premium' && <PremiumBadge size="xs" />}
-                    </div>
-
-                    <p className="text-xs font-bold text-slate-900">
-                      {isSent ? `You offered to @${otherName}` : `@${otherName} offered you`}
+                {/* Header Context Rail */}
+                <div className="bg-slate-50/80 border-b border-slate-100 px-4 py-2.5 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider shrink-0">
+                      On Request:
+                    </span>
+                    <p className="text-xs font-semibold text-slate-700 truncate">
+                      {offer.post.content}
                     </p>
+                  </div>
 
-                    <div className="bg-slate-50 border border-slate-200/90 rounded-md p-2.5 text-xs text-slate-800 mt-1.5 leading-relaxed">
-                      {offer.message}
-                    </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span
+                      className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border ${
+                        isSent
+                          ? 'bg-blue-50 text-blue-700 border-blue-200'
+                          : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                      }`}
+                    >
+                      {isSent ? 'Sent' : 'Received'}
+                    </span>
+                    <span className="text-[11px] text-slate-400 font-medium">
+                      {new Date(offer.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
 
-                    <p className="text-[11px] text-slate-400 mt-2 truncate">
-                      <span className="font-semibold text-slate-600">On Request:</span> {postPreview}
-                    </p>
+                {/* Main Body */}
+                <div className="p-4">
+                  <div className="flex items-start gap-3.5">
+                    {/* Trader Avatar / Initials */}
+                    {otherAvatar ? (
+                      <img
+                        src={otherAvatar}
+                        alt={otherName}
+                        className="w-10 h-10 rounded-md object-cover border border-slate-200 shrink-0"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-md bg-blue-50 border border-blue-200 text-blue-700 font-bold text-xs flex items-center justify-center shrink-0">
+                        {getTraderInitials(otherName)}
+                      </div>
+                    )}
 
-                    <div className="mt-2.5">
-                      <button
-                        onClick={() => router.push(`/messages/${otherPerson.id}`)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-bold text-xs transition-colors shadow-xs"
-                      >
-                        <MessageSquare className="w-3.5 h-3.5" />
-                        <span>Open Direct Chat</span>
-                      </button>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <Link
+                          href={`/profile/${otherPerson.id}`}
+                          className="text-xs font-bold text-slate-900 hover:text-blue-600 transition-colors"
+                        >
+                          @{otherName}
+                        </Link>
+                        {otherPerson.isVerified && (
+                          <span
+                            title="Verified ID"
+                            className="p-0.5 rounded bg-blue-50 border border-blue-200 text-blue-600"
+                          >
+                            <ShieldCheck className="w-3 h-3" />
+                          </span>
+                        )}
+                        {otherPerson.brandVerificationStatus === 'VERIFIED_BRAND' && (
+                          <BrandBadge size="xs" />
+                        )}
+                        {otherPerson.tier === 'premium' && <PremiumBadge size="xs" />}
+                      </div>
+
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        {isSent ? `You proposed a swap to @${otherName}` : `@${otherName} submitted a trade proposal`}
+                      </p>
+
+                      {/* Offer Message Card */}
+                      <div className="bg-slate-50 border border-slate-200/90 rounded-md p-3 text-xs text-slate-800 mt-2.5 leading-relaxed">
+                        <p className="font-semibold text-slate-900 mb-0.5 text-[11px] uppercase tracking-wider text-slate-400">
+                          Proposed Trade Details:
+                        </p>
+                        <p>{cleanText}</p>
+
+                        {/* Render Attached Offer Photos */}
+                        {imageUrls.length > 0 && (
+                          <div className="flex items-center gap-2 mt-2.5 pt-2 border-t border-slate-200/60">
+                            {imageUrls.map((url, idx) => (
+                              <a
+                                key={idx}
+                                href={sanitizeUrl(url)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="relative w-16 h-16 rounded-md overflow-hidden border border-slate-300 block group shadow-2xs"
+                              >
+                                <Image
+                                  src={sanitizeUrl(url)}
+                                  alt="Trade Item Photo"
+                                  fill
+                                  className="object-cover group-hover:scale-105 transition-transform"
+                                />
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
+                </div>
+
+                {/* Footer Action Bar */}
+                <div className="bg-slate-50/50 border-t border-slate-100 px-4 py-2.5 flex items-center justify-between gap-3">
+                  <Link
+                    href={`/post/${offer.postId}`}
+                    className="inline-flex items-center gap-1.5 text-xs text-slate-600 hover:text-blue-600 font-semibold transition-colors"
+                  >
+                    <span>View Post on Board</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </Link>
+
+                  <button
+                    onClick={() => router.push(`/messages/${otherPerson.id}`)}
+                    className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-md font-bold text-xs transition-colors shadow-xs"
+                  >
+                    <MessageSquare className="w-3.5 h-3.5" />
+                    <span>Open Direct Chat</span>
+                  </button>
                 </div>
               </div>
             );
