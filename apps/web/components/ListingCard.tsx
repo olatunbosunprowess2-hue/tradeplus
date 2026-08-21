@@ -5,7 +5,6 @@ import Image from 'next/image';
 import BookmarkButton from './BookmarkButton';
 import AddToCartButton from './AddToCartButton';
 import ShareButton from './ShareButton';
-import DiscountBadge from './DiscountBadge';
 import DistressBadge from './DistressBadge';
 import StarRating from './StarRating';
 import PriceDisplay from './PriceDisplay';
@@ -14,283 +13,261 @@ import BrandBadge from './BrandBadge';
 import { sanitizeUrl } from '@/lib/utils';
 import type { Listing } from '@/lib/types';
 import type { BookmarkedListing } from '@/lib/bookmarks-store';
+import { MapPin, Repeat, Check, ShieldCheck } from 'lucide-react';
 
 interface ListingCardProps {
-    listing: Listing;
+  listing: Listing;
 }
 
 export default function ListingCard({ listing: initialListing }: ListingCardProps) {
-    const listing = {
-        ...initialListing,
-        images: initialListing.images?.map(img => ({
-            ...img,
-            url: sanitizeUrl(img.url)
-        })) || []
-    };
+  const listing = {
+    ...initialListing,
+    images:
+      initialListing.images?.map((img) => ({
+        ...img,
+        url: sanitizeUrl(img.url),
+      })) || [],
+  };
 
-    const bookmarkData: BookmarkedListing = {
-        id: listing.id,
-        title: listing.title,
-        priceCents: listing.priceCents,
-        currencyCode: listing.currencyCode || 'NGN',
-        images: listing.images || [],
-        sellerId: listing.sellerId,
-        sellerName: listing.seller?.profile?.displayName || listing.seller?.email || 'Unknown',
-        location: listing.seller?.profile?.region?.name || '',
-        bookmarkedAt: new Date().toISOString(),
-    };
+  const bookmarkData: BookmarkedListing = {
+    id: listing.id,
+    title: listing.title,
+    priceCents: listing.priceCents,
+    currencyCode: listing.currencyCode || 'NGN',
+    images: listing.images || [],
+    sellerId: listing.sellerId,
+    sellerName: listing.seller?.profile?.displayName || listing.seller?.email || 'Unknown',
+    location: listing.seller?.profile?.region?.name || '',
+    bookmarkedAt: new Date().toISOString(),
+  };
 
-    // Extract city from address and pair with state/region
-    const extractLocationDisplay = (address?: string, stateName?: string) => {
-        if (!address) return stateName || null;
-        const parts = address.split(',').map(p => p.trim());
-        const city = parts[0];
-        // If we have a state name, use "City, State" format
-        if (stateName) {
-            return `${city}, ${stateName}`;
-        }
-        // Fallback: if address has multiple parts, try "City, State" from address
-        if (parts.length >= 2) {
-            // Assume format is "City, State, Country" - return "City, State"
-            const state = parts.length >= 3 ? parts[1] : parts[1];
-            return `${city}, ${state}`;
-        }
-        return city || null;
-    };
-
-    // Get location display - prioritize seller's profile region, then extract from address
-    const getLocationDisplay = () => {
-        // Check seller's profile region
-        const sellerState = listing.seller?.profile?.region?.name;
-        if (sellerState) {
-            const sellerAddress = listing.seller?.locationAddress;
-            if (sellerAddress) {
-                const city = sellerAddress.split(',')[0]?.trim();
-                if (city && city !== sellerState) {
-                    return `${city}, ${sellerState}`;
-                }
-            }
-            return sellerState;
-        }
-        // Fallback: extract from address with state detection
-        const location = extractLocationDisplay(listing.seller?.locationAddress);
-        if (location) {
-            return location;
-        }
-        return null;
-    };
-
-    const locationDisplay = getLocationDisplay();
-
-    // Determine if this is an urgent/distress item that needs special styling
-    const isUrgentItem = listing.isDistressSale;
-
-    // Safeguard against undefined/missing IDs
-    const isValidId = listing.id && listing.id !== 'undefined';
-
-    if (!isValidId) {
-        console.warn('[ListingCard] Rendering listing with missing or invalid ID:', listing.title);
+  const extractLocationDisplay = (address?: string, stateName?: string) => {
+    if (!address) return stateName || null;
+    const parts = address.split(',').map((p) => p.trim());
+    const city = parts[0];
+    if (stateName) {
+      return `${city}, ${stateName}`;
     }
+    if (parts.length >= 2) {
+      const state = parts[1];
+      return `${city}, ${state}`;
+    }
+    return city || null;
+  };
 
-    return (
-        <div
-            className={`rounded-2xl shadow-md overflow-hidden md:hover:shadow-2xl md:hover:-translate-y-2 transition-all duration-200 group relative touch-manipulation ${isUrgentItem
-                ? 'bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-400 ring-2 ring-red-200 animate-pulse-subtle'
-                : 'bg-white border border-gray-100'
-                }`}
-        >
-            {/* Gradient accent on hover - purely decorative, must not intercept taps */}
-            <div className={`absolute inset-x-0 top-0 h-1 z-20 pointer-events-none ${isUrgentItem
-                ? 'bg-gradient-to-r from-red-500 via-orange-500 to-red-500 opacity-100'
-                : 'bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-0 md:group-hover:opacity-100'
-                } transition-opacity`} />
+  const getLocationDisplay = () => {
+    const sellerState = listing.seller?.profile?.region?.name;
+    if (sellerState) {
+      const sellerAddress = listing.seller?.locationAddress;
+      if (sellerAddress) {
+        const city = sellerAddress.split(',')[0]?.trim();
+        if (city && city !== sellerState) {
+          return `${city}, ${sellerState}`;
+        }
+      }
+      return sellerState;
+    }
+    const location = extractLocationDisplay(listing.seller?.locationAddress);
+    if (location) {
+      return location;
+    }
+    return null;
+  };
 
-            {/* Badges Container - decorative, must not intercept taps */}
-            <div className="absolute top-2 left-2 z-10 flex flex-col gap-1 items-start pointer-events-none">
-                {/* Distress Sale Badge */}
-                {listing.isDistressSale && (
-                    <DistressBadge size="sm" />
-                )}
+  const locationDisplay = getLocationDisplay();
+  const isUrgentItem = listing.isDistressSale;
+  const isValidId = listing.id && listing.id !== 'undefined';
 
-                {/* Verified Seller Badge */}
-                {listing.seller?.isVerified && (
-                    <div className="bg-white/90 backdrop-blur-sm rounded-full p-1 shadow-sm border border-gray-100 flex items-center justify-center isolate" title="Verified ID">
-                        <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                        </svg>
-                    </div>
-                )}
+  return (
+    <div
+      className={`rounded-lg border bg-white shadow-2xs hover:shadow-md hover:border-slate-300 transition-all duration-200 group relative overflow-hidden flex flex-col justify-between ${
+        isUrgentItem ? 'border-orange-300 ring-1 ring-orange-200' : 'border-slate-200'
+      }`}
+    >
+      {/* Top Badges */}
+      <div className="absolute top-2 left-2 z-10 flex flex-col gap-1 items-start pointer-events-none">
+        {listing.isDistressSale && <DistressBadge size="sm" />}
 
-                {/* Verified Brand Badge */}
-                {listing.seller?.brandVerificationStatus === 'VERIFIED_BRAND' && (
-                    <BrandBadge size="xs" />
-                )}
+        {listing.seller?.isVerified && (
+          <div
+            className="bg-blue-600 text-white rounded p-1 shadow-xs flex items-center justify-center"
+            title="Verified Seller"
+          >
+            <ShieldCheck className="w-3.5 h-3.5" />
+          </div>
+        )}
 
-                {/* Fully Booked Badge for Services */}
-                {listing.type === 'SERVICE' && listing.isAvailable === false && (
-                    <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-red-500/90 backdrop-blur-sm text-white text-[10px] font-bold shadow-sm">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
-                        Fully Booked
-                    </span>
-                )}
+        {listing.seller?.brandVerificationStatus === 'VERIFIED_BRAND' && (
+          <BrandBadge size="xs" />
+        )}
 
-                {/* Sold Out Badge for Products */}
-                {listing.type === 'PHYSICAL' && (listing.quantity === 0 || listing.status === 'traded') && (
-                    <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-gray-700/90 backdrop-blur-sm text-white text-[10px] font-bold shadow-sm">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                        Sold Out
-                    </span>
-                )}
+        {listing.type === 'SERVICE' && listing.isAvailable === false && (
+          <span className="px-2 py-0.5 rounded bg-rose-600 text-white text-[9px] font-bold uppercase tracking-wider shadow-xs">
+            Fully Booked
+          </span>
+        )}
+
+        {listing.type === 'PHYSICAL' &&
+          (listing.quantity === 0 || listing.status === 'traded') && (
+            <span className="px-2 py-0.5 rounded bg-slate-800 text-white text-[9px] font-bold uppercase tracking-wider shadow-xs">
+              Sold Out
+            </span>
+          )}
+      </div>
+
+      {/* Bookmark Button */}
+      <div
+        className="absolute top-2 right-2 z-40"
+        onClick={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
+      >
+        <BookmarkButton listing={bookmarkData} />
+      </div>
+
+      {/* Clickable Card Link */}
+      {isValidId && (
+        <Link
+          href={`/listings/${listing.id}`}
+          prefetch={true}
+          className="absolute inset-0 z-30"
+          aria-label={`View ${listing.title}`}
+        />
+      )}
+
+      {/* Product Image */}
+      <div className="relative overflow-hidden h-44 sm:h-48 bg-slate-100 border-b border-slate-100">
+        {listing.images?.[0] ? (
+          <Image
+            src={sanitizeUrl(listing.images[0].url)}
+            alt={listing.title}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+            priority={false}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-slate-300">
+            <span className="text-3xl">📦</span>
+          </div>
+        )}
+
+        {/* Quick Access Overlay (Desktop Hover) */}
+        <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-slate-950/70 to-transparent opacity-0 transition-opacity flex justify-between items-center z-40 pointer-events-none hidden md:flex md:group-hover:opacity-100 md:group-hover:pointer-events-auto">
+          <div
+            onClick={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            className="pointer-events-auto"
+          >
+            <ShareButton
+              url={
+                typeof window !== 'undefined'
+                  ? `${window.location.origin}/listings/${listing.id}`
+                  : `https://barterwave.com/listings/${listing.id}`
+              }
+              title={listing.title}
+              description={listing.description || listing.title}
+              imageUrl={listing.images?.[0]?.url}
+              price={
+                listing.priceCents !== undefined
+                  ? `₦${(listing.priceCents / 100).toLocaleString()}`
+                  : 'N/A'
+              }
+              allowCash={listing.allowCash}
+              allowBarter={listing.allowBarter}
+              className="bg-white/95 text-slate-700 p-1.5 rounded-md hover:bg-white transition-colors shadow-xs"
+              iconOnly
+            />
+          </div>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            className="pointer-events-auto"
+          >
+            <AddToCartButton
+              listing={{
+                id: listing.id,
+                title: listing.title,
+                priceCents: listing.priceCents,
+                currency: listing.currencyCode || 'NGN',
+                images: listing.images || [],
+                sellerId: listing.sellerId,
+                sellerName:
+                  listing.seller?.profile?.displayName || listing.seller?.email || 'Unknown',
+                allowCash: listing.allowCash ?? true,
+                allowBarter: listing.allowBarter,
+                quantity: listing.quantity || 1,
+              }}
+              className="bg-blue-600 text-white p-1.5 rounded-md hover:bg-blue-700 transition-colors shadow-xs"
+              iconOnly
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Content Section */}
+      <div className="p-3 sm:p-3.5 flex-1 flex flex-col justify-between">
+        <div>
+          <h3 className="font-bold text-xs sm:text-sm text-slate-900 line-clamp-2 leading-snug group-hover:text-blue-600 transition-colors">
+            {listing.title}
+          </h3>
+
+          {listing.description && (
+            <p className="text-slate-500 text-[11px] mt-1 line-clamp-2 leading-relaxed">
+              {listing.description}
+            </p>
+          )}
+
+          {listing.priceCents !== undefined && (
+            <div className="mt-2">
+              <PriceDisplay
+                priceCents={listing.priceCents}
+                size="sm"
+                isBarterFriendly={listing.allowBarter}
+              />
             </div>
+          )}
 
-            {/* Bookmark Button — must be ABOVE the Link overlay (z-30) */}
-            <div
-                className="absolute top-2 right-2 z-40"
-                onClick={(e) => e.stopPropagation()}
-                onTouchStart={(e) => e.stopPropagation()}
-            >
-                <BookmarkButton listing={bookmarkData} />
-            </div>
-
-            {/* Clickable Overlay — z-30: above gradient (z-20) and badges (z-10), below bookmark (z-40) */}
-            {isValidId && (
-                <Link
-                    href={`/listings/${listing.id}`}
-                    prefetch={true}
-                    className="absolute inset-0 z-30"
-                    aria-label={`View ${listing.title}`}
+          {/* Star Rating */}
+          {listing.seller?.profile?.rating !== undefined &&
+            (listing.seller?.profile?.rating ?? 0) > 0 && (
+              <div className="mt-1.5 flex items-center">
+                <StarRating
+                  rating={listing.seller.profile.rating}
+                  showNumber={false}
+                  size="sm"
                 />
+                {listing.seller?.profile?.reviewCount !== undefined &&
+                  listing.seller.profile.reviewCount > 0 && (
+                    <span className="text-[10px] text-slate-400 ml-1 font-semibold">
+                      ({listing.seller.profile.reviewCount})
+                    </span>
+                  )}
+              </div>
             )}
 
-            {renderCardContent()}
+          {/* Location */}
+          <div className="flex items-center gap-1.5 mt-2 text-slate-500 text-[11px]">
+            <MapPin className="w-3 h-3 text-slate-400 flex-shrink-0" />
+            <span className="truncate">{locationDisplay || 'Location not set'}</span>
+            {listing.seller?.tier === 'premium' && <PremiumBadge size="sm" />}
+          </div>
         </div>
-    );
 
-    function renderCardContent() {
-        return (
-            <>
-                {/* Image Section */}
-                <div className="relative overflow-hidden h-48 bg-gray-100">
-                    {listing.images?.[0] ? (
-                        <Image
-                            src={sanitizeUrl(listing.images[0].url)}
-                            alt={listing.title}
-                            fill
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            className="object-cover transition-transform duration-500 ease-out group-hover:scale-110 will-change-transform"
-                            priority={false} // Lazy load by default, but Next.js handles viewport priority well
-                        />
-                    ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-300">
-                            <span className="text-4xl">📦</span>
-                        </div>
-                    )}
-
-                    {/* Quick Access Actions Overlay — desktop only (hover:hover), prevents iOS first-tap-is-hover bug */}
-                    <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 transition-opacity flex justify-between items-center z-40 pointer-events-none hidden md:flex md:group-hover:opacity-100 md:group-hover:pointer-events-auto">
-                        <div onClick={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()} className="pointer-events-auto">
-                            <ShareButton
-                                url={typeof window !== 'undefined' ? `${window.location.origin}/listings/${listing.id}` : `https://barterwave.com/listings/${listing.id}`}
-                                title={listing.title}
-                                description={listing.description || listing.title}
-                                imageUrl={listing.images?.[0]?.url}
-                                price={listing.priceCents !== undefined ? `₦${(listing.priceCents / 100).toLocaleString()}` : 'N/A'}
-                                allowCash={listing.allowCash}
-                                allowBarter={listing.allowBarter}
-                                className="bg-white/90 text-gray-700 p-2 rounded-full hover:bg-white transition shadow-sm"
-                                iconOnly
-                            />
-                        </div>
-                        <div onClick={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()} className="pointer-events-auto">
-                            <AddToCartButton
-                                listing={{
-                                    id: listing.id,
-                                    title: listing.title,
-                                    priceCents: listing.priceCents,
-                                    currency: listing.currencyCode || 'NGN',
-                                    images: listing.images || [],
-                                    sellerId: listing.sellerId,
-                                    sellerName: listing.seller?.profile?.displayName || listing.seller?.email || 'Unknown',
-                                    allowCash: listing.allowCash ?? true,
-                                    allowBarter: listing.allowBarter,
-                                    quantity: listing.quantity || 1,
-                                }}
-                                className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition shadow-sm"
-                                iconOnly
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Content Section */}
-                <div className="p-4">
-                    <h3 className="font-bold text-lg mb-2 line-clamp-2 text-gray-900">
-                        {listing.title}
-                    </h3>
-
-                    {listing.description && (
-                        <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                            {listing.description}
-                        </p>
-                    )}
-
-                    {listing.priceCents !== undefined && (
-                        <div className="mb-3">
-                            <PriceDisplay
-                                priceCents={listing.priceCents}
-                                size="md"
-                                isBarterFriendly={listing.allowBarter}
-                            />
-                        </div>
-                    )}
-
-                    {/* Star Rating */}
-                    {listing.seller?.profile?.rating !== undefined && (listing.seller?.profile?.rating ?? 0) > 0 && (
-                        <div className="mb-3">
-                            <StarRating
-                                rating={listing.seller.profile.rating}
-                                showNumber={false}
-                                size="sm"
-                            />
-                            {listing.seller?.profile?.reviewCount !== undefined && listing.seller.profile.reviewCount > 0 && (
-                                <span className="text-xs text-gray-500 ml-1">
-                                    ({listing.seller.profile.reviewCount})
-                                </span>
-                            )}
-                        </div>
-                    )}
-
-                    {/* Location Info */}
-                    <div className="flex items-center gap-2 mb-2 text-gray-600 min-h-[24px]">
-                        <svg className="w-4 h-4 text-blue-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                        </svg>
-                        <span className="text-sm font-medium truncate">
-                            {locationDisplay || 'Location not set'}
-                        </span>
-                        {listing.seller?.tier === 'premium' && (
-                            <PremiumBadge size="sm" />
-                        )}
-                    </div>
-
-                    {/* Trade Options */}
-                    <div className="flex gap-2 flex-wrap">
-                        {listing.allowCash && (
-                            <span className="text-xs bg-green-100 text-green-800 px-2.5 py-1 rounded-full font-semibold">
-                                💵 Cash
-                            </span>
-                        )}
-                        {listing.allowBarter && (
-                            <span className="text-xs bg-purple-100 text-purple-800 px-2.5 py-1 rounded-full font-bold flex items-center gap-1">
-                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M16 7H4m0 0l4-4m-4 4l4 4m0 6h12m0 0l-4 4m4-4l-4-4" />
-                                </svg>
-                                Barter
-                            </span>
-                        )}
-                    </div>
-                </div>
-            </>
-        );
-    }
+        {/* Trade Modes (Clean Sharp Chips - Zero Emojis) */}
+        <div className="flex gap-1.5 flex-wrap mt-3 pt-2.5 border-t border-slate-100">
+          {listing.allowCash && (
+            <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-2 py-0.5 rounded">
+              Cash
+            </span>
+          )}
+          {listing.allowBarter && (
+            <span className="text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200/80 px-2 py-0.5 rounded flex items-center gap-1">
+              <Repeat className="w-2.5 h-2.5" />
+              Barter
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
