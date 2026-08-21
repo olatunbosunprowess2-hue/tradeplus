@@ -18,7 +18,6 @@ import {
   CheckCircle2,
   ArrowLeft,
   RefreshCw,
-  ShieldCheck,
   Check,
   AlertCircle,
   Loader2,
@@ -523,16 +522,20 @@ export default function RegisterPage() {
           {/* ================================================================ */}
           {step === 3 && (
             <form onSubmit={regForm.handleSubmit(handleRegister)} className="space-y-4" noValidate>
-              {/* Verified Email Banner */}
-              <div className="flex items-center justify-between px-3 py-2 bg-emerald-50 border border-emerald-200/80 rounded-md">
-                <div className="flex items-center gap-2 overflow-hidden">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                  <span className="text-xs text-emerald-800 font-medium truncate">
-                    Verified: <span className="font-semibold text-emerald-950">{email}</span>
-                  </span>
+              {/* Verified Account Micro-Card */}
+              <div className="p-3 bg-slate-50/90 border border-slate-200/90 rounded-lg flex items-center justify-between gap-3 shadow-sm shadow-slate-900/[0.02]">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Verified Email</p>
+                    <p className="text-xs font-semibold text-slate-800 truncate">{email}</p>
+                  </div>
                 </div>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 bg-emerald-100/80 text-emerald-700 rounded">
-                  OK
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-2.5 py-1 rounded-full flex-shrink-0">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  Verified
                 </span>
               </div>
 
@@ -723,14 +726,6 @@ export default function RegisterPage() {
               </button>
             </form>
           )}
-
-          {/* Footer note */}
-          <div className="mt-6 pt-5 border-t border-slate-100 text-center">
-            <p className="text-[11px] text-slate-400 flex items-center justify-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
-              Secured with 256-bit encryption & escrow protection
-            </p>
-          </div>
         </div>
       </div>
     </div>

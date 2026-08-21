@@ -1,4 +1,4 @@
-import { Outfit } from 'next/font/google';
+import { Plus_Jakarta_Sans } from 'next/font/google';
 import type { Metadata } from 'next';
 import './globals.css';
 import Navbar from '@/components/Navbar';
@@ -6,7 +6,12 @@ import MobileBottomNav from '@/components/MobileBottomNav';
 import { Toaster } from 'react-hot-toast';
 import { Providers } from './providers';
 
-const outfit = Outfit({ subsets: ['latin'] });
+const fontSans = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-sans',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://barterwave.com'),
@@ -92,7 +97,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className={`${outfit.className} bg-slate-50`} suppressHydrationWarning>
+      <body className={`${fontSans.variable} font-sans bg-slate-50 antialiased text-slate-900`} suppressHydrationWarning>
         <Providers>
           <script
             dangerouslySetInnerHTML={{

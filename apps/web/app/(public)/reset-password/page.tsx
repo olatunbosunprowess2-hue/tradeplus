@@ -16,7 +16,6 @@ import {
   Loader2,
   ArrowLeft,
   CheckCircle2,
-  ShieldCheck,
   Check,
 } from 'lucide-react';
 
@@ -302,14 +301,6 @@ export default function ResetPasswordPage() {
               </div>
             </form>
           )}
-
-          {/* Footer note */}
-          <div className="mt-6 pt-5 border-t border-slate-100 text-center">
-            <p className="text-[11px] text-slate-400 flex items-center justify-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
-              Secured with 256-bit encryption & escrow protection
-            </p>
-          </div>
         </div>
       </div>
     </div>

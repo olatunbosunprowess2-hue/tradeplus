@@ -15,7 +15,6 @@ import {
   EyeOff,
   AlertCircle,
   Loader2,
-  ShieldCheck,
 } from 'lucide-react';
 
 // ============================================================================
@@ -435,14 +434,6 @@ export default function LoginPage() {
             )}
             <span>Sign in with Google</span>
           </button>
-
-          {/* Footer note */}
-          <div className="mt-6 pt-5 border-t border-slate-100 text-center">
-            <p className="text-[11px] text-slate-400 flex items-center justify-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
-              Secured with 256-bit encryption & escrow protection
-            </p>
-          </div>
         </div>
       </div>
     </div>
