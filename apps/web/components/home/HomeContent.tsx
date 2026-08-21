@@ -44,7 +44,7 @@ export default function HomeContent() {
         BarterWave - Nigeria&apos;s Trusted Swap, Barter, and Distress Sale Marketplace
       </h1>
 
-      <div className="container mx-auto px-4 max-w-7xl pt-4">
+      <div className="container mx-auto px-3 sm:px-4 max-w-7xl pt-3 sm:pt-4">
         {/* ============================================================ */}
         {/* 1. TOP COMMERCIAL 3-COLUMN HERO GRID                         */}
         {/* ============================================================ */}
@@ -63,30 +63,36 @@ export default function HomeContent() {
         {/* ============================================================ */}
         {/* 4. STREAMLINED FEED SUB-NAVIGATION                           */}
         {/* ============================================================ */}
-        <div className="flex items-center justify-between gap-3 mb-6 bg-white border border-slate-200 rounded-lg p-1.5 shadow-2xs">
-          <div className="flex items-center gap-1.5 w-full sm:w-auto">
+        <div className="flex items-center justify-between gap-3 mb-4 sm:mb-6 bg-white border border-slate-200 rounded-lg p-1.5 shadow-2xs">
+          <div className="flex items-center gap-1.5 w-full">
             <button
               onClick={() => handleTabChange('market')}
-              className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 text-xs font-bold rounded-md transition-all ${
+              className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs font-bold rounded-md transition-all ${
                 activeTab === 'market'
                   ? 'bg-blue-600 text-white shadow-2xs'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
               }`}
             >
-              <ShoppingBag className="w-3.5 h-3.5" />
-              <span>Marketplace Feed</span>
+              <ShoppingBag className="w-3.5 h-3.5 shrink-0" />
+              <span>
+                <span className="sm:hidden">Marketplace</span>
+                <span className="hidden sm:inline">Marketplace Feed</span>
+              </span>
             </button>
 
             <button
               onClick={() => handleTabChange('community')}
-              className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 text-xs font-bold rounded-md transition-all ${
+              className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs font-bold rounded-md transition-all ${
                 activeTab === 'community'
                   ? 'bg-blue-600 text-white shadow-2xs'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
               }`}
             >
-              <MessageSquareText className="w-3.5 h-3.5" />
-              <span>Trade Requests &amp; Wants</span>
+              <MessageSquareText className="w-3.5 h-3.5 shrink-0" />
+              <span>
+                <span className="sm:hidden">Trade Requests</span>
+                <span className="hidden sm:inline">Trade Requests &amp; Wants</span>
+              </span>
             </button>
           </div>
         </div>
