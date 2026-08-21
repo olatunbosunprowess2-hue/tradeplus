@@ -3,13 +3,13 @@
 # =====================================================
 # Features:
 # - Multi-stage build for optimized image size
-# - Locked Node.js and Prisma versions
+# - Locked Node.js 20 LTS Alpine image
 # - Automated migrations on startup
 # - Health check endpoint
 # =====================================================
 
-# Lock Node.js version for reproducibility
-FROM node:20.20.0-alpine AS builder
+# Stage 1: Build Stage
+FROM node:20-alpine AS builder
 
 # Install OpenSSL for Prisma and build tools
 RUN apk add --no-cache openssl
@@ -24,11 +24,9 @@ COPY apps/api/package.json ./apps/api/
 COPY prisma ./prisma/
 
 # Install all dependencies (including devDependencies for build)
-# Using --legacy-peer-deps to handle peer dependency conflicts
 RUN npm install --legacy-peer-deps
 
-# Install pinned Prisma CLI (must match @prisma/client version in package.json)
-# This prevents version drift that could break migrations
+# Install pinned Prisma CLI
 RUN npm install -g prisma@5.22.0
 
 # Copy API source code
@@ -45,9 +43,9 @@ RUN npm run build
 RUN ls -la dist/src/main.js || (echo "Build verification failed!" && exit 1)
 
 # =====================================================
-# Production Stage - Minimal runtime image
+# Stage 2: Production Stage - Minimal runtime image
 # =====================================================
-FROM node:20.20.0-alpine AS production
+FROM node:20-alpine AS production
 
 # Install OpenSSL for Prisma runtime
 RUN apk add --no-cache openssl
@@ -58,27 +56,20 @@ RUN addgroup -g 1001 -S nodejs && \
 
 WORKDIR /app
 
-# Copy package files
+# Copy package files and Prisma schema
 COPY package.json ./
 COPY apps/api/package.json ./apps/api/
-
-# Install production dependencies only
-RUN npm install --omit=dev --legacy-peer-deps
-
-# Install Prisma CLI for migrations (pinned version)
-RUN npm install -g prisma@5.22.0
-
-# Copy Prisma schema and migrations (needed for migrate deploy)
 COPY prisma ./prisma/
 
-# Generate Prisma client for production
-RUN prisma generate
-
-# Copy built application from builder stage
+# Copy built application and node_modules from builder
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 
-# Copy node_modules from builder (includes workspace dependencies)
-COPY --from=builder /app/node_modules ./node_modules
+# Install Prisma CLI globally in runtime for automated startup migrations
+RUN npm install -g prisma@5.22.0
+
+# Generate Prisma client in runtime image
+RUN prisma generate
 
 # Set ownership to non-root user
 RUN chown -R nestjs:nodejs /app
