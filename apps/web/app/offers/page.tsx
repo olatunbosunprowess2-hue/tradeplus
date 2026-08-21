@@ -534,16 +534,20 @@ export default function OffersPage() {
                         {isSent ? `You proposed a swap to @${otherName}` : `@${otherName} submitted a trade proposal`}
                       </p>
 
-                      {/* Offer Message Card */}
-                      <div className="bg-slate-50 border border-slate-200/90 rounded-md p-3 text-xs text-slate-800 mt-2.5 leading-relaxed">
-                        <p className="font-semibold text-slate-900 mb-0.5 text-[11px] uppercase tracking-wider text-slate-400">
-                          Proposed Trade Details:
+                      {/* Offer Proposal Message */}
+                      <div className="mt-3 p-3.5 rounded-lg bg-slate-50 border border-slate-200">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider bg-blue-50 border border-blue-200 px-1.5 py-0.5 rounded">
+                            Proposed Offer
+                          </span>
+                        </div>
+                        <p className="text-sm font-semibold text-slate-900 leading-relaxed">
+                          &ldquo;{cleanText}&rdquo;
                         </p>
-                        <p>{cleanText}</p>
 
                         {/* Render Attached Offer Photos */}
                         {imageUrls.length > 0 && (
-                          <div className="flex items-center gap-2 mt-2.5 pt-2 border-t border-slate-200/60">
+                          <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-slate-200">
                             {imageUrls.map((url, idx) => (
                               <a
                                 key={idx}
