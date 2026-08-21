@@ -86,7 +86,7 @@ export default function HomeContent() {
               }`}
             >
               <MessageSquareText className="w-3.5 h-3.5" />
-              <span>Community Feed</span>
+              <span>Trade Requests &amp; Wants</span>
             </button>
           </div>
         </div>
