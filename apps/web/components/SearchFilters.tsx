@@ -196,38 +196,28 @@ export default function SearchFilters({ onApply }: { onApply?: () => void }) {
 
 
     return (
-        <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-6">
+        <div className="space-y-5">
             <div>
-                <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold text-gray-900">Filters</h3>
-                    <button
-                        onClick={clearFilters}
-                        className="text-sm text-blue-600 hover:text-blue-700"
-                    >
-                        Clear All
-                    </button>
-                </div>
-
                 {/* Distress Sale / Urgent Deals Filter */}
-                <div className="mb-5">
+                <div className="mb-4">
                     <button
                         onClick={() => setIsDistressSale(!isDistressSale)}
-                        className={`w-full p-3 rounded-xl border-2 transition-all flex items-center gap-3 ${isDistressSale
-                            ? 'bg-gradient-to-r from-orange-500 to-red-500 border-orange-400 text-white shadow-lg'
-                            : 'bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100'
+                        className={`w-full p-2.5 rounded-md border transition-all flex items-center justify-between gap-2.5 ${isDistressSale
+                            ? 'bg-orange-600 border-orange-600 text-white shadow-xs'
+                            : 'bg-orange-50/80 border-orange-200 text-orange-800 hover:bg-orange-100/70'
                             }`}
                     >
-                        <span className="text-xl">🔥</span>
-                        <div className="flex-1 text-left">
-                            <div className="font-bold text-sm">Urgent Deals Only</div>
-                            <div className={`text-xs ${isDistressSale ? 'text-orange-100' : 'text-orange-500'}`}>
-                                Discounted items, quick sales
+                        <div className="flex items-center gap-2 text-left">
+                            <span className="text-base">🔥</span>
+                            <div>
+                                <div className="font-bold text-xs">Urgent Deals Only</div>
+                                <div className={`text-[11px] ${isDistressSale ? 'text-orange-100' : 'text-orange-600'}`}>
+                                    Discounted liquidation sales
+                                </div>
                             </div>
                         </div>
-                        <div className={`w-11 h-6 rounded-full transition-all relative ${isDistressSale ? 'bg-white/30' : 'bg-orange-200'
-                            }`}>
-                            <div className={`absolute top-1 w-4 h-4 rounded-full transition-all ${isDistressSale ? 'right-1 bg-white' : 'left-1 bg-orange-400'
-                                }`} />
+                        <div className={`w-9 h-5 rounded-full transition-all relative flex-shrink-0 ${isDistressSale ? 'bg-white/30' : 'bg-orange-200'}`}>
+                            <div className={`absolute top-0.5 w-4 h-4 rounded-full transition-all ${isDistressSale ? 'right-0.5 bg-white' : 'left-0.5 bg-orange-500'}`} />
                         </div>
                     </button>
                 </div>

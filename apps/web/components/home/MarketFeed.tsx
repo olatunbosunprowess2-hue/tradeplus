@@ -199,14 +199,20 @@ export default function MarketFeed() {
             <div className="flex flex-col lg:flex-row gap-6">
                 {/* Left Sidebar - Filters (Desktop) */}
                 <aside className="hidden lg:block w-72 shrink-0">
-                    <div className="sticky top-24 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-3 border-b border-gray-100">
-                            <h3 className="font-semibold text-gray-800 flex items-center gap-2 text-sm">
-                                <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="sticky top-20 bg-white rounded-lg shadow-sm border border-slate-200/90 overflow-hidden">
+                        <div className="bg-slate-50 px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+                            <h3 className="font-bold text-slate-800 flex items-center gap-2 text-xs uppercase tracking-wider">
+                                <svg className="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                                 </svg>
-                                Filter Results
+                                Filter Listings
                             </h3>
+                            <button
+                                onClick={handleClearSearch}
+                                className="text-[11px] font-semibold text-blue-600 hover:text-blue-700"
+                            >
+                                Clear All
+                            </button>
                         </div>
                         <div className="p-4">
                             <SearchFilters />
@@ -260,9 +266,25 @@ export default function MarketFeed() {
                     {/* Spotlight Carousel */}
                     {!isLoadingFeatured && featuredListings && featuredListings.length > 0 && <SpotlightCarousel listings={featuredListings} />}
 
-                    {/* Category Pills - Now on BOTH Mobile and Desktop */}
-                    <div className="mb-6">
-                        <CategoryPills />
+                    {/* Section Header */}
+                    <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-200/80">
+                        <div>
+                            <h2 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">
+                                {categoryId ? 'Filtered Listings' : search ? `Search Results for "${search}"` : 'Marketplace Listings'}
+                            </h2>
+                            <p className="text-xs text-slate-500 font-medium">
+                                Browse all verified goods, swap offers, and cash sales.
+                            </p>
+                        </div>
+
+                        {(categoryId || search || isDistressSale || minPrice || maxPrice || type || condition) && (
+                            <button
+                                onClick={handleClearSearch}
+                                className="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline"
+                            >
+                                Reset All Filters
+                            </button>
+                        )}
                     </div>
 
                     {/* Search status indicator */}
