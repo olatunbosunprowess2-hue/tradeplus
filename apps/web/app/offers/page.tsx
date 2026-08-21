@@ -519,22 +519,22 @@ export default function OffersPage() {
                       {isSent ? `You offered to @${otherName}` : `@${otherName} offered you`}
                     </p>
 
-                    {/* Proposal Text Area (Clean, High-Contrast & Crisp) */}
-                    <div className="bg-slate-50/90 border border-slate-200/90 rounded-md p-3.5 my-2.5">
-                      <p className="text-sm font-semibold text-slate-900 leading-relaxed font-sans">
-                        &ldquo;{cleanText}&rdquo;
+                    {/* Proposal Text Area (Clean White with Crisp Border & No Quotes) */}
+                    <div className="bg-white border border-slate-200 rounded-md p-3.5 my-2.5 shadow-2xs">
+                      <p className="text-sm font-medium text-slate-800 leading-relaxed font-sans">
+                        {cleanText}
                       </p>
 
                       {/* Render Attached Offer Photos */}
                       {imageUrls.length > 0 && (
-                        <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-slate-200">
+                        <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-slate-100">
                           {imageUrls.map((url, idx) => (
                             <a
                               key={idx}
                               href={sanitizeUrl(url)}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="relative w-16 h-16 rounded-md overflow-hidden border border-slate-300 block group shadow-2xs"
+                              className="relative w-16 h-16 rounded-md overflow-hidden border border-slate-200 block group shadow-2xs"
                             >
                               <Image
                                 src={sanitizeUrl(url)}
