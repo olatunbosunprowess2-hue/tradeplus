@@ -540,16 +540,16 @@ export default function OffersPage() {
                     </div>
 
                     {/* Who Offered Header */}
-                    <p className="text-base font-bold text-slate-900 mt-1">
+                    <p className="text-sm sm:text-base font-semibold text-slate-800 mt-1">
                       {isSent ? `You offered to @${otherName}` : `@${otherName} offered you`}
                     </p>
 
-                    {/* Proposal Text Area (Clean White Card with Crisp, Large Font & No Quotes) */}
+                    {/* Proposal Text Area (Clean White Card with Softened Weight & Large Clear Font) */}
                     <div className="bg-white border border-slate-200/90 rounded-lg p-4 sm:p-5 my-3 shadow-2xs">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded inline-block mb-2">
                         Offered Deal
                       </span>
-                      <p className="text-base sm:text-lg font-semibold text-slate-900 leading-relaxed font-sans">
+                      <p className="text-base sm:text-lg font-medium text-slate-800 leading-relaxed font-sans">
                         {cleanText}
                       </p>
 
@@ -576,8 +576,8 @@ export default function OffersPage() {
                       )}
                     </div>
 
-                    {/* On Request Reference Line */}
-                    <p className="text-sm text-slate-600 font-medium mt-3 leading-relaxed">
+                    {/* On Request Reference Line (Slightly Bigger as Requested) */}
+                    <p className="text-sm sm:text-base text-slate-700 font-medium mt-3.5 leading-relaxed">
                       <span className="font-bold text-slate-900">On Request:</span>{' '}
                       <span className="text-slate-700">{postPreview}</span>
                     </p>
