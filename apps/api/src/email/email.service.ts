@@ -377,6 +377,46 @@ export class EmailService {
         });
     }
 
+    async sendAdminVerificationRequestAlert(
+        adminEmail: string,
+        userName: string,
+        userEmail: string,
+        userId: string,
+    ): Promise<boolean> {
+        const content = `
+            <h2 style="color: #111827; font-size: 22px; font-weight: 700; margin: 0 0 8px;">New Identity Verification Request</h2>
+            <p style="color: #4b5563; font-size: 15px; line-height: 1.7; margin: 0 0 16px;">
+                A user has just submitted their biometric/identity documents for marketplace verification.
+            </p>
+
+            ${this.highlightBox(`
+                <p style="color: #1e40af; font-weight: 600; margin: 0 0 4px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Trader Details</p>
+                <p style="color: #1e3a8a; margin: 0 0 4px; font-size: 15px; font-weight: 700;">${userName || 'User'}</p>
+                <p style="color: #3b82f6; margin: 0; font-size: 13px;">${userEmail}</p>
+            `, '#eff6ff', '#bfdbfe')}
+
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 16px 0 24px;">
+              <tr>
+                <td style="padding: 8px 0; color: #6b7280; font-size: 14px; width: 120px;">Submitted:</td>
+                <td style="padding: 8px 0; color: #111827; font-size: 14px; font-weight: 600;">${new Date().toLocaleString()}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">User ID:</td>
+                <td style="padding: 8px 0; color: #111827; font-size: 14px; font-family: monospace;">${userId}</td>
+              </tr>
+            </table>
+
+            ${this.ctaButton('Review in Admin Panel →', `${this.frontendUrl}/admin/users?search=${encodeURIComponent(userEmail)}`)}
+        `;
+
+        return this.send({
+            to: adminEmail,
+            subject: `Action Required: New Verification Request from ${userName || userEmail}`,
+            html: this.wrapLayout(content, `New verification submission requiring review: ${userName} (${userEmail})`),
+            text: `New verification request from ${userName} (${userEmail}). Review in admin panel: ${this.frontendUrl}/admin/users?search=${encodeURIComponent(userEmail)}`,
+        });
+    }
+
     async sendEscrowPaymentReceived(
         sellerEmail: string,
         sellerName: string,

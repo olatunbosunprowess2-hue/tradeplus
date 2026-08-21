@@ -1,362 +1,323 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useNotificationsStore } from '@/lib/notifications-store';
 import { formatDistanceToNow } from 'date-fns';
 import { NotificationsListSkeleton } from '@/components/ui/Skeleton';
+import Link from 'next/link';
+import {
+  Bell,
+  CheckCheck,
+  MessageSquare,
+  Repeat,
+  ShieldCheck,
+  Package,
+  AlertCircle,
+  Clock,
+  Ban,
+  Tag,
+  Star,
+  UserCheck,
+  Sparkles,
+  Inbox,
+} from 'lucide-react';
+
+type NotificationFilter = 'ALL' | 'OFFERS' | 'ESCROW' | 'ACCOUNT';
 
 export default function NotificationsPage() {
-    const router = useRouter();
-    const { notifications, isLoading, fetchNotifications, markAsRead, markAllAsRead } = useNotificationsStore();
+  const router = useRouter();
+  const {
+    notifications,
+    isLoading,
+    fetchNotifications,
+    markAsRead,
+    markAllAsRead,
+  } = useNotificationsStore();
+  const [activeFilter, setActiveFilter] = useState<NotificationFilter>('ALL');
 
-    useEffect(() => {
-        fetchNotifications();
-    }, [fetchNotifications]);
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
 
-    const getNotificationLink = (notification: any): string => {
-        const data = notification.data || {};
+  const getNotificationLink = (notification: any): string => {
+    const data = notification.data || {};
 
-        switch (notification.type) {
-            // Message notifications
-            case 'message':
-            case 'NEW_MESSAGE':
-                return data.conversationId
-                    ? `/messages/${data.conversationId}`
-                    : data.senderId
-                        ? `/messages/${data.senderId}`
-                        : '/messages';
+    switch (notification.type) {
+      case 'message':
+      case 'NEW_MESSAGE':
+        return data.conversationId
+          ? `/messages/${data.conversationId}`
+          : data.senderId
+          ? `/messages/${data.senderId}`
+          : '/messages';
 
-            // Offer notifications
-            case 'NEW_OFFER':
-            case 'offer':
-            case 'OFFER_ACCEPTED':
-            case 'OFFER_REJECTED':
-            case 'OFFER_COUNTERED':
-                return data.offerId ? `/offers?id=${data.offerId}` : '/offers';
+      case 'NEW_OFFER':
+      case 'offer':
+      case 'OFFER_ACCEPTED':
+      case 'OFFER_REJECTED':
+      case 'OFFER_COUNTERED':
+        return data.offerId ? `/offers?id=${data.offerId}` : '/offers';
 
-            // Order notifications
-            case 'order':
-            case 'ORDER_CONFIRMED':
-            case 'ORDER_CANCELLED':
-                return data.orderId ? `/orders/${data.orderId}` : '/profile';
+      case 'order':
+      case 'ORDER_CONFIRMED':
+      case 'ORDER_CANCELLED':
+      case 'ESCROW_HELD':
+      case 'ESCROW_CODE':
+      case 'ESCROW_RELEASED':
+      case 'ESCROW_COMPLETE':
+      case 'ESCROW_EXPIRED':
+        return data.orderId ? `/orders/${data.orderId}` : '/profile';
 
-            // Escrow notifications
-            case 'ESCROW_HELD':
-            case 'ESCROW_CODE':
-            case 'ESCROW_RELEASED':
-            case 'ESCROW_COMPLETE':
-            case 'ESCROW_EXPIRED':
-                return data.orderId ? `/orders/${data.orderId}` : '/profile';
+      case 'VERIFICATION_APPROVED':
+      case 'VERIFICATION_REJECTED':
+      case 'VERIFICATION_REQUEST':
+        return data.userEmail
+          ? `/admin/users?search=${encodeURIComponent(data.userEmail)}`
+          : '/profile';
 
-            // Verification notifications
-            case 'VERIFICATION_APPROVED':
-            case 'VERIFICATION_REJECTED':
-            case 'VERIFICATION_REQUEST': // Assuming there is a request type for admins
-                // If it's an admin notification about a user, link to admin panel
-                return data.userEmail
-                    ? `/admin/users?search=${encodeURIComponent(data.userEmail)}`
-                    : '/profile';
+      case 'LISTING_SOLD':
+      case 'LISTING_EXPIRED':
+        return data.listingId ? `/listings/${data.listingId}` : '/my-listings';
 
-            // Listing notifications
-            case 'LISTING_SOLD':
-            case 'LISTING_EXPIRED':
-                return data.listingId ? `/listings/${data.listingId}` : '/my-listings';
+      case 'NEW_REVIEW':
+        return '/profile';
 
-            // Review notifications
-            case 'NEW_REVIEW':
-                return '/profile';
+      case 'USER_SUSPENDED':
+      case 'USER_BANNED':
+      case 'NEW_APPEAL':
+      case 'APPEAL_APPROVED':
+      case 'APPEAL_REJECTED':
+        return '/appeals';
 
-            // Role/Admin notifications
-            case 'ROLE_ASSIGNED':
-            case 'ROLE_REVOKED':
-                return '/admin';
+      default:
+        if (data.link) return data.link;
+        if (data.listingId) return `/listings/${data.listingId}`;
+        if (data.orderId) return `/orders/${data.orderId}`;
+        if (data.offerId) return `/offers`;
+        return '/notifications';
+    }
+  };
 
-            // Account status notifications
-            case 'USER_SUSPENDED':
-            case 'USER_BANNED':
-                return '/appeals'; // Link to appeals page where they can submit an appeal
-            case 'SUSPENSION_REMOVED':
-                return '/profile'; // Account restored, go to profile
+  const handleNotificationClick = async (e: React.MouseEvent, notification: any) => {
+    e.preventDefault();
+    const targetLink = getNotificationLink(notification);
+    router.push(targetLink);
 
-            // Appeals
-            case 'NEW_APPEAL':
-                return '/admin/appeals'; // Admin: Go to appeals management
-            case 'APPEAL_APPROVED':
-            case 'APPEAL_REJECTED':
-                return '/appeals'; // User: Go to my appeals
+    if (!notification.readAt) {
+      try {
+        await markAsRead(notification.id);
+      } catch (error) {
+        console.error('Failed to mark notification as read:', error);
+      }
+    }
+  };
 
-            // System notifications
-            case 'system':
-            case 'SYSTEM':
-                return data.link || '/notifications';
+  const getCategory = (type: string): NotificationFilter => {
+    if (['NEW_OFFER', 'offer', 'OFFER_ACCEPTED', 'OFFER_REJECTED', 'OFFER_COUNTERED'].includes(type)) {
+      return 'OFFERS';
+    }
+    if (['order', 'ORDER_CONFIRMED', 'ORDER_CANCELLED', 'ESCROW_HELD', 'ESCROW_CODE', 'ESCROW_RELEASED', 'ESCROW_COMPLETE', 'ESCROW_EXPIRED'].includes(type)) {
+      return 'ESCROW';
+    }
+    if (['VERIFICATION_APPROVED', 'VERIFICATION_REJECTED', 'VERIFICATION_REQUEST', 'USER_SUSPENDED', 'USER_BANNED', 'ROLE_ASSIGNED', 'ROLE_REVOKED'].includes(type)) {
+      return 'ACCOUNT';
+    }
+    return 'ALL';
+  };
 
-            default:
-                // Check if there's a link in the data
-                if (data.link) return data.link;
-                if (data.listingId) return `/listings/${data.listingId}`;
-                if (data.orderId) return `/orders/${data.orderId}`;
-                if (data.offerId) return `/offers`;
-                return '/notifications';
-        }
-    };
+  const getIcon = (type: string) => {
+    switch (type) {
+      case 'message':
+      case 'NEW_MESSAGE':
+        return <MessageSquare className="w-4 h-4 text-blue-600" />;
+      case 'NEW_OFFER':
+      case 'offer':
+      case 'OFFER_COUNTERED':
+        return <Repeat className="w-4 h-4 text-indigo-600" />;
+      case 'OFFER_ACCEPTED':
+      case 'ESCROW_COMPLETE':
+      case 'VERIFICATION_APPROVED':
+        return <ShieldCheck className="w-4 h-4 text-emerald-600" />;
+      case 'OFFER_REJECTED':
+      case 'ORDER_CANCELLED':
+      case 'USER_BANNED':
+      case 'USER_SUSPENDED':
+        return <Ban className="w-4 h-4 text-rose-600" />;
+      case 'order':
+      case 'ORDER_CONFIRMED':
+        return <Package className="w-4 h-4 text-blue-600" />;
+      case 'ESCROW_HELD':
+      case 'ESCROW_CODE':
+      case 'ESCROW_RELEASED':
+        return <ShieldCheck className="w-4 h-4 text-emerald-600" />;
+      case 'VERIFICATION_REJECTED':
+        return <AlertCircle className="w-4 h-4 text-amber-600" />;
+      case 'VERIFICATION_REQUEST':
+        return <UserCheck className="w-4 h-4 text-blue-600" />;
+      case 'LISTING_SOLD':
+      case 'LISTING_EXPIRED':
+        return <Tag className="w-4 h-4 text-slate-700" />;
+      case 'NEW_REVIEW':
+        return <Star className="w-4 h-4 text-amber-500" />;
+      default:
+        return <Bell className="w-4 h-4 text-slate-600" />;
+    }
+  };
 
-    const handleNotificationClick = async (e: React.MouseEvent, notification: any) => {
-        e.preventDefault(); // Prevent default link behavior
+  const unreadCount = notifications.filter((n) => !n.readAt).length;
 
-        // Get the target link first
-        const targetLink = getNotificationLink(notification);
+  const filteredNotifications = useMemo(() => {
+    if (activeFilter === 'ALL') return notifications;
+    return notifications.filter((n) => getCategory(n.type) === activeFilter);
+  }, [notifications, activeFilter]);
 
-        // Navigate immediately
-        router.push(targetLink);
-
-        // Mark as read in background if not already
-        if (!notification.readAt) {
-            try {
-                await markAsRead(notification.id);
-            } catch (error) {
-                console.error('Failed to mark notification as read:', error);
-            }
-        }
-    };
-
-    const getNotificationIcon = (type: string): string => {
-        switch (type) {
-            // Messages
-            case 'message':
-            case 'NEW_MESSAGE':
-                return '💬';
-
-            // Offers
-            case 'NEW_OFFER':
-            case 'offer':
-                return '🔄';
-            case 'OFFER_ACCEPTED':
-                return '✅';
-            case 'OFFER_REJECTED':
-                return '❌';
-            case 'OFFER_COUNTERED':
-                return '↩️';
-
-            // Orders
-            case 'order':
-            case 'ORDER_CONFIRMED':
-                return '📦';
-            case 'ORDER_CANCELLED':
-                return '🚫';
-
-            // Escrow
-            case 'ESCROW_HELD':
-                return '🔒';
-            case 'ESCROW_CODE':
-                return '🔑';
-            case 'ESCROW_RELEASED':
-            case 'ESCROW_COMPLETE':
-                return '🎉';
-            case 'ESCROW_EXPIRED':
-                return '⏰';
-
-            // Verification
-            case 'VERIFICATION_APPROVED':
-                return '✅';
-            case 'VERIFICATION_REJECTED':
-                return '⚠️';
-
-            // Listing
-            case 'LISTING_SOLD':
-                return '💰';
-            case 'LISTING_EXPIRED':
-                return '⏳';
-
-            // Reviews
-            case 'NEW_REVIEW':
-                return '⭐';
-
-            // Role
-            case 'ROLE_ASSIGNED':
-            case 'ROLE_REVOKED':
-                return '👤';
-
-            // Account status
-            case 'USER_SUSPENDED':
-                return '⚠️';
-            case 'USER_BANNED':
-                return '🚫';
-            case 'SUSPENSION_REMOVED':
-                return '🎉';
-
-            // System
-            case 'system':
-            case 'SYSTEM':
-                return '🔔';
-
-            default:
-                return '📢';
-        }
-    };
-
-    const unreadCount = notifications.filter(n => !n.readAt).length;
-
-    return (
-        <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white pb-20">
-            {/* Hero Banner */}
-            <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 text-white">
-                <div className="container mx-auto px-4 max-w-2xl py-8">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                                <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                                </svg>
-                            </div>
-                            <div>
-                                <h1 className="text-2xl font-bold">Notifications</h1>
-                                <p className="text-amber-100">
-                                    {unreadCount > 0 ? `${unreadCount} new notification${unreadCount > 1 ? 's' : ''}` : 'You\'re all caught up! 🎉'}
-                                </p>
-                            </div>
-                        </div>
-                        {unreadCount > 0 && (
-                            <button
-                                onClick={() => markAllAsRead()}
-                                className="bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-2 text-sm font-medium hover:bg-white/30 transition"
-                            >
-                                Mark all read
-                            </button>
-                        )}
-                    </div>
+  return (
+    <div className="min-h-screen bg-slate-50 pb-20">
+      <div className="container mx-auto px-4 max-w-3xl pt-6">
+        {/* ============================================================ */}
+        {/* Clean Executive Header Card                                   */}
+        {/* ============================================================ */}
+        <div className="bg-white border border-slate-200 rounded-xl p-5 sm:p-6 shadow-xs mb-5">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5">
+              <div className="w-10 h-10 rounded-lg bg-blue-50 border border-blue-200/80 flex items-center justify-center text-blue-600 shrink-0">
+                <Bell className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+                    Notifications
+                  </h1>
+                  {unreadCount > 0 && (
+                    <span className="text-[10px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
+                      {unreadCount} Unread
+                    </span>
+                  )}
                 </div>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Real-time updates on your trade offers, escrow funds, and verifications.
+                </p>
+              </div>
             </div>
 
-            <div className="container mx-auto px-4 py-6 max-w-2xl">
+            {unreadCount > 0 && (
+              <button
+                onClick={() => markAllAsRead()}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 active:bg-slate-200 text-slate-700 text-xs font-semibold rounded-md border border-slate-200 transition-colors shadow-2xs shrink-0"
+              >
+                <CheckCheck className="w-3.5 h-3.5 text-blue-600" />
+                <span>Mark all as read</span>
+              </button>
+            )}
+          </div>
 
-                {isLoading ? (
-                    <NotificationsListSkeleton count={6} />
-                ) : notifications.length === 0 ? (
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
-                        <div className="text-4xl mb-4">🔕</div>
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">No notifications yet</h3>
-                        <p className="text-gray-500">We'll let you know when something important happens.</p>
-                    </div>
-                ) : (
-                    <div className="space-y-3">
-                        {notifications.map((notification) => {
-                            const isSuspension = ['USER_SUSPENDED', 'USER_BANNED'].includes(notification.type);
+          {/* Filter Tabs */}
+          <div className="flex items-center gap-1 mt-5 pt-4 border-t border-slate-100 overflow-x-auto scrollbar-hide">
+            {[
+              { id: 'ALL', label: 'All' },
+              { id: 'OFFERS', label: 'Offers & Trades' },
+              { id: 'ESCROW', label: 'Orders & Escrow' },
+              { id: 'ACCOUNT', label: 'Account & Security' },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveFilter(tab.id as NotificationFilter)}
+                className={`px-3 py-1.5 text-xs font-bold rounded-md transition-colors shrink-0 ${
+                  activeFilter === tab.id
+                    ? 'bg-blue-600 text-white shadow-2xs'
+                    : 'text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
 
-                            if (isSuspension) {
-                                return (
-                                    <div
-                                        key={notification.id}
-                                        onClick={(e) => handleNotificationClick(e, notification)}
-                                        className={`block rounded-xl p-5 shadow-sm border transition hover:shadow-md cursor-pointer ${notification.readAt
-                                            ? 'bg-red-50 border-red-200'
-                                            : 'bg-white border-red-300 ring-1 ring-red-100'
-                                            }`}
-                                    >
-                                        <div className="flex gap-4">
-                                            <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-2xl flex-shrink-0 animate-pulse-slow">
-                                                {notification.type === 'USER_BANNED' ? '🚫' : '⛔'}
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex justify-between items-start">
-                                                    <h4 className="font-bold text-red-800 text-lg mb-1">
-                                                        {notification.type === 'USER_BANNED' ? 'Account Banned' : 'Account Suspended'}
-                                                    </h4>
-                                                    {!notification.readAt && (
-                                                        <span className="flex w-3 h-3 bg-red-600 rounded-full"></span>
-                                                    )}
-                                                </div>
-
-                                                <div className="bg-white/60 rounded-lg p-3 border border-red-100 mb-2">
-                                                    <p className="text-gray-900 font-medium">
-                                                        {notification.data.message}
-                                                    </p>
-                                                </div>
-
-                                                <div className="flex items-center gap-2 text-sm text-red-700/70">
-                                                    <span>{formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}</span>
-                                                    <span>•</span>
-                                                    <span className="font-medium hover:underline">Tap to appeal</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                );
-                            }
-
-                            const isAppealDecision = ['APPEAL_APPROVED', 'APPEAL_REJECTED', 'SUSPENSION_REMOVED'].includes(notification.type);
-
-                            if (isAppealDecision) {
-                                const isApproved = ['APPEAL_APPROVED', 'SUSPENSION_REMOVED'].includes(notification.type);
-                                return (
-                                    <div
-                                        key={notification.id}
-                                        onClick={(e) => handleNotificationClick(e, notification)}
-                                        className={`block rounded-xl p-5 shadow-sm border transition hover:shadow-md cursor-pointer ${notification.readAt
-                                            ? (isApproved ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200')
-                                            : (isApproved ? 'bg-white border-green-300 ring-1 ring-green-100' : 'bg-white border-red-300 ring-1 ring-red-100')
-                                            }`}
-                                    >
-                                        <div className="flex gap-4">
-                                            <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl flex-shrink-0 ${isApproved ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
-                                                }`}>
-                                                {isApproved ? '✅' : '🚫'}
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex justify-between items-start">
-                                                    <h4 className={`font-bold text-lg mb-1 ${isApproved ? 'text-green-800' : 'text-red-800'}`}>
-                                                        {isApproved ? 'Appeal Approved' : 'Appeal Rejected'}
-                                                    </h4>
-                                                    {!notification.readAt && (
-                                                        <span className={`flex w-3 h-3 rounded-full ${isApproved ? 'bg-green-600' : 'bg-red-600'}`}></span>
-                                                    )}
-                                                </div>
-
-                                                <div className={`rounded-lg p-3 border mb-2 ${isApproved ? 'bg-white/60 border-green-100' : 'bg-white/60 border-red-100'
-                                                    }`}>
-                                                    <p className="text-gray-900 font-medium">
-                                                        {notification.data.message}
-                                                    </p>
-                                                </div>
-
-                                                <p className={`text-sm ${isApproved ? 'text-green-700/70' : 'text-red-700/70'}`}>
-                                                    {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                );
-                            }
-
-                            return (
-                                <div
-                                    key={notification.id}
-                                    onClick={(e) => handleNotificationClick(e, notification)}
-                                    className={`block bg-white rounded-xl p-4 shadow-sm border transition hover:shadow-md cursor-pointer ${notification.readAt ? 'border-gray-200' : 'border-blue-200 bg-blue-50'
-                                        }`}
-                                >
-                                    <div className="flex gap-4">
-                                        <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-xl flex-shrink-0">
-                                            {getNotificationIcon(notification.type)}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className={`text-gray-900 ${notification.readAt ? '' : 'font-semibold'}`}>
-                                                {notification.data.message || 'New notification'}
-                                            </p>
-                                            <p className="text-sm text-gray-500 mt-1">
-                                                {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
-                                            </p>
-                                        </div>
-                                        {!notification.readAt && (
-                                            <div className="w-2 h-2 rounded-full bg-blue-600 mt-2"></div>
-                                        )}
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                )}
+        {/* ============================================================ */}
+        {/* Notifications Feed                                           */}
+        {/* ============================================================ */}
+        {isLoading ? (
+          <NotificationsListSkeleton count={6} />
+        ) : filteredNotifications.length === 0 ? (
+          <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-12 text-center">
+            <div className="w-12 h-12 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center mx-auto mb-3 text-slate-400">
+              <Inbox className="w-6 h-6" />
             </div>
-        </div >
-    );
+            <h3 className="text-base font-bold text-slate-900 mb-1">
+              No notifications found
+            </h3>
+            <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed mb-4">
+              {activeFilter === 'ALL'
+                ? "You're completely caught up! We'll notify you as soon as there is activity on your listings or swaps."
+                : 'No notifications matching this category tab.'}
+            </p>
+            <Link
+              href="/"
+              className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-md shadow-xs transition-colors"
+            >
+              Explore Marketplace
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-2.5">
+            {filteredNotifications.map((notification) => {
+              const isUnread = !notification.readAt;
+
+              return (
+                <div
+                  key={notification.id}
+                  onClick={(e) => handleNotificationClick(e, notification)}
+                  className={`group block bg-white rounded-lg border transition-all p-3.5 sm:p-4 cursor-pointer shadow-2xs hover:shadow-xs hover:border-slate-300 ${
+                    isUnread
+                      ? 'border-l-4 border-l-blue-600 border-slate-200 bg-blue-50/20'
+                      : 'border-slate-200'
+                  }`}
+                >
+                  <div className="flex items-start gap-3.5">
+                    {/* Icon Container */}
+                    <div className="w-9 h-9 rounded-md bg-slate-50 border border-slate-200/90 flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-105 transition-transform">
+                      {getIcon(notification.type)}
+                    </div>
+
+                    {/* Notification Body */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <p
+                          className={`text-xs sm:text-sm leading-snug ${
+                            isUnread
+                              ? 'font-bold text-slate-900'
+                              : 'font-medium text-slate-700'
+                          }`}
+                        >
+                          {notification.data?.message || 'New notification update'}
+                        </p>
+                        {isUnread && (
+                          <span className="w-2 h-2 rounded-full bg-blue-600 shrink-0 mt-1" />
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2 text-[11px] text-slate-400 mt-1.5 font-medium">
+                        <Clock className="w-3 h-3" />
+                        <span>
+                          {formatDistanceToNow(new Date(notification.createdAt), {
+                            addSuffix: true,
+                          })}
+                        </span>
+                        <span className="text-slate-300">&bull;</span>
+                        <span className="text-blue-600 group-hover:underline font-semibold">
+                          View details
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }

@@ -4,9 +4,10 @@ import { UsersController } from './users.controller';
 
 import { NotificationsModule } from '../notifications/notifications.module';
 import { UploadsModule } from '../uploads/uploads.module';
+import { EmailModule } from '../email/email.module';
 
 @Module({
-    imports: [NotificationsModule, UploadsModule],
+    imports: [NotificationsModule, UploadsModule, EmailModule],
     controllers: [UsersController],
     providers: [UsersService],
     exports: [UsersService],

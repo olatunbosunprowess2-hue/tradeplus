@@ -1,14 +1,17 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-
 import { NotificationsService } from '../notifications/notifications.service';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class UsersService {
+    private readonly logger = new Logger(UsersService.name);
+
     constructor(
         private prisma: PrismaService,
-        private notificationsService: NotificationsService
+        private notificationsService: NotificationsService,
+        private emailService: EmailService,
     ) { }
 
     async findAll(search?: string, page: number = 1, limit: number = 20) {
@@ -203,9 +206,9 @@ export class UsersService {
                 });
 
                 for (const person of staff) {
+                    // In-app notification
                     await this.notificationsService.create(
                         person.id,
-
                         'VERIFICATION_REQUEST',
                         {
                             userId,
@@ -214,6 +217,22 @@ export class UsersService {
                             timestamp: new Date()
                         }
                     );
+
+                    // Email notification to admin
+                    if (person.email) {
+                        try {
+                            const senderName = firstName || userForName?.firstName || 'Trader';
+                            const senderEmail = userForName?.email || 'Unknown';
+                            await this.emailService.sendAdminVerificationRequestAlert(
+                                person.email,
+                                senderName,
+                                senderEmail,
+                                userId
+                            );
+                        } catch (emailErr) {
+                            this.logger.warn(`Failed to send verification alert email to admin ${person.email}:`, emailErr);
+                        }
+                    }
                 }
             }
 
