@@ -761,6 +761,21 @@ body>nextjs-portal {
   animation: loading-bar 1.6s infinite ease-in-out;
 }
 
+@keyframes scan {
+  0% {
+    top: 0%;
+    opacity: 0.8;
+  }
+  50% {
+    top: 96%;
+    opacity: 1;
+  }
+  100% {
+    top: 0%;
+    opacity: 0.8;
+  }
+}
+
 /* Prevent iOS Safari from auto-zooming on focus by forcing 16px minimum font size */
 @media (max-width: 768px) {
   input,
