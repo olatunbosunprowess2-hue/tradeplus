@@ -93,7 +93,14 @@ export default function OffersPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isAuthenticated, _hasHydrated } = useAuthStore();
-  const [activeTab, setActiveTab] = useState<Tab>('received');
+
+  const tabParam = searchParams.get('tab') as Tab | null;
+  const [activeTab, setActiveTab] = useState<Tab>(
+    tabParam && ['received', 'sent', 'community', 'history'].includes(tabParam)
+      ? tabParam
+      : 'received'
+  );
+
   const [isCounterModalOpen, setIsCounterModalOpen] = useState(false);
   const [selectedOffer, setSelectedOffer] = useState<BarterOffer | null>(null);
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);
@@ -115,11 +122,29 @@ export default function OffersPage() {
 
   const { createConversation } = useMessagesStore();
 
+  const handleTabChange = (newTab: Tab) => {
+    setActiveTab(newTab);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('tab', newTab);
+    router.replace(`/offers?${params.toString()}`, { scroll: false });
+  };
+
   useEffect(() => {
     if (_hasHydrated && !isAuthenticated) {
       router.push('/login');
     }
   }, [_hasHydrated, isAuthenticated, router]);
+
+  useEffect(() => {
+    const currentTabParam = searchParams.get('tab') as Tab | null;
+    if (
+      currentTabParam &&
+      ['received', 'sent', 'community', 'history'].includes(currentTabParam) &&
+      currentTabParam !== activeTab
+    ) {
+      setActiveTab(currentTabParam);
+    }
+  }, [searchParams, activeTab]);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -199,13 +224,13 @@ export default function OffersPage() {
     const foundInCommunity = communityOffers.find((o) => o.id === offerId);
 
     if (foundInReceived) {
-      setActiveTab('received');
+      handleTabChange('received');
     } else if (foundInSent) {
-      setActiveTab('sent');
+      handleTabChange('sent');
     } else if (foundInHistory) {
-      setActiveTab('history');
+      handleTabChange('history');
     } else if (foundInCommunity) {
-      setActiveTab('community');
+      handleTabChange('community');
     }
 
     if (foundInReceived || foundInSent || foundInHistory || foundInCommunity) {
@@ -448,7 +473,7 @@ export default function OffersPage() {
       }
 
       return (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {communityOffers.map((offer) => {
             const isSent = offer.type === 'sent';
             const otherPerson = isSent ? offer.post.author : offer.offerer;
@@ -467,18 +492,18 @@ export default function OffersPage() {
               <div
                 key={offer.id}
                 id={`offer-${offer.id}`}
-                className="bg-white rounded-lg border border-slate-200 shadow-2xs hover:border-slate-300 transition-colors p-4 sm:p-5 scroll-mt-24"
+                className="bg-white rounded-xl border border-slate-200 shadow-2xs hover:border-slate-300 transition-colors p-5 sm:p-6 scroll-mt-24"
               >
-                <div className="flex items-start gap-3.5">
+                <div className="flex items-start gap-4">
                   {/* Trader Avatar / Initials */}
                   {otherAvatar ? (
                     <img
                       src={otherAvatar}
                       alt={otherName}
-                      className="w-10 h-10 rounded-md object-cover border border-slate-200 shrink-0"
+                      className="w-12 h-12 rounded-lg object-cover border border-slate-200 shrink-0"
                     />
                   ) : (
-                    <div className="w-10 h-10 rounded-md bg-blue-50 border border-blue-200 text-blue-700 font-bold text-xs flex items-center justify-center shrink-0">
+                    <div className="w-12 h-12 rounded-lg bg-blue-50 border border-blue-200 text-blue-700 font-bold text-sm flex items-center justify-center shrink-0">
                       {getTraderInitials(otherName)}
                     </div>
                   )}
@@ -488,7 +513,7 @@ export default function OffersPage() {
                     <div className="flex items-center justify-between gap-2 flex-wrap mb-1">
                       <div className="flex items-center gap-2">
                         <span
-                          className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${
+                          className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${
                             isSent
                               ? 'bg-blue-50 text-blue-700 border-blue-200'
                               : 'bg-emerald-50 text-emerald-700 border-emerald-200'
@@ -504,7 +529,7 @@ export default function OffersPage() {
                             title="Verified Identity"
                             className="p-0.5 rounded bg-blue-50 border border-blue-200 text-blue-600 flex items-center"
                           >
-                            <ShieldCheck className="w-3 h-3" />
+                            <ShieldCheck className="w-3.5 h-3.5" />
                           </span>
                         )}
                         {otherPerson.brandVerificationStatus === 'VERIFIED_BRAND' && (
@@ -515,26 +540,29 @@ export default function OffersPage() {
                     </div>
 
                     {/* Who Offered Header */}
-                    <p className="text-sm font-bold text-slate-900 mt-0.5">
+                    <p className="text-base font-bold text-slate-900 mt-1">
                       {isSent ? `You offered to @${otherName}` : `@${otherName} offered you`}
                     </p>
 
-                    {/* Proposal Text Area (Clean White with Crisp Border & No Quotes) */}
-                    <div className="bg-white border border-slate-200 rounded-md p-3.5 my-2.5 shadow-2xs">
-                      <p className="text-sm font-medium text-slate-800 leading-relaxed font-sans">
+                    {/* Proposal Text Area (Clean White Card with Crisp, Large Font & No Quotes) */}
+                    <div className="bg-white border border-slate-200/90 rounded-lg p-4 sm:p-5 my-3 shadow-2xs">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded inline-block mb-2">
+                        Offered Deal
+                      </span>
+                      <p className="text-base sm:text-lg font-semibold text-slate-900 leading-relaxed font-sans">
                         {cleanText}
                       </p>
 
                       {/* Render Attached Offer Photos */}
                       {imageUrls.length > 0 && (
-                        <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-slate-100">
+                        <div className="flex items-center gap-2.5 mt-3.5 pt-3 border-t border-slate-100">
                           {imageUrls.map((url, idx) => (
                             <a
                               key={idx}
                               href={sanitizeUrl(url)}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="relative w-16 h-16 rounded-md overflow-hidden border border-slate-200 block group shadow-2xs"
+                              className="relative w-18 h-18 sm:w-20 sm:h-20 rounded-lg overflow-hidden border border-slate-200 block group shadow-2xs"
                             >
                               <Image
                                 src={sanitizeUrl(url)}
@@ -549,27 +577,27 @@ export default function OffersPage() {
                     </div>
 
                     {/* On Request Reference Line */}
-                    <p className="text-xs text-slate-500 font-medium mt-2 leading-relaxed">
-                      <span className="font-bold text-slate-800">On Request:</span>{' '}
-                      <span className="text-slate-600">{postPreview}</span>
+                    <p className="text-sm text-slate-600 font-medium mt-3 leading-relaxed">
+                      <span className="font-bold text-slate-900">On Request:</span>{' '}
+                      <span className="text-slate-700">{postPreview}</span>
                     </p>
 
                     {/* Action Buttons Row */}
-                    <div className="flex items-center gap-3 mt-3">
+                    <div className="flex items-center gap-3 mt-4">
                       <button
                         onClick={() => router.push(`/messages/${otherPerson.id}`)}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-md font-bold text-xs transition-colors shadow-xs"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-md font-bold text-xs transition-colors shadow-xs"
                       >
-                        <MessageSquare className="w-3.5 h-3.5" />
+                        <MessageSquare className="w-4 h-4" />
                         <span>Open Direct Chat</span>
                       </button>
 
                       <Link
                         href={`/post/${offer.postId}`}
-                        className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-slate-900 font-semibold transition-colors px-2 py-1"
+                        className="inline-flex items-center gap-1.5 text-xs text-slate-600 hover:text-slate-900 font-semibold transition-colors px-3 py-2 border border-slate-200 rounded-md hover:bg-slate-50"
                       >
                         <span>View Post</span>
-                        <ExternalLink className="w-3 h-3" />
+                        <ExternalLink className="w-3.5 h-3.5" />
                       </Link>
                     </div>
                   </div>
@@ -653,7 +681,7 @@ export default function OffersPage() {
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as Tab)}
+                onClick={() => handleTabChange(tab.id as Tab)}
                 className={`flex-1 min-w-[100px] py-2 px-3 rounded-md font-bold text-xs transition-colors flex items-center justify-center gap-1.5 shrink-0 ${
                   isActive
                     ? 'bg-blue-600 text-white shadow-2xs'
