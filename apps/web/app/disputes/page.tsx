@@ -84,7 +84,7 @@ export default function DisputesPage() {
                             href="/offers"
                             className="text-blue-600 hover:text-blue-700 font-medium"
                         >
-                            View Your Orders →
+                            View Your Orders
                         </Link>
                     </div>
                 ) : (

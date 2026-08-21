@@ -435,7 +435,7 @@ export default function AdminDashboardPage() {
                             onClick={() => router.push('/admin/activity')}
                             className="w-full py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg font-medium transition"
                         >
-                            View All Activity →
+                            View All Activity
                         </button>
                     </div>
                 </div>

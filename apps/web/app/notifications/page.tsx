@@ -276,7 +276,7 @@ export default function NotificationsPage() {
                                                 <div className="flex items-center gap-2 text-sm text-red-700/70">
                                                     <span>{formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}</span>
                                                     <span>•</span>
-                                                    <span className="font-medium hover:underline">Tap to appeal &rarr;</span>
+                                                    <span className="font-medium hover:underline">Tap to appeal</span>
                                                 </div>
                                             </div>
                                         </div>

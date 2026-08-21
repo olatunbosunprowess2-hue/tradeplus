@@ -99,9 +99,9 @@ export default function AccountPage() {
             </p>
             <Link
               href="/account/seller/listings"
-              className="text-blue-600 hover:text-blue-700"
+              className="text-blue-600 hover:text-blue-700 font-medium"
             >
-              View all →
+              View all
             </Link>
           </div>
         </div>

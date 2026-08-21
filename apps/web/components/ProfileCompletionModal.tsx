@@ -143,9 +143,9 @@ export default function ProfileCompletionModal() {
                     <div className="flex flex-col gap-2.5">
                         <button
                             onClick={handleCompleteNow}
-                            className="w-full py-2.5 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20 active:scale-[0.98] flex items-center justify-center gap-2"
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition flex items-center justify-center shadow-lg shadow-blue-500/25"
                         >
-                            Complete Now <ChevronRight className="w-4 h-4" />
+                            Complete Now
                         </button>
                         <button
                             onClick={handleDismiss}

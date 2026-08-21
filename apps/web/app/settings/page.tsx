@@ -256,9 +256,9 @@ export default function SettingsPage() {
                                     </div>
                                     <Link
                                         href="/brand-apply"
-                                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-400 text-white font-semibold rounded-xl shadow hover:shadow-lg transition-all text-sm"
+                                        className="inline-flex items-center justify-center px-5 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-400 text-white font-semibold rounded-xl shadow hover:shadow-lg transition-all text-sm"
                                     >
-                                        Reapply for Verification →
+                                        Reapply for Verification
                                     </Link>
                                 </div>
                             )}

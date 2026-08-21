@@ -73,10 +73,9 @@ export default function CartPage() {
                 </p>
                 <Link
                     href="/listings"
-                    className="px-8 py-4 bg-blue-600 text-white rounded-2xl font-bold text-lg hover:bg-blue-700 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center gap-3 active:scale-95"
+                    className="px-8 py-4 bg-blue-600 text-white rounded-2xl font-bold text-lg hover:bg-blue-700 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center justify-center active:scale-95"
                 >
                     Explore Marketplace
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                 </Link>
             </div>
         );
@@ -252,10 +251,7 @@ export default function CartPage() {
                                             {isSubmitting && selectedBundle.length > 0 && selectedBundle[0].sellerId === sellerId ? (
                                                 'Sending...'
                                             ) : (
-                                                <>
-                                                    Make Offer for this Bundle
-                                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-                                                </>
+                                                'Make Offer for this Bundle'
                                             )}
                                         </button>
 

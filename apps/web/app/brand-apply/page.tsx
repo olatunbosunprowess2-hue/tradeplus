@@ -223,7 +223,7 @@ export default function BrandApplyPage() {
                         </p>
                         <div className="flex flex-wrap gap-3 justify-center">
                             <Link href="/listings/create" className="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-400 text-white rounded-lg font-semibold shadow hover:shadow-md transition-all">
-                                Create Listing →
+                                Create Listing
                             </Link>
                             <Link href="/settings/bank-details" className="px-5 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 rounded-lg font-medium hover:bg-gray-50 transition-all">
                                 Set Up Bank Details
@@ -557,9 +557,9 @@ export default function BrandApplyPage() {
                             </p>
                             <Link
                                 href="/login"
-                                className="inline-flex items-center gap-2 px-6 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg shadow hover:bg-blue-700 transition-all"
+                                className="inline-flex items-center justify-center px-6 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg shadow hover:bg-blue-700 transition-all"
                             >
-                                Sign In →
+                                Sign In
                             </Link>
                         </div>
                     </div>

@@ -61,7 +61,7 @@ export default function DiscoverClient() {
             className="inline-block px-8 py-3 bg-white rounded-full font-bold shadow-lg hover:shadow-xl transition-all"
             style={{ color: 'var(--color-primary)' }}
           >
-            Browse All Listings →
+            Browse All Listings
           </Link>
         </div>
 

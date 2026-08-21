@@ -344,7 +344,7 @@ export default function MakeOfferModal({ isOpen, onClose, listing, onSubmit }: M
                                                     onClick={() => setBarterMethod('manual')}
                                                     className="text-gray-900 hover:text-black font-bold text-sm hover:underline"
                                                 >
-                                                    Describe your item manually →
+                                                    Describe your item manually
                                                 </button>
                                             </div>
                                         ) : (

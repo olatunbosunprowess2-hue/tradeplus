@@ -144,7 +144,7 @@ export default function VerificationBlockModal({ isOpen, onClose }: Verification
                             className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 text-amber-700 font-semibold text-sm hover:from-amber-100 hover:to-yellow-100 transition-all"
                         >
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1l3.09 6.26L22 8.27l-5 4.87 1.18 6.88L12 16.77l-6.18 3.25L7 13.14 2 8.27l6.91-1.01L12 1z" /></svg>
-                            Are you a brand? Get the Gold Badge →
+                            Are you a brand? Get the Gold Badge
                         </Link>
                     </div>
                 )}
