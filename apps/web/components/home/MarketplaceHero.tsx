@@ -32,25 +32,18 @@ export default function MarketplaceHero() {
             <div className="mt-8 pt-6 border-t border-slate-100">
               <div className="flex flex-wrap items-center gap-3 mb-5">
                 <Link
-                  href="/listings"
-                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs sm:text-sm font-semibold rounded-md transition-colors shadow-xs"
+                  href="/listings/create"
+                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs sm:text-sm font-bold rounded-md transition-colors shadow-xs flex items-center gap-1.5"
                 >
-                  Explore Marketplace
-                </Link>
-
-                <Link
-                  href="/sell"
-                  className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-800 text-xs sm:text-sm font-semibold rounded-md border border-slate-200 transition-colors"
-                >
-                  + Post Free Listing
+                  <span>+ Post Free Listing</span>
                 </Link>
 
                 <Link
                   href="/distress"
-                  className="px-4 py-2.5 text-orange-600 hover:text-orange-700 text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1"
+                  className="px-4 py-2.5 bg-orange-50 hover:bg-orange-100 text-orange-700 text-xs sm:text-sm font-semibold rounded-md border border-orange-200/80 transition-colors flex items-center gap-1.5"
                 >
                   <Flame className="w-4 h-4 text-orange-500" />
-                  Distress Deals
+                  <span>Browse Distress Deals</span>
                 </Link>
               </div>
 
