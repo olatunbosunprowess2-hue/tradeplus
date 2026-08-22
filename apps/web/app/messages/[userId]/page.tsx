@@ -427,9 +427,9 @@ export default function ChatPage() {
     if (!conversation) return null;
 
     return (
-        <div className="flex flex-col h-screen bg-gray-50">
+        <div className="flex flex-col h-[100dvh] md:h-[calc(100dvh-3.5rem)] overflow-hidden bg-slate-50 relative">
             {/* Header */}
-            <div className="bg-white border-b border-gray-200 px-4 py-3 shadow-sm sticky top-0 z-10">
+            <div className="bg-white border-b border-slate-200 px-4 py-2.5 sm:py-3 shadow-2xs shrink-0 z-10">
                 <div className="container mx-auto max-w-4xl flex items-center gap-3">
                     <button
                         onClick={() => router.push('/messages')}
@@ -587,7 +587,7 @@ export default function ChatPage() {
             )}
 
             {/* Messages */}
-            <div ref={messagesContainerRef} className="flex-1 overflow-y-auto px-4 py-4">
+            <div ref={messagesContainerRef} className="flex-1 min-h-0 overflow-y-auto px-3 sm:px-4 py-4">
                 <div className="container mx-auto max-w-4xl space-y-3">
                     {/* Offline Partner Warning Banner */}
                     {conversation.barterOffer && 
@@ -725,7 +725,7 @@ export default function ChatPage() {
             )}
 
             {/* Input Overlay for Files */}
-            <div className="bg-white border-t border-gray-100 px-4 py-3 pb-safe shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.05)]">
+            <div className="bg-white border-t border-slate-200 px-3 sm:px-4 py-2.5 sm:py-3 shrink-0 shadow-xs z-10">
                 <div className="container mx-auto max-w-4xl">
                     <form onSubmit={handleSend} className="flex gap-2 items-end">
                         <input
