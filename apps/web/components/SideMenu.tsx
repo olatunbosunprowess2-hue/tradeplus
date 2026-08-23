@@ -6,6 +6,7 @@ import { useAuthStore } from '@/lib/auth-store';
 import { useRouter, usePathname } from 'next/navigation';
 import { createPortal } from 'react-dom';
 import { sanitizeUrl } from '@/lib/utils';
+import LogoutConfirmModal from './LogoutConfirmModal';
 
 interface SideMenuProps {
     className?: string;
@@ -282,47 +283,11 @@ export default function SideMenu({ className = '' }: SideMenuProps) {
             </div>
 
             {/* Logout Confirmation Modal */}
-            {showLogoutModal && (
-                <div className="fixed inset-0 z-[10070] flex items-center justify-center p-4">
-                    {/* Modal Backdrop */}
-                    <div
-                        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                        onClick={handleLogoutCancel}
-                    />
-
-                    {/* Modal Content */}
-                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-scale-in">
-                        {/* Modal Header */}
-                        <div className="p-6 text-center">
-                            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                                </svg>
-                            </div>
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">Log Out?</h3>
-                            <p className="text-gray-600 text-sm">
-                                Are you sure you want to log out of your account? You'll need to sign in again to access your listings and trades.
-                            </p>
-                        </div>
-
-                        {/* Modal Actions */}
-                        <div className="flex border-t border-gray-100">
-                            <button
-                                onClick={handleLogoutCancel}
-                                className="flex-1 px-6 py-4 text-gray-700 font-semibold hover:bg-gray-50 transition border-r border-gray-100"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleLogoutConfirm}
-                                className="flex-1 px-6 py-4 text-red-600 font-semibold hover:bg-red-50 transition"
-                            >
-                                Log Out
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <LogoutConfirmModal
+                isOpen={showLogoutModal}
+                onClose={handleLogoutCancel}
+                onConfirm={handleLogoutConfirm}
+            />
 
             <style jsx>{`
                 @keyframes scale-in {
