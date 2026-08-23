@@ -1,21 +1,61 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   ShieldCheck,
   Repeat,
   Flame,
   CheckCircle2,
+  X,
 } from 'lucide-react';
 
+const HERO_STORAGE_KEY = 'barterwave_dismiss_hero_v1';
+
 export default function MarketplaceHero() {
+  const [isDismissed, setIsDismissed] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    const dismissed = localStorage.getItem(HERO_STORAGE_KEY) === 'true';
+    if (dismissed) {
+      setIsDismissed(true);
+    }
+  }, []);
+
+  const handleDismiss = () => {
+    setIsDismissed(true);
+    try {
+      localStorage.setItem(HERO_STORAGE_KEY, 'true');
+    } catch {
+      // Ignore localStorage errors (e.g. private browsing)
+    }
+  };
+
+  // Avoid flash of content on SSR while hydration occurs
+  if (!isMounted || isDismissed) {
+    return null;
+  }
+
   return (
-    <section className="mb-4 sm:mb-6">
-      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
+    <section className="mb-4 sm:mb-6 relative group">
+      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs relative">
+        {/* Dismiss Button */}
+        <button
+          type="button"
+          onClick={handleDismiss}
+          className="absolute top-3 right-3 z-10 p-1.5 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+          title="Dismiss welcome banner"
+          aria-label="Dismiss welcome banner"
+        >
+          <X className="w-4 h-4" />
+        </button>
+
         <div className="grid grid-cols-1 lg:grid-cols-12 items-stretch">
           {/* Main Hero Value Proposition */}
           <div className="lg:col-span-8 p-5 sm:p-7 lg:p-10 flex flex-col justify-between">
-            <div>
+            <div className="pr-6 sm:pr-0">
               {/* Main Headline */}
               <h1 className="text-xl sm:text-2xl lg:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
                 Trade What You Have for What You Need.
