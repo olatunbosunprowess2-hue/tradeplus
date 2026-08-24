@@ -108,10 +108,9 @@ export default function MarketplaceHero() {
                 Trade What You Have for What You Need.
               </h1>
 
-              {/* Subheadline - concise on mobile, detailed on desktop */}
+              {/* Subheadline */}
               <p className="mt-2 sm:mt-3 text-xs sm:text-sm lg:text-base text-slate-600 font-normal leading-relaxed max-w-2xl">
-                Nigeria&apos;s verified marketplace for pure item-for-item swaps, cash-supplemented trades,
-                and urgent distress sales—all backed by 100% escrow buyer protection.
+                Nigeria&apos;s verified marketplace for pure item-for-item swaps, cash-supplemented trades, and urgent distress sales.
               </p>
             </div>
 

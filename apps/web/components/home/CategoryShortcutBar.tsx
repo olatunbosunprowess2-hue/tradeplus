@@ -2,15 +2,14 @@
 
 import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Flame, Sparkles, Layers, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ArrowRight, Grid } from 'lucide-react';
 
 interface CategoryItem {
   name: string;
   slug: string;
-  image?: string;
-  isDistress?: boolean;
-  isBrand?: boolean;
-  isAll?: boolean;
+  image: string;
+  badge?: string;
+  badgeColor?: string;
 }
 
 const categories: CategoryItem[] = [
@@ -47,7 +46,9 @@ const categories: CategoryItem[] = [
   {
     name: 'Distress Sales',
     slug: 'distress',
-    isDistress: true,
+    image: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=160&auto=format&fit=crop&q=80',
+    badge: 'HOT',
+    badgeColor: 'bg-orange-600 text-white',
   },
   {
     name: 'Services & Jobs',
@@ -57,12 +58,16 @@ const categories: CategoryItem[] = [
   {
     name: 'Official Brands',
     slug: 'brand-apply',
-    isBrand: true,
+    image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=160&auto=format&fit=crop&q=80',
+    badge: 'OFFICIAL',
+    badgeColor: 'bg-blue-600 text-white',
   },
   {
     name: 'All Categories',
     slug: 'all',
-    isAll: true,
+    image: 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=160&auto=format&fit=crop&q=80',
+    badge: 'EXPLORE',
+    badgeColor: 'bg-slate-900 text-white',
   },
 ];
 
@@ -75,7 +80,7 @@ export default function CategoryShortcutBar() {
     if (!scrollRef.current) return;
     const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
     setCanScrollLeft(scrollLeft > 10);
-    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 15);
   };
 
   useEffect(() => {
@@ -86,25 +91,31 @@ export default function CategoryShortcutBar() {
 
   const handleScroll = (direction: 'left' | 'right') => {
     if (!scrollRef.current) return;
-    const scrollAmount = direction === 'left' ? -220 : 220;
+    const scrollAmount = direction === 'left' ? -320 : 320;
     scrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    setTimeout(checkScroll, 350);
   };
 
   return (
     <section className="mb-4 sm:mb-6">
       <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4 shadow-xs relative">
-        {/* Header Strip with Scroll Hint */}
+        {/* Header Strip with Direct View All Navigation */}
         <div className="flex items-center justify-between pb-2 mb-1 border-b border-slate-100 px-1">
-          <div className="flex items-center gap-1.5">
-            <span className="text-[11px] font-bold text-slate-800 uppercase tracking-wider">
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-bold text-slate-900 uppercase tracking-wider">
               Browse Categories
             </span>
           </div>
 
-          <div className="flex items-center gap-1">
-            <span className="text-[10px] text-slate-400 font-medium sm:hidden">
-              Swipe to view more &rarr;
-            </span>
+          <div className="flex items-center gap-3">
+            {/* View All Categories Link (Fully Functional) */}
+            <Link
+              href="/listings"
+              className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors"
+            >
+              <span>View All</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
 
             {/* Desktop / Tablet Scroll Chevrons */}
             <div className="hidden sm:flex items-center gap-1">
@@ -112,8 +123,9 @@ export default function CategoryShortcutBar() {
                 type="button"
                 onClick={() => handleScroll('left')}
                 disabled={!canScrollLeft}
-                className="w-6 h-6 rounded border border-slate-200 bg-slate-50 hover:bg-slate-100 disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center text-slate-600 transition-colors"
+                className="w-6 h-6 rounded border border-slate-200 bg-slate-50 hover:bg-slate-100 disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center text-slate-600 transition-colors cursor-pointer"
                 title="Scroll Left"
+                aria-label="Scroll Left"
               >
                 <ChevronLeft className="w-3.5 h-3.5" />
               </button>
@@ -121,8 +133,9 @@ export default function CategoryShortcutBar() {
                 type="button"
                 onClick={() => handleScroll('right')}
                 disabled={!canScrollRight}
-                className="w-6 h-6 rounded border border-slate-200 bg-slate-50 hover:bg-slate-100 disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center text-slate-600 transition-colors"
+                className="w-6 h-6 rounded border border-slate-200 bg-slate-50 hover:bg-slate-100 disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center text-slate-600 transition-colors cursor-pointer"
                 title="Scroll Right"
+                aria-label="Scroll Right"
               >
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
@@ -130,11 +143,11 @@ export default function CategoryShortcutBar() {
           </div>
         </div>
 
-        {/* Scrollable Category Rail with Visible Peek */}
+        {/* Scrollable Category Rail with Real Photos & Visible Overflow Peek */}
         <div
           ref={scrollRef}
           onScroll={checkScroll}
-          className="flex items-start gap-2.5 sm:gap-3 overflow-x-auto pt-1.5 pb-1 scroll-smooth scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent"
+          className="flex items-start gap-2.5 sm:gap-3.5 overflow-x-auto pt-1.5 pb-1 scroll-smooth scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent"
         >
           {categories.map((item, i) => {
             const href =
@@ -150,46 +163,29 @@ export default function CategoryShortcutBar() {
               <Link
                 key={i}
                 href={href}
-                className="group flex flex-col items-center gap-1.5 w-[74px] sm:w-[84px] p-1.5 rounded-lg hover:bg-slate-50 transition-all shrink-0 text-center"
+                className="group flex flex-col items-center gap-1.5 w-[76px] sm:w-[86px] p-1.5 rounded-lg hover:bg-slate-50 transition-all shrink-0 text-center relative"
               >
-                {/* Thumbnail Box */}
-                <div
-                  className={`w-12 h-12 sm:w-13 sm:h-13 rounded-lg border overflow-hidden flex items-center justify-center transition-all shadow-2xs group-hover:scale-105 ${
-                    item.isDistress
-                      ? 'bg-orange-50 border-orange-200 text-orange-600 group-hover:bg-orange-100 group-hover:border-orange-300'
-                      : item.isBrand
-                      ? 'bg-amber-50 border-amber-200 text-amber-700 group-hover:bg-amber-100 group-hover:border-amber-300'
-                      : item.isAll
-                      ? 'bg-slate-900 border-slate-900 text-white group-hover:bg-slate-800'
-                      : 'bg-slate-100 border-slate-200'
-                  }`}
-                >
-                  {item.image ? (
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      loading="lazy"
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                    />
-                  ) : item.isDistress ? (
-                    <Flame className="w-5 h-5 text-orange-600 animate-pulse" />
-                  ) : item.isBrand ? (
-                    <Sparkles className="w-5 h-5 text-amber-600" />
-                  ) : (
-                    <Layers className="w-5 h-5 text-white" />
+                {/* Thumbnail Box with Real High-Res Photography */}
+                <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-lg border border-slate-200 overflow-hidden flex items-center justify-center transition-all shadow-2xs group-hover:scale-105 group-hover:border-blue-300">
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    loading="lazy"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+
+                  {/* Micro Badge for special categories */}
+                  {item.badge && (
+                    <span
+                      className={`absolute bottom-0 inset-x-0 text-[8px] font-black uppercase tracking-tighter py-0.2 text-center ${item.badgeColor}`}
+                    >
+                      {item.badge}
+                    </span>
                   )}
                 </div>
 
                 {/* Category Label */}
-                <span
-                  className={`text-[11px] font-semibold leading-tight line-clamp-2 transition-colors ${
-                    item.isDistress
-                      ? 'text-orange-700 font-bold'
-                      : item.isBrand
-                      ? 'text-amber-800 font-bold'
-                      : 'text-slate-700 group-hover:text-blue-600'
-                  }`}
-                >
+                <span className="text-[11px] font-semibold leading-tight line-clamp-2 text-slate-700 group-hover:text-blue-600 transition-colors">
                   {item.name}
                 </span>
               </Link>
