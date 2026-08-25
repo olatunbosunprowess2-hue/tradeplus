@@ -182,8 +182,7 @@ export default function EditProfileModal({ isOpen, onClose }: EditProfileModalPr
                                 <div className="space-y-1 text-right">
                                     <label className="block text-[10px] text-blue-800 font-bold uppercase tracking-wider">Account Status</label>
                                     <div className="flex items-center gap-1.5 justify-end">
-                                        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                                        <div className="text-sm font-semibold text-green-600">Active</div>
+                                        <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">Active</span>
                                     </div>
                                 </div>
                             </div>

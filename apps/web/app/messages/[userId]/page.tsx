@@ -458,10 +458,9 @@ export default function ChatPage() {
                         <h2 className="font-bold text-gray-900 truncate">{conversation.participantName}</h2>
                         <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                             <div className="flex items-center gap-1.5">
-                                <span className={`w-2 h-2 rounded-full ${isOnline(conversation.participantLastActiveAt) ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-gray-300'}`}></span>
-                                <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">
-                                    {isOnline(conversation.participantLastActiveAt) ? 'Online Now' : 'Offline'}
-                                </p>
+                                <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded border ${isOnline(conversation.participantLastActiveAt) ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-500 border-slate-200'}`}>
+                                    {isOnline(conversation.participantLastActiveAt) ? 'Online' : 'Offline'}
+                                </span>
                             </div>
                             {conversation.barterOffer && ['accepted', 'awaiting_fulfillment', 'awaiting_meetup'].includes(conversation.barterOffer.status) && conversation.barterOffer.timerExpiresAt && currentUserId && (
                                 <>
