@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { adminApi, SidebarCounts } from '@/lib/admin-api';
 import { useAuthStore } from '@/lib/auth-store';
 import { PERMISSIONS, hasRoleLevel } from '@/lib/rbac';
@@ -32,28 +32,17 @@ interface AdminSidebarProps {
 export default function AdminSidebar({ onClose }: AdminSidebarProps = {}) {
     const pathname = usePathname();
     const { user } = useAuthStore();
-    const [counts, setCounts] = useState<SidebarCounts | null>(null);
-    const [loading, setLoading] = useState(true);
 
-    // Fetch sidebar counts on mount and periodically
-    useEffect(() => {
-        const fetchCounts = async () => {
-            try {
-                const response = await adminApi.getSidebarCounts();
-                setCounts(response.data);
-            } catch (error) {
-                console.error('Failed to fetch sidebar counts:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchCounts();
-
-        // Refresh counts every 120 seconds
-        const interval = setInterval(fetchCounts, 120000);
-        return () => clearInterval(interval);
-    }, []);
+    // Fetch sidebar counts with React Query caching across all admin routes
+    const { data: counts = null, isLoading: loading } = useQuery({
+        queryKey: ['admin-sidebar-counts'],
+        queryFn: async () => {
+            const response = await adminApi.getSidebarCounts();
+            return response.data;
+        },
+        staleTime: 60000,
+        refetchInterval: 60000,
+    });
 
     const navItems = [
         {

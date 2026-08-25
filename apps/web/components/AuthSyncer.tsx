@@ -41,6 +41,10 @@ export function AuthSyncer() {
         const socketUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333/api').replace('/api', '');
         const socket = io(`${socketUrl}/activity`, {
             transports: ['websocket'],
+            reconnection: true,
+            reconnectionAttempts: 10,
+            reconnectionDelay: 2000,
+            timeout: 10000,
         });
 
         const sendHeartbeat = () => {

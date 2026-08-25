@@ -118,10 +118,6 @@ export class AdminService {
                     _count: {
                         select: {
                             listings: true,
-                            ordersBought: true,
-                            ordersSold: true,
-                            reportsMade: true,
-                            reportsAgainst: true,
                         },
                     },
                 },
