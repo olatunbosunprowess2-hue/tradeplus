@@ -267,7 +267,7 @@ export default function MarketFeed() {
                     {!isLoadingFeatured && featuredListings && featuredListings.length > 0 && <SpotlightCarousel listings={featuredListings} />}
 
                     {/* Section Header */}
-                    <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-200/80">
+                    <div id="marketplace-listings-heading" className="flex items-center justify-between mb-4 pb-2 border-b border-slate-200/80 scroll-mt-20">
                         <div>
                             <h2 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">
                                 {categoryId ? 'Filtered Listings' : search ? `Search Results for "${search}"` : 'Marketplace Listings'}
