@@ -73,7 +73,7 @@ export default function PaywallModal({
                 {/* Close Button */}
                 <button
                     onClick={onClose}
-                    className="absolute -top-12 right-0 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all z-20"
+                    className="absolute -top-12 right-0 p-2 rounded-md bg-white/10 hover:bg-white/20 text-white transition-all z-20"
                     aria-label="Close modal"
                 >
                     <X className="w-5 h-5" />
@@ -94,16 +94,16 @@ export default function PaywallModal({
 
                     {/* Currency Toggle */}
                     <div className="flex items-center justify-center gap-2 mt-6">
-                        <div className="bg-slate-900/80 p-1.5 rounded-full border border-slate-700/50 flex">
+                        <div className="bg-slate-900/90 p-1 rounded-md border border-slate-800 flex">
                             <button
                                 onClick={() => setCurrency('NGN')}
-                                className={`px-4 py-1.5 rounded-full text-sm font-bold tracking-wide transition-all ${currency === 'NGN' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+                                className={`px-3.5 py-1.5 rounded text-xs font-bold tracking-wide transition-all ${currency === 'NGN' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
                             >
                                 🇳🇬 NGN
                             </button>
                             <button
                                 onClick={() => setCurrency('USD')}
-                                className={`px-4 py-1.5 rounded-full text-sm font-bold tracking-wide transition-all ${currency === 'USD' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+                                className={`px-3.5 py-1.5 rounded text-xs font-bold tracking-wide transition-all ${currency === 'USD' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
                             >
                                 🇺🇸 USD
                             </button>
@@ -122,7 +122,7 @@ export default function PaywallModal({
                             <div
                                 key={option.id}
                                 onClick={() => handleSelect(option.id)}
-                                className={`relative flex flex-col rounded-[2rem] border transition-all duration-300 cursor-pointer overflow-hidden
+                                className={`relative flex flex-col rounded-xl border transition-all duration-300 cursor-pointer overflow-hidden
                                     ${isSelected || isFeatured
                                         ? 'bg-slate-900 border-blue-500 shadow-[0_0_40px_rgba(59,130,246,0.3)] md:-translate-y-4 md:scale-105 z-10'
                                         : 'bg-slate-900/60 border-slate-800 hover:border-slate-600 hover:bg-slate-800/80 opacity-90'
@@ -139,7 +139,7 @@ export default function PaywallModal({
                                 <div className={`p-8 pb-6 text-center border-b ${isSelected || isFeatured ? 'border-slate-800/80' : 'border-slate-800/30'}`}>
                                     {option.badge && (
                                         <div className="mb-4">
-                                            <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-white ${option.badgeColor || 'bg-blue-600'}`}>
+                                            <span className={`inline-block px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider text-white ${option.badgeColor || 'bg-blue-600'}`}>
                                                 {option.badge}
                                             </span>
                                         </div>
@@ -181,7 +181,7 @@ export default function PaywallModal({
                                     {/* Action Button */}
                                     <button
                                         disabled={isLoading}
-                                        className={`w-full py-4 rounded-xl font-bold text-sm tracking-wide transition-all ${isLoading && selectedOption === option.id
+                                        className={`w-full py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all ${isLoading && selectedOption === option.id
                                             ? 'bg-blue-600/50 text-white cursor-wait relative overflow-hidden'
                                             : isSelected || isFeatured
                                                 ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/20'
@@ -206,7 +206,7 @@ export default function PaywallModal({
                     {showPremiumUpsell && (
                         <div
                             onClick={() => handleSelect('premium')}
-                            className={`relative flex flex-col rounded-[2rem] border transition-all duration-300 cursor-pointer overflow-hidden flex-1 min-w-[280px] max-w-[340px]
+                            className={`relative flex flex-col rounded-xl border transition-all duration-300 cursor-pointer overflow-hidden flex-1 min-w-[280px] max-w-[340px]
                                 ${selectedOption === 'premium'
                                     ? 'bg-slate-900 border-amber-500 shadow-[0_0_40px_rgba(245,158,11,0.2)] md:-translate-y-4 md:scale-105 z-10'
                                     : 'bg-slate-900/60 border-slate-800 hover:border-slate-600 hover:bg-slate-800/80 opacity-90'
@@ -222,7 +222,7 @@ export default function PaywallModal({
 
                             <div className="p-8 pb-6 text-center border-b border-slate-800/30 relative z-10">
                                 <div className="mb-4">
-                                    <span className="inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-amber-900 bg-amber-400">
+                                    <span className="inline-block px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider text-amber-900 bg-amber-400">
                                         Best Value
                                     </span>
                                 </div>
@@ -268,7 +268,7 @@ export default function PaywallModal({
 
                                 <button
                                     disabled={isLoading}
-                                    className={`w-full py-4 rounded-xl font-bold text-sm tracking-wide transition-all ${isLoading && selectedOption === 'premium'
+                                    className={`w-full py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all ${isLoading && selectedOption === 'premium'
                                         ? 'bg-amber-500/50 text-white cursor-wait'
                                         : selectedOption === 'premium'
                                             ? 'bg-amber-500 hover:bg-amber-400 text-amber-950 shadow-lg shadow-amber-900/20'
@@ -504,9 +504,9 @@ export function FirstChatModal({
 
     return (
         <div className="fixed inset-0 z-[10050] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-            <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-300">
                 <div className="bg-gradient-to-br from-blue-600 to-indigo-600 p-8 text-white text-center">
-                    <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="w-14 h-14 bg-white/20 rounded-lg flex items-center justify-center mx-auto mb-3">
                         <Users className="w-10 h-10" />
                     </div>
                     <h2 className="text-2xl font-bold mb-2">Safe Trading Terms</h2>
@@ -542,7 +542,7 @@ export function FirstChatModal({
                     </div>
                     <button
                         onClick={onClose}
-                        className="w-full py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-bold transition-colors mt-4 uppercase tracking-wider text-xs"
+                        className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-md font-bold transition-colors mt-3 uppercase tracking-wider text-xs"
                     >
                         I Agree & Accept
                     </button>
