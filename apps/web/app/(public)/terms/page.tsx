@@ -39,11 +39,11 @@ export default function TermsPage() {
                     </p>
                     <h3 className="text-xl font-semibold mt-6 mb-2">3.2 Barter Transactions</h3>
                     <p>
-                        BarterWave facilitates "Barter" (trade) transactions. While we provide the platform for communication and escrow, users are responsible for evaluating the value and condition of traded goods.
+                        BarterWave facilitates "Barter" (trade) transactions. While we provide the platform for communication, offer negotiation, and deal locking, users are responsible for evaluating the value and condition of traded goods in person prior to confirming the exchange.
                     </p>
-                    <h3 className="text-xl font-semibold mt-6 mb-2">3.3 Escrow and Payments</h3>
+                    <h3 className="text-xl font-semibold mt-6 mb-2">3.3 Direct Payments and Safe Handshake</h3>
                     <p>
-                        Financial transactions on BarterWave are processed through secure payment gateways (e.g., Paystack). We provide an escrow service to ensure funds are held securely until the transaction is successfully completed or a dispute is resolved.
+                        Optional platform features (such as listing promotions and seller verification) are processed securely through payment gateways (e.g., Paystack). Peer-to-peer item transactions, barter swaps, and cash balances are conducted directly between users using BarterWave's dual-code confirmation and safe meetup verification system.
                     </p>
                 </section>
 
@@ -70,7 +70,7 @@ export default function TermsPage() {
                 <section className="mb-10">
                     <h2 className="text-2xl font-bold mb-4">6. Dispute Resolution</h2>
                     <p>
-                        In the event of a dispute between a buyer and seller, users agree to use BarterWave's internal dispute resolution system. We reserve the right to mediate and make final decisions regarding escrow releases or refunds based on provided evidence.
+                        In the event of a dispute between a buyer and seller, users agree to use BarterWave's internal dispute resolution system. We reserve the right to review reported accounts, pause listings, or apply platform penalties based on provided evidence.
                     </p>
                 </section>
 

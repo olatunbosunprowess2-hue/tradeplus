@@ -284,7 +284,7 @@ export default function BrandApplyPage() {
                     {[
                         { icon: '✦', title: 'Verified Badge', desc: 'Build buyer trust' },
                         { icon: '💰', title: 'Cash Up', desc: 'Accept cash & barter' },
-                        { icon: '🔒', title: 'Escrow', desc: 'Secure downpayments' },
+                        { icon: '🔒', title: 'Protected', desc: 'Dual-code deal locking' },
                         { icon: '📱', title: 'Direct Chat', desc: 'WhatsApp contact' },
                     ].map((f, i) => (
                         <div key={i} className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 shadow-sm text-center">

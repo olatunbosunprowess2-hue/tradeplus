@@ -196,7 +196,7 @@ export default function NotificationsPage() {
                   )}
                 </div>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Real-time updates on your trade offers, escrow funds, and verifications.
+                  Real-time updates on your trade offers, orders, and verifications.
                 </p>
               </div>
             </div>
@@ -217,7 +217,7 @@ export default function NotificationsPage() {
             {[
               { id: 'ALL', label: 'All' },
               { id: 'OFFERS', label: 'Offers & Trades' },
-              { id: 'ESCROW', label: 'Orders & Escrow' },
+              { id: 'ESCROW', label: 'Orders & Fulfillment' },
               { id: 'ACCOUNT', label: 'Account & Security' },
             ].map((tab) => (
               <button

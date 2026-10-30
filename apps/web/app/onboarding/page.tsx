@@ -121,7 +121,7 @@ export default function OnboardingPage() {
               </li>
               <li className="flex items-start gap-2">
                 <Check className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5" />
-                <span>All your trades are 100% covered by escrow protection</span>
+                <span>All your trades are protected by our dual-code confirmation pipeline</span>
               </li>
             </ul>
           </div>
@@ -212,7 +212,7 @@ export default function OnboardingPage() {
                     </li>
                     <li className="flex items-start gap-2">
                       <Check className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5" />
-                      <span>Unlocks selling, direct barter swaps, and escrow payouts</span>
+                      <span>Unlocks selling, direct barter swaps, and verified trader status</span>
                     </li>
                   </ul>
                 </div>

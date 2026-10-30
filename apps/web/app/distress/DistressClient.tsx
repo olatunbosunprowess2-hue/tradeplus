@@ -154,8 +154,8 @@ export default function DistressClient() {
                   </span>
                 </div>
                 <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1 leading-relaxed max-w-2xl">
-                  Verified items heavily discounted by sellers for immediate cash liquidation. All
-                  payments are 100% secured with escrow protection.
+                  Verified items heavily discounted by sellers for immediate cash liquidation. Inspect
+                  in person and exchange securely with our verified digital handshake.
                 </p>
               </div>
             </div>

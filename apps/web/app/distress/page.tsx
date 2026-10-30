@@ -5,7 +5,7 @@ import { ListingsGridSkeleton, SkeletonStyles } from '@/components/ui/Skeleton';
 
 export const metadata: Metadata = {
   title: 'Urgent Distress Sales & Deals',
-  description: 'Explore verified distress sales. Quality items priced for urgent cash outs. Safe transactions held in secure escrow.',
+  description: 'Explore verified distress sales. Quality items priced for urgent cash outs. Safe local transactions with dual-code handshake verification.',
   keywords: [
     'distress sales',
     'quick cash deals',

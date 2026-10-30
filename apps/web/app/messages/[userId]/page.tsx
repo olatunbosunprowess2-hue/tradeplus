@@ -588,6 +588,15 @@ export default function ChatPage() {
             {/* Messages */}
             <div ref={messagesContainerRef} className="flex-1 min-h-0 overflow-y-auto px-3 sm:px-4 py-4">
                 <div className="container mx-auto max-w-4xl space-y-3">
+                    {/* Safety Meetup Advisory Strip */}
+                    <div className="bg-slate-50 border border-slate-200/90 rounded-lg px-3 py-2 flex items-center justify-between gap-2 shadow-2xs">
+                        <div className="flex items-center gap-2 min-w-0">
+                            <span className="px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded text-[9px] font-bold uppercase tracking-wider shrink-0">SAFETY TIP</span>
+                            <p className="text-[11px] text-slate-600 truncate">
+                                Meet in daylight at a public place. Inspect items thoroughly before sharing your exchange code or completing trade.
+                            </p>
+                        </div>
+                    </div>
                     {/* Offline Partner Warning Banner */}
                     {conversation.barterOffer && 
                       ['accepted', 'awaiting_fulfillment', 'awaiting_meetup'].includes(conversation.barterOffer.status) && 

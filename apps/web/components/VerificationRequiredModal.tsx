@@ -68,7 +68,7 @@ export default function VerificationRequiredModal({
               </li>
               <li className="flex items-start gap-2">
                 <Check className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5" />
-                <span>Enables 100% escrow protection for your transactions</span>
+                <span>Enables secure dual-code handshake protection for your transactions</span>
               </li>
             </ul>
           </div>

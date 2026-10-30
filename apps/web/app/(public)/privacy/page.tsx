@@ -41,7 +41,7 @@ export default function PrivacyPage() {
                         <li>To facilitate account creation and the logon process.</li>
                         <li>To protect our Services and prevent fraud (KYC/AML compliance).</li>
                         <li>To enable user-to-user communication for bartering and sales.</li>
-                        <li>To process transactions and manage the escrow system.</li>
+                        <li>To process transactions and facilitate secure digital trade handshakes.</li>
                         <li>To send administrative information and marketing communications.</li>
                         <li>To comply with legal obligations and respond to legal requests.</li>
                     </ul>

@@ -56,7 +56,7 @@ export default function MarketplaceHero() {
           <p className="text-xs font-semibold text-slate-700 truncate">
             <span className="font-bold text-slate-900">Trade What You Have for What You Need</span>
             <span className="hidden sm:inline text-slate-400 mx-2">•</span>
-            <span className="hidden sm:inline text-slate-500">100% Escrow Protection</span>
+            <span className="hidden sm:inline text-slate-500">Dual-Code Handshake Protection</span>
           </p>
         </div>
 
@@ -136,7 +136,7 @@ export default function MarketplaceHero() {
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[11px] sm:text-xs text-slate-500">
                 <div className="flex items-center gap-1.5">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span>100% Escrow</span>
+                  <span>Dual-PIN Protection</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Repeat className="w-3.5 h-3.5 text-blue-600 shrink-0" />

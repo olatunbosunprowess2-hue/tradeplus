@@ -19,6 +19,7 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
     const [showConfirmExchange, setShowConfirmExchange] = useState(false);
     const [showCompleteModal, setShowCompleteModal] = useState(false);
     const [showLockCelebration, setShowLockCelebration] = useState(false);
+    const [pinInput, setPinInput] = useState('');
 
     // Show completion modal once per session when trade is newly completed
     useEffect(() => {
@@ -70,10 +71,10 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
         }
     };
 
-    const handleVerifyPickup = async () => {
+    const handleVerifyPickup = async (pin?: string) => {
         setIsLoading(true);
         try {
-            await apiClient.post(`/barter/offers/${offer.id}/verify-pickup`);
+            await apiClient.post(`/barter/offers/${offer.id}/verify-pickup`, pin ? { pin } : {});
             toast.success('Fulfillment verified!');
             if (offer.status !== 'completed') {
                 setShowCompleteModal(true);
@@ -121,10 +122,7 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
                 <div className="px-3 pb-3">
                     {otherHasLocked && !hasLocked && (
                         <div className="flex items-center gap-2 bg-orange-50 border border-orange-100 rounded-lg px-3 py-2 mb-2">
-                            <span className="flex h-2 w-2 relative">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
-                            </span>
+                            <span className="px-1.5 py-0.5 bg-orange-100 text-orange-800 rounded text-[9px] font-bold uppercase tracking-wider">WAITING</span>
                             <p className="text-[11px] text-orange-700 font-bold">{otherPartyName} has locked — waiting for you!</p>
                         </div>
                     )}
@@ -153,13 +151,46 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
 
             {/* ── 2. Fulfillment Phase ── */}
             {offer.status === 'awaiting_fulfillment' && (
-                <div className="px-3 pb-3 space-y-2">
+                <div className="px-3 pb-3 space-y-2.5">
+                    {/* Buyer PIN display card */}
+                    {isBuyer && offer.pickupPin && (
+                        <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-center">
+                            <span className="px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded text-[9px] font-bold uppercase tracking-wider">YOUR EXCHANGE CODE</span>
+                            <p className="text-2xl font-mono font-black tracking-widest text-slate-900 select-all my-1">{offer.pickupPin}</p>
+                            <p className="text-[10px] text-slate-500 font-medium">Share this code with {otherPartyName} at the meetup only after inspecting and receiving your item.</p>
+                        </div>
+                    )}
+
+                    {/* Seller PIN verification input */}
+                    {isSeller && !hasFulfilled && (
+                        <div className="bg-slate-50 border border-slate-200 rounded-lg p-3">
+                            <div className="flex items-center justify-between mb-1.5">
+                                <span className="text-[11px] font-bold text-slate-800">Enter Buyer's Exchange PIN:</span>
+                                <span className="px-1.5 py-0.2 bg-blue-50 text-blue-700 rounded text-[9px] font-bold uppercase">INSTANT</span>
+                            </div>
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    maxLength={6}
+                                    value={pinInput}
+                                    onChange={(e) => setPinInput(e.target.value.replace(/\D/g, ''))}
+                                    placeholder="6-digit PIN"
+                                    className="flex-1 px-3 py-1.5 bg-white border border-slate-300 rounded text-center font-mono font-bold text-sm tracking-widest focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                                />
+                                <button
+                                    onClick={() => handleVerifyPickup(pinInput)}
+                                    disabled={isLoading || pinInput.length !== 6}
+                                    className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 text-white font-bold text-xs rounded transition-colors shadow-2xs"
+                                >
+                                    Verify
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
                     {otherHasFulfilled && (
                         <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-2">
-                            <span className="flex h-2 w-2 relative">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                            </span>
+                            <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded text-[9px] font-bold uppercase tracking-wider">CONFIRMED</span>
                             <p className="text-[11px] text-emerald-800 font-bold">
                                 {otherPartyName} confirmed — your turn!
                             </p>
@@ -169,7 +200,7 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
                     {hasFulfilled ? (
                         <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg px-3 py-2.5">
                             <div className="flex items-center gap-2">
-                                <span className="text-green-600 text-sm">✓</span>
+                                <span className="text-green-600 text-sm font-bold">✓</span>
                                 <span className="text-xs font-bold text-green-700">You confirmed exchange</span>
                             </div>
                             {!otherHasFulfilled && (
@@ -178,7 +209,7 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
                         </div>
                     ) : showConfirmExchange ? (
                         <div className="bg-amber-50 border border-amber-100 rounded-lg p-3">
-                            <p className="text-[11px] text-amber-800 font-bold mb-2">Are you sure? This cannot be undone.</p>
+                            <p className="text-[11px] text-amber-800 font-bold mb-2">Are you sure? This confirms the exchange in person.</p>
                             <div className="flex gap-2">
                                 <button
                                     onClick={() => setShowConfirmExchange(false)}
@@ -187,7 +218,7 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
                                     Cancel
                                 </button>
                                 <button
-                                    onClick={handleVerifyPickup}
+                                    onClick={() => handleVerifyPickup()}
                                     disabled={isLoading}
                                     className="flex-1 py-2 bg-green-600 text-white rounded-lg text-xs font-bold hover:bg-green-700 active:scale-[0.98] transition shadow-sm"
                                 >

@@ -528,7 +528,7 @@ export function FirstChatModal({
                         </div>
                         <div>
                             <p className="font-bold text-slate-900 text-sm">No Advance Payments</p>
-                            <p className="text-xs text-slate-500 font-semibold text-red-700">Never pay in advance for shipping. Utilize escrow and inspect items first.</p>
+                            <p className="text-xs text-slate-500 font-semibold text-red-700">Never pay in advance for shipping. Inspect items first in person before completing the exchange.</p>
                         </div>
                     </div>
                     <div className="flex gap-4 items-start">
