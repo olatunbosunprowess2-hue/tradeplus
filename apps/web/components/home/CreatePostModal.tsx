@@ -7,8 +7,7 @@ import apiClient from '@/lib/api-client';
 import { PostLimitModal } from '@/components/PaywallModal';
 import { initializePayment, redirectToPaystack, PurchaseType } from '@/lib/payments-api';
 import { sanitizeUrl } from '@/lib/utils';
-import { X, Image as ImageIcon, Loader2, Sparkles, Plus, ShieldCheck } from 'lucide-react';
-import Image from 'next/image';
+import { X, Image as ImageIcon, Loader2, ShieldCheck } from 'lucide-react';
 
 interface CreatePostModalProps {
   isOpen: boolean;
@@ -28,10 +27,71 @@ export default function CreatePostModal({ isOpen, onClose, onCreated }: CreatePo
 
   if (!isOpen) return null;
 
-  const displayName = user?.profile?.displayName || user?.firstName || 'Trader';
+  // ── GUEST GATE ──────────────────────────────────────────────────────────────
+  // Unauthenticated users see a sign-in prompt — not the compose form.
+  if (!user) {
+    const callbackUrl = encodeURIComponent(
+      typeof window !== 'undefined' ? window.location.href : '/'
+    );
+    return (
+      <div
+        className="fixed inset-0 bg-slate-950/60 z-[10050] flex items-start justify-center pt-[10vh] px-4 backdrop-blur-xs transition-all"
+        onClick={onClose}
+      >
+        <div
+          className="bg-white rounded-lg max-w-sm w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-slate-50/50">
+            <div>
+              <h2 className="text-sm font-bold text-slate-900">Sign In to Post</h2>
+              <p className="text-[11px] text-slate-500">Publish trade requests on BarterWave</p>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-1.5 hover:bg-slate-200 rounded-md transition-colors text-slate-500 hover:text-slate-900"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="px-6 py-6 text-center">
+            <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center mx-auto mb-3">
+              <ShieldCheck className="w-6 h-6 text-blue-600" />
+            </div>
+            <p className="text-xs text-slate-500 mb-5 leading-relaxed max-w-xs mx-auto">
+              Create a free account or sign in to publish trade requests and connect with verified traders.
+            </p>
+            <div className="space-y-2.5">
+              <a
+                href={`/login?callbackUrl=${callbackUrl}`}
+                className="block w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-md text-center transition-colors"
+              >
+                Sign In
+              </a>
+              <a
+                href={`/register?callbackUrl=${callbackUrl}`}
+                className="block w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-md text-center transition-colors"
+              >
+                Create Free Account
+              </a>
+              <button
+                onClick={onClose}
+                className="w-full text-slate-400 text-xs font-medium py-1.5 hover:text-slate-600 transition-colors"
+              >
+                Maybe Later
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  // ────────────────────────────────────────────────────────────────────────────
+
+  const displayName = user.profile?.displayName || user.firstName || 'Trader';
   const avatarUrl =
-    sanitizeUrl(user?.profile?.avatarUrl) ||
-    `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.id || 'anon'}`;
+    sanitizeUrl(user.profile?.avatarUrl) ||
+    `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`;
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -47,14 +107,17 @@ export default function CreatePostModal({ isOpen, onClose, onCreated }: CreatePo
     setUploading(true);
 
     try {
+      // Compress then upload all images in parallel — max speed
       const uploadPromises = filesToUpload.map(async (file) => {
-        const formData = new FormData();
-        formData.append('file', file);
         try {
-          const r = await apiClient.post('/uploads', formData, {
+          const { compressImage } = await import('@/lib/image-compression');
+          const compressed = await compressImage(file);
+          const formData = new FormData();
+          formData.append('file', compressed);
+          const r = await apiClient.post('/uploads/image', formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
           });
-          return r.data?.url || r.data?.secure_url || r.data;
+          return r.data?.url || r.data?.secure_url || null;
         } catch (err) {
           console.error('Upload failed:', err);
           return null;
@@ -161,7 +224,7 @@ export default function CreatePostModal({ isOpen, onClose, onCreated }: CreatePo
           <div>
             <div className="flex items-center gap-1.5">
               <p className="text-xs font-bold text-slate-900">{displayName}</p>
-              {user?.isVerified && (
+              {user.isVerified && (
                 <span className="p-0.5 rounded bg-blue-50 border border-blue-200 text-blue-600">
                   <ShieldCheck className="w-2.5 h-2.5" />
                 </span>

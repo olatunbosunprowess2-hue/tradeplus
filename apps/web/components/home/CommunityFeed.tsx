@@ -49,6 +49,12 @@ export default function CommunityFeed() {
     setSavedIds((prev) => (saved ? [...prev, postId] : prev.filter((id) => id !== postId)));
   }, []);
 
+  // Auth-aware handler: opens the modal (which renders its own guest gate)
+  // so unauthenticated users always hit the "Sign In to Post" prompt.
+  const handleOpenCompose = useCallback(() => {
+    setShowCreateModal(true);
+  }, []);
+
   // Debounce search
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -151,14 +157,14 @@ export default function CommunityFeed() {
           </div>
 
           <button
-            onClick={() => setShowCreateModal(true)}
+            onClick={handleOpenCompose}
             className="flex-1 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg px-3.5 py-2.5 text-left text-xs text-slate-500 font-medium transition-colors truncate"
           >
             What do you want to swap, buy, or request?
           </button>
 
           <button
-            onClick={() => setShowCreateModal(true)}
+            onClick={handleOpenCompose}
             className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-bold rounded-lg shadow-xs transition-colors shrink-0"
           >
             <Plus className="w-4 h-4" />
@@ -237,7 +243,7 @@ export default function CommunityFeed() {
           </p>
           {!debouncedSearch && (
             <button
-              onClick={() => setShowCreateModal(true)}
+              onClick={handleOpenCompose}
               className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-md hover:bg-blue-700 transition-colors shadow-xs"
             >
               <Plus className="w-3.5 h-3.5" />
