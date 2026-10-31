@@ -207,12 +207,12 @@ export default function LoginPage() {
       let errorMsg = 'Login failed. Please check your credentials.';
       if (isNetworkError(err)) {
         errorMsg = 'Unable to connect. Please check your internet connection.';
-      } else if (err.response?.status === 401) {
-        errorMsg = 'Invalid email or password.';
       } else if (err.response?.status === 429) {
-        errorMsg = 'Too many login attempts. Please try again later.';
+        errorMsg = 'Too many login attempts. Please wait a moment and try again.';
       } else if (err.response?.data?.message) {
         errorMsg = err.response.data.message;
+      } else if (err.response?.status === 401) {
+        errorMsg = 'Invalid email or password.';
       }
 
       setError(errorMsg);
