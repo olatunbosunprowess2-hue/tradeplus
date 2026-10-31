@@ -171,19 +171,38 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
             {/* ── 2. Fulfillment Phase ── */}
             {offer.status === 'awaiting_fulfillment' && (
                 <div className="px-3 pb-3 space-y-2.5">
-                    {/* Buyer PIN display card */}
+                    {/* Buyer PIN display card — Luxury Digital Handover Pass */}
                     {isBuyer && offer.pickupPin && (
-                        <div className="bg-gradient-to-br from-slate-900 to-slate-950 text-white border border-slate-800 rounded-xl p-4 text-center shadow-lg relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl pointer-events-none" />
-                            <span className="px-2 py-0.5 bg-blue-500/20 text-blue-300 border border-blue-400/30 rounded text-[9px] font-black uppercase tracking-widest inline-block mb-1">
-                                YOUR 6-DIGIT EXCHANGE CODE
-                            </span>
-                            <p className="text-3xl font-mono font-black tracking-[0.25em] text-white select-all my-1.5 drop-shadow-sm">
-                                {offer.pickupPin}
+                        <div className="bg-gradient-to-br from-[#0F172A] to-[#1E293B] text-white border border-slate-700/80 rounded-2xl p-4 text-center shadow-xl relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-28 h-28 bg-blue-500/15 rounded-full blur-2xl pointer-events-none" />
+                            <div className="flex items-center justify-center gap-1.5 mb-2">
+                                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                                <span className="text-[9px] font-black uppercase tracking-widest text-slate-300">
+                                    Physical Handover Pass
+                                </span>
+                            </div>
+
+                            {/* 6 Digit Capsules */}
+                            <div className="flex items-center justify-center gap-1.5 my-2.5">
+                                {(offer.pickupPin as string).split('').map((digit: string, i: number) => (
+                                    <div
+                                        key={i}
+                                        className="w-9 h-11 bg-white/10 border border-white/15 rounded-xl flex items-center justify-center font-mono font-black text-2xl text-white shadow-inner backdrop-blur-sm"
+                                    >
+                                        {digit}
+                                    </div>
+                                ))}
+                            </div>
+
+                            <p className="text-[10px] text-slate-300 leading-relaxed font-medium max-w-xs mx-auto mt-2">
+                                Read or show this one-time code to <strong className="text-white">{otherPartyName}</strong> at the meetup once you have inspected the item.
                             </p>
-                            <p className="text-[11px] text-slate-300 font-medium max-w-xs mx-auto leading-relaxed">
-                                Share this secret code with <strong className="text-white">{otherPartyName}</strong> in person only after inspecting and testing the item thoroughly.
-                            </p>
+
+                            <div className="mt-2.5 pt-2 border-t border-white/10 flex items-center justify-center gap-1.5">
+                                <span className="text-[9px] text-emerald-300 font-bold uppercase tracking-wider">
+                                    Awaiting {otherPartyName}&apos;s verification...
+                                </span>
+                            </div>
                         </div>
                     )}
 

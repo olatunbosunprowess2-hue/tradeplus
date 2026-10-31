@@ -507,18 +507,40 @@ export default function TradeSimulatorPage() {
 
                 {/* Fulfillment State: Show Buyer their secret 6-Digit PIN */}
                 {offerStatus === 'awaiting_fulfillment' && (
-                  <div className="space-y-2">
-                    <div className="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 rounded-xl p-3.5 text-center text-white shadow-lg relative overflow-hidden">
-                      <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full blur-xl pointer-events-none" />
-                      <span className="px-2 py-0.5 bg-blue-500/20 text-blue-300 border border-blue-400/30 rounded text-[9px] font-black uppercase tracking-widest inline-block mb-1">
-                        YOUR 6-DIGIT EXCHANGE CODE
-                      </span>
-                      <p className="text-3xl font-mono font-black tracking-[0.25em] text-white my-1 select-all drop-shadow-sm">
-                        {pickupPin}
+                  <div className="space-y-2.5">
+                    {/* Luxury Digital Handover Pass */}
+                    <div className="bg-gradient-to-br from-[#0F172A] to-[#1E293B] border border-slate-700/80 rounded-2xl p-4 text-center text-white shadow-xl relative overflow-hidden">
+                      <div className="absolute top-0 right-0 w-28 h-28 bg-blue-500/15 rounded-full blur-2xl pointer-events-none" />
+
+                      <div className="flex items-center justify-center gap-1.5 mb-2">
+                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-300">
+                          Physical Handover Pass
+                        </span>
+                      </div>
+
+                      {/* 6 Digit Capsules */}
+                      <div className="flex items-center justify-center gap-1.5 my-2">
+                        {pickupPin.split('').map((digit, i) => (
+                          <div
+                            key={i}
+                            className="w-9 h-11 bg-white/10 border border-white/15 rounded-xl flex items-center justify-center font-mono font-black text-2xl text-white shadow-inner backdrop-blur-sm"
+                          >
+                            {digit}
+                          </div>
+                        ))}
+                      </div>
+
+                      <p className="text-[10px] text-slate-300 leading-relaxed font-medium max-w-[270px] mx-auto mt-2">
+                        Read or show this one-time code to <strong className="text-white">Amaka</strong> at your meetup once you have inspected the iPhone.
                       </p>
-                      <p className="text-[10px] text-slate-300 leading-relaxed font-medium">
-                        Present this secret PIN to Amaka <strong className="text-white">ONLY</strong> after inspecting and testing the iPhone in person!
-                      </p>
+
+                      <div className="mt-2.5 pt-2 border-t border-white/10 flex items-center justify-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                        <span className="text-[9px] text-emerald-300 font-bold uppercase tracking-wider">
+                          Awaiting Amaka&apos;s verification on their phone...
+                        </span>
+                      </div>
                     </div>
 
                     {isBuyerFulfilled ? (
@@ -527,13 +549,14 @@ export default function TradeSimulatorPage() {
                         <span>Exchange Confirmed by You</span>
                       </div>
                     ) : (
-                      <button
-                        onClick={() => handleManualConfirm('buyer')}
-                        className="w-full py-2.5 bg-gradient-to-r from-[#22C55E] to-[#16A34A] text-white rounded-xl font-black text-xs uppercase tracking-wider hover:from-[#16A34A] hover:to-[#15803D] active:scale-[0.98] transition shadow-[0_4px_14px_rgba(22,163,74,0.32)] flex items-center justify-center gap-1.5"
-                      >
-                        <span>Confirm Exchange (Manual)</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="text-center pt-0.5">
+                        <button
+                          onClick={() => handleManualConfirm('buyer')}
+                          className="text-[10px] font-semibold text-slate-400 hover:text-slate-600 transition underline underline-offset-2"
+                        >
+                          Partner phone having issues? Confirm handover directly
+                        </button>
+                      </div>
                     )}
                   </div>
                 )}
@@ -828,12 +851,14 @@ export default function TradeSimulatorPage() {
                         <span>Exchange Verified & Item Sold</span>
                       </div>
                     ) : (
-                      <button
-                        onClick={() => handleManualConfirm('seller')}
-                        className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs uppercase tracking-wider transition-all"
-                      >
-                        Manual Confirm Exchange
-                      </button>
+                      <div className="text-center pt-1">
+                        <button
+                          onClick={() => handleManualConfirm('seller')}
+                          className="text-[10px] font-semibold text-slate-400 hover:text-slate-600 transition underline underline-offset-2"
+                        >
+                          Buyer cannot share code? Confirm handover directly
+                        </button>
+                      </div>
                     )}
                   </div>
                 )}
