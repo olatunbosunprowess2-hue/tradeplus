@@ -456,11 +456,24 @@ export default function TradeSimulatorPage() {
                 {offerStatus === 'accepted' && (
                   <div className="space-y-2">
                     {isSellerLocked && !isBuyerLocked && (
-                      <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl px-3 py-2 flex items-center gap-2 shadow-xs">
-                        <span className="px-1.5 py-0.5 bg-amber-500 text-white rounded text-[9px] font-black uppercase tracking-wider shrink-0 shadow-xs">
-                          ACTION REQUIRED
+                      <div className="bg-white border border-amber-200/90 rounded-xl p-2.5 flex items-center gap-2.5 shadow-[0_1px_4px_rgba(245,158,11,0.1)]">
+                        <div className="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-600 flex items-center justify-center shrink-0">
+                          <Lock className="w-3.5 h-3.5 stroke-[2.5]" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-black text-[#0F172A]">Amaka committed</span>
+                            <span className="px-1.5 py-0.2 bg-amber-50 text-amber-800 border border-amber-200 rounded text-[8px] font-black uppercase tracking-wider">
+                              1/2 Locked
+                            </span>
+                          </div>
+                          <p className="text-[10px] text-slate-500 font-medium truncate">
+                            Lock your side to start safe local meetup
+                          </p>
+                        </div>
+                        <span className="text-[10px] font-bold text-[#1D4ED8] shrink-0">
+                          Lock now →
                         </span>
-                        <p className="text-[11px] text-amber-950 font-bold leading-tight">Amaka has locked — seal the deal to start safe exchange!</p>
                       </div>
                     )}
                     <button
@@ -713,11 +726,24 @@ export default function TradeSimulatorPage() {
                 {offerStatus === 'accepted' && (
                   <div className="space-y-2">
                     {isBuyerLocked && !isSellerLocked && (
-                      <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl px-3 py-2 flex items-center gap-2 shadow-xs">
-                        <span className="px-1.5 py-0.5 bg-amber-500 text-white rounded text-[9px] font-black uppercase tracking-wider shrink-0 shadow-xs">
-                          ACTION REQUIRED
+                      <div className="bg-white border border-amber-200/90 rounded-xl p-2.5 flex items-center gap-2.5 shadow-[0_1px_4px_rgba(245,158,11,0.1)]">
+                        <div className="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-600 flex items-center justify-center shrink-0">
+                          <Lock className="w-3.5 h-3.5 stroke-[2.5]" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-black text-[#0F172A]">Tunde committed</span>
+                            <span className="px-1.5 py-0.2 bg-amber-50 text-amber-800 border border-amber-200 rounded text-[8px] font-black uppercase tracking-wider">
+                              1/2 Locked
+                            </span>
+                          </div>
+                          <p className="text-[10px] text-slate-500 font-medium truncate">
+                            Lock your side to start safe local meetup
+                          </p>
+                        </div>
+                        <span className="text-[10px] font-bold text-[#16A34A] shrink-0">
+                          Lock now →
                         </span>
-                        <p className="text-[11px] text-amber-950 font-bold leading-tight">Tunde has locked — seal the deal to start safe exchange!</p>
                       </div>
                     )}
                     <button
