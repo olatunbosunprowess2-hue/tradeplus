@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import {
   ShieldCheck,
+  X,
   Check,
   Repeat,
   Sparkles,
@@ -16,6 +17,7 @@ import {
   ChevronRight,
   Info,
   CheckCircle2,
+  AlertTriangle,
   Clock,
   KeyRound,
   ExternalLink,
@@ -50,6 +52,10 @@ export default function TradeSimulatorPage() {
   // Modals & Celebrations
   const [showLockCelebration, setShowLockCelebration] = useState(false);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [showAppealModal, setShowAppealModal] = useState(false);
+  const [appealSubmitted, setAppealSubmitted] = useState(false);
+  const [appealReason, setAppealReason] = useState('Item has hidden defects or faults');
+  const [customDisputeText, setCustomDisputeText] = useState('');
   const [starRating, setStarRating] = useState(5);
 
   // Chat conversation
@@ -535,20 +541,34 @@ export default function TradeSimulatorPage() {
                   </div>
                 )}
 
-                {/* Completed State — Compact Clean Row */}
+                {/* Completed State — Compact Row with Short Headline & Appeal Option */}
                 {offerStatus === 'completed' && (
                   <div className="bg-emerald-500/10 border border-emerald-500/25 rounded-xl px-3 py-2 flex items-center justify-between gap-2 shadow-2xs">
                     <div className="flex items-center gap-2 min-w-0">
                       <span className="px-2 py-0.5 bg-[#16A34A] text-white rounded text-[8px] font-black uppercase tracking-wider shrink-0 shadow-xs">
                         TRADE COMPLETED
                       </span>
-                      <span className="text-[11.5px] font-extrabold text-emerald-950">
-                        Item successfully exchanged &amp; verified!
+                      <span className="text-[11.5px] font-extrabold text-emerald-950 truncate">
+                        Deal Concluded
                       </span>
                     </div>
-                    <span className="text-[11px] text-[#16A34A] font-black shrink-0 flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-[#16A34A]" /> Sealed
-                    </span>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-[11px] text-[#16A34A] font-black flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#16A34A]" /> Sealed
+                      </span>
+                      <span className="text-slate-300 text-xs">|</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAppealSubmitted(false);
+                          setShowAppealModal(true);
+                        }}
+                        className="text-[10px] font-bold text-slate-500 hover:text-rose-600 transition-colors underline underline-offset-2 flex items-center gap-0.5"
+                      >
+                        <AlertTriangle className="w-3 h-3 text-amber-500 inline" />
+                        <span>Appeal</span>
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -823,20 +843,34 @@ export default function TradeSimulatorPage() {
                   </div>
                 )}
 
-                {/* Completed State — Compact Clean Row */}
+                {/* Completed State — Compact Row with Short Headline & Appeal Option */}
                 {offerStatus === 'completed' && (
                   <div className="bg-emerald-500/10 border border-emerald-500/25 rounded-xl px-3 py-2 flex items-center justify-between gap-2 shadow-2xs">
                     <div className="flex items-center gap-2 min-w-0">
                       <span className="px-2 py-0.5 bg-[#16A34A] text-white rounded text-[8px] font-black uppercase tracking-wider shrink-0 shadow-xs">
                         SOLD
                       </span>
-                      <span className="text-[11.5px] font-extrabold text-emerald-950">
-                        Deal concluded &bull; Item handed over &amp; verified
+                      <span className="text-[11.5px] font-extrabold text-emerald-950 truncate">
+                        Deal Concluded
                       </span>
                     </div>
-                    <span className="text-[11px] text-[#16A34A] font-black shrink-0 flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-[#16A34A]" /> Closed
-                    </span>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-[11px] text-[#16A34A] font-black flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#16A34A]" /> Closed
+                      </span>
+                      <span className="text-slate-300 text-xs">|</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAppealSubmitted(false);
+                          setShowAppealModal(true);
+                        }}
+                        className="text-[10px] font-bold text-slate-500 hover:text-rose-600 transition-colors underline underline-offset-2 flex items-center gap-0.5"
+                      >
+                        <AlertTriangle className="w-3 h-3 text-amber-500 inline" />
+                        <span>Appeal</span>
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -985,6 +1019,138 @@ export default function TradeSimulatorPage() {
                 Close Simulator
               </button>
             </div>
+          </div>
+        </div>
+      )}
+    
+      {/* ── APPEAL / DISPUTE RESOLUTION MODAL ── */}
+      {showAppealModal && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[10060] flex items-center justify-center p-4 animate-in fade-in duration-300 select-none">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-6 text-[#0F172A] shadow-2xl border border-slate-200 animate-in zoom-in-95 duration-200 relative max-h-[92vh] overflow-y-auto">
+            <button
+              onClick={() => setShowAppealModal(false)}
+              className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {!appealSubmitted ? (
+              <>
+                <div className="w-12 h-12 bg-amber-50 border border-amber-200 rounded-2xl flex items-center justify-center text-amber-600 mb-3.5 shadow-2xs">
+                  <AlertTriangle className="w-6 h-6 stroke-[2.5]" />
+                </div>
+
+                <span className="px-2 py-0.5 bg-amber-50 text-amber-800 border border-amber-200 rounded text-[9px] font-black uppercase tracking-wider">
+                  TRUST &amp; SAFETY RECOURSE
+                </span>
+
+                <h3 className="text-xl font-black text-[#0F172A] mt-2 mb-1 tracking-tight">
+                  Appeal Trade Issue
+                </h3>
+                <p className="text-xs text-slate-500 mb-3.5 leading-relaxed font-medium">
+                  Did something go wrong with this exchange? Select a category or describe your issue in the box below.
+                </p>
+
+                {/* Dispute Category Selectors */}
+                <div className="space-y-1.5 mb-3 text-xs font-semibold">
+                  {[
+                    'Item has hidden defects or faults',
+                    'Item is counterfeit or misrepresented',
+                    'Agreed cash balance was incomplete',
+                    'Trader engaged in hostile behavior',
+                    'Other dispute issue (specify below)',
+                  ].map((reason) => (
+                    <label
+                      key={reason}
+                      className={`flex items-center gap-2.5 p-2 rounded-xl border cursor-pointer transition-colors ${
+                        appealReason === reason
+                          ? 'border-amber-500 bg-amber-50/50 text-[#0F172A]'
+                          : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="appealReason"
+                        checked={appealReason === reason}
+                        onChange={() => setAppealReason(reason)}
+                        className="text-amber-600 focus:ring-amber-500"
+                      />
+                      <span className="text-[11px]">{reason}</span>
+                    </label>
+                  ))}
+                </div>
+
+                {/* Custom Dispute / Details Text Area */}
+                <div className="mb-4">
+                  <div className="flex items-center justify-between text-[11px] font-bold text-slate-700 mb-1">
+                    <span>
+                      {appealReason.includes('Other')
+                        ? 'Describe your issue (Required):'
+                        : 'Additional details & explanation:'}
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-normal">
+                      {customDisputeText.length}/500
+                    </span>
+                  </div>
+                  <textarea
+                    value={customDisputeText}
+                    onChange={(e) => setCustomDisputeText(e.target.value)}
+                    maxLength={500}
+                    rows={3}
+                    placeholder={
+                      appealReason.includes('Other')
+                        ? 'Please describe the specific issue or problem with this trade...'
+                        : 'Add any specific details (e.g., battery degradation, missing charger, undisclosed cracks)...'
+                    }
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-[#0F172A] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 font-medium transition-all resize-none"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <button
+                    disabled={appealReason.includes('Other') && !customDisputeText.trim()}
+                    onClick={() => setAppealSubmitted(true)}
+                    className="w-full py-3 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 disabled:opacity-40 text-white rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md active:scale-[0.98] cursor-pointer"
+                  >
+                    Submit Appeal Ticket
+                  </button>
+                  <button
+                    onClick={() => setShowAppealModal(false)}
+                    className="w-full py-2 text-slate-400 hover:text-slate-600 font-bold text-xs transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-4">
+                <div className="w-14 h-14 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-center text-[#16A34A] mx-auto mb-3 shadow-2xs">
+                  <Check className="w-8 h-8 stroke-[3]" />
+                </div>
+                <h3 className="text-xl font-black text-[#0F172A] mb-1.5 tracking-tight">
+                  Appeal Submitted!
+                </h3>
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 mb-4 text-left text-xs">
+                  <p className="text-[10px] uppercase font-black text-slate-400 tracking-wider mb-0.5">
+                    Category: <span className="text-[#0F172A]">{appealReason}</span>
+                  </p>
+                  {customDisputeText && (
+                    <p className="text-slate-700 font-medium italic border-t border-slate-200 pt-1.5 mt-1.5">
+                      &ldquo;{customDisputeText}&rdquo;
+                    </p>
+                  )}
+                </div>
+                <p className="text-xs text-slate-600 leading-relaxed font-medium mb-5">
+                  Ticket <strong className="text-[#0F172A]">#BW-APL-8941</strong> has been created. Reviews and Trust score updates are on hold pending admin review.
+                </p>
+                <button
+                  onClick={() => setShowAppealModal(false)}
+                  className="w-full py-3 bg-[#0F172A] hover:bg-slate-800 text-white rounded-xl font-black text-xs uppercase tracking-wider transition-all"
+                >
+                  Return to Simulator
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

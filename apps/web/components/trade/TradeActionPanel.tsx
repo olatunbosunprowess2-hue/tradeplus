@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { KeyRound, CheckCircle2, Lock } from 'lucide-react';
+import { KeyRound, CheckCircle2, Lock, AlertTriangle, X } from 'lucide-react';
 import TradeStepper from './TradeStepper';
 import TradeCompleteModal from './TradeCompleteModal';
 import apiClient from '@/lib/api-client';
@@ -247,54 +247,111 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
                 </div>
             )}
 
-                        {/* ── 3. Completed — Compact Single Row ── */}
+                        {/* ── 3. Completed — Short Headline with Corner Appeal ── */}
             {offer.status === 'completed' && (
                 <div className="px-3 pb-2.5">
-                    <div className="bg-emerald-500/10 border border-emerald-500/25 rounded-lg px-2.5 py-1.5 flex items-center justify-between gap-2 shadow-2xs">
+                    <div className="bg-emerald-500/10 border border-emerald-500/25 rounded-xl px-3 py-2 flex items-center justify-between gap-2 shadow-2xs">
                         <div className="flex items-center gap-2 min-w-0">
                             <span className="px-1.5 py-0.5 bg-[#16A34A] text-white rounded text-[8px] font-black uppercase tracking-wider shrink-0 shadow-xs">
-                                TRADE COMPLETED
+                                {isBuyer ? 'TRADE COMPLETED' : 'SOLD'}
                             </span>
-                            <span className="text-[11px] font-extrabold text-emerald-950 truncate">
-                                Exchange verified & deal concluded
+                            <span className="text-[11.5px] font-extrabold text-emerald-950 truncate">
+                                Deal Concluded
                             </span>
                         </div>
-                        <span className="text-[10px] text-[#16A34A] font-black shrink-0 flex items-center gap-0.5">
-                            ✓ Sealed
-                        </span>
+                        <div className="flex items-center gap-2 shrink-0">
+                            <span className="text-[11px] text-[#16A34A] font-black flex items-center gap-1">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-[#16A34A]" /> {isBuyer ? 'Sealed' : 'Closed'}
+                            </span>
+                            <span className="text-slate-300 text-xs">|</span>
+                            <button
+                                type="button"
+                                onClick={() => setShowDisputeModal(true)}
+                                className="text-[10px] font-bold text-slate-500 hover:text-rose-600 transition-colors underline underline-offset-2 flex items-center gap-0.5"
+                            >
+                                <AlertTriangle className="w-3 h-3 text-amber-500 inline" />
+                                <span>Appeal</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
 
             {/* Dispute Modal */}
             {showDisputeModal && (
-                <div className="fixed inset-0 bg-black/50 z-[10050] flex items-center justify-center p-4" onClick={() => setShowDisputeModal(false)}>
-                    <div className="bg-white rounded-2xl w-full max-w-md p-5" onClick={(e) => e.stopPropagation()}>
-                        <h3 className="text-base font-bold text-red-600 flex items-center gap-2 mb-2">
-                            Report Issue / Dispute
-                        </h3>
-                        <p className="text-xs text-gray-600 mb-3 leading-relaxed">
-                            If the item is not as described or there is a serious issue, explain below. This will freeze the trade and alert BarterWave support.
+                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[10050] flex items-center justify-center p-4" onClick={() => setShowDisputeModal(false)}>
+                    <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl border border-slate-200" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center">
+                                    <AlertTriangle className="w-4 h-4" />
+                                </div>
+                                <div>
+                                    <h3 className="text-base font-black text-[#0F172A]">
+                                        Appeal / Report Trade Issue
+                                    </h3>
+                                    <span className="text-[10px] text-slate-500 font-medium">Trust &amp; Safety Investigation</span>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setShowDisputeModal(false)}
+                                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
+                        
+                        <p className="text-xs text-slate-500 mb-3.5 leading-relaxed font-medium">
+                            If the item has undisclosed defects, wrong serial number, missing cash, or any other issue, describe it below. This freezes trader ratings and alerts support.
                         </p>
-                        <textarea
-                            value={disputeReason}
-                            onChange={(e) => setDisputeReason(e.target.value)}
-                            placeholder="Explain the issue in detail..."
-                            className="w-full border-2 border-gray-200 rounded-xl p-3 mb-3 focus:border-red-400 focus:ring-0 min-h-[80px] text-sm"
-                        />
+
+                        {/* Quick Common Presets */}
+                        <div className="flex flex-wrap gap-1.5 mb-3">
+                            {[
+                                'Hidden Defect / Fault',
+                                'Counterfeit / Replica',
+                                'Incomplete Cash Balance',
+                                'Other Issue',
+                            ].map((preset) => (
+                                <button
+                                    key={preset}
+                                    type="button"
+                                    onClick={() => setDisputeReason((prev) => prev ? `${preset}: ${prev}` : `${preset}: `)}
+                                    className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[10.5px] font-bold transition-colors"
+                                >
+                                    + {preset}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Dispute Explanation Text Area */}
+                        <div className="mb-4">
+                            <label className="block text-[11px] font-bold text-slate-700 mb-1 flex items-center justify-between">
+                                <span>Describe the issue in detail:</span>
+                                <span className="text-[10px] text-slate-400 font-normal">{disputeReason.length}/500</span>
+                            </label>
+                            <textarea
+                                value={disputeReason}
+                                onChange={(e) => setDisputeReason(e.target.value)}
+                                maxLength={500}
+                                placeholder="Explain what went wrong in detail (e.g., undisclosed screen flicker, wrong storage size, missing charger)..."
+                                className="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs text-[#0F172A] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 font-medium transition-all min-h-[90px] resize-none"
+                            />
+                        </div>
+
                         <div className="flex gap-2">
                             <button
                                 onClick={() => setShowDisputeModal(false)}
-                                className="flex-1 py-2.5 text-gray-600 font-bold bg-gray-100 hover:bg-gray-200 rounded-xl text-xs"
+                                className="flex-1 py-3 text-slate-600 font-bold bg-slate-100 hover:bg-slate-200 rounded-xl text-xs transition-colors"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={handleDispute}
-                                disabled={isLoading}
-                                className="flex-1 py-2.5 text-white font-bold bg-red-600 hover:bg-red-700 rounded-xl text-xs flex justify-center items-center"
+                                disabled={isLoading || !disputeReason.trim()}
+                                className="flex-1 py-3 text-white font-black bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 disabled:opacity-40 rounded-xl text-xs uppercase tracking-wider transition-all shadow-md flex justify-center items-center gap-1.5"
                             >
-                                {isLoading ? 'Sending...' : 'Submit Dispute'}
+                                {isLoading ? 'Submitting...' : 'Submit Appeal Ticket'}
                             </button>
                         </div>
                     </div>

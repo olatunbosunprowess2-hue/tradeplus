@@ -1,553 +1,686 @@
 'use client';
 
-import { useState } from 'react';
-import { X, Check, Zap, Star, Crown, Bell, MapPin, TrendingUp, Sparkles, ShieldCheck, Target, BadgeCheck, Users, ArrowUpRight } from 'lucide-react';
+import React, { useState } from 'react';
+import {
+  X,
+  Check,
+  Zap,
+  Star,
+  Crown,
+  Bell,
+  TrendingUp,
+  Sparkles,
+  ShieldCheck,
+  MessageSquare,
+  Package,
+  ChevronDown,
+  ChevronUp,
+  ArrowRight,
+} from 'lucide-react';
 
-interface PaywallOption {
-    id: string;
-    title: string;
-    description: string;
-    prices: { NGN: number; USD: number };
-    originalPrices?: { NGN: number; USD: number };
-    icon: React.ReactNode;
-    badge?: string;
-    badgeColor?: string;
-    isPrimary?: boolean;
-    quickFeatures?: string[];
-    detailedBenefits?: string[];
+export interface PaywallOption {
+  id: string;
+  title: string;
+  description: string;
+  prices: { NGN: number; USD: number };
+  originalPrices?: { NGN: number; USD: number };
+  icon?: React.ReactNode;
+  badge?: string;
+  badgeColor?: string;
+  isPrimary?: boolean;
+  quickFeatures?: string[];
+  detailedBenefits?: string[];
 }
 
-interface PaywallModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    title: string;
-    subtitle?: string;
-    options: PaywallOption[];
-    onSelectOption: (optionId: string, currency: 'NGN' | 'USD') => void;
-    showPremiumUpsell?: boolean;
-    isLoading?: boolean;
-    headerGradient?: string;
-    creditsAvailable?: number;
-    onUseCredit?: (optionId: string) => void;
+export interface PaywallModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  subtitle?: string;
+  options: PaywallOption[];
+  onSelectOption: (optionId: string, currency: 'NGN' | 'USD') => void;
+  showPremiumUpsell?: boolean;
+  isLoading?: boolean;
+  headerGradient?: string;
+  creditsAvailable?: number;
+  onUseCredit?: (optionId: string) => void;
 }
 
 export default function PaywallModal({
-    isOpen,
-    onClose,
-    title,
-    subtitle,
-    options,
-    onSelectOption,
-    showPremiumUpsell = true,
-    isLoading = false,
-    headerGradient = 'from-slate-900 to-slate-800',
-    creditsAvailable = 0,
-    onUseCredit,
+  isOpen,
+  onClose,
+  title,
+  subtitle,
+  options,
+  onSelectOption,
+  showPremiumUpsell = true,
+  isLoading = false,
+  creditsAvailable = 0,
+  onUseCredit,
 }: PaywallModalProps) {
-    const [expandedOption, setExpandedOption] = useState<string | null>(null);
-    const [selectedOption, setSelectedOption] = useState<string | null>(null);
-    const [currency, setCurrency] = useState<'NGN' | 'USD'>('NGN');
+  const [currency, setCurrency] = useState<'NGN' | 'USD'>('NGN');
+  
+  // Set default selected option
+  const defaultOption = options.find((o) => o.isPrimary)?.id || (options[0]?.id ?? 'premium');
+  const [selectedOption, setSelectedOption] = useState<string>(defaultOption);
+  
+  // Track open dropdown accordions by option id
+  const [expandedOptions, setExpandedOptions] = useState<Record<string, boolean>>({
+    [defaultOption]: true, // open default option's dropdown initially so user immediately sees benefits
+  });
 
-    if (!isOpen) return null;
+  if (!isOpen) return null;
 
-    const handleSelect = (optionId: string) => {
-        setSelectedOption(optionId);
-        onSelectOption(optionId, currency);
-    };
+  const toggleDropdown = (optionId: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setExpandedOptions((prev) => ({
+      ...prev,
+      [optionId]: !prev[optionId],
+    }));
+  };
 
-    const toggleExpand = (e: React.MouseEvent, optionId: string) => {
-        e.stopPropagation();
-        setExpandedOption(expandedOption === optionId ? null : optionId);
-    };
+  const handleSelect = (optionId: string) => {
+    setSelectedOption(optionId);
+  };
 
-    const formatPrice = (price: number, curr: 'NGN' | 'USD') => {
-        if (price === 0) return 'FREE';
-        if (curr === 'NGN') return `₦${price.toLocaleString()}`;
-        return `$${(price / 100).toFixed(2)}`;
-    };
+  const handleConfirmPay = () => {
+    if (!selectedOption) return;
+    onSelectOption(selectedOption, currency);
+  };
 
-    return (
-        <div className="fixed inset-0 z-[10050] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm overflow-y-auto">
-            <div className="w-full max-w-5xl my-auto animate-in fade-in zoom-in-95 duration-500 relative">
+  const formatPrice = (price: number, curr: 'NGN' | 'USD') => {
+    if (price === 0) return 'FREE';
+    if (curr === 'NGN') return `₦${price.toLocaleString()}`;
+    return `$${(price / 100).toFixed(2)}`;
+  };
 
-                {/* Close Button */}
-                <button
-                    onClick={onClose}
-                    className="absolute -top-12 right-0 p-2 rounded-md bg-white/10 hover:bg-white/20 text-white transition-all z-20"
-                    aria-label="Close modal"
-                >
-                    <X className="w-5 h-5" />
-                </button>
+  // Find currently selected option data (either in options or premium upsell)
+  const isSelectedEmpire = selectedOption === 'premium';
+  const currentSelectedData = options.find((o) => o.id === selectedOption);
+  const selectedPriceText = isSelectedEmpire
+    ? currency === 'NGN'
+      ? '₦5,000 / mo'
+      : '$7.00 / mo'
+    : currentSelectedData
+    ? formatPrice(currentSelectedData.prices[currency], currency)
+    : '';
 
-                {/* Header */}
-                <div className="text-center mb-10">
-                    <h2 className="text-4xl font-black text-white mb-3 tracking-tight drop-shadow-lg flex items-center justify-center gap-3">
-                        <Sparkles className="text-amber-400 w-8 h-8" />
-                        {title}
-                        <Sparkles className="text-amber-400 w-8 h-8" />
-                    </h2>
-                    {subtitle && (
-                        <p className="text-slate-300 text-lg max-w-2xl mx-auto font-medium">
-                            {subtitle}
-                        </p>
-                    )}
+  return (
+    <div className="fixed inset-0 z-[10050] flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto select-none">
+      <div className="w-full max-w-xl my-auto bg-white border border-slate-200/90 rounded-2xl shadow-2xl relative overflow-hidden animate-in fade-in zoom-in-95 duration-200 text-[#0F172A]">
+        {/* Top Accent Bar */}
+        <div className="h-1.5 w-full bg-gradient-to-r from-[#22C55E] via-[#16A34A] to-blue-600" />
 
-                    {/* Currency Toggle */}
-                    <div className="flex items-center justify-center gap-2 mt-6">
-                        <div className="bg-slate-900/90 p-1 rounded-md border border-slate-800 flex">
-                            <button
-                                onClick={() => setCurrency('NGN')}
-                                className={`px-3.5 py-1.5 rounded text-xs font-bold tracking-wide transition-all ${currency === 'NGN' ? 'bg-[#1D4ED8] text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
-                            >
-                                🇳🇬 NGN
-                            </button>
-                            <button
-                                onClick={() => setCurrency('USD')}
-                                className={`px-3.5 py-1.5 rounded text-xs font-bold tracking-wide transition-all ${currency === 'USD' ? 'bg-[#1D4ED8] text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
-                            >
-                                🇺🇸 USD
-                            </button>
-                        </div>
-                    </div>
-                </div>
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors z-20"
+          aria-label="Close modal"
+        >
+          <X className="w-5 h-5" />
+        </button>
 
-                {/* Pricing Cards Grid */}
-                <div className="flex flex-col md:flex-row items-stretch justify-center gap-6 px-4">
-                    {options.map((option) => {
-                        const isSelected = selectedOption === option.id;
-                        // For the 3-card layout mockup, we emphasize primary or selected
-                        const isFeatured = option.isPrimary || (selectedOption === null && option.isPrimary);
-
-                        return (
-                            <div
-                                key={option.id}
-                                onClick={() => handleSelect(option.id)}
-                                className={`relative flex flex-col rounded-xl border transition-all duration-300 cursor-pointer overflow-hidden
-                                    ${isSelected || isFeatured
-                                        ? 'bg-slate-900 border-[#3B82F6] shadow-[0_0_40px_rgba(59,130,246,0.3)] md:-translate-y-4 md:scale-105 z-10'
-                                        : 'bg-slate-900/60 border-slate-800 hover:border-slate-600 hover:bg-slate-800/80 opacity-90'
-                                    }
-                                    ${options.length === 1 ? 'w-full max-w-md mx-auto' : 'flex-1 min-w-[280px] max-w-[340px]'}
-                                `}
-                            >
-                                {/* Featured Glow */}
-                                {(isSelected || isFeatured) && (
-                                    <div className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-blue-500 to-transparent shadow-[0_0_20px_rgba(59,130,246,0.5)]" />
-                                )}
-
-                                {/* Card Header */}
-                                <div className={`p-8 pb-6 text-center border-b ${isSelected || isFeatured ? 'border-slate-800/80' : 'border-slate-800/30'}`}>
-                                    {option.badge && (
-                                        <div className="mb-4">
-                                            <span className={`inline-block px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider text-white ${option.badgeColor || 'bg-[#1D4ED8]'}`}>
-                                                {option.badge}
-                                            </span>
-                                        </div>
-                                    )}
-
-                                    <h3 className={`text-xl font-bold mb-2 ${isSelected || isFeatured ? 'text-white' : 'text-slate-300'}`}>
-                                        {option.title}
-                                    </h3>
-
-                                    <div className="flex flex-col items-center justify-center my-4">
-                                        {option.originalPrices && (
-                                            <span className="text-sm text-slate-500 line-through font-bold mb-1">
-                                                {formatPrice(option.originalPrices[currency], currency)}
-                                            </span>
-                                        )}
-                                        <div className="flex items-end gap-1 justify-center">
-                                            <span className="text-4xl font-black text-white tracking-tight">
-                                                {formatPrice(option.prices[currency], currency)}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <p className="text-sm font-medium text-slate-400 leading-relaxed px-2">
-                                        {option.description}
-                                    </p>
-                                </div>
-
-                                {/* Features List */}
-                                <div className="p-8 pt-6 flex-1 flex flex-col">
-                                    <ul className="space-y-4 mb-8 flex-1">
-                                        {option.quickFeatures?.map((f, i) => (
-                                            <li key={i} className="flex items-start gap-3 text-sm font-medium text-slate-300">
-                                                <Check className={`w-5 h-5 shrink-0 ${isSelected || isFeatured ? 'text-[#3B82F6]' : 'text-slate-500'}`} />
-                                                <span>{f}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-
-                                    {/* Action Button */}
-                                    <button
-                                        disabled={isLoading}
-                                        className={`w-full py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all ${isLoading && selectedOption === option.id
-                                            ? 'bg-[#1D4ED8]/50 text-white cursor-wait relative overflow-hidden'
-                                            : isSelected || isFeatured
-                                                ? 'bg-[#1D4ED8] hover:bg-[#2563EB] text-white shadow-lg shadow-blue-900/20'
-                                                : 'bg-slate-800 hover:bg-slate-700 text-white'
-                                            }`}
-                                    >
-                                        {isLoading && selectedOption === option.id ? (
-                                            <span className="flex items-center justify-center gap-2">
-                                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                                Processing...
-                                            </span>
-                                        ) : (
-                                            'Get Started'
-                                        )}
-                                    </button>
-                                </div>
-                            </div>
-                        );
-                    })}
-
-                    {/* Premium Upsell Card (If applicable) */}
-                    {showPremiumUpsell && (
-                        <div
-                            onClick={() => handleSelect('premium')}
-                            className={`relative flex flex-col rounded-xl border transition-all duration-300 cursor-pointer overflow-hidden flex-1 min-w-[280px] max-w-[340px]
-                                ${selectedOption === 'premium'
-                                    ? 'bg-slate-900 border-amber-500 shadow-[0_0_40px_rgba(245,158,11,0.2)] md:-translate-y-4 md:scale-105 z-10'
-                                    : 'bg-slate-900/60 border-slate-800 hover:border-slate-600 hover:bg-slate-800/80 opacity-90'
-                                }
-                            `}
-                        >
-                            {/* Premium Glow */}
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl -mr-10 -mt-10" />
-
-                            {selectedOption === 'premium' && (
-                                <div className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-amber-500 to-transparent shadow-[0_0_20px_rgba(245,158,11,0.5)]" />
-                            )}
-
-                            <div className="p-8 pb-6 text-center border-b border-slate-800/30 relative z-10">
-                                <div className="mb-4">
-                                    <span className="inline-block px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider text-amber-900 bg-amber-400">
-                                        Best Value
-                                    </span>
-                                </div>
-
-                                <h3 className="text-xl font-bold mb-2 text-white flex items-center justify-center gap-2">
-                                    <Crown className="w-5 h-5 text-amber-500" />
-                                    Empire Status
-                                </h3>
-
-                                <div className="flex flex-col items-center justify-center my-4">
-                                    <span className="text-sm text-slate-500 line-through font-bold mb-1">
-                                        {currency === 'NGN' ? '₦10,000' : '$14.99'}
-                                    </span>
-                                    <div className="flex items-end gap-1 justify-center">
-                                        <span className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-amber-200 to-amber-500 tracking-tight">
-                                            {formatPrice(currency === 'NGN' ? 5000 : 700, currency)}
-                                        </span>
-                                        <span className="text-slate-500 font-bold mb-1">/mo</span>
-                                    </div>
-                                </div>
-
-                                <p className="text-sm font-medium text-slate-400 leading-relaxed px-2">
-                                    Unlimited privileges. Close deals faster.
-                                </p>
-                            </div>
-
-                            <div className="p-8 pt-6 flex-1 flex flex-col relative z-10">
-                                <ul className="space-y-4 mb-8 flex-1">
-                                    {[
-                                        "Unlimited Listings",
-                                        "Unlimited Chats",
-                                        "Verified Crown Badge",
-                                        "Search Priority",
-                                        "50% Off Boosts",
-                                        "Read Receipts"
-                                    ].map((f, i) => (
-                                        <li key={i} className="flex items-start gap-3 text-sm font-medium text-slate-300">
-                                            <Check className={`w-5 h-5 flex-shrink-0 ${selectedOption === 'premium' ? 'text-amber-500' : 'text-slate-500'}`} />
-                                            <span>{f}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-
-                                <button
-                                    disabled={isLoading}
-                                    className={`w-full py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all ${isLoading && selectedOption === 'premium'
-                                        ? 'bg-amber-500/50 text-white cursor-wait'
-                                        : selectedOption === 'premium'
-                                            ? 'bg-amber-500 hover:bg-amber-400 text-amber-950 shadow-lg shadow-amber-900/20'
-                                            : 'bg-slate-800 hover:bg-slate-700 text-white'
-                                        }`}
-                                >
-                                    {isLoading && selectedOption === 'premium' ? (
-                                        <span className="flex items-center justify-center gap-2">
-                                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                            Processing...
-                                        </span>
-                                    ) : (
-                                        'Upgrade to Empire'
-                                    )}
-                                </button>
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                <div className="text-center mt-8">
-                    <button
-                        onClick={onClose}
-                        className="text-slate-500 text-sm font-medium hover:text-white transition-colors tracking-wide"
-                    >
-                        Skip for now
-                    </button>
-                </div>
+        <div className="p-5 sm:p-7">
+          {/* Header */}
+          <div className="text-center mb-5">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-emerald-50 border border-emerald-200/80 rounded-md text-[10px] font-black uppercase tracking-wider text-[#16A34A] mb-2">
+              <Sparkles className="w-3 h-3 text-emerald-600" />
+              <span>MARKETPLACE UPGRADE</span>
             </div>
+            <h2 className="text-2xl sm:text-3xl font-black text-[#0F172A] tracking-tight">
+              {title}
+            </h2>
+            {subtitle && (
+              <p className="text-slate-500 text-xs sm:text-sm max-w-md mx-auto mt-1 leading-relaxed font-medium">
+                {subtitle}
+              </p>
+            )}
+
+            {/* Currency Toggle */}
+            <div className="flex items-center justify-center gap-2 mt-4">
+              <div className="bg-slate-100 p-0.5 rounded-xl border border-slate-200 inline-flex items-center">
+                <button
+                  type="button"
+                  onClick={() => setCurrency('NGN')}
+                  className={`px-3 py-1 rounded-lg text-xs font-black transition-all ${
+                    currency === 'NGN'
+                      ? 'bg-white text-[#0F172A] shadow-xs'
+                      : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  🇳🇬 NGN (₦)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCurrency('USD')}
+                  className={`px-3 py-1 rounded-lg text-xs font-black transition-all ${
+                    currency === 'USD'
+                      ? 'bg-white text-[#0F172A] shadow-xs'
+                      : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  🇺🇸 USD ($)
+                </button>
+              </div>
+            </div>
+
+            {/* Spotlight Credits Available Notice */}
+            {creditsAvailable > 0 && onUseCredit && (
+              <div className="mt-3.5 bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 flex items-center justify-between gap-2 text-left">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Star className="w-4 h-4 text-emerald-600 shrink-0 fill-current" />
+                  <span className="text-xs font-bold text-emerald-950 truncate">
+                    You have <strong className="text-emerald-700">{creditsAvailable} free credit(s)</strong> available!
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onUseCredit(options[0]?.id || 'spotlight_3')}
+                  className="px-2.5 py-1 bg-[#16A34A] hover:bg-[#15803D] text-white text-[10px] font-black uppercase tracking-wider rounded-lg shrink-0 transition-colors shadow-2xs"
+                >
+                  Apply Free
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Vertical Stacked Subscription & Pricing Cards */}
+          <div className="space-y-3 mb-6">
+            {options.map((option) => {
+              const isSelected = selectedOption === option.id;
+              const isExpanded = !!expandedOptions[option.id];
+              const benefits = option.detailedBenefits || option.quickFeatures || [];
+
+              return (
+                <div
+                  key={option.id}
+                  onClick={() => handleSelect(option.id)}
+                  className={`border rounded-2xl transition-all cursor-pointer overflow-hidden ${
+                    isSelected
+                      ? 'border-[#16A34A] ring-2 ring-[#16A34A]/20 bg-emerald-50/20 shadow-sm'
+                      : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/40'
+                  }`}
+                >
+                  {/* Card Header Row */}
+                  <div className="p-3.5 sm:p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      {/* Left: Radio Selector + Title & Summary */}
+                      <div className="flex items-start gap-3 min-w-0">
+                        <div
+                          className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center shrink-0 transition-colors ${
+                            isSelected
+                              ? 'border-[#16A34A] bg-[#16A34A]'
+                              : 'border-slate-300 bg-white'
+                          }`}
+                        >
+                          {isSelected && <div className="w-2 h-2 rounded-full bg-white" />}
+                        </div>
+
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                            <span className="font-black text-sm text-[#0F172A] leading-tight">
+                              {option.title}
+                            </span>
+                            {option.badge && (
+                              <span
+                                className={`px-2 py-0.5 rounded text-[8.5px] font-black uppercase tracking-wider text-white shrink-0 ${
+                                  option.badgeColor || 'bg-[#16A34A]'
+                                }`}
+                              >
+                                {option.badge}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-slate-500 font-medium leading-snug">
+                            {option.description}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Right: Price */}
+                      <div className="text-right shrink-0">
+                        {option.originalPrices && (
+                          <span className="text-[10px] text-slate-400 line-through font-bold block leading-none mb-0.5">
+                            {formatPrice(option.originalPrices[currency], currency)}
+                          </span>
+                        )}
+                        <span className="text-base sm:text-lg font-black text-[#0F172A] leading-none">
+                          {formatPrice(option.prices[currency], currency)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Dropdown Accordion Toggle Button */}
+                    {benefits.length > 0 && (
+                      <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
+                        <button
+                          type="button"
+                          onClick={(e) => toggleDropdown(option.id, e)}
+                          className="text-[11px] font-bold text-slate-600 hover:text-slate-900 flex items-center gap-1 transition-colors group"
+                        >
+                          <span className="text-[#16A34A] font-extrabold group-hover:underline">
+                            {isExpanded ? 'Hide benefits' : `What's included (${benefits.length} benefits)`}
+                          </span>
+                          {isExpanded ? (
+                            <ChevronUp className="w-3.5 h-3.5 text-[#16A34A]" />
+                          ) : (
+                            <ChevronDown className="w-3.5 h-3.5 text-[#16A34A]" />
+                          )}
+                        </button>
+
+                        <span className="text-[10px] text-slate-400 font-semibold">
+                          Instant Activation
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Dropdown Content (Expanded Benefits View) */}
+                  {isExpanded && benefits.length > 0 && (
+                    <div className="bg-slate-50/80 border-t border-slate-100 px-4 py-3 space-y-2 text-xs">
+                      {benefits.map((b, i) => (
+                        <div key={i} className="flex items-start gap-2.5">
+                          <Check className="w-4 h-4 text-[#16A34A] shrink-0 mt-0.5 stroke-[2.5]" />
+                          <span className="font-medium text-slate-700 leading-snug">{b}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+
+            {/* Empire Status Pro Upsell Card (Vertical Flagship) */}
+            {showPremiumUpsell && (
+              <div
+                onClick={() => handleSelect('premium')}
+                className={`border rounded-2xl transition-all cursor-pointer overflow-hidden ${
+                  isSelectedEmpire
+                    ? 'border-amber-400 ring-2 ring-amber-400/25 bg-amber-50/20 shadow-sm'
+                    : 'border-amber-200/90 bg-gradient-to-br from-amber-50/10 to-orange-50/10 hover:border-amber-300'
+                }`}
+              >
+                <div className="p-3.5 sm:p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-3 min-w-0">
+                      <div
+                        className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center shrink-0 transition-colors ${
+                          isSelectedEmpire
+                            ? 'border-amber-500 bg-amber-500'
+                            : 'border-slate-300 bg-white'
+                        }`}
+                      >
+                        {isSelectedEmpire && <div className="w-2 h-2 rounded-full bg-white" />}
+                      </div>
+
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                          <Crown className="w-4 h-4 text-amber-500 fill-amber-400" />
+                          <span className="font-black text-sm text-[#0F172A] leading-tight">
+                            Empire Status Pro
+                          </span>
+                          <span className="px-2 py-0.5 rounded text-[8.5px] font-black uppercase tracking-wider text-amber-900 bg-amber-300 shrink-0">
+                            BEST VALUE
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500 font-medium leading-snug">
+                          All-access VIP membership for serious merchants & high-volume traders.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="text-right shrink-0">
+                      <span className="text-[10px] text-slate-400 line-through font-bold block leading-none mb-0.5">
+                        {currency === 'NGN' ? '₦10,000' : '$14.99'}
+                      </span>
+                      <span className="text-base sm:text-lg font-black text-amber-700 leading-none">
+                        {currency === 'NGN' ? '₦5,000' : '$7.00'}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-bold block">/month</span>
+                    </div>
+                  </div>
+
+                  {/* Dropdown Toggle */}
+                  <div className="mt-3 pt-2.5 border-t border-amber-200/60 flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={(e) => toggleDropdown('premium', e)}
+                      className="text-[11px] font-bold text-amber-800 hover:text-amber-950 flex items-center gap-1 transition-colors group"
+                    >
+                      <span className="font-extrabold group-hover:underline">
+                        {expandedOptions['premium']
+                          ? 'Hide VIP privileges'
+                          : "What's included in Empire (6 VIP benefits)"}
+                      </span>
+                      {expandedOptions['premium'] ? (
+                        <ChevronUp className="w-3.5 h-3.5 text-amber-700" />
+                      ) : (
+                        <ChevronDown className="w-3.5 h-3.5 text-amber-700" />
+                      )}
+                    </button>
+
+                    <span className="text-[10px] text-amber-700 font-bold">
+                      Renews Monthly
+                    </span>
+                  </div>
+                </div>
+
+                {/* Empire Dropdown Benefits */}
+                {expandedOptions['premium'] && (
+                  <div className="bg-amber-50/60 border-t border-amber-200/70 px-4 py-3 space-y-2 text-xs">
+                    {[
+                      'Unlimited Daily Chats — Bypass the 15 daily chat limit completely',
+                      'Verified Gold Crown Badge displayed on your store & all listings',
+                      '2 Free Category Spotlight Credits included every month (₦2,400 value)',
+                      'Search Priority — Appear at the very top of buyer search results',
+                      'Unlimited Active Listings — No 10-item cap',
+                      'Direct WhatsApp Inquiry Button on all your products',
+                    ].map((b, i) => (
+                      <div key={i} className="flex items-start gap-2.5">
+                        <Check className="w-4 h-4 text-amber-600 shrink-0 mt-0.5 stroke-[2.5]" />
+                        <span className="font-medium text-slate-800 leading-snug">{b}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Footer Action Button */}
+          <div className="space-y-2.5">
+            <button
+              disabled={isLoading || !selectedOption}
+              onClick={handleConfirmPay}
+              className="w-full py-3.5 bg-gradient-to-r from-[#22C55E] to-[#16A34A] hover:from-[#16A34A] hover:to-[#15803D] disabled:opacity-40 text-white font-black text-xs sm:text-sm uppercase tracking-wider rounded-xl transition-all shadow-md active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer"
+            >
+              {isLoading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>Connecting to Paystack...</span>
+                </>
+              ) : (
+                <>
+                  <span>
+                    Proceed with {isSelectedEmpire ? 'Empire Status' : currentSelectedData?.title || 'Selected Plan'}{' '}
+                    {selectedPriceText ? `(${selectedPriceText})` : ''}
+                  </span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
+
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={onClose}
+                className="text-slate-400 text-xs font-bold hover:text-slate-600 transition-colors"
+              >
+                Skip for now
+              </button>
+            </div>
+          </div>
         </div>
-    );
+      </div>
+    </div>
+  );
 }
 
-// Simple English English variants
+// ── Specific Modal Variants ──
 
 export function ChatLimitModal({
-    isOpen,
-    onClose,
-    onSelectOption,
-    isLoading,
+  isOpen,
+  onClose,
+  onSelectOption,
+  isLoading,
 }: {
-    isOpen: boolean;
-    onClose: () => void;
-    onSelectOption: (type: string, currency: 'NGN' | 'USD') => void;
-    isLoading?: boolean;
+  isOpen: boolean;
+  onClose: () => void;
+  onSelectOption: (type: string, currency: 'NGN' | 'USD') => void;
+  isLoading?: boolean;
 }) {
-    return (
-        <PaywallModal
-            isOpen={isOpen}
-            onClose={onClose}
-            title="Empire Status"
-            subtitle="You have reached your free chat limit of 15. Go Premium for unlimited trading."
-            headerGradient="from-slate-900 to-slate-800"
-            options={[]} // Removing standalone chat pass
-            onSelectOption={onSelectOption}
-            showPremiumUpsell={true}
-            isLoading={isLoading}
-        />
-    );
+  return (
+    <PaywallModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Unlock Unlimited Trading"
+      subtitle="You've reached your free daily limit of 15 new chats. Upgrade to Empire Status to chat with unlimited buyers and sellers."
+      options={[]}
+      onSelectOption={onSelectOption}
+      showPremiumUpsell={true}
+      isLoading={isLoading}
+    />
+  );
 }
 
 export function DistressBoostModal({
-    isOpen,
-    onClose,
-    onSelectOption,
-    isPremium = false,
-    isLoading,
+  isOpen,
+  onClose,
+  onSelectOption,
+  isPremium = false,
+  isLoading,
 }: {
-    isOpen: boolean;
-    onClose: () => void;
-    onSelectOption: (type: string, currency: 'NGN' | 'USD') => void;
-    isPremium?: boolean;
-    isLoading?: boolean;
+  isOpen: boolean;
+  onClose: () => void;
+  onSelectOption: (type: string, currency: 'NGN' | 'USD') => void;
+  isPremium?: boolean;
+  isLoading?: boolean;
 }) {
-    return (
-        <PaywallModal
-            isOpen={isOpen}
-            onClose={onClose}
-            title="Get Noticed Instantly"
-            subtitle="Don't let your item get buried. For a tiny fee, we'll put your listing in front of thousands of active buyers."
-            headerGradient="from-slate-900 to-slate-800"
-            options={[
-                {
-                    id: 'aggressive_boost',
-                    title: 'Aggressive Targeted Boost',
-                    description: '"Don\'t wait for buyers. We\'ll ping the 10 most interested people instantly."',
-                    prices: { NGN: 0, USD: 0 },
-                    icon: <Bell className="w-6 h-6 fill-current" />,
-                    isPrimary: true,
-                    badge: 'FREE (LIMITED TIME)',
-                    badgeColor: 'bg-[#16A34A]',
-                    quickFeatures: ['Smart Pings', 'In-Region', 'High Intent'],
-                    detailedBenefits: [
-                        "Proprietary Smart Targeting notifies the Top 10 users currently searching for items like yours",
-                        "Filters for buyers specifically in your region for faster handovers",
-                        "Bypasses casual browsing by putting your link directly in their notifications"
-                    ]
-                },
-            ]}
-            onSelectOption={onSelectOption}
-            showPremiumUpsell={!isPremium}
-            isLoading={isLoading}
-        />
-    );
+  return (
+    <PaywallModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Liquidate & Sell Today"
+      subtitle="Don't let your urgent distress deal get buried. Broadcast your item directly to active buyers looking to seal quick deals."
+      options={[
+        {
+          id: 'aggressive_boost',
+          title: 'Distress Fast-Track Broadcast',
+          description: 'Ping the 10 most active buyers in your city searching for items like yours right now.',
+          prices: { NGN: 0, USD: 0 },
+          icon: <Bell className="w-5 h-5" />,
+          isPrimary: true,
+          badge: 'FREE PROMO',
+          badgeColor: 'bg-[#16A34A]',
+          quickFeatures: ['Smart Pings', 'In-City Only', 'Instant Alerts'],
+          detailedBenefits: [
+            'Proprietary smart targeting alerts the top 10 users searching for items in your category',
+            'Filters strictly for buyers in your local city for immediate physical pickup',
+            'Pins your listing to the dedicated Distress Liquidation Hub',
+            'Instant WhatsApp notification alerts to high-intent buyers',
+          ],
+        },
+      ]}
+      onSelectOption={onSelectOption}
+      showPremiumUpsell={!isPremium}
+      isLoading={isLoading}
+    />
+  );
 }
 
 export function SpotlightModal({
-    isOpen,
-    onClose,
-    onSelectOption,
-    onUseCredit,
-    creditsAvailable = 0,
-    isLoading,
+  isOpen,
+  onClose,
+  onSelectOption,
+  onUseCredit,
+  creditsAvailable = 0,
+  isLoading,
 }: {
-    isOpen: boolean;
-    onClose: () => void;
-    onSelectOption: (type: string, currency: 'NGN' | 'USD') => void;
-    onUseCredit?: (optionId: string) => void;
-    creditsAvailable?: number;
-    isLoading?: boolean;
+  isOpen: boolean;
+  onClose: () => void;
+  onSelectOption: (type: string, currency: 'NGN' | 'USD') => void;
+  onUseCredit?: (optionId: string) => void;
+  creditsAvailable?: number;
+  isLoading?: boolean;
 }) {
-    return (
-        <PaywallModal
-            isOpen={isOpen}
-            onClose={onClose}
-            title="Sell 3x Faster Today!"
-            subtitle="For only ₦500, put your item at the very top of search results so buyers see you first."
-            headerGradient="from-slate-900 to-slate-800"
-            options={[
-                {
-                    id: 'spotlight_3',
-                    title: 'Spotlight - 3 Days',
-                    description: 'Fix your ad at the top of its category for a 72-hour visibility peak.',
-                    prices: { NGN: 500, USD: 199 },
-                    icon: <Star className="w-6 h-6 fill-current" />,
-                    badge: 'IMPULSE BUY',
-                    badgeColor: 'bg-[#22C55E]',
-                    quickFeatures: ['Top spot', 'Best for quick sales'],
-                    detailedBenefits: [
-                        "Category-specific featured banner",
-                        "3x more clicks than standard listings",
-                        "Great for items needing a quick pulse check",
-                        "⏱️ Days stack if purchased multiple times"
-                    ]
-                },
-                {
-                    id: 'spotlight_7',
-                    title: 'Spotlight - 7 Days',
-                    description: '"Own the homepage for a week. Perfect for cars, phones, and high-ticket items."',
-                    prices: { NGN: 1200, USD: 399 },
-                    originalPrices: { NGN: 4000, USD: 1299 },
-                    icon: <TrendingUp className="w-6 h-6" />,
-                    isPrimary: true,
-                    badge: 'BEST FOR CARS',
-                    badgeColor: 'bg-[#1D4ED8]',
-                    quickFeatures: ['One full week', 'Highest views', 'Verified Badge'],
-                    detailedBenefits: [
-                        "Fixed homepage rotating carousel placement",
-                        "Extended 7-day run-time for complex negotiations",
-                        "Boosts seller credibility with 'Featured' tag",
-                        "⏱️ Days stack if purchased multiple times"
-                    ]
-                },
-            ]}
-            onSelectOption={onSelectOption}
-            onUseCredit={onUseCredit}
-            creditsAvailable={creditsAvailable}
-            showPremiumUpsell={true}
-            isLoading={isLoading}
-        />
-    );
+  return (
+    <PaywallModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Sell 3x Faster with Spotlight"
+      subtitle="Put your item at the very top of search feeds and category pages so verified buyers see your deal first."
+      options={[
+        {
+          id: 'spotlight_3',
+          title: 'Spotlight — 3 Days',
+          description: 'Fix your listing at the top of its category for a 72-hour visibility peak.',
+          prices: { NGN: 500, USD: 199 },
+          icon: <Star className="w-5 h-5 fill-current" />,
+          badge: 'IMPULSE BUY',
+          badgeColor: 'bg-[#22C55E]',
+          quickFeatures: ['Top spot', '3x views'],
+          detailedBenefits: [
+            'Category-specific featured placement above regular listings',
+            '3x more clicks and offer proposals from local buyers',
+            'Ideal for fast electronics, sneakers, and gadget exchanges',
+            '⚡ Days stack automatically if purchased multiple times',
+          ],
+        },
+        {
+          id: 'spotlight_7',
+          title: 'Spotlight — 7 Days',
+          description: 'Own the category top slot for a full week. Perfect for phones, laptops, and vehicles.',
+          prices: { NGN: 1200, USD: 399 },
+          originalPrices: { NGN: 2500, USD: 699 },
+          icon: <TrendingUp className="w-5 h-5" />,
+          isPrimary: true,
+          badge: 'MOST POPULAR',
+          badgeColor: 'bg-[#1D4ED8]',
+          quickFeatures: ['One full week', '5x views', 'Featured Tag'],
+          detailedBenefits: [
+            'Fixed rotating category & search results top carousel placement',
+            'Extended 7-day visibility peak for high-value negotiations',
+            'Boosts trader credibility with prominent verified "Featured" badge',
+            '5x higher deal conclusion rate',
+            '⚡ Days stack automatically if renewed',
+          ],
+        },
+      ]}
+      onSelectOption={onSelectOption}
+      onUseCredit={onUseCredit}
+      creditsAvailable={creditsAvailable}
+      showPremiumUpsell={true}
+      isLoading={isLoading}
+    />
+  );
 }
+
 export function PostLimitModal({
-    isOpen,
-    onClose,
-    onSelectOption,
-    isLoading,
+  isOpen,
+  onClose,
+  onSelectOption,
+  isLoading,
 }: {
-    isOpen: boolean;
-    onClose: () => void;
-    onSelectOption: (type: string, currency: 'NGN' | 'USD') => void;
-    isLoading?: boolean;
+  isOpen: boolean;
+  onClose: () => void;
+  onSelectOption: (type: string, currency: 'NGN' | 'USD') => void;
+  isLoading?: boolean;
 }) {
-    return (
-        <PaywallModal
-            isOpen={isOpen}
-            onClose={onClose}
-            title="Grow your audience"
-            subtitle="Free users are limited to 50 posts per day. Upgrade to Empire Status for unlimited posting."
-            headerGradient="from-[#1D4ED8] to-[#1E40AF]"
-            options={[]}
-            onSelectOption={onSelectOption}
-            showPremiumUpsell={true}
-            isLoading={isLoading}
-        />
-    );
+  return (
+    <PaywallModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Daily Post Limit Reached"
+      subtitle="You've reached the 50 daily community post limit. Upgrade to Empire Status to post without volume restrictions."
+      options={[]}
+      onSelectOption={onSelectOption}
+      showPremiumUpsell={true}
+      isLoading={isLoading}
+    />
+  );
 }
 
 export function OfferLimitModal({
-    isOpen,
-    onClose,
-    onSelectOption,
-    isLoading,
+  isOpen,
+  onClose,
+  onSelectOption,
+  isLoading,
 }: {
-    isOpen: boolean;
-    onClose: () => void;
-    onSelectOption: (type: string, currency: 'NGN' | 'USD') => void;
-    isLoading?: boolean;
+  isOpen: boolean;
+  onClose: () => void;
+  onSelectOption: (type: string, currency: 'NGN' | 'USD') => void;
+  isLoading?: boolean;
 }) {
-    return (
-        <PaywallModal
-            isOpen={isOpen}
-            onClose={onClose}
-            title="Make more offers"
-            subtitle="Free users are limited to 5 offers per day. Upgrade to Empire Status for unlimited offers."
-            headerGradient="from-amber-600 to-orange-600"
-            options={[]}
-            onSelectOption={onSelectOption}
-            showPremiumUpsell={true}
-            isLoading={isLoading}
-        />
-    );
+  return (
+    <PaywallModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Daily Offer Limit Reached"
+      subtitle="To prevent network spam, free users can propose up to 5 offers per day. Upgrade to Empire Status for unlimited trade offers."
+      options={[]}
+      onSelectOption={onSelectOption}
+      showPremiumUpsell={true}
+      isLoading={isLoading}
+    />
+  );
 }
 
 export function FirstChatModal({
-    isOpen,
-    onClose,
+  isOpen,
+  onClose,
 }: {
-    isOpen: boolean;
-    onClose: () => void;
+  isOpen: boolean;
+  onClose: () => void;
 }) {
-    if (!isOpen) return null;
+  if (!isOpen) return null;
 
-    return (
-        <div className="fixed inset-0 z-[10050] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-300">
-                <div className="bg-gradient-to-br from-[#1D4ED8] to-[#1E40AF] p-8 text-white text-center">
-                    <div className="w-14 h-14 bg-white/20 rounded-lg flex items-center justify-center mx-auto mb-3">
-                        <Users className="w-10 h-10" />
-                    </div>
-                    <h2 className="text-2xl font-bold mb-2">Safe Trading Terms</h2>
-                    <p className="text-blue-100 text-sm">Please read and acknowledge our safety guidelines before starting this chat.</p>
-                </div>
-                <div className="p-6 space-y-4">
-                    <div className="flex gap-4 items-start">
-                        <div className="w-10 h-10 rounded-xl bg-[#F0FDF4] flex items-center justify-center shrink-0">
-                            <ShieldCheck className="w-5 h-5 text-[#16A34A]" />
-                        </div>
-                        <div>
-                            <p className="font-bold text-slate-900 text-sm">Stay on Platform</p>
-                            <p className="text-xs text-slate-500">Keep all communication and trade steps inside BarterWave for your protection.</p>
-                        </div>
-                    </div>
-                    <div className="flex gap-4 items-start">
-                        <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center shrink-0">
-                            <ShieldCheck className="w-5 h-5 text-red-600" />
-                        </div>
-                        <div>
-                            <p className="font-bold text-slate-900 text-sm">No Advance Payments</p>
-                            <p className="text-xs text-slate-500 font-semibold text-red-700">Never pay in advance for shipping. Inspect items first in person before completing the exchange.</p>
-                        </div>
-                    </div>
-                    <div className="flex gap-4 items-start">
-                        <div className="w-10 h-10 rounded-xl bg-[#EFF6FF] flex items-center justify-center shrink-0">
-                            <Target className="w-5 h-5 text-[#2563EB]" />
-                        </div>
-                        <div>
-                            <p className="font-bold text-slate-900 text-sm">Public Meetups Only</p>
-                            <p className="text-xs text-slate-500">Meet in well-lit, public spaces. Always inspect and test items before final approval.</p>
-                        </div>
-                    </div>
-                    <button
-                        onClick={onClose}
-                        className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-md font-bold transition-colors mt-3 uppercase tracking-wider text-xs"
-                    >
-                        I Agree & Accept
-                    </button>
-                </div>
-            </div>
+  return (
+    <div className="fixed inset-0 z-[10050] flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
+      <div className="w-full max-w-md my-auto bg-white border border-slate-200/90 rounded-2xl shadow-2xl p-6 text-[#0F172A] animate-in fade-in zoom-in-95 duration-200 relative">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+          aria-label="Close modal"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        <div className="text-center mb-5">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 text-[#16A34A] flex items-center justify-center mx-auto mb-3 shadow-xs">
+            <ShieldCheck className="w-6 h-6 stroke-[2.5]" />
+          </div>
+          <h2 className="text-xl font-black text-[#0F172A] tracking-tight">
+            Safe P2P Trading Guide
+          </h2>
+          <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+            Welcome to BarterWave! Keep these 3 golden rules in mind before meeting:
+          </p>
         </div>
-    );
+
+        <div className="space-y-3 mb-6 bg-slate-50 rounded-xl p-3.5 border border-slate-200/80 text-xs">
+          <div className="flex items-start gap-2.5">
+            <span className="w-5 h-5 rounded-full bg-emerald-500/15 text-[#16A34A] flex items-center justify-center font-black text-[10px] shrink-0">
+              1
+            </span>
+            <p className="text-slate-700 font-medium">
+              <strong className="text-slate-900">Meet in Daylight:</strong> Always meet in public, busy places (malls, banks, eateries).
+            </p>
+          </div>
+          <div className="flex items-start gap-2.5">
+            <span className="w-5 h-5 rounded-full bg-emerald-500/15 text-[#16A34A] flex items-center justify-center font-black text-[10px] shrink-0">
+              2
+            </span>
+            <p className="text-slate-700 font-medium">
+              <strong className="text-slate-900">Inspect First:</strong> Test phone battery, IMEI, condition, or cash before revealing your PIN.
+            </p>
+          </div>
+          <div className="flex items-start gap-2.5">
+            <span className="w-5 h-5 rounded-full bg-emerald-500/15 text-[#16A34A] flex items-center justify-center font-black text-[10px] shrink-0">
+              3
+            </span>
+            <p className="text-slate-700 font-medium">
+              <strong className="text-slate-900">Exchange Code:</strong> Hand over your 6-digit code only once satisfied with the trade.
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={onClose}
+          className="w-full py-3 bg-gradient-to-r from-[#22C55E] to-[#16A34A] hover:from-[#16A34A] hover:to-[#15803D] text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-md active:scale-95"
+        >
+          I Understand &amp; Agree
+        </button>
+      </div>
+    </div>
+  );
 }
