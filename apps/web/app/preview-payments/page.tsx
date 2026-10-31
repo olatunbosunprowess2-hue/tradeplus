@@ -89,6 +89,12 @@ export default function PreviewPaymentsPage() {
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
             <Link
+              href="/pricing"
+              className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 transition-colors"
+            >
+              Public Pricing
+            </Link>
+            <Link
               href="/"
               className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 transition-colors"
             >

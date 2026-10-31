@@ -63,7 +63,7 @@ export default function TermsPage() {
                 <section className="mb-10">
                     <h2 className="text-2xl font-bold mb-4">5. Fees and Subscription</h2>
                     <p>
-                        BarterWave may charge fees for certain services, such as listing boosts, premium subscriptions, or transaction commissions. All fees are non-refundable unless otherwise stated. We reserve the right to change our fee structure at any time with prior notice.
+                        BarterWave charges standard fees solely for optional platform services, such as Listing Spotlights (promoted advertisements) and Pro Trader subscriptions. For our current public pricing tiers and plan details, please visit our <a href="/pricing" className="text-blue-600 underline font-semibold">Pricing &amp; Plans Page</a>. All platform fees are processed securely via our licensed payment gateway partners (e.g., Paystack). BarterWave never holds user funds or charges escrow fees on physical peer-to-peer item swaps.
                     </p>
                 </section>
 
