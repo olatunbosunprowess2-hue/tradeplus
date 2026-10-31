@@ -150,7 +150,7 @@ function ShareButton({
       <button
         onClick={() => setOpen(!open)}
         className={`p-1.5 rounded-md transition-colors ${
-          open ? 'bg-blue-50 text-blue-600' : 'text-slate-400 hover:text-slate-700 hover:bg-slate-100'
+          open ? 'bg-[#EFF6FF] text-[#2563EB]' : 'text-slate-400 hover:text-slate-700 hover:bg-slate-100'
         }`}
         title="Share"
       >
@@ -288,14 +288,14 @@ export default function PostCard({
               <div className="flex items-center flex-wrap gap-1.5">
                 <Link
                   href={`/profile/${author.id}`}
-                  className="font-bold text-slate-900 text-xs sm:text-sm hover:text-blue-600 transition-colors truncate"
+                  className="font-bold text-[#0F172A] text-xs sm:text-sm hover:text-[#2563EB] transition-colors truncate"
                 >
                   @{getDisplayName(author)}
                 </Link>
                 {isVerified(author) && (
                   <span
                     title="Verified User"
-                    className="inline-flex items-center p-0.5 rounded bg-blue-50 border border-blue-200 text-blue-600"
+                    className="inline-flex items-center p-0.5 rounded bg-[#EFF6FF] border border-[#BFDBFE] text-[#2563EB]"
                   >
                     <ShieldCheck className="w-3 h-3" />
                   </span>
@@ -398,7 +398,7 @@ export default function PostCard({
             {post.content.length > 600 && (
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="text-blue-600 font-bold hover:underline ml-1"
+                className="text-[#2563EB] font-bold hover:underline ml-1"
               >
                 {isExpanded ? 'See less' : 'See more'}
               </button>
@@ -412,7 +412,7 @@ export default function PostCard({
             {post.hashtags.map((tag) => (
               <span
                 key={tag}
-                className="text-[11px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded"
+                className="text-[11px] font-bold text-[#1D4ED8] bg-[#EFF6FF] px-2 py-0.5 rounded tracking-wide"
               >
                 #{tag}
               </span>
@@ -459,8 +459,8 @@ export default function PostCard({
             }}
             className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-bold rounded-md transition-colors ${
               showOfferForm
-                ? 'bg-blue-600 text-white shadow-2xs'
-                : 'bg-white border border-slate-200 text-blue-600 hover:bg-blue-50 hover:border-blue-200 shadow-2xs'
+                ? 'bg-[#1D4ED8] text-white shadow-[0_2px_8px_rgba(29,78,216,0.25)]'
+                : 'bg-white border border-slate-200 text-[#2563EB] hover:bg-[#EFF6FF] hover:border-[#BFDBFE] shadow-2xs'
             }`}
           >
             <Repeat className="w-3.5 h-3.5" />

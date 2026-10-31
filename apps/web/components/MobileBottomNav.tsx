@@ -128,7 +128,7 @@ export default function MobileBottomNav() {
     return (
         <>
             <nav
-                className="md:hidden fixed inset-x-0 bottom-0 bg-white/95 backdrop-blur-xl border-t border-gray-200/50 z-[10000] shadow-lg shadow-black/5 pb-[env(safe-area-inset-bottom)]"
+                className="md:hidden fixed inset-x-0 bottom-0 z-[10000] bg-white/95 backdrop-blur-xl border-t border-slate-200/60 shadow-[0_-1px_0_rgba(15,23,42,0.06)] pb-[env(safe-area-inset-bottom)] [transform:translateZ(0)] will-change-transform backface-hidden"
             >
                 {/* Gradient top border */}
                 <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />

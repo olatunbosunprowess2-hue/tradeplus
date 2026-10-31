@@ -144,7 +144,7 @@ export default function CommunityFeed() {
       <div className="bg-white border border-slate-200 rounded-xl p-3.5 sm:p-4 shadow-xs space-y-3">
         {/* Quick Composer Action Row */}
         <div className="flex items-center gap-2.5">
-          <div className="w-10 h-10 rounded-lg bg-blue-50 border border-blue-200 text-blue-700 font-bold text-xs flex items-center justify-center shrink-0 overflow-hidden">
+          <div className="w-10 h-10 rounded-lg bg-blue-50 border border-blue-200 text-[#1D4ED8] font-bold text-xs flex items-center justify-center shrink-0 overflow-hidden">
             {user?.profile?.avatarUrl ? (
               <img
                 src={sanitizeUrl(user.profile.avatarUrl)}
@@ -165,7 +165,7 @@ export default function CommunityFeed() {
 
           <button
             onClick={handleOpenCompose}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-bold rounded-lg shadow-xs transition-colors shrink-0"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] active:bg-blue-800 text-white text-xs font-bold rounded-lg shadow-xs transition-colors shrink-0"
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">Post Request</span>
@@ -180,7 +180,7 @@ export default function CommunityFeed() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search trade requests, hashtags (#Lekki, #iPhone), or traders..."
-            className="w-full pl-9 pr-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 focus:bg-white transition-all shadow-2xs"
+            className="w-full pl-9 pr-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] focus:bg-white transition-all shadow-2xs"
           />
           <Search className="absolute left-3 top-1/2 translate-y-[-35%] w-3.5 h-3.5 text-slate-400" />
         </div>
@@ -230,7 +230,7 @@ export default function CommunityFeed() {
       {/* Empty State */}
       {!isLoading && !isError && allPosts.length === 0 && (
         <div className="text-center py-12 bg-white rounded-lg border border-slate-200 p-8 shadow-xs">
-          <div className="w-12 h-12 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center mx-auto mb-3 text-blue-600">
+          <div className="w-12 h-12 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center mx-auto mb-3 text-[#2563EB]">
             <MessageSquare className="w-6 h-6" />
           </div>
           <h3 className="text-sm font-bold text-slate-900 mb-1">
@@ -244,7 +244,7 @@ export default function CommunityFeed() {
           {!debouncedSearch && (
             <button
               onClick={handleOpenCompose}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-md hover:bg-blue-700 transition-colors shadow-xs"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#1D4ED8] text-white text-xs font-bold rounded-md hover:bg-[#1E40AF] transition-colors shadow-xs"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Publish First Request</span>
@@ -272,7 +272,7 @@ export default function CommunityFeed() {
         <div ref={loadMoreRef} className="py-4 flex justify-center">
           {isFetchingNextPage && (
             <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600" />
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-[#2563EB]" />
               <span>Loading more discussions...</span>
             </div>
           )}

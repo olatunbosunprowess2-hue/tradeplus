@@ -264,15 +264,15 @@ export default function LoginPage() {
                 alt="BarterWave"
                 className="w-9 h-9 object-contain group-hover:scale-105 transition-transform"
               />
-              <span className="text-xl font-bold tracking-tight text-slate-900">
-                Barter<span className="text-blue-600">Wave</span>
+              <span className="text-xl font-black tracking-tight text-[#0F172A]">
+                Barter<span className="text-[#2563EB]">Wave</span>
               </span>
             </Link>
 
             <h1 className="text-2xl font-bold tracking-tight text-slate-900">Welcome back</h1>
             <p className="mt-1.5 text-xs text-slate-500">
               Don't have an account?{' '}
-              <Link href="/register" className="font-semibold text-blue-600 hover:text-blue-700 hover:underline">
+              <Link href="/register" className="font-semibold text-[#2563EB] hover:text-[#1D4ED8] hover:underline">
                 Create one for free
               </Link>
             </p>
@@ -306,7 +306,7 @@ export default function LoginPage() {
                   className={`block w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border rounded-md text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 transition-colors ${
                     errors.email
                       ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/20'
-                      : 'border-slate-300 focus:border-blue-600 focus:ring-blue-600/20'
+                      : 'border-slate-300 focus:border-[#2563EB] focus:ring-[#2563EB]/20'
                   }`}
                 />
               </div>
@@ -326,7 +326,7 @@ export default function LoginPage() {
                 </label>
                 <Link
                   href="/forgot-password"
-                  className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline"
+                  className="text-xs font-medium text-[#2563EB] hover:text-[#1D4ED8] hover:underline"
                 >
                   Forgot password?
                 </Link>
@@ -344,7 +344,7 @@ export default function LoginPage() {
                   className={`block w-full pl-10 pr-10 py-2.5 text-sm bg-white border rounded-md text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 transition-colors ${
                     errors.password
                       ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/20'
-                      : 'border-slate-300 focus:border-blue-600 focus:ring-blue-600/20'
+                      : 'border-slate-300 focus:border-[#2563EB] focus:ring-[#2563EB]/20'
                   }`}
                 />
                 <button
@@ -380,7 +380,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isButtonDisabled}
-              className="w-full mt-2 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 text-white text-sm font-semibold rounded-md shadow-sm transition-all flex items-center justify-center gap-2"
+              className="w-full mt-2 py-2.5 px-4 bg-[#1D4ED8] hover:bg-[#1E40AF] active:bg-[#1E3A8A] disabled:opacity-50 text-white text-sm font-bold rounded-md shadow-[0_2px_8px_rgba(29,78,216,0.30)] transition-all flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>

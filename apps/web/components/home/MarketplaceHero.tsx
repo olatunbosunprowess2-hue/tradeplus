@@ -71,7 +71,7 @@ export default function MarketplaceHero() {
 
           <button
             onClick={handleRestore}
-            className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 border border-blue-200 hover:bg-blue-100 px-2.5 py-1 rounded-md transition-all shadow-2xs"
+            className="inline-flex items-center gap-1 text-xs font-bold text-[#2563EB] hover:text-[#1D4ED8] bg-blue-50 border border-blue-200 hover:bg-blue-100 px-2.5 py-1 rounded-md transition-all shadow-2xs"
             title="Expand Welcome Banner"
           >
             <span>Show Banner</span>
@@ -118,7 +118,7 @@ export default function MarketplaceHero() {
               <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 mb-4 sm:mb-5">
                 <Link
                   href="/listings/create"
-                  className="flex-1 sm:flex-initial justify-center px-4 sm:px-5 py-2 sm:py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs sm:text-sm font-bold rounded-md transition-colors shadow-xs flex items-center gap-1.5"
+                  className="flex-1 sm:flex-initial justify-center px-4 sm:px-5 py-2 sm:py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] active:bg-blue-800 text-white text-xs sm:text-sm font-bold rounded-md transition-colors shadow-xs flex items-center gap-1.5"
                 >
                   <span>+ Post Free Listing</span>
                 </Link>
@@ -139,7 +139,7 @@ export default function MarketplaceHero() {
                   <span>Dual-PIN Protection</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Repeat className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                  <Repeat className="w-3.5 h-3.5 text-[#2563EB] shrink-0" />
                   <span>Item Swaps</span>
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -171,7 +171,7 @@ export default function MarketplaceHero() {
               </p>
               <Link
                 href="/distress"
-                className="mt-3 inline-flex items-center text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+                className="mt-3 inline-flex items-center text-xs font-semibold text-[#2563EB] hover:text-[#1D4ED8] transition-colors"
               >
                 Browse Distress Deals →
               </Link>
@@ -193,7 +193,7 @@ export default function MarketplaceHero() {
               </p>
               <Link
                 href="/wants"
-                className="mt-3 inline-flex items-center text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+                className="mt-3 inline-flex items-center text-xs font-semibold text-[#2563EB] hover:text-[#1D4ED8] transition-colors"
               >
                 Post on Wants Board →
               </Link>

@@ -97,13 +97,13 @@ export default function PaywallModal({
                         <div className="bg-slate-900/90 p-1 rounded-md border border-slate-800 flex">
                             <button
                                 onClick={() => setCurrency('NGN')}
-                                className={`px-3.5 py-1.5 rounded text-xs font-bold tracking-wide transition-all ${currency === 'NGN' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
+                                className={`px-3.5 py-1.5 rounded text-xs font-bold tracking-wide transition-all ${currency === 'NGN' ? 'bg-[#1D4ED8] text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
                             >
                                 🇳🇬 NGN
                             </button>
                             <button
                                 onClick={() => setCurrency('USD')}
-                                className={`px-3.5 py-1.5 rounded text-xs font-bold tracking-wide transition-all ${currency === 'USD' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
+                                className={`px-3.5 py-1.5 rounded text-xs font-bold tracking-wide transition-all ${currency === 'USD' ? 'bg-[#1D4ED8] text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
                             >
                                 🇺🇸 USD
                             </button>
@@ -124,7 +124,7 @@ export default function PaywallModal({
                                 onClick={() => handleSelect(option.id)}
                                 className={`relative flex flex-col rounded-xl border transition-all duration-300 cursor-pointer overflow-hidden
                                     ${isSelected || isFeatured
-                                        ? 'bg-slate-900 border-blue-500 shadow-[0_0_40px_rgba(59,130,246,0.3)] md:-translate-y-4 md:scale-105 z-10'
+                                        ? 'bg-slate-900 border-[#3B82F6] shadow-[0_0_40px_rgba(59,130,246,0.3)] md:-translate-y-4 md:scale-105 z-10'
                                         : 'bg-slate-900/60 border-slate-800 hover:border-slate-600 hover:bg-slate-800/80 opacity-90'
                                     }
                                     ${options.length === 1 ? 'w-full max-w-md mx-auto' : 'flex-1 min-w-[280px] max-w-[340px]'}
@@ -139,7 +139,7 @@ export default function PaywallModal({
                                 <div className={`p-8 pb-6 text-center border-b ${isSelected || isFeatured ? 'border-slate-800/80' : 'border-slate-800/30'}`}>
                                     {option.badge && (
                                         <div className="mb-4">
-                                            <span className={`inline-block px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider text-white ${option.badgeColor || 'bg-blue-600'}`}>
+                                            <span className={`inline-block px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider text-white ${option.badgeColor || 'bg-[#1D4ED8]'}`}>
                                                 {option.badge}
                                             </span>
                                         </div>
@@ -172,7 +172,7 @@ export default function PaywallModal({
                                     <ul className="space-y-4 mb-8 flex-1">
                                         {option.quickFeatures?.map((f, i) => (
                                             <li key={i} className="flex items-start gap-3 text-sm font-medium text-slate-300">
-                                                <Check className={`w-5 h-5 shrink-0 ${isSelected || isFeatured ? 'text-blue-500' : 'text-slate-500'}`} />
+                                                <Check className={`w-5 h-5 shrink-0 ${isSelected || isFeatured ? 'text-[#3B82F6]' : 'text-slate-500'}`} />
                                                 <span>{f}</span>
                                             </li>
                                         ))}
@@ -182,9 +182,9 @@ export default function PaywallModal({
                                     <button
                                         disabled={isLoading}
                                         className={`w-full py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all ${isLoading && selectedOption === option.id
-                                            ? 'bg-blue-600/50 text-white cursor-wait relative overflow-hidden'
+                                            ? 'bg-[#1D4ED8]/50 text-white cursor-wait relative overflow-hidden'
                                             : isSelected || isFeatured
-                                                ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/20'
+                                                ? 'bg-[#1D4ED8] hover:bg-[#2563EB] text-white shadow-lg shadow-blue-900/20'
                                                 : 'bg-slate-800 hover:bg-slate-700 text-white'
                                             }`}
                                     >
@@ -359,7 +359,7 @@ export function DistressBoostModal({
                     icon: <Bell className="w-6 h-6 fill-current" />,
                     isPrimary: true,
                     badge: 'FREE (LIMITED TIME)',
-                    badgeColor: 'bg-green-600',
+                    badgeColor: 'bg-[#16A34A]',
                     quickFeatures: ['Smart Pings', 'In-Region', 'High Intent'],
                     detailedBenefits: [
                         "Proprietary Smart Targeting notifies the Top 10 users currently searching for items like yours",
@@ -423,7 +423,7 @@ export function SpotlightModal({
                     icon: <TrendingUp className="w-6 h-6" />,
                     isPrimary: true,
                     badge: 'BEST FOR CARS',
-                    badgeColor: 'bg-blue-600',
+                    badgeColor: 'bg-[#1D4ED8]',
                     quickFeatures: ['One full week', 'Highest views', 'Verified Badge'],
                     detailedBenefits: [
                         "Fixed homepage rotating carousel placement",
@@ -458,7 +458,7 @@ export function PostLimitModal({
             onClose={onClose}
             title="Grow your audience"
             subtitle="Free users are limited to 50 posts per day. Upgrade to Empire Status for unlimited posting."
-            headerGradient="from-blue-600 to-indigo-600"
+            headerGradient="from-[#1D4ED8] to-[#1E40AF]"
             options={[]}
             onSelectOption={onSelectOption}
             showPremiumUpsell={true}
@@ -505,7 +505,7 @@ export function FirstChatModal({
     return (
         <div className="fixed inset-0 z-[10050] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-300">
-                <div className="bg-gradient-to-br from-blue-600 to-indigo-600 p-8 text-white text-center">
+                <div className="bg-gradient-to-br from-[#1D4ED8] to-[#1E40AF] p-8 text-white text-center">
                     <div className="w-14 h-14 bg-white/20 rounded-lg flex items-center justify-center mx-auto mb-3">
                         <Users className="w-10 h-10" />
                     </div>
@@ -515,7 +515,7 @@ export function FirstChatModal({
                 <div className="p-6 space-y-4">
                     <div className="flex gap-4 items-start">
                         <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center shrink-0">
-                            <ShieldCheck className="w-5 h-5 text-green-600" />
+                            <ShieldCheck className="w-5 h-5 text-[#16A34A]" />
                         </div>
                         <div>
                             <p className="font-bold text-slate-900 text-sm">Stay on Platform</p>
@@ -533,7 +533,7 @@ export function FirstChatModal({
                     </div>
                     <div className="flex gap-4 items-start">
                         <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                            <Target className="w-5 h-5 text-blue-600" />
+                            <Target className="w-5 h-5 text-[#2563EB]" />
                         </div>
                         <div>
                             <p className="font-bold text-slate-900 text-sm">Public Meetups Only</p>

@@ -106,7 +106,7 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
     };
 
     return (
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden relative">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-[0_1px_4px_rgba(15,23,42,0.08)] overflow-hidden relative">
 
             {/* Compact Stepper + Action in one row for accepted status */}
             <div className="px-3 py-2.5">
@@ -132,7 +132,7 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
                         className={`w-full py-2.5 rounded-lg font-bold text-xs transition-all flex items-center justify-center gap-1.5 ${
                             hasLocked
                                 ? 'bg-green-50 text-green-700 border border-green-200 cursor-default'
-                                : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.98] shadow-sm'
+                                : 'bg-[#1D4ED8] text-white hover:bg-[#1E40AF] active:scale-[0.98] shadow-[0_2px_8px_rgba(29,78,216,0.30)]'
                         }`}
                     >
                         {isLoading ? (
@@ -180,7 +180,7 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
                                 <button
                                     onClick={() => handleVerifyPickup(pinInput)}
                                     disabled={isLoading || pinInput.length !== 6}
-                                    className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 text-white font-bold text-xs rounded transition-colors shadow-2xs"
+                                    className="px-3.5 py-1.5 bg-[#16A34A] hover:bg-[#15803D] disabled:opacity-40 text-white font-bold text-xs rounded transition-colors shadow-[0_2px_6px_rgba(22,163,74,0.25)]"
                                 >
                                     Verify
                                 </button>
@@ -220,7 +220,7 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
                                 <button
                                     onClick={() => handleVerifyPickup()}
                                     disabled={isLoading}
-                                    className="flex-1 py-2 bg-green-600 text-white rounded-lg text-xs font-bold hover:bg-green-700 active:scale-[0.98] transition shadow-sm"
+                                    className="flex-1 py-2 bg-[#16A34A] text-white rounded-lg text-xs font-bold hover:bg-[#15803D] active:scale-[0.98] transition shadow-[0_2px_8px_rgba(22,163,74,0.30)]"
                                 >
                                     {isLoading ? 'Confirming...' : 'Yes, Confirm'}
                                 </button>
@@ -229,7 +229,7 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
                     ) : (
                         <button
                             onClick={() => setShowConfirmExchange(true)}
-                            className="w-full py-2.5 bg-blue-600 text-white rounded-lg font-bold text-xs hover:bg-blue-700 active:scale-[0.98] transition shadow-sm flex items-center justify-center gap-1.5"
+                            className="w-full py-2.5 bg-[#1D4ED8] text-white rounded-lg font-bold text-xs hover:bg-[#1E40AF] active:scale-[0.98] transition shadow-[0_2px_8px_rgba(29,78,216,0.30)] flex items-center justify-center gap-1.5"
                         >
                             Confirm Exchange
                         </button>

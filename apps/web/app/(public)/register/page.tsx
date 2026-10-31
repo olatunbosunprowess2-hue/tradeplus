@@ -89,7 +89,7 @@ function evaluatePassword(password: string) {
 
   if (score <= 2) return { score: 1, label: 'Weak', color: 'bg-rose-500', text: 'text-rose-600', reqs };
   if (score <= 4) return { score: 2, label: 'Fair', color: 'bg-amber-500', text: 'text-amber-600', reqs };
-  if (score === 5) return { score: 3, label: 'Good', color: 'bg-blue-600', text: 'text-blue-600', reqs };
+  if (score === 5) return { score: 3, label: 'Good', color: 'bg-[#1D4ED8]', text: 'text-[#2563EB]', reqs };
   return { score: 4, label: 'Strong', color: 'bg-emerald-600', text: 'text-emerald-600', reqs };
 }
 
@@ -302,7 +302,7 @@ export default function RegisterPage() {
                 className="w-9 h-9 object-contain group-hover:scale-105 transition-transform"
               />
               <span className="text-xl font-bold tracking-tight text-slate-900">
-                Barter<span className="text-blue-600">Wave</span>
+                Barter<span className="text-[#2563EB]">Wave</span>
               </span>
             </Link>
 
@@ -315,7 +315,7 @@ export default function RegisterPage() {
               {step === 1 && (
                 <>
                   Already have an account?{' '}
-                  <Link href="/login" className="font-semibold text-blue-600 hover:text-blue-700 hover:underline">
+                  <Link href="/login" className="font-semibold text-[#2563EB] hover:text-[#1D4ED8] hover:underline">
                     Sign in
                   </Link>
                 </>
@@ -328,14 +328,14 @@ export default function RegisterPage() {
           {/* Stepper Indicator */}
           <div className="mb-6">
             <div className="grid grid-cols-3 gap-1.5 mb-2">
-              <div className={`h-1.5 rounded-sm transition-all duration-300 ${step >= 1 ? 'bg-blue-600' : 'bg-slate-200'}`} />
-              <div className={`h-1.5 rounded-sm transition-all duration-300 ${step >= 2 ? 'bg-blue-600' : 'bg-slate-200'}`} />
-              <div className={`h-1.5 rounded-sm transition-all duration-300 ${step >= 3 ? 'bg-blue-600' : 'bg-slate-200'}`} />
+              <div className={`h-1.5 rounded-sm transition-all duration-300 ${step >= 1 ? 'bg-[#1D4ED8]' : 'bg-slate-200'}`} />
+              <div className={`h-1.5 rounded-sm transition-all duration-300 ${step >= 2 ? 'bg-[#1D4ED8]' : 'bg-slate-200'}`} />
+              <div className={`h-1.5 rounded-sm transition-all duration-300 ${step >= 3 ? 'bg-[#1D4ED8]' : 'bg-slate-200'}`} />
             </div>
             <div className="flex items-center justify-between text-[11px] font-medium text-slate-400 px-0.5">
-              <span className={step >= 1 ? 'text-blue-600 font-semibold' : ''}>1. Email</span>
-              <span className={step >= 2 ? 'text-blue-600 font-semibold' : ''}>2. Code</span>
-              <span className={step >= 3 ? 'text-blue-600 font-semibold' : ''}>3. Account</span>
+              <span className={step >= 1 ? 'text-[#2563EB] font-semibold' : ''}>1. Email</span>
+              <span className={step >= 2 ? 'text-[#2563EB] font-semibold' : ''}>2. Code</span>
+              <span className={step >= 3 ? 'text-[#2563EB] font-semibold' : ''}>3. Account</span>
             </div>
           </div>
 
@@ -366,7 +366,7 @@ export default function RegisterPage() {
                     type="email"
                     autoComplete="email"
                     placeholder="name@example.com"
-                    className="block w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-md text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-colors"
+                    className="block w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-md text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-colors"
                   />
                 </div>
                 {emailForm.formState.errors.email && (
@@ -380,7 +380,7 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full mt-2 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 text-white text-sm font-semibold rounded-md shadow-sm transition-all flex items-center justify-center gap-2"
+                className="w-full mt-2 py-2.5 px-4 bg-[#1D4ED8] hover:bg-[#1E40AF] active:bg-blue-800 disabled:opacity-50 text-white text-sm font-semibold rounded-md shadow-sm transition-all flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
@@ -467,7 +467,7 @@ export default function RegisterPage() {
                       value={digit}
                       onChange={(e) => handleOtpChange(idx, e.target.value)}
                       onKeyDown={(e) => handleOtpKeyDown(idx, e)}
-                      className="w-11 h-13 sm:w-12 sm:h-14 text-center text-xl font-bold bg-white border border-slate-300 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-colors"
+                      className="w-11 h-13 sm:w-12 sm:h-14 text-center text-xl font-bold bg-white border border-slate-300 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-colors"
                     />
                   ))}
                 </div>
@@ -477,7 +477,7 @@ export default function RegisterPage() {
               <button
                 onClick={() => handleVerifyOtp(otpValues.join(''))}
                 disabled={loading || otpValues.some((v) => !v)}
-                className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 text-white text-sm font-semibold rounded-md shadow-sm transition-all flex items-center justify-center gap-2"
+                className="w-full py-2.5 px-4 bg-[#1D4ED8] hover:bg-[#1E40AF] active:bg-blue-800 disabled:opacity-50 text-white text-sm font-semibold rounded-md shadow-sm transition-all flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
@@ -507,7 +507,7 @@ export default function RegisterPage() {
                     type="button"
                     onClick={handleResendOtp}
                     disabled={loading}
-                    className="text-blue-600 hover:text-blue-700 font-semibold inline-flex items-center gap-1 transition-colors"
+                    className="text-[#2563EB] hover:text-[#1D4ED8] font-semibold inline-flex items-center gap-1 transition-colors"
                   >
                     <RefreshCw className="w-3 h-3" />
                     Resend code
@@ -554,7 +554,7 @@ export default function RegisterPage() {
                     className={`block w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border rounded-md text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 transition-colors ${
                       regForm.formState.errors.displayName
                         ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/20'
-                        : 'border-slate-300 focus:border-blue-600 focus:ring-blue-600/20'
+                        : 'border-slate-300 focus:border-[#2563EB] focus:ring-[#2563EB]/20'
                     }`}
                   />
                 </div>
@@ -584,7 +584,7 @@ export default function RegisterPage() {
                     className={`block w-full pl-10 pr-10 py-2.5 text-sm bg-white border rounded-md text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 transition-colors ${
                       regForm.formState.errors.password
                         ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/20'
-                        : 'border-slate-300 focus:border-blue-600 focus:ring-blue-600/20'
+                        : 'border-slate-300 focus:border-[#2563EB] focus:ring-[#2563EB]/20'
                     }`}
                   />
                   <button
@@ -659,7 +659,7 @@ export default function RegisterPage() {
                     className={`block w-full pl-10 pr-10 py-2.5 text-sm bg-white border rounded-md text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 transition-colors ${
                       regForm.formState.errors.confirmPassword
                         ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/20'
-                        : 'border-slate-300 focus:border-blue-600 focus:ring-blue-600/20'
+                        : 'border-slate-300 focus:border-[#2563EB] focus:ring-[#2563EB]/20'
                     }`}
                   />
                   <button
@@ -685,15 +685,15 @@ export default function RegisterPage() {
                   <input
                     {...regForm.register('agreeToTerms')}
                     type="checkbox"
-                    className="h-4 w-4 mt-0.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                    className="h-4 w-4 mt-0.5 rounded border-slate-300 text-[#2563EB] focus:ring-blue-500 cursor-pointer"
                   />
                   <span className="text-xs text-slate-600 leading-snug">
                     I agree to the{' '}
-                    <Link href="/terms" target="_blank" className="font-semibold text-blue-600 hover:underline">
+                    <Link href="/terms" target="_blank" className="font-semibold text-[#2563EB] hover:underline">
                       Terms of Service
                     </Link>{' '}
                     and{' '}
-                    <Link href="/privacy" target="_blank" className="font-semibold text-blue-600 hover:underline">
+                    <Link href="/privacy" target="_blank" className="font-semibold text-[#2563EB] hover:underline">
                       Privacy Policy
                     </Link>
                   </span>
@@ -710,7 +710,7 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full mt-2 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 text-white text-sm font-semibold rounded-md shadow-sm transition-all flex items-center justify-center gap-2"
+                className="w-full mt-2 py-2.5 px-4 bg-[#1D4ED8] hover:bg-[#1E40AF] active:bg-blue-800 disabled:opacity-50 text-white text-sm font-semibold rounded-md shadow-sm transition-all flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>

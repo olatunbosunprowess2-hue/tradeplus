@@ -8,9 +8,10 @@ import { Providers } from './providers';
 
 const fontSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
+  weight: ['300', '400', '500', '600', '700', '800'],
   variable: '--font-sans',
   display: 'swap',
+  preload: true,
 });
 
 export const metadata: Metadata = {
@@ -91,13 +92,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <head>
         <meta name="theme-color" content="#2563eb" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className={`${fontSans.variable} font-sans bg-slate-50 antialiased text-slate-900`} suppressHydrationWarning>
+      <body className={`${fontSans.variable} font-sans bg-[#F8FAFC] antialiased text-[#0F172A] overscroll-contain`} suppressHydrationWarning>
         <Providers>
           <script
             dangerouslySetInnerHTML={{

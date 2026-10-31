@@ -80,8 +80,8 @@ export default function ListingCard({ listing: initialListing }: ListingCardProp
 
   return (
     <div
-      className={`rounded-lg border bg-white shadow-2xs hover:shadow-md hover:border-slate-300 transition-all duration-200 group relative overflow-hidden flex flex-col justify-between ${
-        isUrgentItem ? 'border-orange-300 ring-1 ring-orange-200' : 'border-slate-200'
+      className={`rounded-xl border bg-white transition-all duration-200 group relative overflow-hidden flex flex-col justify-between [transform:translateZ(0)] will-change-transform hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(15,23,42,0.10)] hover:border-slate-300 ${
+        isUrgentItem ? 'border-orange-300 shadow-[0_1px_3px_rgba(251,146,60,0.15)]' : 'border-slate-200 shadow-[0_1px_3px_rgba(15,23,42,0.07)]'
       }`}
     >
       {/* Top Badges */}
@@ -90,7 +90,7 @@ export default function ListingCard({ listing: initialListing }: ListingCardProp
 
         {listing.seller?.isVerified && (
           <div
-            className="bg-blue-600 text-white rounded p-1 shadow-xs flex items-center justify-center"
+            className="bg-[#1D4ED8] text-white rounded p-1 shadow-xs flex items-center justify-center"
             title="Verified Seller"
           >
             <ShieldCheck className="w-3.5 h-3.5" />

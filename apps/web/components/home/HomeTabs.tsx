@@ -11,7 +11,7 @@ export default function HomeTabs({ activeTab, onTabChange }: HomeTabsProps) {
             <button
                 onClick={() => onTabChange('market')}
                 className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === 'market'
-                        ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25'
+                        ? 'bg-[#1D4ED8] text-white shadow-md shadow-blue-500/25'
                         : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200/60'
                     }`}
             >
@@ -20,7 +20,7 @@ export default function HomeTabs({ activeTab, onTabChange }: HomeTabsProps) {
             <button
                 onClick={() => onTabChange('community')}
                 className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === 'community'
-                        ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25'
+                        ? 'bg-[#1D4ED8] text-white shadow-md shadow-blue-500/25'
                         : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200/60'
                     }`}
             >

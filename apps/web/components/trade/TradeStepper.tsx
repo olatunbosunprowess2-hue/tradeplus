@@ -43,23 +43,24 @@ export default function TradeStepper({ status, isBuyerLocked, isSellerLocked }: 
                     return (
                         <React.Fragment key={step.id}>
                             {index > 0 && (
-                                <div className={`flex-1 h-0.5 rounded-full transition-all duration-500 ${
+                                <div className={`flex-1 h-[2px] transition-all duration-500 ${
                                     isCompleted || (isCurrent && index < Math.floor(currentStep))
-                                        ? isDisputed ? 'bg-red-400' : 'bg-blue-500'
-                                        : 'bg-gray-200'
+                                        ? isDisputed ? 'bg-red-500' : 'bg-[#1D4ED8]'
+                                        : 'bg-slate-200'
                                 }`} />
                             )}
 
                             <div className="flex flex-col items-center relative">
+                                {/* Sharp rectangular step indicator — no rounded-full */}
                                 <div className={`
-                                    w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold transition-all duration-500
+                                    w-7 h-7 rounded flex items-center justify-center text-[11px] font-black transition-all duration-500
                                     ${isDisputedStep
-                                        ? 'bg-red-100 border-2 border-red-400 text-red-600 animate-pulse'
+                                        ? 'bg-red-100 border-2 border-red-500 text-red-700'
                                         : isCompleted
-                                            ? 'bg-blue-600 border-2 border-blue-600 text-white'
+                                            ? 'bg-[#1D4ED8] border-2 border-[#1D4ED8] text-white shadow-[0_2px_8px_rgba(29,78,216,0.35)]'
                                             : isCurrent
-                                                ? 'bg-white border-2 border-blue-500 text-blue-600 shadow-sm'
-                                                : 'bg-gray-100 border-2 border-gray-200 text-gray-400'
+                                                ? 'bg-white border-2 border-[#2563EB] text-[#1D4ED8] shadow-[0_2px_8px_rgba(37,99,235,0.15)]'
+                                                : 'bg-slate-100 border-2 border-slate-200 text-slate-400'
                                     }
                                 `}>
                                     {isDisputedStep ? '!' : isCompleted ? (
@@ -69,14 +70,14 @@ export default function TradeStepper({ status, isBuyerLocked, isSellerLocked }: 
                                     ) : stepNumber}
                                 </div>
                                 <span className={`
-                                    text-[9px] font-bold mt-1 whitespace-nowrap
+                                    text-[9px] font-bold mt-1 whitespace-nowrap uppercase tracking-wide
                                     ${isDisputedStep
                                         ? 'text-red-600'
                                         : isCompleted
-                                            ? 'text-blue-700'
+                                            ? 'text-[#1D4ED8]'
                                             : isCurrent
-                                                ? 'text-blue-600'
-                                                : 'text-gray-400'
+                                                ? 'text-[#2563EB]'
+                                                : 'text-slate-400'
                                     }
                                 `}>
                                     {isDisputedStep ? 'Dispute' : step.label}
@@ -88,8 +89,8 @@ export default function TradeStepper({ status, isBuyerLocked, isSellerLocked }: 
             </div>
 
             {isDisputed && (
-                <div className="mt-2 px-2 py-1.5 bg-red-50 border border-red-100 rounded-lg text-center">
-                    <p className="text-[10px] font-bold text-red-700">Trade Frozen — Admin Review</p>
+                <div className="mt-2 px-2 py-1.5 bg-red-50 border border-red-200 rounded text-center">
+                    <p className="text-[10px] font-black text-red-700 uppercase tracking-wider">Trade Frozen — Admin Review</p>
                 </div>
             )}
         </div>

@@ -249,7 +249,7 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className={`bg-white/95 backdrop-blur-xl border-b sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'border-slate-200 shadow-xs' : 'border-slate-200/80'
+      <nav className={`bg-white/95 backdrop-blur-xl border-b sticky top-0 z-50 transition-all duration-300 [transform:translateZ(0)] will-change-transform ${isScrolled ? 'border-slate-200 shadow-xs' : 'border-slate-200/80'
         } ${hideOnMobile ? 'hidden md:block' : ''}`}>
         <div className="container mx-auto px-4 max-w-7xl">
           <div className="flex items-center justify-between h-14 gap-4">
