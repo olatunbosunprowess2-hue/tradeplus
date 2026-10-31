@@ -438,7 +438,7 @@ export default function TradeSimulatorPage() {
               </div>
 
               {/* Deal Status Card / Action Panel */}
-              <div className="bg-white border-b border-slate-200/90 p-3.5 shrink-0 space-y-2.5 shadow-2xs">
+              <div className={`bg-white border-b border-slate-200/90 shrink-0 shadow-2xs transition-all ${offerStatus === 'completed' ? 'px-3 py-1.5' : 'p-3 space-y-2'}`}>
                 {/* Proposed State */}
                 {offerStatus === 'proposed' && (
                   <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
@@ -525,25 +525,41 @@ export default function TradeSimulatorPage() {
                   </div>
                 )}
 
-                {/* Completed State */}
+                {/* Completed State — Compact Single Row */}
                 {offerStatus === 'completed' && (
-                  <div className="bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/30 rounded-xl p-3 text-center shadow-xs">
-                    <span className="px-2 py-0.5 bg-[#16A34A] text-white rounded text-[9px] font-black uppercase tracking-wider shadow-xs">
-                      TRADE COMPLETED
+                  <div className="bg-emerald-500/10 border border-emerald-500/25 rounded-lg px-2.5 py-1.5 flex items-center justify-between gap-2 shadow-2xs">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="px-1.5 py-0.5 bg-[#16A34A] text-white rounded text-[8px] font-black uppercase tracking-wider shrink-0 shadow-xs">
+                        TRADE COMPLETED
+                      </span>
+                      <span className="text-[11px] font-extrabold text-emerald-950 truncate">
+                        Item successfully exchanged & verified!
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-[#16A34A] font-black shrink-0 flex items-center gap-0.5">
+                      ✓ Sealed
                     </span>
-                    <p className="text-xs font-black text-emerald-950 mt-1">Item successfully exchanged & verified!</p>
                   </div>
                 )}
               </div>
 
-              {/* Safety Advisory Strip */}
-              <div className="bg-slate-100/80 border-b border-slate-200 px-3.5 py-1.5 flex items-center gap-1.5 shrink-0">
-                <span className="px-1.5 py-0.2 bg-[#EFF6FF] text-[#1D4ED8] border border-[#BFDBFE] rounded text-[8px] font-black uppercase tracking-wider shrink-0">
-                  SAFETY
-                </span>
-                <p className="text-[10px] text-slate-600 truncate font-medium">
-                  Meet in daylight at a public place. Inspect items thoroughly.
-                </p>
+              {/* Safety Advisory Strip — Slowly Moving Marquee Ticker */}
+              <div className="bg-slate-100/90 border-b border-slate-200/90 px-3 py-1.5 flex items-center shrink-0 overflow-hidden select-none">
+                <div className="flex items-center gap-1 shrink-0 bg-slate-100/95 pr-2.5 z-10 shadow-[4px_0_8px_rgba(241,245,249,1)]">
+                  <span className="px-1.5 py-0.5 bg-[#EFF6FF] text-[#1D4ED8] border border-[#BFDBFE] rounded text-[8px] font-black uppercase tracking-wider shrink-0">
+                    SAFETY TIP
+                  </span>
+                </div>
+                <div className="overflow-hidden relative flex-1 flex items-center">
+                  <div className="animate-ticker-slow flex items-center whitespace-nowrap text-[10px] text-slate-600 font-semibold">
+                    <span className="inline-block px-4">
+                      Meet in daylight at a public place • Inspect items thoroughly before sharing your exchange code • Never release your code before receiving items • Keep all chats on BarterWave •
+                    </span>
+                    <span className="inline-block px-4">
+                      Meet in daylight at a public place • Inspect items thoroughly before sharing your exchange code • Never release your code before receiving items • Keep all chats on BarterWave •
+                    </span>
+                  </div>
+                </div>
               </div>
 
               {/* Scrollable Live Chat Feed */}
@@ -670,7 +686,7 @@ export default function TradeSimulatorPage() {
               </div>
 
               {/* Deal Status Card / Action Panel */}
-              <div className="bg-white border-b border-slate-200/90 p-3.5 shrink-0 space-y-2.5 shadow-2xs">
+              <div className={`bg-white border-b border-slate-200/90 shrink-0 shadow-2xs transition-all ${offerStatus === 'completed' ? 'px-3 py-1.5' : 'p-3 space-y-2'}`}>
                 {/* Proposed State: Accept button */}
                 {offerStatus === 'proposed' && (
                   <div className="space-y-2.5">
@@ -796,25 +812,41 @@ export default function TradeSimulatorPage() {
                   </div>
                 )}
 
-                {/* Completed State */}
+                {/* Completed State — Compact Single Row */}
                 {offerStatus === 'completed' && (
-                  <div className="bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/30 rounded-xl p-3 text-center shadow-xs">
-                    <span className="px-2 py-0.5 bg-[#16A34A] text-white rounded text-[9px] font-black uppercase tracking-wider shadow-xs">
-                      SOLD / COMPLETED
+                  <div className="bg-emerald-500/10 border border-emerald-500/25 rounded-lg px-2.5 py-1.5 flex items-center justify-between gap-2 shadow-2xs">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="px-1.5 py-0.5 bg-[#16A34A] text-white rounded text-[8px] font-black uppercase tracking-wider shrink-0 shadow-xs">
+                        SOLD
+                      </span>
+                      <span className="text-[11px] font-extrabold text-emerald-950 truncate">
+                        Deal concluded • Item handed over & verified
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-[#16A34A] font-black shrink-0 flex items-center gap-0.5">
+                      ✓ Closed
                     </span>
-                    <p className="text-xs font-black text-emerald-950 mt-1">Listing marked as SOLD in database.</p>
                   </div>
                 )}
               </div>
 
-              {/* Safety Advisory Strip */}
-              <div className="bg-slate-100/80 border-b border-slate-200 px-3.5 py-1.5 flex items-center gap-1.5 shrink-0">
-                <span className="px-1.5 py-0.2 bg-[#EFF6FF] text-[#1D4ED8] border border-[#BFDBFE] rounded text-[8px] font-black uppercase tracking-wider shrink-0">
-                  SAFETY
-                </span>
-                <p className="text-[10px] text-slate-600 truncate font-medium">
-                  Hand over item only after verifying the exchange code.
-                </p>
+              {/* Safety Advisory Strip — Slowly Moving Marquee Ticker */}
+              <div className="bg-slate-100/90 border-b border-slate-200/90 px-3 py-1.5 flex items-center shrink-0 overflow-hidden select-none">
+                <div className="flex items-center gap-1 shrink-0 bg-slate-100/95 pr-2.5 z-10 shadow-[4px_0_8px_rgba(241,245,249,1)]">
+                  <span className="px-1.5 py-0.5 bg-[#EFF6FF] text-[#1D4ED8] border border-[#BFDBFE] rounded text-[8px] font-black uppercase tracking-wider shrink-0">
+                    SAFETY TIP
+                  </span>
+                </div>
+                <div className="overflow-hidden relative flex-1 flex items-center">
+                  <div className="animate-ticker-slow flex items-center whitespace-nowrap text-[10px] text-slate-600 font-semibold">
+                    <span className="inline-block px-4">
+                      Hand over item only after verifying the 6-digit exchange code • Verify buyer's code in person • Meet in daylight at a public location •
+                    </span>
+                    <span className="inline-block px-4">
+                      Hand over item only after verifying the 6-digit exchange code • Verify buyer's code in person • Meet in daylight at a public location •
+                    </span>
+                  </div>
+                </div>
               </div>
 
               {/* Scrollable Live Chat Feed */}

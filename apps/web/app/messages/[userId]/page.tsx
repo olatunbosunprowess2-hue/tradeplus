@@ -588,13 +588,22 @@ export default function ChatPage() {
             {/* Messages */}
             <div ref={messagesContainerRef} className="flex-1 min-h-0 overflow-y-auto px-3 sm:px-4 py-4">
                 <div className="container mx-auto max-w-4xl space-y-3">
-                    {/* Safety Meetup Advisory Strip */}
-                    <div className="bg-slate-50 border border-slate-200/90 rounded-lg px-3 py-2 flex items-center justify-between gap-2 shadow-2xs">
-                        <div className="flex items-center gap-2 min-w-0">
-                            <span className="px-1.5 py-0.5 bg-[#DBEAFE] text-[#1E40AF] rounded text-[9px] font-bold uppercase tracking-wider shrink-0">SAFETY TIP</span>
-                            <p className="text-[11px] text-slate-600 truncate">
-                                Meet in daylight at a public place. Inspect items thoroughly before sharing your exchange code or completing trade.
-                            </p>
+                    {/* Safety Meetup Advisory Strip — Slowly Moving Marquee Ticker */}
+                    <div className="bg-slate-50 border border-slate-200/90 rounded-lg px-3 py-1.5 flex items-center shrink-0 overflow-hidden select-none shadow-2xs">
+                        <div className="flex items-center gap-1 shrink-0 bg-slate-50 pr-2.5 z-10 shadow-[4px_0_8px_rgba(248,250,252,1)]">
+                            <span className="px-1.5 py-0.5 bg-[#EFF6FF] text-[#1D4ED8] border border-[#BFDBFE] rounded text-[8px] font-black uppercase tracking-wider shrink-0">
+                                SAFETY TIP
+                            </span>
+                        </div>
+                        <div className="overflow-hidden relative flex-1 flex items-center">
+                            <div className="animate-ticker-slow flex items-center whitespace-nowrap text-[11px] text-slate-600 font-semibold">
+                                <span className="inline-block px-4">
+                                    Meet in daylight at a public place • Inspect items thoroughly before sharing your exchange code or completing trade • Never transfer codes before physical handover • Keep chats on BarterWave •
+                                </span>
+                                <span className="inline-block px-4">
+                                    Meet in daylight at a public place • Inspect items thoroughly before sharing your exchange code or completing trade • Never transfer codes before physical handover • Keep chats on BarterWave •
+                                </span>
+                            </div>
                         </div>
                     </div>
                     {/* Offline Partner Warning Banner */}

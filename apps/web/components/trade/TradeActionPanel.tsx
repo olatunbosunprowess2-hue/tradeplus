@@ -259,12 +259,21 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
                 </div>
             )}
 
-            {/* ── 3. Completed ── */}
+                        {/* ── 3. Completed — Compact Single Row ── */}
             {offer.status === 'completed' && (
-                <div className="text-center px-3 pb-3">
-                    <div className="bg-[#F0FDF4] rounded-lg py-3 flex items-center justify-center gap-2">
-                        <svg className="w-5 h-5 text-[#16A34A]" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
-                        <span className="text-sm font-bold text-[#14532D]">Trade Complete</span>
+                <div className="px-3 pb-2.5">
+                    <div className="bg-emerald-500/10 border border-emerald-500/25 rounded-lg px-2.5 py-1.5 flex items-center justify-between gap-2 shadow-2xs">
+                        <div className="flex items-center gap-2 min-w-0">
+                            <span className="px-1.5 py-0.5 bg-[#16A34A] text-white rounded text-[8px] font-black uppercase tracking-wider shrink-0 shadow-xs">
+                                TRADE COMPLETED
+                            </span>
+                            <span className="text-[11px] font-extrabold text-emerald-950 truncate">
+                                Exchange verified & deal concluded
+                            </span>
+                        </div>
+                        <span className="text-[10px] text-[#16A34A] font-black shrink-0 flex items-center gap-0.5">
+                            ✓ Sealed
+                        </span>
                     </div>
                 </div>
             )}

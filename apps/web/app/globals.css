@@ -723,6 +723,26 @@ div[class*="fixed inset"] {
 body > nextjs-portal { display: none !important; }
 
 /* ─────────────────────────────────────────────────────────────
+   TICKER / MARQUEE ANIMATION
+   ───────────────────────────────────────────────────────────── */
+
+@keyframes bwTicker {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+.animate-ticker-slow {
+  display: flex;
+  width: max-content;
+  animation: bwTicker 28s linear infinite;
+  will-change: transform;
+}
+
+.animate-ticker-slow:hover {
+  animation-play-state: paused;
+}
+
+/* ─────────────────────────────────────────────────────────────
    PRINT
    ───────────────────────────────────────────────────────────── */
 
