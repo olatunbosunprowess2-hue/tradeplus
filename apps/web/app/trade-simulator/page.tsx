@@ -505,59 +505,31 @@ export default function TradeSimulatorPage() {
                   </div>
                 )}
 
-                {/* Fulfillment State: Show Buyer their secret 6-Digit PIN */}
+                {/* Fulfillment State: Show Buyer their secret 6-Digit PIN (Ultra-Compact Bar) */}
                 {offerStatus === 'awaiting_fulfillment' && (
-                  <div className="space-y-2.5">
-                    {/* Luxury Digital Handover Pass */}
-                    <div className="bg-gradient-to-br from-[#0F172A] to-[#1E293B] border border-slate-700/80 rounded-2xl p-4 text-center text-white shadow-xl relative overflow-hidden">
-                      <div className="absolute top-0 right-0 w-28 h-28 bg-blue-500/15 rounded-full blur-2xl pointer-events-none" />
-
-                      <div className="flex items-center justify-center gap-1.5 mb-2">
-                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-300">
-                          Physical Handover Pass
+                  <div className="bg-slate-900 border border-slate-800 text-white rounded-xl px-3 py-2 flex items-center justify-between shadow-sm">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="flex items-center gap-1.5 bg-white/10 border border-white/15 px-2.5 py-1 rounded-lg shrink-0">
+                        <KeyRound className="w-3.5 h-3.5 text-blue-400" />
+                        <span className="font-mono font-black text-base tracking-[0.2em] text-white">
+                          {pickupPin}
                         </span>
                       </div>
-
-                      {/* 6 Digit Capsules */}
-                      <div className="flex items-center justify-center gap-1.5 my-2">
-                        {pickupPin.split('').map((digit, i) => (
-                          <div
-                            key={i}
-                            className="w-9 h-11 bg-white/10 border border-white/15 rounded-xl flex items-center justify-center font-mono font-black text-2xl text-white shadow-inner backdrop-blur-sm"
-                          >
-                            {digit}
-                          </div>
-                        ))}
-                      </div>
-
-                      <p className="text-[10px] text-slate-300 leading-relaxed font-medium max-w-[270px] mx-auto mt-2">
-                        Read or show this one-time code to <strong className="text-white">Amaka</strong> at your meetup once you have inspected the iPhone.
-                      </p>
-
-                      <div className="mt-2.5 pt-2 border-t border-white/10 flex items-center justify-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                        <span className="text-[9px] text-emerald-300 font-bold uppercase tracking-wider">
-                          Awaiting Amaka&apos;s verification on their phone...
-                        </span>
+                      <div className="min-w-0">
+                        <p className="text-[11px] font-extrabold text-white leading-tight truncate">
+                          Exchange PIN
+                        </p>
+                        <p className="text-[9px] text-slate-400 leading-tight truncate font-medium">
+                          Show code to Amaka after inspecting item
+                        </p>
                       </div>
                     </div>
-
-                    {isBuyerFulfilled ? (
-                      <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl py-2 text-center text-xs font-black text-emerald-900 flex items-center justify-center gap-1.5 shadow-xs">
-                        <Check className="w-4 h-4 stroke-[3] text-emerald-600" />
-                        <span>Exchange Confirmed by You</span>
-                      </div>
-                    ) : (
-                      <div className="text-center pt-0.5">
-                        <button
-                          onClick={() => handleManualConfirm('buyer')}
-                          className="text-[10px] font-semibold text-slate-400 hover:text-slate-600 transition underline underline-offset-2"
-                        >
-                          Partner phone having issues? Confirm handover directly
-                        </button>
-                      </div>
-                    )}
+                    <div className="flex items-center gap-1.5 shrink-0 bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 rounded-md">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      <span className="text-[9px] text-emerald-300 font-black uppercase tracking-wider">
+                        Awaiting Verification
+                      </span>
+                    </div>
                   </div>
                 )}
 
@@ -802,64 +774,42 @@ export default function TradeSimulatorPage() {
                   </div>
                 )}
 
-                {/* Fulfillment State: Input Buyer's PIN */}
+                {/* Fulfillment State: Input Buyer's PIN (Ultra-Compact Bar) */}
                 {offerStatus === 'awaiting_fulfillment' && (
-                  <div className="space-y-2.5">
-                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 shadow-xs">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-black text-[#0F172A]">
-                          Enter Tunde&apos;s 6-Digit Exchange PIN:
-                        </span>
-                        <span className="px-1.5 py-0.5 bg-emerald-500/10 text-emerald-800 border border-emerald-500/20 rounded text-[8px] font-black uppercase">
-                          INSTANT
-                        </span>
-                      </div>
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          maxLength={6}
-                          value={sellerInputPin}
-                          onChange={(e) => {
-                            setSellerInputPin(e.target.value.replace(/\D/g, ''));
-                            setPinError('');
-                          }}
-                          placeholder="e.g. 749103"
-                          className="flex-1 bg-white border border-slate-300 rounded-lg px-3 py-2 text-center font-mono font-black text-sm tracking-[0.2em] text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#22C55E] focus:border-[#16A34A] shadow-inner"
-                        />
-                        <button
-                          onClick={handleVerifySellerPin}
-                          disabled={sellerInputPin.length !== 6}
-                          className="px-4 py-2 bg-gradient-to-r from-[#22C55E] to-[#16A34A] hover:from-[#16A34A] hover:to-[#15803D] disabled:opacity-40 text-white rounded-lg font-black text-xs uppercase tracking-wider transition-all shadow-[0_4px_14px_rgba(22,163,74,0.32)] active:scale-[0.98]"
-                        >
-                          Verify
-                        </button>
-                      </div>
-                      {pinError && (
-                        <p className="text-[10px] font-bold text-rose-600 mt-1">{pinError}</p>
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 shadow-xs space-y-1.5">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        maxLength={6}
+                        value={sellerInputPin}
+                        onChange={(e) => {
+                          setSellerInputPin(e.target.value.replace(/\D/g, ''));
+                          setPinError('');
+                        }}
+                        placeholder="Enter 6-digit PIN"
+                        className="flex-1 bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-center font-mono font-black text-sm tracking-[0.2em] text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#22C55E]"
+                      />
+                      <button
+                        onClick={handleVerifySellerPin}
+                        disabled={sellerInputPin.length !== 6}
+                        className="px-4 py-1.5 bg-gradient-to-r from-[#22C55E] to-[#16A34A] hover:from-[#16A34A] hover:to-[#15803D] disabled:opacity-40 text-white rounded-lg font-black text-xs uppercase tracking-wider transition-all shadow-sm active:scale-95 shrink-0"
+                      >
+                        Verify
+                      </button>
+                    </div>
+                    <div className="flex items-center justify-between text-[10px]">
+                      {pinError ? (
+                        <p className="font-bold text-rose-600">{pinError}</p>
+                      ) : (
+                        <p className="text-slate-500 font-medium">Verify Tunde&apos;s code in person</p>
                       )}
                       <button
                         onClick={() => setSellerInputPin(pickupPin)}
-                        className="text-[10px] text-[#2563EB] hover:text-[#1D4ED8] mt-1.5 font-bold flex items-center gap-1"
+                        className="text-[#2563EB] hover:text-[#1D4ED8] font-bold"
                       >
-                        ⚡ Autofill Buyer&apos;s Secret PIN ({pickupPin})
+                        ⚡ Autofill PIN ({pickupPin})
                       </button>
                     </div>
-
-                    {isSellerFulfilled ? (
-                      <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl py-2 text-center text-xs font-black text-emerald-900 flex items-center justify-center gap-1.5 shadow-xs">
-                        <Check className="w-4 h-4 stroke-[3] text-emerald-600" />
-                        <span>Exchange Verified & Item Sold</span>
-                      </div>
-                    ) : (
-                      <div className="text-center pt-1">
-                        <button
-                          onClick={() => handleManualConfirm('seller')}
-                          className="text-[10px] font-semibold text-slate-400 hover:text-slate-600 transition underline underline-offset-2"
-                        >
-                          Buyer cannot share code? Confirm handover directly
-                        </button>
-                      </div>
-                    )}
                   </div>
                 )}
 

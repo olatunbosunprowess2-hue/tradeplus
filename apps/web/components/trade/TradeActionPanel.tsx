@@ -168,117 +168,69 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
                 </div>
             )}
 
-            {/* ── 2. Fulfillment Phase ── */}
+            {/* ── 2. Fulfillment Phase (Compact & Secure) ── */}
             {offer.status === 'awaiting_fulfillment' && (
-                <div className="px-3 pb-3 space-y-2.5">
-                    {/* Buyer PIN display card — Luxury Digital Handover Pass */}
+                <div className="px-3 pb-3 space-y-2">
+                    {/* Buyer PIN display card — Ultra-Compact Bar */}
                     {isBuyer && offer.pickupPin && (
-                        <div className="bg-gradient-to-br from-[#0F172A] to-[#1E293B] text-white border border-slate-700/80 rounded-2xl p-4 text-center shadow-xl relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-28 h-28 bg-blue-500/15 rounded-full blur-2xl pointer-events-none" />
-                            <div className="flex items-center justify-center gap-1.5 mb-2">
-                                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                                <span className="text-[9px] font-black uppercase tracking-widest text-slate-300">
-                                    Physical Handover Pass
-                                </span>
+                        <div className="bg-slate-900 border border-slate-800 text-white rounded-xl px-3 py-2 flex items-center justify-between shadow-sm">
+                            <div className="flex items-center gap-2.5 min-w-0">
+                                <div className="flex items-center gap-1.5 bg-white/10 border border-white/15 px-2.5 py-1 rounded-lg shrink-0">
+                                    <span className="font-mono font-black text-base tracking-[0.2em] text-white">
+                                        {offer.pickupPin}
+                                    </span>
+                                </div>
+                                <div className="min-w-0">
+                                    <p className="text-[11px] font-extrabold text-white leading-tight truncate">
+                                        Exchange PIN
+                                    </p>
+                                    <p className="text-[9px] text-slate-400 leading-tight truncate font-medium">
+                                        Show code to {otherPartyName} after inspecting item
+                                    </p>
+                                </div>
                             </div>
-
-                            {/* 6 Digit Capsules */}
-                            <div className="flex items-center justify-center gap-1.5 my-2.5">
-                                {(offer.pickupPin as string).split('').map((digit: string, i: number) => (
-                                    <div
-                                        key={i}
-                                        className="w-9 h-11 bg-white/10 border border-white/15 rounded-xl flex items-center justify-center font-mono font-black text-2xl text-white shadow-inner backdrop-blur-sm"
-                                    >
-                                        {digit}
-                                    </div>
-                                ))}
-                            </div>
-
-                            <p className="text-[10px] text-slate-300 leading-relaxed font-medium max-w-xs mx-auto mt-2">
-                                Read or show this one-time code to <strong className="text-white">{otherPartyName}</strong> at the meetup once you have inspected the item.
-                            </p>
-
-                            <div className="mt-2.5 pt-2 border-t border-white/10 flex items-center justify-center gap-1.5">
-                                <span className="text-[9px] text-emerald-300 font-bold uppercase tracking-wider">
-                                    Awaiting {otherPartyName}&apos;s verification...
+                            <div className="flex items-center gap-1.5 shrink-0 bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 rounded-md">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                <span className="text-[9px] text-emerald-300 font-black uppercase tracking-wider">
+                                    Awaiting Scan
                                 </span>
                             </div>
                         </div>
                     )}
 
-                    {/* Seller PIN verification input */}
+                    {/* Seller PIN verification input (Compact Bar) */}
                     {isSeller && !hasFulfilled && (
-                        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 shadow-xs">
-                            <div className="flex items-center justify-between mb-2">
-                                <span className="text-xs font-bold text-slate-900">Enter Buyer's Exchange PIN:</span>
-                                <span className="px-1.5 py-0.5 bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 rounded text-[9px] font-black uppercase">INSTANT VERIFY</span>
-                            </div>
-                            <div className="flex gap-2">
+                        <div className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 shadow-xs space-y-1.5">
+                            <div className="flex items-center gap-2">
                                 <input
                                     type="text"
                                     maxLength={6}
                                     value={pinInput}
                                     onChange={(e) => setPinInput(e.target.value.replace(/\D/g, ''))}
-                                    placeholder="6-digit PIN"
-                                    className="flex-1 px-3.5 py-2.5 bg-white border border-slate-300 rounded-lg text-center font-mono font-black text-base tracking-[0.2em] text-[#0F172A] focus:ring-2 focus:ring-[#22C55E] focus:border-[#16A34A] focus:outline-none shadow-inner"
+                                    placeholder="Enter 6-digit PIN"
+                                    className="flex-1 px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-center font-mono font-black text-sm tracking-[0.2em] text-[#0F172A] focus:ring-2 focus:ring-[#22C55E] focus:border-[#16A34A] focus:outline-none shadow-inner"
                                 />
                                 <button
                                     onClick={() => handleVerifyPickup(pinInput)}
                                     disabled={isLoading || pinInput.length !== 6}
-                                    className="px-5 py-2.5 bg-gradient-to-r from-[#22C55E] to-[#16A34A] hover:from-[#16A34A] hover:to-[#15803D] disabled:opacity-40 text-white font-black text-xs uppercase tracking-wider rounded-lg transition-all shadow-[0_4px_14px_rgba(22,163,74,0.35)] active:scale-[0.98]"
+                                    className="px-4 py-1.5 bg-gradient-to-r from-[#22C55E] to-[#16A34A] hover:from-[#16A34A] hover:to-[#15803D] disabled:opacity-40 text-white font-black text-xs uppercase tracking-wider rounded-lg transition-all shadow-sm active:scale-95 shrink-0"
                                 >
                                     Verify
                                 </button>
                             </div>
-                        </div>
-                    )}
-
-                    {otherHasFulfilled && (
-                        <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-3.5 py-2.5">
-                            <span className="px-1.5 py-0.5 bg-[#16A34A] text-white rounded text-[9px] font-black uppercase tracking-wider shadow-xs">CONFIRMED</span>
-                            <p className="text-xs text-emerald-950 font-bold">
-                                {otherPartyName} confirmed exchange — please verify on your end!
+                            <p className="text-[9px] text-slate-500 font-medium text-center">
+                                Verify {otherPartyName}&apos;s code at the meetup after handing over the item
                             </p>
                         </div>
                     )}
 
-                    {hasFulfilled ? (
-                        <div className="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-3.5 py-3">
+                    {hasFulfilled && (
+                        <div className="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-3 py-2">
                             <div className="flex items-center gap-2">
-                                <span className="w-5 h-5 rounded-full bg-[#16A34A] text-white flex items-center justify-center text-xs font-black shadow-xs">✓</span>
-                                <span className="text-xs font-bold text-emerald-900">Exchange confirmed on your side</span>
-                            </div>
-                            {!otherHasFulfilled && (
-                                <span className="text-[10px] text-slate-500 font-semibold italic">Waiting for {otherPartyName}...</span>
-                            )}
-                        </div>
-                    ) : showConfirmExchange ? (
-                        <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3.5">
-                            <p className="text-xs text-amber-950 font-bold mb-2.5">Confirming will mark this trade as fulfilled and release any obligations. Proceed?</p>
-                            <div className="flex gap-2">
-                                <button
-                                    onClick={() => setShowConfirmExchange(false)}
-                                    className="flex-1 py-2 bg-white text-slate-700 rounded-lg text-xs font-bold border border-slate-200 hover:bg-slate-50 transition"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={() => handleVerifyPickup()}
-                                    disabled={isLoading}
-                                    className="flex-1 py-2 bg-gradient-to-r from-[#22C55E] to-[#16A34A] text-white rounded-lg text-xs font-black uppercase tracking-wider hover:from-[#16A34A] hover:to-[#15803D] active:scale-[0.98] transition shadow-[0_4px_14px_rgba(22,163,74,0.35)]"
-                                >
-                                    {isLoading ? 'Confirming...' : 'Yes, Confirm Exchange'}
-                                </button>
+                                <span className="w-4 h-4 rounded-full bg-[#16A34A] text-white flex items-center justify-center text-[10px] font-black shadow-xs">✓</span>
+                                <span className="text-xs font-bold text-emerald-900">Exchange confirmed & verified</span>
                             </div>
                         </div>
-                    ) : (
-                        <button
-                            onClick={() => setShowConfirmExchange(true)}
-                            className="w-full py-3 bg-gradient-to-r from-[#22C55E] to-[#16A34A] text-white rounded-xl font-black text-xs uppercase tracking-wider hover:from-[#16A34A] hover:to-[#15803D] active:scale-[0.98] transition shadow-[0_4px_16px_rgba(22,163,74,0.35)] flex items-center justify-center gap-1.5"
-                        >
-                            <span>Confirm Exchange</span>
-                            <span className="text-sm">→</span>
-                        </button>
                     )}
 
                     {/* Dispute link */}
