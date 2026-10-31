@@ -38,7 +38,10 @@ export default function ProfileCompletionModal() {
         if (user.locationAddress?.trim()) completedSteps++;
 
         // If profile is fully complete, never show the modal
-        if (completedSteps >= totalSteps) return;
+        if (completedSteps >= totalSteps) {
+            setIsOpen(false);
+            return;
+        }
 
         // 5. Check frequency cap (LocalStorage)
         const lastDismissed = localStorage.getItem('profile_prompt_dismissed_at');
@@ -62,8 +65,6 @@ export default function ProfileCompletionModal() {
         router.push('/settings');
     };
 
-    if (!isOpen) return null;
-
     // Calculate completion percentage for UI
     const totalSteps = 4;
     let completedSteps = 0;
@@ -72,6 +73,9 @@ export default function ProfileCompletionModal() {
     if (user?.phoneNumber?.trim()) completedSteps++;
     if (user?.locationAddress?.trim()) completedSteps++;
     const progress = Math.round((completedSteps / totalSteps) * 100);
+
+    // Never render if closed or if user has already achieved 100% profile completion
+    if (!isOpen || progress >= 100 || completedSteps >= totalSteps) return null;
 
     return (
         <div
