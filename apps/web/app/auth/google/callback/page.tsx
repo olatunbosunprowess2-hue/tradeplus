@@ -72,7 +72,7 @@ export default function GoogleCallbackPage() {
         <div className="min-h-screen flex items-center justify-center bg-slate-50">
             <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 max-w-md w-full mx-4 text-center border border-white/40 relative overflow-hidden">
                 {status === 'processing' && (
-                    <div className="absolute top-0 left-0 right-0 h-[3px] bg-blue-50 overflow-hidden">
+                    <div className="absolute top-0 left-0 right-0 h-[3px] bg-[#EFF6FF] overflow-hidden">
                         <div className="h-full bg-gradient-to-r from-blue-500 via-indigo-600 to-blue-500 animate-loading-bar" />
                     </div>
                 )}
@@ -132,7 +132,7 @@ export default function GoogleCallbackPage() {
                         <div className="flex flex-col w-full gap-3">
                             <Link
                                 href="/login"
-                                className="w-full py-3.5 text-sm bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md active:scale-[0.98] uppercase tracking-wider"
+                                className="w-full py-3.5 text-sm bg-[#1D4ED8] text-white font-bold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md active:scale-[0.98] uppercase tracking-wider"
                             >
                                 Try Again
                             </Link>

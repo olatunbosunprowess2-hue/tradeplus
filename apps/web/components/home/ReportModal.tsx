@@ -40,12 +40,12 @@ export default function ReportModal({ postId, onClose }: { postId: string; onClo
             <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl" onClick={e => e.stopPropagation()}>
                 {submitted ? (
                     <div className="text-center py-4">
-                        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                            <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="w-12 h-12 bg-[#DCFCE7] rounded-full flex items-center justify-center mx-auto mb-3">
+                            <svg className="w-6 h-6 text-[#16A34A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                             </svg>
                         </div>
-                        <p className="font-semibold text-gray-900">Report Submitted</p>
+                        <p className="font-semibold text-[#0F172A]">Report Submitted</p>
                         <p className="text-sm text-gray-500 mt-1">Thank you. Our team will review this post.</p>
                     </div>
                 ) : (

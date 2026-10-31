@@ -90,7 +90,7 @@ function evaluatePassword(password: string) {
   if (score <= 2) return { score: 1, label: 'Weak', color: 'bg-rose-500', text: 'text-rose-600', reqs };
   if (score <= 4) return { score: 2, label: 'Fair', color: 'bg-amber-500', text: 'text-amber-600', reqs };
   if (score === 5) return { score: 3, label: 'Good', color: 'bg-[#1D4ED8]', text: 'text-[#2563EB]', reqs };
-  return { score: 4, label: 'Strong', color: 'bg-emerald-600', text: 'text-emerald-600', reqs };
+  return { score: 4, label: 'Strong', color: 'bg-[#16A34A]', text: 'text-emerald-600', reqs };
 }
 
 // ============================================================================
@@ -301,12 +301,12 @@ export default function RegisterPage() {
                 alt="BarterWave"
                 className="w-9 h-9 object-contain group-hover:scale-105 transition-transform"
               />
-              <span className="text-xl font-bold tracking-tight text-slate-900">
+              <span className="text-xl font-bold tracking-tight text-[#0F172A]">
                 Barter<span className="text-[#2563EB]">Wave</span>
               </span>
             </Link>
 
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+            <h1 className="text-2xl font-bold tracking-tight text-[#0F172A]">
               {step === 1 && 'Create your account'}
               {step === 2 && 'Verify your email'}
               {step === 3 && 'Complete your profile'}
@@ -380,7 +380,7 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full mt-2 py-2.5 px-4 bg-[#1D4ED8] hover:bg-[#1E40AF] active:bg-blue-800 disabled:opacity-50 text-white text-sm font-semibold rounded-md shadow-sm transition-all flex items-center justify-center gap-2"
+                className="w-full mt-2 py-2.5 px-4 bg-[#1D4ED8] hover:bg-[#1E40AF] active:bg-[#1E3A8A] disabled:opacity-50 text-white text-sm font-semibold rounded-md shadow-sm transition-all flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
@@ -477,7 +477,7 @@ export default function RegisterPage() {
               <button
                 onClick={() => handleVerifyOtp(otpValues.join(''))}
                 disabled={loading || otpValues.some((v) => !v)}
-                className="w-full py-2.5 px-4 bg-[#1D4ED8] hover:bg-[#1E40AF] active:bg-blue-800 disabled:opacity-50 text-white text-sm font-semibold rounded-md shadow-sm transition-all flex items-center justify-center gap-2"
+                className="w-full py-2.5 px-4 bg-[#1D4ED8] hover:bg-[#1E40AF] active:bg-[#1E3A8A] disabled:opacity-50 text-white text-sm font-semibold rounded-md shadow-sm transition-all flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
@@ -685,7 +685,7 @@ export default function RegisterPage() {
                   <input
                     {...regForm.register('agreeToTerms')}
                     type="checkbox"
-                    className="h-4 w-4 mt-0.5 rounded border-slate-300 text-[#2563EB] focus:ring-blue-500 cursor-pointer"
+                    className="h-4 w-4 mt-0.5 rounded border-slate-300 text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
                   />
                   <span className="text-xs text-slate-600 leading-snug">
                     I agree to the{' '}
@@ -710,7 +710,7 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full mt-2 py-2.5 px-4 bg-[#1D4ED8] hover:bg-[#1E40AF] active:bg-blue-800 disabled:opacity-50 text-white text-sm font-semibold rounded-md shadow-sm transition-all flex items-center justify-center gap-2"
+                className="w-full mt-2 py-2.5 px-4 bg-[#1D4ED8] hover:bg-[#1E40AF] active:bg-[#1E3A8A] disabled:opacity-50 text-white text-sm font-semibold rounded-md shadow-sm transition-all flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>

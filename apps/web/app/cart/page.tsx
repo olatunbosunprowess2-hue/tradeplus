@@ -60,8 +60,8 @@ export default function CartPage() {
         return (
             <div className="min-h-[80vh] flex flex-col items-center justify-center p-6 bg-white">
                 <div className="relative w-48 h-48 mb-8">
-                    <div className="absolute inset-0 bg-blue-50 rounded-full animate-ping opacity-20 scale-150" />
-                    <div className="relative bg-gradient-to-br from-blue-50 to-indigo-50 rounded-full w-full h-full flex items-center justify-center shadow-inner border border-blue-100/50">
+                    <div className="absolute inset-0 bg-[#EFF6FF] rounded-full animate-ping opacity-20 scale-150" />
+                    <div className="relative bg-gradient-to-br from-blue-50 to-indigo-50 rounded-full w-full h-full flex items-center justify-center shadow-inner border border-[#DBEAFE]/50">
                         <svg className="w-24 h-24 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                         </svg>
@@ -73,7 +73,7 @@ export default function CartPage() {
                 </p>
                 <Link
                     href="/listings"
-                    className="px-8 py-4 bg-blue-600 text-white rounded-2xl font-bold text-lg hover:bg-blue-700 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center justify-center active:scale-95"
+                    className="px-8 py-4 bg-[#1D4ED8] text-white rounded-2xl font-bold text-lg hover:bg-[#1E40AF] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center justify-center active:scale-95"
                 >
                     Explore Marketplace
                 </Link>
@@ -102,8 +102,8 @@ export default function CartPage() {
             <div className="max-w-[1100px] mx-auto px-6">
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
                     <div>
-                        <div className="flex items-center gap-2 text-sm font-bold text-blue-600 uppercase tracking-widest mb-2">
-                            <span className="w-6 h-px bg-blue-600"></span>
+                        <div className="flex items-center gap-2 text-sm font-bold text-[#2563EB] uppercase tracking-widest mb-2">
+                            <span className="w-6 h-px bg-[#1D4ED8]"></span>
                             Shopping Bag
                         </div>
                         <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">
@@ -137,13 +137,13 @@ export default function CartPage() {
                                             className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
                                         />
                                     ) : (
-                                        <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-lg border-2 border-white shadow-sm uppercase">
+                                        <div className="w-12 h-12 rounded-full bg-[#1D4ED8] flex items-center justify-center text-white font-bold text-lg border-2 border-white shadow-sm uppercase">
                                             {group.sellerName[0] || '?'}
                                         </div>
                                     )}
                                     <div>
                                         <h3 className="text-lg font-black text-gray-900 tracking-tight">{group.sellerName}</h3>
-                                        <p className="text-blue-600 text-xs font-bold uppercase tracking-widest flex items-center gap-1">
+                                        <p className="text-[#2563EB] text-xs font-bold uppercase tracking-widest flex items-center gap-1">
                                             View Shop
                                             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" /></svg>
                                         </p>
@@ -176,7 +176,7 @@ export default function CartPage() {
 
                                             <div className="flex-1 min-w-0 flex flex-col py-1">
                                                 <div className="flex justify-between items-start mb-2">
-                                                    <h4 className="font-bold text-gray-900 group-hover/item:text-blue-600 transition truncate pr-8">
+                                                    <h4 className="font-bold text-gray-900 group-hover/item:text-[#2563EB] transition truncate pr-8">
                                                         <Link href={`/listings/${item.id}`}>
                                                             {item.title}
                                                         </Link>
@@ -193,7 +193,7 @@ export default function CartPage() {
 
                                                 <div className="mt-auto flex items-end justify-between">
                                                     <div className="space-y-3">
-                                                        <div className="text-xl font-black text-gray-900">
+                                                        <div className="text-xl font-black text-[#0F172A]">
                                                             {item.currency} {(item.price * item.quantity).toLocaleString()}
                                                         </div>
                                                         <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-0.5 w-fit border border-gray-100">
@@ -228,7 +228,7 @@ export default function CartPage() {
                                         <div className="space-y-4 mb-8">
                                             <div className="flex justify-between items-center text-gray-400 font-bold text-xs uppercase tracking-widest">
                                                 <span>Subtotal</span>
-                                                <span className="text-gray-900">NGN {group.subtotal.toLocaleString()}</span>
+                                                <span className="text-[#0F172A]">NGN {group.subtotal.toLocaleString()}</span>
                                             </div>
                                             <div className="flex justify-between items-center text-gray-400 font-bold text-xs uppercase tracking-widest">
                                                 <span>Fee</span>
@@ -236,7 +236,7 @@ export default function CartPage() {
                                             </div>
                                             <div className="pt-4 border-t border-gray-100 flex justify-between items-end">
                                                 <span className="text-xs font-black text-blue-900 uppercase">Total with {(group.sellerName || '').split(' ')[0]}</span>
-                                                <span className="text-2xl font-black text-blue-600 tracking-tight">NGN {group.subtotal.toLocaleString()}</span>
+                                                <span className="text-2xl font-black text-[#2563EB] tracking-tight">NGN {group.subtotal.toLocaleString()}</span>
                                             </div>
                                         </div>
 
@@ -246,7 +246,7 @@ export default function CartPage() {
                                                 setIsOfferModalOpen(true);
                                             }}
                                             disabled={isSubmitting}
-                                            className="w-full bg-blue-600 text-white py-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-blue-700 hover:shadow-xl hover:-translate-y-0.5 transition-all text-center flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
+                                            className="w-full bg-[#1D4ED8] text-white py-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-[#1E40AF] hover:shadow-xl hover:-translate-y-0.5 transition-all text-center flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
                                         >
                                             {isSubmitting && selectedBundle.length > 0 && selectedBundle[0].sellerId === sellerId ? (
                                                 'Sending...'

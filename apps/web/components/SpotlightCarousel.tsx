@@ -67,7 +67,7 @@ export default function SpotlightCarousel({ listings }: SpotlightCarouselProps) 
                 <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2">
                         <span className="text-2xl">⭐</span>
-                        <h2 className="text-lg font-bold text-gray-900">Spotlight Deals</h2>
+                        <h2 className="text-lg font-bold text-[#0F172A]">Spotlight Deals</h2>
                     </div>
                     <span className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold">
                         Featured
@@ -146,11 +146,11 @@ export default function SpotlightCarousel({ listings }: SpotlightCarouselProps) 
                                     {listing.title}
                                 </h3>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-lg font-bold text-green-600">
+                                    <span className="text-lg font-bold text-[#16A34A]">
                                         {formatPrice(listing.priceCents, listing.currencyCode)}
                                     </span>
                                     {listing.seller?.isVerified && (
-                                        <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full">
+                                        <span className="text-xs bg-[#DBEAFE] text-[#1D4ED8] px-1.5 py-0.5 rounded-full">
                                             ✓ Verified
                                         </span>
                                     )}

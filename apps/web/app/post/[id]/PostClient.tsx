@@ -18,7 +18,7 @@ export default function PostClient({ post }: { post: CommunityPost }) {
                         <Link href="/listings?tab=community" className="p-2 -ml-2 hover:bg-gray-100 rounded-full transition text-gray-600">
                             <ArrowLeft className="w-5 h-5" />
                         </Link>
-                        <h1 className="font-semibold text-gray-900">Post</h1>
+                        <h1 className="font-semibold text-[#0F172A]">Post</h1>
                     </div>
                 </div>
             </div>

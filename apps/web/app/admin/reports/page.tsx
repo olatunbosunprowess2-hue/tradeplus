@@ -98,7 +98,7 @@ export default function AdminReportsPage() {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-gray-900">Reports</h1>
+                <h1 className="text-2xl font-bold text-[#0F172A]">Reports</h1>
                 <div className="flex gap-3">
                     <select
                         value={status}
@@ -106,7 +106,7 @@ export default function AdminReportsPage() {
                             setStatus(e.target.value);
                             setPage(1);
                         }}
-                        className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm"
+                        className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#2563EB] text-sm"
                     >
                         <option value="">All Statuses</option>
                         <option value="open">Open</option>
@@ -148,7 +148,7 @@ export default function AdminReportsPage() {
                                 reports.map((report) => (
                                     <tr key={report.id} className="hover:bg-gray-50 transition">
                                         <td className="px-6 py-4">
-                                            <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${report.listingId ? 'bg-blue-50 text-blue-800' :
+                                            <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${report.listingId ? 'bg-[#EFF6FF] text-[#1E40AF]' :
                                                 report.reportedUserId ? 'bg-purple-100 text-purple-800' :
                                                     'bg-gray-100 text-gray-800'
                                                 }`}>
@@ -160,7 +160,7 @@ export default function AdminReportsPage() {
                                         </td>
                                         <td className="px-6 py-4 text-sm">
                                             {report.listing ? (
-                                                <Link href={`/listings/${report.listing.id}`} className="text-blue-600 hover:underline" target="_blank">
+                                                <Link href={`/listings/${report.listing.id}`} className="text-[#2563EB] hover:underline" target="_blank">
                                                     {report.listing.title}
                                                 </Link>
                                             ) : report.reportedUser ? (
@@ -178,7 +178,7 @@ export default function AdminReportsPage() {
                                             {report.evidenceImages && report.evidenceImages.length > 0 ? (
                                                 <button
                                                     onClick={() => setSelectedReport(report)}
-                                                    className="text-blue-600 hover:text-blue-700 font-medium"
+                                                    className="text-[#2563EB] hover:text-[#1D4ED8] font-medium"
                                                 >
                                                     View ({report.evidenceImages.length})
                                                 </button>
@@ -187,7 +187,7 @@ export default function AdminReportsPage() {
                                             )}
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className={`px-2 py-1 rounded-full text-xs font-bold capitalize ${report.status === 'resolved' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                                            <span className={`px-2 py-1 rounded-full text-xs font-bold capitalize ${report.status === 'resolved' ? 'bg-[#DCFCE7] text-[#14532D]' : 'bg-yellow-100 text-yellow-800'
                                                 }`}>
                                                 {report.status}
                                             </span>
@@ -202,7 +202,7 @@ export default function AdminReportsPage() {
                                                         <button
                                                             onClick={() => openMessageModal('resolve', report.id)}
                                                             disabled={actionLoading === report.id}
-                                                            className="px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                            className="px-3 py-1.5 bg-[#16A34A] text-white text-xs font-medium rounded hover:bg-[#15803D] disabled:opacity-50 disabled:cursor-not-allowed"
                                                         >
                                                             {actionLoading === report.id ? 'Processing...' : 'Resolve'}
                                                         </button>
@@ -255,7 +255,7 @@ export default function AdminReportsPage() {
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-2xl p-6 max-w-lg w-full">
                         <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-xl font-bold text-gray-900">
+                            <h3 className="text-xl font-bold text-[#0F172A]">
                                 {pendingAction?.type === 'delete' ? 'Delete Listing & Notify' : 'Resolve Report & Notify'}
                             </h3>
                             <button
@@ -276,7 +276,7 @@ export default function AdminReportsPage() {
                                 <select
                                     value={selectedTemplateId}
                                     onChange={(e) => handleTemplateChange(e.target.value)}
-                                    className="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                                    className="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#2563EB]"
                                 >
                                     <option value="">-- Choose a template --</option>
                                     {getTemplatesByType(pendingAction?.type === 'delete' ? ['report_delete', 'listing_action'] : 'report_resolve').map(template => (
@@ -304,7 +304,7 @@ export default function AdminReportsPage() {
                                         setSelectedTemplateId(''); // Clear template if user types manually
                                     }}
                                     placeholder="Enter a personalized message..."
-                                    className="w-full p-3 border border-gray-300 rounded-lg text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    className="w-full p-3 border border-gray-300 rounded-lg text-sm resize-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent"
                                     rows={5}
                                 />
                             </div>
@@ -321,7 +321,7 @@ export default function AdminReportsPage() {
                                 onClick={handleSubmitWithMessage}
                                 className={`flex-1 px-4 py-2 text-white rounded-lg font-medium ${pendingAction?.type === 'delete'
                                     ? 'bg-red-600 hover:bg-red-700'
-                                    : 'bg-green-600 hover:bg-green-700'
+                                    : 'bg-[#16A34A] hover:bg-[#15803D]'
                                     }`}
                             >
                                 {pendingAction?.type === 'delete' ? 'Delete & Notify' : 'Resolve & Notify'}
@@ -336,7 +336,7 @@ export default function AdminReportsPage() {
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
                         <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-xl font-bold text-gray-900">Evidence for Report</h3>
+                            <h3 className="text-xl font-bold text-[#0F172A]">Evidence for Report</h3>
                             <button
                                 onClick={() => setSelectedReport(null)}
                                 className="text-gray-500 hover:text-gray-700"

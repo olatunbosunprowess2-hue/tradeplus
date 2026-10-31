@@ -28,7 +28,7 @@ export default function CategoryCard({ name, icon, href, count, image }: Categor
                     <span className="text-3xl">{icon}</span>
                 )}
             </div>
-            <span className="font-semibold text-sm text-center" style={{ color: 'var(--color-text-blue-600)' }}>
+            <span className="font-semibold text-sm text-center" style={{ color: 'var(--color-text-[#2563EB])' }}>
                 {name}
             </span>
             {count !== undefined && (

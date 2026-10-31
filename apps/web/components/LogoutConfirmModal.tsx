@@ -63,7 +63,7 @@ export default function LogoutConfirmModal({
               className="w-10 h-10 rounded-md object-cover border border-slate-200 shrink-0"
             />
           ) : (
-            <div className="w-10 h-10 rounded-md bg-blue-600 text-white font-bold text-sm flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="w-10 h-10 rounded-md bg-[#1D4ED8] text-white font-bold text-sm flex items-center justify-center shrink-0 shadow-2xs">
               {initial}
             </div>
           )}

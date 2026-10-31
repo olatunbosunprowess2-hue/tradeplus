@@ -91,7 +91,7 @@ export default function AppealsPage() {
             case 'pending':
                 return <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">⏳ Pending Review</span>;
             case 'approved':
-                return <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">✅ Approved</span>;
+                return <span className="px-3 py-1 bg-[#DCFCE7] text-[#14532D] rounded-full text-xs font-medium">✅ Approved</span>;
             case 'rejected':
                 return <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">❌ Rejected</span>;
             default:
@@ -104,7 +104,7 @@ export default function AppealsPage() {
     if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2563EB]"></div>
             </div>
         );
     }
@@ -151,7 +151,7 @@ export default function AppealsPage() {
                 {!showForm && !hasPendingAppeal && (
                     <button
                         onClick={() => setShowForm(true)}
-                        className="w-full bg-blue-600 text-white py-4 rounded-xl font-semibold hover:bg-blue-700 transition mb-6 shadow-lg shadow-blue-600/20"
+                        className="w-full bg-[#1D4ED8] text-white py-4 rounded-xl font-semibold hover:bg-[#1E40AF] transition mb-6 shadow-lg shadow-blue-600/20"
                     >
                         📝 Submit New Appeal
                     </button>
@@ -184,7 +184,7 @@ export default function AppealsPage() {
                                 <select
                                     value={reason}
                                     onChange={(e) => setReason(e.target.value)}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#2563EB] focus:border-transparent"
                                     required
                                 >
                                     <option value="">Select a reason...</option>
@@ -206,7 +206,7 @@ export default function AppealsPage() {
                                     value={message}
                                     onChange={(e) => setMessage(e.target.value)}
                                     rows={5}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#2563EB] focus:border-transparent resize-none"
                                     placeholder="Please provide a detailed explanation of why you believe the suspension should be lifted. Include any relevant context or evidence."
                                     required
                                 />
@@ -265,7 +265,7 @@ export default function AppealsPage() {
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition disabled:opacity-50"
+                                    className="flex-1 py-3 bg-[#1D4ED8] text-white rounded-xl font-semibold hover:bg-[#1E40AF] transition disabled:opacity-50"
                                 >
                                     {isSubmitting ? 'Submitting...' : 'Submit Appeal'}
                                 </button>
@@ -277,7 +277,7 @@ export default function AppealsPage() {
                 {/* Appeals History */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <div className="p-4 border-b border-gray-200">
-                        <h3 className="font-semibold text-gray-900">Appeal History</h3>
+                        <h3 className="font-semibold text-[#0F172A]">Appeal History</h3>
                     </div>
 
                     {appeals.length === 0 ? (

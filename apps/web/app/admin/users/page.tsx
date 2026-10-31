@@ -161,9 +161,9 @@ export default function AdminUsersPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold text-slate-900">User Management</h1>
+            <h1 className="text-2xl font-bold text-[#0F172A]">User Management</h1>
             {isFetching && !isLoading && (
-              <span className="text-[10px] font-bold text-blue-600 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded animate-pulse">
+              <span className="text-[10px] font-bold text-[#2563EB] bg-[#EFF6FF] border border-[#BFDBFE] px-2 py-0.5 rounded animate-pulse">
                 Updating...
               </span>
             )}
@@ -174,7 +174,7 @@ export default function AdminUsersPage() {
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="px-3 py-2 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-xs font-medium shadow-2xs"
+            className="px-3 py-2 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] text-xs font-medium shadow-2xs"
           >
             <option value="">All Statuses</option>
             <option value="active">Active</option>
@@ -185,7 +185,7 @@ export default function AdminUsersPage() {
           <select
             value={verificationStatus}
             onChange={(e) => setVerificationStatus(e.target.value)}
-            className="px-3 py-2 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-xs font-medium shadow-2xs"
+            className="px-3 py-2 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] text-xs font-medium shadow-2xs"
           >
             <option value="">All Verification</option>
             <option value="VERIFIED">Verified</option>
@@ -200,7 +200,7 @@ export default function AdminUsersPage() {
               placeholder="Search users..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full sm:w-64 pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 text-xs font-medium shadow-2xs"
+              className="w-full sm:w-64 pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] text-xs font-medium shadow-2xs"
             />
             <svg
               className="w-4 h-4 text-slate-400 absolute left-3 top-2.5"
@@ -249,7 +249,7 @@ export default function AdminUsersPage() {
                 <tr>
                   <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
                     <div className="flex flex-col items-center gap-2">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#2563EB]"></div>
                       <span className="text-xs font-medium">Loading user records...</span>
                     </div>
                   </td>
@@ -271,7 +271,7 @@ export default function AdminUsersPage() {
                     <tr key={user.id} className="hover:bg-slate-50/80 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-md bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-700 font-bold text-xs shrink-0 shadow-2xs">
+                          <div className="w-9 h-9 rounded-md bg-[#EFF6FF] border border-[#DBEAFE] flex items-center justify-center text-[#1D4ED8] font-bold text-xs shrink-0 shadow-2xs">
                             {(user.profile?.displayName || user.email).charAt(0).toUpperCase()}
                           </div>
                           <div className="min-w-0">
@@ -302,7 +302,7 @@ export default function AdminUsersPage() {
                         <div className="flex items-center justify-end gap-1.5">
                           <button
                             onClick={() => setSelectedUser(user)}
-                            className="px-2.5 py-1 text-xs font-semibold text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                            className="px-2.5 py-1 text-xs font-semibold text-[#2563EB] hover:bg-[#EFF6FF] rounded-md transition-colors"
                           >
                             Details
                           </button>

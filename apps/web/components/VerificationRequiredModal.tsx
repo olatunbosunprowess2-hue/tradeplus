@@ -35,7 +35,7 @@ export default function VerificationRequiredModal({
     <div className="fixed inset-0 z-[10050] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="bg-white rounded-lg border border-slate-200 shadow-2xl max-w-md w-full p-6 sm:p-7 max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200">
         {/* Top Icon */}
-        <div className="w-10 h-10 rounded-lg bg-blue-50 border border-blue-200/80 flex items-center justify-center text-blue-600 mx-auto mb-3.5">
+        <div className="w-10 h-10 rounded-lg bg-[#EFF6FF] border border-[#BFDBFE]/80 flex items-center justify-center text-[#2563EB] mx-auto mb-3.5">
           <ShieldCheck className="w-5 h-5" />
         </div>
 
@@ -96,15 +96,15 @@ export default function VerificationRequiredModal({
               className="w-full p-3.5 bg-white hover:bg-slate-50/80 border border-slate-200 hover:border-blue-400 rounded-md transition-all text-left shadow-2xs flex items-center justify-between gap-3 group"
             >
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-8 h-8 rounded-md bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-8 h-8 rounded-md bg-[#EFF6FF] border border-[#DBEAFE] flex items-center justify-center text-[#2563EB] flex-shrink-0 group-hover:scale-105 transition-transform">
                   <UserCheck className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
-                  <p className="font-bold text-xs sm:text-sm text-slate-900">Verify Identity</p>
+                  <p className="font-bold text-xs sm:text-sm text-[#0F172A]">Verify Identity</p>
                   <p className="text-[11px] text-slate-500 truncate">For individual sellers &amp; traders</p>
                 </div>
               </div>
-              <span className="text-xs font-bold text-blue-600 group-hover:underline flex-shrink-0">
+              <span className="text-xs font-bold text-[#2563EB] group-hover:underline flex-shrink-0">
                 Start
               </span>
             </button>
@@ -131,7 +131,7 @@ export default function VerificationRequiredModal({
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="font-bold text-xs sm:text-sm text-slate-900">Verify Brand / Store</p>
+                    <p className="font-bold text-xs sm:text-sm text-[#0F172A]">Verify Brand / Store</p>
                     <span className="text-[9px] font-bold uppercase tracking-wider text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-200/60">
                       Gold
                     </span>

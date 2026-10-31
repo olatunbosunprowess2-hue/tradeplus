@@ -144,7 +144,7 @@ export default function CommunityFeed() {
       <div className="bg-white border border-slate-200 rounded-xl p-3.5 sm:p-4 shadow-xs space-y-3">
         {/* Quick Composer Action Row */}
         <div className="flex items-center gap-2.5">
-          <div className="w-10 h-10 rounded-lg bg-blue-50 border border-blue-200 text-[#1D4ED8] font-bold text-xs flex items-center justify-center shrink-0 overflow-hidden">
+          <div className="w-10 h-10 rounded-lg bg-[#EFF6FF] border border-[#BFDBFE] text-[#1D4ED8] font-bold text-xs flex items-center justify-center shrink-0 overflow-hidden">
             {user?.profile?.avatarUrl ? (
               <img
                 src={sanitizeUrl(user.profile.avatarUrl)}
@@ -165,7 +165,7 @@ export default function CommunityFeed() {
 
           <button
             onClick={handleOpenCompose}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] active:bg-blue-800 text-white text-xs font-bold rounded-lg shadow-xs transition-colors shrink-0"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] active:bg-[#1E3A8A] text-white text-xs font-bold rounded-lg shadow-xs transition-colors shrink-0"
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">Post Request</span>
@@ -230,7 +230,7 @@ export default function CommunityFeed() {
       {/* Empty State */}
       {!isLoading && !isError && allPosts.length === 0 && (
         <div className="text-center py-12 bg-white rounded-lg border border-slate-200 p-8 shadow-xs">
-          <div className="w-12 h-12 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center mx-auto mb-3 text-[#2563EB]">
+          <div className="w-12 h-12 rounded-lg bg-[#EFF6FF] border border-[#DBEAFE] flex items-center justify-center mx-auto mb-3 text-[#2563EB]">
             <MessageSquare className="w-6 h-6" />
           </div>
           <h3 className="text-sm font-bold text-slate-900 mb-1">

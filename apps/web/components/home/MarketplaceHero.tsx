@@ -54,7 +54,7 @@ export default function MarketplaceHero() {
       <div className="mb-4 bg-white border border-slate-200 rounded-lg px-3.5 sm:px-4 py-2.5 shadow-2xs flex items-center justify-between gap-3 animate-in fade-in duration-300">
         <div className="flex items-center gap-2 min-w-0">
           <p className="text-xs font-semibold text-slate-700 truncate">
-            <span className="font-bold text-slate-900">Trade What You Have for What You Need</span>
+            <span className="font-bold text-[#0F172A]">Trade What You Have for What You Need</span>
             <span className="hidden sm:inline text-slate-400 mx-2">•</span>
             <span className="hidden sm:inline text-slate-500">Dual-Code Handshake Protection</span>
           </p>
@@ -71,7 +71,7 @@ export default function MarketplaceHero() {
 
           <button
             onClick={handleRestore}
-            className="inline-flex items-center gap-1 text-xs font-bold text-[#2563EB] hover:text-[#1D4ED8] bg-blue-50 border border-blue-200 hover:bg-blue-100 px-2.5 py-1 rounded-md transition-all shadow-2xs"
+            className="inline-flex items-center gap-1 text-xs font-bold text-[#2563EB] hover:text-[#1D4ED8] bg-[#EFF6FF] border border-[#BFDBFE] hover:bg-[#DBEAFE] px-2.5 py-1 rounded-md transition-all shadow-2xs"
             title="Expand Welcome Banner"
           >
             <span>Show Banner</span>
@@ -118,7 +118,7 @@ export default function MarketplaceHero() {
               <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 mb-4 sm:mb-5">
                 <Link
                   href="/listings/create"
-                  className="flex-1 sm:flex-initial justify-center px-4 sm:px-5 py-2 sm:py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] active:bg-blue-800 text-white text-xs sm:text-sm font-bold rounded-md transition-colors shadow-xs flex items-center gap-1.5"
+                  className="flex-1 sm:flex-initial justify-center px-4 sm:px-5 py-2 sm:py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] active:bg-[#1E3A8A] text-white text-xs sm:text-sm font-bold rounded-md transition-colors shadow-xs flex items-center gap-1.5"
                 >
                   <span>+ Post Free Listing</span>
                 </Link>
@@ -163,7 +163,7 @@ export default function MarketplaceHero() {
                   Up to 50% Off
                 </span>
               </div>
-              <h3 className="text-xs sm:text-sm font-bold text-slate-900">
+              <h3 className="text-xs sm:text-sm font-bold text-[#0F172A]">
                 Fast Cash Liquidation Deals
               </h3>
               <p className="text-xs text-slate-500 mt-1 leading-relaxed">
@@ -185,7 +185,7 @@ export default function MarketplaceHero() {
                 </span>
                 <span className="text-[10px] font-medium text-slate-400">Request Item</span>
               </div>
-              <h3 className="text-xs sm:text-sm font-bold text-slate-900">
+              <h3 className="text-xs sm:text-sm font-bold text-[#0F172A]">
                 Can&apos;t find what you want?
               </h3>
               <p className="text-xs text-slate-500 mt-1 leading-relaxed">

@@ -97,7 +97,7 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
 
     const getVerificationStatusColor = (status: string) => {
         switch (status) {
-            case 'VERIFIED': return 'bg-green-100 text-green-800';
+            case 'VERIFIED': return 'bg-[#DCFCE7] text-[#14532D]';
             case 'PENDING': return 'bg-yellow-100 text-yellow-800';
             case 'REJECTED': return 'bg-red-100 text-red-800';
             default: return 'bg-gray-100 text-gray-800';
@@ -129,7 +129,7 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
                     {/* Modal Content */}
                     <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[88vh] max-h-[88dvh] md:max-h-[90vh] md:max-h-[90dvh] overflow-hidden flex flex-col">
                         {/* Header */}
-                        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6">
+                        <div className="bg-[#1D4ED8] text-white p-6">
                             <div className="flex justify-between items-start">
                                 <div className="flex items-center gap-4">
                                     <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-2xl font-bold">
@@ -178,18 +178,18 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
                                 </div>
                                 <div className="bg-gray-50 rounded-xl p-4">
                                     <p className="text-xs text-gray-500 uppercase font-bold mb-1">Phone Number</p>
-                                    <p className="text-sm font-semibold text-gray-900">{user.phoneNumber || 'Not provided'}</p>
+                                    <p className="text-sm font-semibold text-[#0F172A]">{user.phoneNumber || 'Not provided'}</p>
                                 </div>
                                 <div className="bg-gray-50 rounded-xl p-4 col-span-2">
                                     <p className="text-xs text-gray-500 uppercase font-bold mb-1">Joined</p>
-                                    <p className="text-sm font-semibold text-gray-900">{formatDate(user.createdAt)}</p>
+                                    <p className="text-sm font-semibold text-[#0F172A]">{formatDate(user.createdAt)}</p>
                                 </div>
                             </div>
 
                             {/* Location */}
                             <div className="bg-gray-50 rounded-xl p-4 mb-6">
                                 <p className="text-xs text-gray-500 uppercase font-bold mb-1">Location</p>
-                                <p className="text-sm font-semibold text-gray-900">{user.locationAddress || 'Not provided'}</p>
+                                <p className="text-sm font-semibold text-[#0F172A]">{user.locationAddress || 'Not provided'}</p>
                                 {user.locationLat && user.locationLng && (
                                     <p className="text-xs text-gray-500 mt-1">
                                         Coordinates: {user.locationLat.toFixed(6)}, {user.locationLng.toFixed(6)}
@@ -200,12 +200,12 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
                             {/* Activity Stats */}
                             {user._count && (
                                 <div className="grid grid-cols-5 gap-2 mb-6">
-                                    <div className="bg-blue-50 rounded-xl p-3 text-center">
-                                        <p className="text-2xl font-bold text-blue-600">{user._count.listings}</p>
+                                    <div className="bg-[#EFF6FF] rounded-xl p-3 text-center">
+                                        <p className="text-2xl font-bold text-[#2563EB]">{user._count.listings}</p>
                                         <p className="text-xs text-gray-600">Listings</p>
                                     </div>
-                                    <div className="bg-green-50 rounded-xl p-3 text-center">
-                                        <p className="text-2xl font-bold text-green-600">{user._count.ordersBought}</p>
+                                    <div className="bg-[#F0FDF4] rounded-xl p-3 text-center">
+                                        <p className="text-2xl font-bold text-[#16A34A]">{user._count.ordersBought}</p>
                                         <p className="text-xs text-gray-600">Bought</p>
                                     </div>
                                     <div className="bg-purple-50 rounded-xl p-3 text-center">
@@ -259,7 +259,7 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
                                                     <div key={report.id} className="bg-white border border-red-100 rounded-lg p-3">
                                                         <div className="flex items-start justify-between mb-2">
                                                             <div>
-                                                                <span className={`px-2 py-0.5 text-xs font-bold rounded ${report.status === 'resolved' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                                                                <span className={`px-2 py-0.5 text-xs font-bold rounded ${report.status === 'resolved' ? 'bg-[#DCFCE7] text-[#14532D]' : 'bg-yellow-100 text-yellow-800'
                                                                     }`}>
                                                                     {report.status?.toUpperCase()}
                                                                 </span>
@@ -268,12 +268,12 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
                                                                 </span>
                                                             </div>
                                                             {report.listing && (
-                                                                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
+                                                                <span className="text-xs bg-[#DBEAFE] text-[#1E40AF] px-2 py-0.5 rounded">
                                                                     Listing: {report.listing.title}
                                                                 </span>
                                                             )}
                                                         </div>
-                                                        <p className="text-sm font-medium text-gray-900">{report.reason}</p>
+                                                        <p className="text-sm font-medium text-[#0F172A]">{report.reason}</p>
                                                         {report.description && (
                                                             <p className="text-sm text-gray-600 mt-1">{report.description}</p>
                                                         )}
@@ -291,7 +291,7 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
                             {/* Selfie Verification Section */}
                             <div className="border-t border-gray-200 pt-6">
                                 <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-5 h-5 text-[#2563EB]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                     </svg>
                                     Selfie Verification
@@ -307,7 +307,7 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
                                     <p className="text-xs text-gray-500 uppercase font-bold mb-3">Selfie Photo</p>
                                     {user.faceVerificationUrl ? (
                                         <div
-                                            className="relative w-full rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-blue-500 transition"
+                                            className="relative w-full rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-[#2563EB] transition"
                                             style={{ minHeight: '280px', maxHeight: '400px' }}
                                             onClick={() => setActiveImageUrl(user.faceVerificationUrl!)}
                                         >
@@ -345,7 +345,7 @@ export default function UserDetailModal({ user, isOpen, onClose, onStatusUpdate 
                                         </button>
                                         <button
                                             onClick={() => setActionModal({ open: true, type: 'APPROVE' })}
-                                            className="flex-1 sm:flex-initial px-5 py-3 sm:py-2 bg-green-600 text-white hover:bg-green-700 font-semibold rounded-lg transition shadow-sm text-center"
+                                            className="flex-1 sm:flex-initial px-5 py-3 sm:py-2 bg-[#16A34A] text-white hover:bg-[#15803D] font-semibold rounded-lg transition shadow-sm text-center"
                                         >
                                             Approve
                                         </button>

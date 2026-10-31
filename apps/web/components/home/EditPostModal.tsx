@@ -33,7 +33,7 @@ export default function EditPostModal({ post, onClose, onSaved }: { post: Commun
                     <span className="text-xs text-gray-400">{content.length}/2000</span>
                     <div className="flex gap-2">
                         <button onClick={onClose} className="px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
-                        <button onClick={handleSave} disabled={!content.trim() || submitting} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
+                        <button onClick={handleSave} disabled={!content.trim() || submitting} className="px-4 py-2 bg-[#1D4ED8] text-white rounded-lg text-sm font-medium hover:bg-[#1E40AF] disabled:opacity-50">
                             {submitting ? 'Saving...' : 'Save'}
                         </button>
                     </div>

@@ -53,8 +53,8 @@ export function ListingCardSkeleton() {
 
                 {/* Price (Blue themed placeholder) */}
                 <div className="flex items-center gap-2">
-                    <div className="w-1.5 h-6 bg-blue-100 rounded-full animate-pulse" />
-                    <SkeletonBase className="h-6 w-24 bg-blue-50/50" />
+                    <div className="w-1.5 h-6 bg-[#DBEAFE] rounded-full animate-pulse" />
+                    <SkeletonBase className="h-6 w-24 bg-[#EFF6FF]/50" />
                 </div>
 
                 {/* Tags */}
@@ -65,7 +65,7 @@ export function ListingCardSkeleton() {
 
                 {/* Location */}
                 <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-blue-100 animate-pulse" />
+                    <div className="w-3 h-3 rounded-full bg-[#DBEAFE] animate-pulse" />
                     <SkeletonBase className="h-3 w-1/2" />
                 </div>
             </div>

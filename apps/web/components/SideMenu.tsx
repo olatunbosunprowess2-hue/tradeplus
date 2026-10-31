@@ -230,7 +230,7 @@ export default function SideMenu({ className = '' }: SideMenuProps) {
                                 <Link
                                     key={item.href}
                                     href={item.href}
-                                    className={`flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors ${pathname === item.href ? 'bg-blue-50 text-[#2563EB]' : 'text-gray-700'
+                                    className={`flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors ${pathname === item.href ? 'bg-[#EFF6FF] text-[#2563EB]' : 'text-gray-700'
                                         }`}
                                 >
                                     <div className={pathname === item.href ? 'text-[#2563EB]' : 'text-gray-400'}>
@@ -267,7 +267,7 @@ export default function SideMenu({ className = '' }: SideMenuProps) {
                         <div className="flex gap-2">
                             <Link
                                 href="/login"
-                                className="flex-1 px-4 py-3 text-center border-2 border-[#2563EB] text-[#2563EB] rounded-xl font-semibold hover:bg-blue-50 transition"
+                                className="flex-1 px-4 py-3 text-center border-2 border-[#2563EB] text-[#2563EB] rounded-xl font-semibold hover:bg-[#EFF6FF] transition"
                             >
                                 Login
                             </Link>

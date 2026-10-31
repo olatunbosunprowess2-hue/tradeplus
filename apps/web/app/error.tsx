@@ -30,7 +30,7 @@ export default function Error({
                 </div>
 
                 <div className="space-y-4">
-                    <h2 className="text-3xl font-bold text-gray-900">Something went wrong</h2>
+                    <h2 className="text-3xl font-bold text-[#0F172A]">Something went wrong</h2>
                     <p className="text-gray-500">
                         We've encountered an unexpected error on our end.
                         Our team has been notified and is looking into it.

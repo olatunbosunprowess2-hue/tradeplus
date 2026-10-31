@@ -67,7 +67,7 @@ export default function VerificationReviewModal({ user, onClose, onDecision }: M
                 {/* Header */}
                 <div className="p-6 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white z-10">
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-900">Review Verification</h2>
+                        <h2 className="text-2xl font-bold text-[#0F172A]">Review Verification</h2>
                         <p className="text-gray-500">User: {user.firstName} {user.lastName} ({user.email})</p>
                     </div>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition">
@@ -141,9 +141,9 @@ export default function VerificationReviewModal({ user, onClose, onDecision }: M
                     </div>
 
                     {/* Verification checklist for reviewer */}
-                    <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
-                        <h4 className="text-sm font-semibold text-blue-800 mb-2">Review Checklist</h4>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs text-blue-700">
+                    <div className="bg-[#EFF6FF] border border-[#DBEAFE] rounded-xl p-4">
+                        <h4 className="text-sm font-semibold text-[#1E40AF] mb-2">Review Checklist</h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs text-[#1D4ED8]">
                             <span>✓ Face is clearly visible & centered</span>
                             <span>✓ Good lighting, not blurry</span>
                             <span>✓ No sunglasses, masks, or filters</span>
@@ -216,7 +216,7 @@ export default function VerificationReviewModal({ user, onClose, onDecision }: M
                             <button
                                 onClick={handleApprove}
                                 disabled={isProcessing}
-                                className={`w-full sm:w-auto px-8 py-3 rounded-xl font-bold shadow-lg transition transform ${isProcessing ? 'bg-gray-400' : 'bg-green-600 hover:bg-green-700 hover:-translate-y-0.5'} text-white text-sm sm:text-base`}
+                                className={`w-full sm:w-auto px-8 py-3 rounded-xl font-bold shadow-lg transition transform ${isProcessing ? 'bg-gray-400' : 'bg-[#16A34A] hover:bg-[#15803D] hover:-translate-y-0.5'} text-white text-sm sm:text-base`}
                             >
                                 {isProcessing ? 'Processing...' : 'Approve Verification'}
                             </button>

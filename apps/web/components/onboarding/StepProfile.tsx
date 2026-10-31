@@ -64,7 +64,7 @@ export default function StepProfile({ onNext, onBack }: StepProps) {
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <h2 className="text-xl font-bold tracking-tight text-slate-900">Complete Your Profile</h2>
+        <h2 className="text-xl font-bold tracking-tight text-[#0F172A]">Complete Your Profile</h2>
         <p className="text-xs text-slate-500 mt-1">Tell the community a bit about yourself.</p>
       </div>
 
@@ -100,7 +100,7 @@ export default function StepProfile({ onNext, onBack }: StepProps) {
               type="text"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
-              className="w-full px-3.5 py-2 text-sm rounded-md border border-slate-300 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition text-slate-900 bg-white placeholder:text-slate-400"
+              className="w-full px-3.5 py-2 text-sm rounded-md border border-slate-300 focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] outline-none transition text-slate-900 bg-white placeholder:text-slate-400"
               placeholder="e.g. Alex"
               required
             />
@@ -113,7 +113,7 @@ export default function StepProfile({ onNext, onBack }: StepProps) {
               type="text"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
-              className="w-full px-3.5 py-2 text-sm rounded-md border border-slate-300 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition text-slate-900 bg-white placeholder:text-slate-400"
+              className="w-full px-3.5 py-2 text-sm rounded-md border border-slate-300 focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] outline-none transition text-slate-900 bg-white placeholder:text-slate-400"
               placeholder="e.g. Adebayo"
               required
             />
@@ -129,7 +129,7 @@ export default function StepProfile({ onNext, onBack }: StepProps) {
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               maxLength={120}
-              className="w-full px-3.5 py-2 text-sm rounded-md border border-slate-300 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition h-24 resize-none text-slate-900 bg-white placeholder:text-slate-400"
+              className="w-full px-3.5 py-2 text-sm rounded-md border border-slate-300 focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] outline-none transition h-24 resize-none text-slate-900 bg-white placeholder:text-slate-400"
               placeholder="What do you like to trade? e.g. Tech enthusiast looking for phones & audio gear."
               required
             />
@@ -154,7 +154,7 @@ export default function StepProfile({ onNext, onBack }: StepProps) {
             disabled={loading}
             className={`${
               onBack ? 'flex-1' : 'w-full'
-            } bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white py-2.5 rounded-md font-bold text-xs transition-colors shadow-xs disabled:opacity-50 flex items-center justify-center gap-2`}
+            } bg-[#1D4ED8] hover:bg-[#1E40AF] active:bg-[#1E3A8A] text-white py-2.5 rounded-md font-bold text-xs transition-colors shadow-xs disabled:opacity-50 flex items-center justify-center gap-2`}
           >
             {loading ? (
               <>

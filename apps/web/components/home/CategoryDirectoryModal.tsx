@@ -108,7 +108,7 @@ export default function CategoryDirectoryModal({ isOpen, onClose }: CategoryDire
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between gap-3 shrink-0">
           <div>
-            <h2 className="text-base sm:text-lg font-bold text-slate-900">
+            <h2 className="text-base sm:text-lg font-bold text-[#0F172A]">
               All Marketplace Categories
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -132,7 +132,7 @@ export default function CategoryDirectoryModal({ isOpen, onClose }: CategoryDire
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search 20+ departments (e.g. Phones, Cars, Real Estate, Fashion)..."
-              className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all shadow-2xs"
+              className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all shadow-2xs"
               autoFocus
             />
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -153,7 +153,7 @@ export default function CategoryDirectoryModal({ isOpen, onClose }: CategoryDire
             onClick={() => handleSelectCategory('')}
             className={`px-3 py-1 rounded-md font-bold text-xs shrink-0 transition-colors border ${
               currentCategoryId === ''
-                ? 'bg-blue-600 text-white border-blue-600'
+                ? 'bg-[#1D4ED8] text-white border-[#2563EB]'
                 : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
             }`}
           >
@@ -172,9 +172,9 @@ export default function CategoryDirectoryModal({ isOpen, onClose }: CategoryDire
           <Link
             href="/brand-apply"
             onClick={onClose}
-            className="px-3 py-1 rounded-md font-bold text-xs shrink-0 bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors flex items-center gap-1"
+            className="px-3 py-1 rounded-md font-bold text-xs shrink-0 bg-[#EFF6FF] text-[#1D4ED8] border border-[#BFDBFE] hover:bg-[#DBEAFE] transition-colors flex items-center gap-1"
           >
-            <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+            <Sparkles className="w-3.5 h-3.5 text-[#2563EB]" />
             <span>Official Brands</span>
           </Link>
         </div>
@@ -216,7 +216,7 @@ export default function CategoryDirectoryModal({ isOpen, onClose }: CategoryDire
                     onClick={() => handleSelectCategory(cat.id)}
                     className={`flex items-center gap-3 p-2.5 rounded-lg border transition-all text-left group cursor-pointer ${
                       isSelected
-                        ? 'bg-blue-50/80 border-blue-500 shadow-xs'
+                        ? 'bg-[#EFF6FF]/80 border-[#3B82F6] shadow-xs'
                         : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/80'
                     }`}
                   >
@@ -231,7 +231,7 @@ export default function CategoryDirectoryModal({ isOpen, onClose }: CategoryDire
                     <div className="flex-1 min-w-0">
                       <p
                         className={`text-xs sm:text-sm font-bold truncate ${
-                          isSelected ? 'text-blue-700' : 'text-slate-900 group-hover:text-blue-600'
+                          isSelected ? 'text-[#1D4ED8]' : 'text-slate-900 group-hover:text-[#2563EB]'
                         }`}
                       >
                         {cat.name}
@@ -241,9 +241,9 @@ export default function CategoryDirectoryModal({ isOpen, onClose }: CategoryDire
                       </p>
                     </div>
 
-                    <div className="shrink-0 text-slate-400 group-hover:text-blue-600">
+                    <div className="shrink-0 text-slate-400 group-hover:text-[#2563EB]">
                       {isSelected ? (
-                        <span className="w-5 h-5 rounded bg-blue-600 text-white flex items-center justify-center text-xs">
+                        <span className="w-5 h-5 rounded bg-[#1D4ED8] text-white flex items-center justify-center text-xs">
                           <Check className="w-3.5 h-3.5" />
                         </span>
                       ) : (
@@ -261,13 +261,13 @@ export default function CategoryDirectoryModal({ isOpen, onClose }: CategoryDire
         <div className="p-3 sm:p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between shrink-0">
           <button
             onClick={() => handleSelectCategory('')}
-            className="text-xs font-bold text-slate-600 hover:text-slate-900"
+            className="text-xs font-bold text-slate-600 hover:text-[#0F172A]"
           >
             Clear Category Filter
           </button>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-xs rounded-md shadow-xs transition-colors"
+            className="px-4 py-2 bg-[#1D4ED8] hover:bg-[#1E40AF] active:bg-[#1E3A8A] text-white font-bold text-xs rounded-md shadow-xs transition-colors"
           >
             Done
           </button>

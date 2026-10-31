@@ -27,7 +27,7 @@ export default function ConfirmationModal({
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
             <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 transform transition-all scale-100 opacity-100">
                 <div className="mb-4">
-                    <h3 className={`text-lg font-bold ${isDestructive ? 'text-red-600' : 'text-gray-900'}`}>
+                    <h3 className={`text-lg font-bold ${isDestructive ? 'text-red-600' : 'text-[#0F172A]'}`}>
                         {title}
                     </h3>
                     <p className="mt-2 text-gray-600">
@@ -46,7 +46,7 @@ export default function ConfirmationModal({
                         onClick={onConfirm}
                         className={`px-4 py-2 text-sm font-medium text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 ${isDestructive
                                 ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
-                                : 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500'
+                                : 'bg-[#1D4ED8] hover:bg-[#1E40AF] focus:ring-[#2563EB]'
                             }`}
                     >
                         {confirmLabel}

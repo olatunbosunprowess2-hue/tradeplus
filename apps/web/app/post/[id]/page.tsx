@@ -44,7 +44,7 @@ export default function SinglePostPage() {
         <div className="mb-4">
           <Link
             href="/?tab=community"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-blue-600 transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-[#2563EB] transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Trade Requests &amp; Wants</span>
@@ -54,7 +54,7 @@ export default function SinglePostPage() {
         {/* Loading State */}
         {isLoading && (
           <div className="bg-white rounded-xl border border-slate-200 p-12 text-center shadow-xs">
-            <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-3" />
+            <Loader2 className="w-8 h-8 animate-spin text-[#2563EB] mx-auto mb-3" />
             <p className="text-xs text-slate-500 font-medium">Loading trade request post...</p>
           </div>
         )}
@@ -69,7 +69,7 @@ export default function SinglePostPage() {
             <p className="text-xs text-slate-500 max-w-sm mx-auto mb-4">{error}</p>
             <Link
               href="/?tab=community"
-              className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-md shadow-xs transition-colors"
+              className="inline-flex items-center px-4 py-2 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-md shadow-xs transition-colors"
             >
               Browse Trade Board
             </Link>

@@ -70,7 +70,7 @@ export function FormInput({
     const stateClasses = hasError
         ? 'border-red-400 dark:border-red-500 focus:border-red-500'
         : isFocused
-            ? 'border-blue-500 dark:border-blue-400'
+            ? 'border-[#3B82F6] dark:border-blue-400'
             : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500';
 
     const InputElement = type === 'textarea' ? 'textarea' : 'input';

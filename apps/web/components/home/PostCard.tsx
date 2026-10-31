@@ -62,7 +62,7 @@ function AvatarPlaceholder({ name }: { name: string }) {
 
   const colors = [
     'bg-slate-100 text-slate-700',
-    'bg-blue-50 text-blue-700',
+    'bg-[#EFF6FF] text-[#1D4ED8]',
     'bg-indigo-50 text-indigo-700',
     'bg-emerald-50 text-emerald-700',
     'bg-amber-50 text-amber-700',
@@ -123,14 +123,14 @@ function ShareButton({
     },
     {
       name: 'Twitter / X',
-      icon: <Twitter className="w-3.5 h-3.5 text-slate-900" />,
+      icon: <Twitter className="w-3.5 h-3.5 text-[#0F172A]" />,
       href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(
         text
       )}&url=${encodeURIComponent(url)}`,
     },
     {
       name: 'Facebook',
-      icon: <Facebook className="w-3.5 h-3.5 text-blue-600" />,
+      icon: <Facebook className="w-3.5 h-3.5 text-[#2563EB]" />,
       href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
     },
   ];
@@ -330,7 +330,7 @@ export default function PostCard({
               title={isSaved ? 'Unsave Post' : 'Save Post'}
               className={`p-1.5 rounded-md transition-colors ${
                 isSaved
-                  ? 'text-blue-600 bg-blue-50'
+                  ? 'text-[#2563EB] bg-[#EFF6FF]'
                   : 'text-slate-400 hover:text-slate-700 hover:bg-slate-100'
               }`}
             >

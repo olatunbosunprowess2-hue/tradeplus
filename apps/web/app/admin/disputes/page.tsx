@@ -79,8 +79,8 @@ export default function AdminDisputesPage() {
     const getStatusBadge = (status: string) => {
         const styles: Record<string, string> = {
             open: 'bg-yellow-100 text-yellow-800',
-            under_review: 'bg-blue-100 text-blue-800',
-            resolved: 'bg-green-100 text-green-800',
+            under_review: 'bg-[#DBEAFE] text-[#1E40AF]',
+            resolved: 'bg-[#DCFCE7] text-[#14532D]',
             rejected: 'bg-red-100 text-red-800',
         };
         return styles[status] || 'bg-gray-100 text-gray-800';
@@ -89,7 +89,7 @@ export default function AdminDisputesPage() {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-gray-900">Dispute Resolution Center</h1>
+                <h1 className="text-2xl font-bold text-[#0F172A]">Dispute Resolution Center</h1>
             </div>
 
             {/* Stats Cards */}
@@ -99,13 +99,13 @@ export default function AdminDisputesPage() {
                         <p className="text-yellow-600 text-sm font-medium">Open</p>
                         <p className="text-2xl font-bold text-yellow-700">{stats.open}</p>
                     </div>
-                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                        <p className="text-blue-600 text-sm font-medium">Under Review</p>
-                        <p className="text-2xl font-bold text-blue-700">{stats.underReview}</p>
+                    <div className="bg-[#EFF6FF] border border-[#BFDBFE] rounded-xl p-4">
+                        <p className="text-[#2563EB] text-sm font-medium">Under Review</p>
+                        <p className="text-2xl font-bold text-[#1D4ED8]">{stats.underReview}</p>
                     </div>
-                    <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-                        <p className="text-green-600 text-sm font-medium">Resolved</p>
-                        <p className="text-2xl font-bold text-green-700">{stats.resolved}</p>
+                    <div className="bg-[#F0FDF4] border border-green-200 rounded-xl p-4">
+                        <p className="text-[#16A34A] text-sm font-medium">Resolved</p>
+                        <p className="text-2xl font-bold text-[#15803D]">{stats.resolved}</p>
                     </div>
                     <div className="bg-red-50 border border-red-200 rounded-xl p-4">
                         <p className="text-red-600 text-sm font-medium">Rejected</p>
@@ -123,7 +123,7 @@ export default function AdminDisputesPage() {
                 <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="px-4 py-2 border border-gray-300 rounded-lg text-gray-900"
+                    className="px-4 py-2 border border-gray-300 rounded-lg text-[#0F172A]"
                 >
                     <option value="">All Statuses</option>
                     <option value="open">Open</option>
@@ -164,7 +164,7 @@ export default function AdminDisputesPage() {
                                     <tr key={dispute.id} className="hover:bg-gray-50">
                                         <td className="px-6 py-4">
                                             <div>
-                                                <p className="font-medium text-gray-900">
+                                                <p className="font-medium text-[#0F172A]">
                                                     {dispute.reporter?.profile?.displayName || dispute.reporter?.email}
                                                 </p>
                                                 <p className="text-sm text-gray-500">{dispute.reporter?.email}</p>
@@ -188,7 +188,7 @@ export default function AdminDisputesPage() {
                                             <div className="flex items-center gap-2">
                                                 <button
                                                     onClick={() => openResolveModal(dispute)}
-                                                    className="px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition"
+                                                    className="px-3 py-1.5 bg-[#1D4ED8] text-white text-sm font-medium rounded-lg hover:bg-[#1E40AF] transition"
                                                 >
                                                     {dispute.status === 'resolved' ? 'View' : 'Resolve'}
                                                 </button>
@@ -230,7 +230,7 @@ export default function AdminDisputesPage() {
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
                         <div className="p-6 border-b border-gray-200">
-                            <h2 className="text-xl font-bold text-gray-900">Resolve Dispute</h2>
+                            <h2 className="text-xl font-bold text-[#0F172A]">Resolve Dispute</h2>
                         </div>
 
                         <div className="p-6 space-y-6">
@@ -271,12 +271,12 @@ export default function AdminDisputesPage() {
                                                     type="button"
                                                     onClick={() => setResolution(opt.value)}
                                                     className={`p-3 border-2 rounded-xl text-left transition ${resolution === opt.value
-                                                        ? 'border-blue-500 bg-blue-50'
+                                                        ? 'border-[#3B82F6] bg-[#EFF6FF]'
                                                         : 'border-gray-200 hover:border-gray-300'
                                                         }`}
                                                 >
                                                     <span className="mr-2">{opt.icon}</span>
-                                                    <span className="font-medium text-gray-900">{opt.label}</span>
+                                                    <span className="font-medium text-[#0F172A]">{opt.label}</span>
                                                 </button>
                                             ))}
                                         </div>
@@ -290,19 +290,19 @@ export default function AdminDisputesPage() {
                                             onChange={(e) => setAdminNotes(e.target.value)}
                                             placeholder="Internal notes about this resolution..."
                                             rows={3}
-                                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-gray-900"
+                                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-[#0F172A]"
                                         />
                                     </div>
                                 </>
                             )}
 
                             {selectedDispute.status === 'resolved' && (
-                                <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-                                    <p className="font-medium text-green-800">
+                                <div className="bg-[#F0FDF4] border border-green-200 rounded-xl p-4">
+                                    <p className="font-medium text-[#14532D]">
                                         Resolution: {selectedDispute.resolution?.replace(/_/g, ' ')}
                                     </p>
                                     {selectedDispute.adminNotes && (
-                                        <p className="text-sm text-green-700 mt-2">{selectedDispute.adminNotes}</p>
+                                        <p className="text-sm text-[#15803D] mt-2">{selectedDispute.adminNotes}</p>
                                     )}
                                 </div>
                             )}
@@ -319,7 +319,7 @@ export default function AdminDisputesPage() {
                                 <button
                                     onClick={handleResolve}
                                     disabled={!resolution || actionLoading}
-                                    className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 disabled:opacity-50"
+                                    className="flex-1 px-4 py-3 bg-[#1D4ED8] text-white rounded-xl font-medium hover:bg-[#1E40AF] disabled:opacity-50"
                                 >
                                     {actionLoading ? 'Resolving...' : 'Resolve Dispute'}
                                 </button>

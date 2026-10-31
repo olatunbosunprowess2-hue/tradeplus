@@ -208,7 +208,7 @@ export default function Navbar() {
       {/* Logo Text */}
       <span className="text-lg font-bold font-display">
         <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">Barter</span>
-        <span className="text-gray-900">Wave</span>
+        <span className="text-[#0F172A]">Wave</span>
       </span>
     </Link>
   );
@@ -218,11 +218,11 @@ export default function Navbar() {
     <Link
       href={href}
       className={`relative flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all ${isActive
-        ? 'bg-gradient-to-r from-blue-50 to-purple-50 text-blue-600'
-        : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
+        ? 'bg-gradient-to-r from-blue-50 to-purple-50 text-[#2563EB]'
+        : 'text-gray-600 hover:text-[#2563EB] hover:bg-gray-50'
         }`}
     >
-      <span className={isActive ? 'text-blue-600' : 'text-gray-400'}>{icon}</span>
+      <span className={isActive ? 'text-[#2563EB]' : 'text-gray-400'}>{icon}</span>
       <span className="hidden xl:inline">{label}</span>
       {badge !== undefined && badge > 0 && (
         <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-[10px] font-bold min-w-[16px] h-[16px] rounded-full flex items-center justify-center px-0.5 shadow-sm">
@@ -236,7 +236,7 @@ export default function Navbar() {
   const IconButton = ({ href, icon, badge }: { href: string; icon: React.ReactNode; badge?: number }) => (
     <Link
       href={href}
-      className="relative p-2.5 text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-xl transition-all"
+      className="relative p-2.5 text-gray-600 hover:text-[#2563EB] hover:bg-gray-50 rounded-xl transition-all"
     >
       {icon}
       {badge !== undefined && badge > 0 && (
@@ -265,14 +265,14 @@ export default function Navbar() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search products, brands, or swap items..."
-                    className="w-full pl-9 pr-20 py-2 bg-slate-50 border border-slate-300/90 rounded-md text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 focus:bg-white transition-all"
+                    className="w-full pl-9 pr-20 py-2 bg-slate-50 border border-slate-300/90 rounded-md text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] focus:bg-white transition-all"
                   />
                   <svg className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                   <button
                     type="submit"
-                    className="absolute right-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded transition-colors shadow-xs"
+                    className="absolute right-1 px-3 py-1 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white font-bold text-xs rounded transition-colors shadow-xs"
                   >
                     Search
                   </button>
@@ -323,10 +323,10 @@ export default function Navbar() {
                 <SideMenu />
               ) : (
                 <div className="flex items-center gap-2">
-                  <Link href="/login" className="text-gray-500 font-bold hover:text-blue-600 px-3 py-2 text-xs uppercase tracking-widest hidden sm:block transition-colors">
+                  <Link href="/login" className="text-gray-500 font-bold hover:text-[#2563EB] px-3 py-2 text-xs uppercase tracking-widest hidden sm:block transition-colors">
                     Login
                   </Link>
-                  <Link href="/register" className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/20 transition-all text-xs uppercase tracking-widest active:scale-95">
+                  <Link href="/register" className="bg-[#1D4ED8] text-white px-5 py-2.5 rounded-xl font-bold hover:bg-[#1E40AF] hover:shadow-lg hover:shadow-blue-500/20 transition-all text-xs uppercase tracking-widest active:scale-95">
                     Join Free
                   </Link>
                 </div>

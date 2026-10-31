@@ -69,7 +69,7 @@ export default function HomeContent() {
               onClick={() => handleTabChange('market')}
               className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs font-bold rounded-md transition-all ${
                 activeTab === 'market'
-                  ? 'bg-blue-600 text-white shadow-2xs'
+                  ? 'bg-[#1D4ED8] text-white shadow-2xs'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
               }`}
             >
@@ -84,7 +84,7 @@ export default function HomeContent() {
               onClick={() => handleTabChange('community')}
               className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs font-bold rounded-md transition-all ${
                 activeTab === 'community'
-                  ? 'bg-blue-600 text-white shadow-2xs'
+                  ? 'bg-[#1D4ED8] text-white shadow-2xs'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
               }`}
             >

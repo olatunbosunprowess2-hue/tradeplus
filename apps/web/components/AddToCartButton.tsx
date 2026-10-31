@@ -57,8 +57,8 @@ export default function AddToCartButton({ listing, className = '', iconOnly = fa
             <button
                 onClick={handleAddToCart}
                 className={`flex items-center justify-center transition-all ${isAdded
-                    ? 'bg-green-600 text-white'
-                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                    ? 'bg-[#16A34A] text-white'
+                    : 'bg-[#1D4ED8] text-white hover:bg-[#1E40AF]'
                     } ${className}`}
                 aria-label={isAdded ? 'Added to cart' : 'Add to cart'}
             >
@@ -79,8 +79,8 @@ export default function AddToCartButton({ listing, className = '', iconOnly = fa
         <button
             onClick={handleAddToCart}
             className={`flex items-center justify-center gap-2 transition-all duration-300 ${isAdded
-                ? 'bg-emerald-600 text-white hover:bg-emerald-700'
-                : 'bg-white border focus:ring-4 focus:ring-blue-500/10 border-blue-600 text-blue-600 hover:bg-blue-50'
+                ? 'bg-[#16A34A] text-white hover:bg-[#15803D]'
+                : 'bg-white border focus:ring-4 focus:ring-[#2563EB]/10 border-[#2563EB] text-[#2563EB] hover:bg-[#EFF6FF]'
                 } px-5 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider shadow-sm active:scale-95 ${className}`}
         >
             {isAdded ? (

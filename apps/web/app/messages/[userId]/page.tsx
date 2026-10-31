@@ -386,7 +386,7 @@ export default function ChatPage() {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2563EB] mx-auto mb-4"></div>
                     <p className="text-gray-600">Loading conversation...</p>
                 </div>
             </div>
@@ -414,7 +414,7 @@ export default function ChatPage() {
                         </button>
                         <Link
                             href="/listings"
-                            className="px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition"
+                            className="px-6 py-3 bg-[#1D4ED8] text-white rounded-xl font-medium hover:bg-[#1E40AF] transition"
                         >
                             Browse Listings
                         </Link>
@@ -449,7 +449,7 @@ export default function ChatPage() {
                             className="rounded-full object-cover ring-2 ring-white shadow-sm"
                         />
                     ) : (
-                        <div className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold shadow-sm">
+                        <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#1D4ED8] to-[#1E40AF] flex items-center justify-center text-white font-bold shadow-sm">
                             {conversation.participantName?.charAt(0) || '?'}
                         </div>
                     )}
@@ -553,7 +553,7 @@ export default function ChatPage() {
 
             {/* Listing Context Card */}
             {conversation.listingContext && (
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100 px-4 py-2">
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-[#DBEAFE] px-4 py-2">
                     <div className="container mx-auto max-w-4xl">
                         <Link
                             href={`/listings/${conversation.listingContext.id}`}
@@ -569,15 +569,15 @@ export default function ChatPage() {
                                 />
                             )}
                             <div className="flex-1 min-w-0">
-                                <p className="text-xs font-semibold text-blue-700 mb-0.5 flex items-center gap-1">
-                                    <svg className="w-3.5 h-3.5 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                                <p className="text-xs font-semibold text-[#1D4ED8] mb-0.5 flex items-center gap-1">
+                                    <svg className="w-3.5 h-3.5 text-[#2563EB] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
                                     <span>About this listing:</span>
                                 </p>
                                 <p className="text-sm font-medium text-gray-900 truncate">
                                     {conversation.listingContext.title}
                                 </p>
                             </div>
-                            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-5 h-5 text-[#2563EB]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                             </svg>
                         </Link>
@@ -591,7 +591,7 @@ export default function ChatPage() {
                     {/* Safety Meetup Advisory Strip */}
                     <div className="bg-slate-50 border border-slate-200/90 rounded-lg px-3 py-2 flex items-center justify-between gap-2 shadow-2xs">
                         <div className="flex items-center gap-2 min-w-0">
-                            <span className="px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded text-[9px] font-bold uppercase tracking-wider shrink-0">SAFETY TIP</span>
+                            <span className="px-1.5 py-0.5 bg-[#DBEAFE] text-[#1E40AF] rounded text-[9px] font-bold uppercase tracking-wider shrink-0">SAFETY TIP</span>
                             <p className="text-[11px] text-slate-600 truncate">
                                 Meet in daylight at a public place. Inspect items thoroughly before sharing your exchange code or completing trade.
                             </p>
@@ -617,12 +617,12 @@ export default function ChatPage() {
 
                     {messages.length === 0 && !hasFetchedMessages ? (
                         <div className="text-center py-12">
-                            <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                            <div className="w-8 h-8 border-2 border-[#2563EB] border-t-transparent rounded-full animate-spin mx-auto"></div>
                         </div>
                     ) : messages.length === 0 ? (
                         <div className="text-center py-12">
                              <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner">
-                                 <svg className="w-8 h-8 text-blue-600 animate-[bounce_1.5s_infinite]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5a1.5 1.5 0 013 0v5" /></svg>
+                                 <svg className="w-8 h-8 text-[#2563EB] animate-[bounce_1.5s_infinite]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5a1.5 1.5 0 013 0v5" /></svg>
                              </div>
                             <p className="text-gray-600 font-medium">Say hello to start the conversation!</p>
                         </div>
@@ -646,7 +646,7 @@ export default function ChatPage() {
                                 return (
                                     <div key={message.id} className="flex justify-center my-4">
                                         <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-full px-4 py-2 max-w-sm">
-                                            <p className="text-sm text-green-800 text-center font-medium">
+                                            <p className="text-sm text-[#14532D] text-center font-medium">
                                                 {message.content}
                                             </p>
                                         </div>
@@ -666,8 +666,8 @@ export default function ChatPage() {
                                     <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
                                         <div
                                             className={`max-w-[75%] rounded-2xl px-4 py-2.5 shadow-sm ${isOwn
-                                                ? 'bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-br-md'
-                                                : 'bg-white border border-gray-200 text-gray-900 rounded-bl-md'
+                                                ? 'bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] text-white rounded-2xl rounded-br-xs shadow-[0_2px_8px_rgba(29,78,216,0.25)]'
+                                                : 'bg-white border border-slate-200/90 text-[#0F172A] rounded-2xl rounded-bl-xs shadow-[0_1px_3px_rgba(15,23,42,0.06)]'
                                                 }`}
                                         >
                                             {message.mediaUrl && message.mediaType === 'image' && (
@@ -746,7 +746,7 @@ export default function ChatPage() {
                         <button
                             type="button"
                             onClick={() => fileInputRef.current?.click()}
-                            className="p-3 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-all duration-200 active:scale-90"
+                            className="p-3 text-gray-400 hover:text-[#2563EB] hover:bg-[#EFF6FF] rounded-full transition-all duration-200 active:scale-90"
                             title="Attach image or video"
                         >
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -792,16 +792,16 @@ export default function ChatPage() {
                                 }}
                                 placeholder="Type a message..."
                                 rows={1}
-                                className="w-full px-4 py-3 bg-gray-50/80 border-2 border-transparent rounded-2xl focus:bg-white focus:ring-0 focus:border-blue-500 text-gray-900 placeholder:text-gray-400 font-medium transition-all duration-200 resize-none shadow-inner text-sm md:text-base"
+                                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] text-[#0F172A] placeholder:text-gray-400 font-medium transition-all duration-200 resize-none shadow-inner text-sm md:text-base"
                                 style={{ minHeight: '48px', maxHeight: '160px' }}
                             />
                         </div>
                         <button
                             type="submit"
                             disabled={(!messageText.trim() && !filePreview) || isSending}
-                            className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 transition-all duration-300 shadow-lg active:scale-95 ${(!messageText.trim() && !filePreview) || isSending
+                            className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300 shadow-md active:scale-95 ${(!messageText.trim() && !filePreview) || isSending
                                 ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'
-                                : 'bg-gradient-to-br from-blue-600 to-indigo-600 text-white hover:shadow-blue-500/25 hover:scale-110'
+                                : 'bg-gradient-to-br from-[#1D4ED8] to-[#1E40AF] text-white hover:shadow-blue-500/25 hover:scale-110'
                                 }`}
                         >
                             {isSending ? (

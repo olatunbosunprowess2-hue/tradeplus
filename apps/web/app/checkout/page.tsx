@@ -36,7 +36,7 @@ export default function CheckoutPage() {
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="text-center">
                     <h1 className="text-2xl font-bold text-gray-900 mb-4">Your cart is empty</h1>
-                    <Link href="/listings" className="text-blue-600 hover:underline">
+                    <Link href="/listings" className="text-[#2563EB] hover:underline">
                         Browse Listings
                     </Link>
                 </div>
@@ -75,8 +75,8 @@ export default function CheckoutPage() {
 
                         {/* Progress Steps */}
                         <div className="flex items-center justify-between mb-8 px-4 bg-white py-6 rounded-2xl shadow-sm border border-gray-100">
-                            <div className={`flex flex-col items-center relative z-10 transition-colors duration-300 ${step === 'shipping' ? 'text-blue-600' : 'text-gray-500'}`}>
-                                <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 font-bold text-lg shadow-sm transition-all duration-300 ${step === 'shipping' || step === 'payment' || step === 'confirmation' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-blue-200' : 'bg-gray-100'}`}>
+                            <div className={`flex flex-col items-center relative z-10 transition-colors duration-300 ${step === 'shipping' ? 'text-[#2563EB]' : 'text-gray-500'}`}>
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 font-bold text-lg shadow-sm transition-all duration-300 ${step === 'shipping' || step === 'payment' || step === 'confirmation' ? 'bg-[#1D4ED8] text-white shadow-blue-200' : 'bg-gray-100'}`}>
                                     {step === 'payment' || step === 'confirmation' ? (
                                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                                     ) : (
@@ -86,10 +86,10 @@ export default function CheckoutPage() {
                                 <span className="text-sm font-semibold">Shipping</span>
                             </div>
                             <div className="h-1 flex-1 mx-2 bg-gray-100 rounded-full overflow-hidden">
-                                <div className={`h-full bg-gradient-to-r from-blue-600 to-indigo-600 transition-all duration-500 ease-out ${step === 'payment' || step === 'confirmation' ? 'w-full' : 'w-0'}`} />
+                                <div className={`h-full bg-[#1D4ED8] transition-all duration-500 ease-out ${step === 'payment' || step === 'confirmation' ? 'w-full' : 'w-0'}`} />
                             </div>
-                            <div className={`flex flex-col items-center relative z-10 transition-colors duration-300 ${step === 'payment' ? 'text-blue-600' : 'text-gray-500'}`}>
-                                <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 font-bold text-lg shadow-sm transition-all duration-300 ${step === 'payment' || step === 'confirmation' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-blue-200' : 'bg-gray-100'}`}>
+                            <div className={`flex flex-col items-center relative z-10 transition-colors duration-300 ${step === 'payment' ? 'text-[#2563EB]' : 'text-gray-500'}`}>
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 font-bold text-lg shadow-sm transition-all duration-300 ${step === 'payment' || step === 'confirmation' ? 'bg-[#1D4ED8] text-white shadow-blue-200' : 'bg-gray-100'}`}>
                                     {step === 'confirmation' ? (
                                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                                     ) : (
@@ -99,10 +99,10 @@ export default function CheckoutPage() {
                                 <span className="text-sm font-semibold">Payment</span>
                             </div>
                             <div className="h-1 flex-1 mx-2 bg-gray-100 rounded-full overflow-hidden">
-                                <div className={`h-full bg-gradient-to-r from-blue-600 to-indigo-600 transition-all duration-500 ease-out ${step === 'confirmation' ? 'w-full' : 'w-0'}`} />
+                                <div className={`h-full bg-[#1D4ED8] transition-all duration-500 ease-out ${step === 'confirmation' ? 'w-full' : 'w-0'}`} />
                             </div>
-                            <div className={`flex flex-col items-center relative z-10 transition-colors duration-300 ${step === 'confirmation' ? 'text-blue-600' : 'text-gray-500'}`}>
-                                <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 font-bold text-lg shadow-sm transition-all duration-300 ${step === 'confirmation' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-blue-200' : 'bg-gray-100'}`}>3</div>
+                            <div className={`flex flex-col items-center relative z-10 transition-colors duration-300 ${step === 'confirmation' ? 'text-[#2563EB]' : 'text-gray-500'}`}>
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 font-bold text-lg shadow-sm transition-all duration-300 ${step === 'confirmation' ? 'bg-[#1D4ED8] text-white shadow-blue-200' : 'bg-gray-100'}`}>3</div>
                                 <span className="text-sm font-semibold">Done</span>
                             </div>
                         </div>
@@ -118,7 +118,7 @@ export default function CheckoutPage() {
                                             required
                                             value={shippingInfo.fullName}
                                             onChange={(e) => setShippingInfo({ ...shippingInfo, fullName: e.target.value })}
-                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-gray-50 focus:bg-white"
+                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition bg-gray-50 focus:bg-white"
                                             placeholder="John Doe"
                                         />
                                     </div>
@@ -129,7 +129,7 @@ export default function CheckoutPage() {
                                             required
                                             value={shippingInfo.address}
                                             onChange={(e) => setShippingInfo({ ...shippingInfo, address: e.target.value })}
-                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-gray-50 focus:bg-white"
+                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition bg-gray-50 focus:bg-white"
                                             placeholder="123 Main St, Apt 4B"
                                         />
                                     </div>
@@ -141,7 +141,7 @@ export default function CheckoutPage() {
                                                 required
                                                 value={shippingInfo.city}
                                                 onChange={(e) => setShippingInfo({ ...shippingInfo, city: e.target.value })}
-                                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-gray-50 focus:bg-white"
+                                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition bg-gray-50 focus:bg-white"
                                                 placeholder="Lagos"
                                             />
                                         </div>
@@ -152,7 +152,7 @@ export default function CheckoutPage() {
                                                 required
                                                 value={shippingInfo.state}
                                                 onChange={(e) => setShippingInfo({ ...shippingInfo, state: e.target.value })}
-                                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-gray-50 focus:bg-white"
+                                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition bg-gray-50 focus:bg-white"
                                                 placeholder="Lagos State"
                                             />
                                         </div>
@@ -164,13 +164,13 @@ export default function CheckoutPage() {
                                             required
                                             value={shippingInfo.phone}
                                             onChange={(e) => setShippingInfo({ ...shippingInfo, phone: e.target.value })}
-                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-gray-50 focus:bg-white"
+                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition bg-gray-50 focus:bg-white"
                                             placeholder="+234 80 0000 0000"
                                         />
                                     </div>
                                     <button
                                         type="submit"
-                                        className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold text-lg hover:shadow-lg hover:from-blue-700 hover:to-indigo-700 transition transform hover:-translate-y-0.5"
+                                        className="w-full py-4 bg-[#1D4ED8] text-white rounded-xl font-bold text-lg hover:shadow-lg hover:from-blue-700 hover:to-indigo-700 transition transform hover:-translate-y-0.5"
                                     >
                                         Continue to Payment
                                     </button>
@@ -183,10 +183,10 @@ export default function CheckoutPage() {
                                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Payment Method</h2>
 
                                 <div className="space-y-4 mb-8">
-                                    <div className="p-4 border-2 border-blue-500 bg-blue-50/50 rounded-xl flex items-center justify-between cursor-pointer transition">
+                                    <div className="p-4 border-2 border-[#3B82F6] bg-[#EFF6FF]/50 rounded-xl flex items-center justify-between cursor-pointer transition">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-6 h-6 rounded-full border-[6px] border-blue-600 bg-white" />
-                                            <span className="font-bold text-gray-900">Credit / Debit Card</span>
+                                            <div className="w-6 h-6 rounded-full border-[6px] border-[#2563EB] bg-white" />
+                                            <span className="font-bold text-[#0F172A]">Credit / Debit Card</span>
                                         </div>
                                         <div className="flex gap-2">
                                             <div className="w-10 h-6 bg-gray-200 rounded" />
@@ -196,7 +196,7 @@ export default function CheckoutPage() {
 
                                     <div className="p-4 border border-gray-200 rounded-xl flex items-center gap-4 opacity-50 cursor-not-allowed bg-gray-50">
                                         <div className="w-6 h-6 rounded-full border-2 border-gray-300" />
-                                        <span className="font-medium text-gray-900">Bank Transfer</span>
+                                        <span className="font-medium text-[#0F172A]">Bank Transfer</span>
                                     </div>
                                 </div>
 
@@ -207,7 +207,7 @@ export default function CheckoutPage() {
                                             <input
                                                 type="text"
                                                 placeholder="0000 0000 0000 0000"
-                                                className="w-full px-4 py-3 pl-12 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-gray-50 focus:bg-white"
+                                                className="w-full px-4 py-3 pl-12 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition bg-gray-50 focus:bg-white"
                                             />
                                             <svg className="w-6 h-6 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
@@ -220,7 +220,7 @@ export default function CheckoutPage() {
                                             <input
                                                 type="text"
                                                 placeholder="MM/YY"
-                                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-gray-50 focus:bg-white"
+                                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition bg-gray-50 focus:bg-white"
                                             />
                                         </div>
                                         <div>
@@ -229,7 +229,7 @@ export default function CheckoutPage() {
                                                 <input
                                                     type="text"
                                                     placeholder="123"
-                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-gray-50 focus:bg-white"
+                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition bg-gray-50 focus:bg-white"
                                                 />
                                                 <svg className="w-5 h-5 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -249,7 +249,7 @@ export default function CheckoutPage() {
                                     <button
                                         onClick={handlePaymentSubmit}
                                         disabled={isProcessing}
-                                        className="flex-[2] py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold hover:shadow-lg transition disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                        className="flex-[2] py-4 bg-[#1D4ED8] text-white rounded-xl font-bold hover:shadow-lg transition disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                     >
                                         {isProcessing ? (
                                             <>
@@ -269,8 +269,8 @@ export default function CheckoutPage() {
 
                         {step === 'confirmation' && (
                             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-12 text-center transform transition-all animate-fade-in-up">
-                                <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-8 animate-bounce">
-                                    <svg className="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div className="w-24 h-24 bg-[#DCFCE7] rounded-full flex items-center justify-center mx-auto mb-8 animate-bounce">
+                                    <svg className="w-12 h-12 text-[#16A34A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                                     </svg>
                                 </div>
@@ -280,7 +280,7 @@ export default function CheckoutPage() {
                                 </p>
                                 <Link
                                     href="/listings"
-                                    className="inline-block px-10 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full font-bold text-lg hover:shadow-lg hover:scale-105 transition duration-200"
+                                    className="inline-block px-10 py-4 bg-[#1D4ED8] text-white rounded-full font-bold text-lg hover:shadow-lg hover:scale-105 transition duration-200"
                                 >
                                     Continue Shopping
                                 </Link>
@@ -317,11 +317,11 @@ export default function CheckoutPage() {
                                     </div>
                                     <div className="flex justify-between text-gray-600">
                                         <span>Shipping</span>
-                                        <span className="text-green-600 font-medium">Free</span>
+                                        <span className="text-[#16A34A] font-medium">Free</span>
                                     </div>
                                     <div className="flex justify-between text-xl font-bold text-gray-900 pt-4 border-t border-gray-100 mt-2">
                                         <span>Total</span>
-                                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+                                        <span className="text-transparent bg-clip-text bg-[#1D4ED8]">
                                             ₦{(total / 100).toLocaleString()}
                                         </span>
                                     </div>

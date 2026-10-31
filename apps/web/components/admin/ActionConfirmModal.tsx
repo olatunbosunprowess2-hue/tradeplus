@@ -49,9 +49,9 @@ export default function ActionConfirmModal({
     const getColorClass = () => {
         switch (confirmColor) {
             case 'red': return 'bg-red-600 hover:bg-red-700 focus:ring-red-500';
-            case 'green': return 'bg-green-600 hover:bg-green-700 focus:ring-green-500';
+            case 'green': return 'bg-[#16A34A] hover:bg-[#15803D] focus:ring-green-500';
             case 'yellow': return 'bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-500';
-            default: return 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500';
+            default: return 'bg-[#1D4ED8] hover:bg-[#1E40AF] focus:ring-[#2563EB]';
         }
     };
 
@@ -76,7 +76,7 @@ export default function ActionConfirmModal({
                                 value={reason}
                                 onChange={(e) => setReason(e.target.value)}
                                 placeholder={inputPlaceholder}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[100px] text-gray-900 placeholder:text-gray-500 bg-white"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-[#3B82F6] min-h-[100px] text-gray-900 placeholder:text-gray-500 bg-white"
                                 disabled={isLoading}
                                 autoFocus
                             />

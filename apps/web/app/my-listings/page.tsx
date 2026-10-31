@@ -118,7 +118,7 @@ export default function MyListingsPage() {
         return (
             <div className="min-h-screen bg-slate-50 flex items-center justify-center">
                 <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2563EB] mx-auto mb-4"></div>
                     <p className="text-gray-600">Loading your listings...</p>
                 </div>
             </div>
@@ -131,12 +131,12 @@ export default function MyListingsPage() {
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">My Listings</h1>
+                        <h1 className="text-2xl font-bold text-[#0F172A]">My Listings</h1>
                         <p className="text-gray-600">Manage your items for sale</p>
                     </div>
                     <Link
                         href="/listings/create"
-                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition shadow-lg"
+                        className="flex items-center gap-2 px-4 py-2 bg-[#1D4ED8] text-white rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition shadow-lg"
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -157,7 +157,7 @@ export default function MyListingsPage() {
                             key={tab.key}
                             onClick={() => setFilter(tab.key as any)}
                             className={`flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm transition-all ${filter === tab.key
-                                ? 'bg-blue-600 text-white shadow-sm'
+                                ? 'bg-[#1D4ED8] text-white shadow-sm'
                                 : 'text-gray-600 hover:bg-gray-50'
                                 }`}
                         >
@@ -187,7 +187,7 @@ export default function MyListingsPage() {
                         {filter === 'all' && (
                             <Link
                                 href="/listings/create"
-                                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition"
+                                className="inline-flex items-center gap-2 px-6 py-3 bg-[#1D4ED8] text-white rounded-xl font-semibold hover:bg-[#1E40AF] transition"
                             >
                                 Create Your First Listing
                             </Link>
@@ -201,7 +201,7 @@ export default function MyListingsPage() {
 
                                 {/* Status Badge */}
                                 {listing.status !== 'active' && (
-                                    <div className={`absolute top-2 left-2 px-2 py-1 rounded-lg text-xs font-bold ${listing.status === 'sold' ? 'bg-green-500 text-white' :
+                                    <div className={`absolute top-2 left-2 px-2 py-1 rounded-lg text-xs font-bold ${listing.status === 'sold' ? 'bg-[#22C55E] text-white' :
                                         listing.status === 'draft' ? 'bg-yellow-500 text-white' :
                                             'bg-gray-500 text-white'
                                         }`}>

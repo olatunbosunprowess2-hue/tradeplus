@@ -34,7 +34,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (!_hasHydrated || !isAuthenticated || !canAccessAdminPanel(user)) {
         return (
             <div className="min-h-screen flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2563EB]"></div>
             </div>
         );
     }
@@ -56,7 +56,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         )}
                     </svg>
                 </button>
-                <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                <h2 className="text-xl font-bold bg-[#1D4ED8] bg-clip-text text-transparent">
                     Admin Panel
                 </h2>
             </div>

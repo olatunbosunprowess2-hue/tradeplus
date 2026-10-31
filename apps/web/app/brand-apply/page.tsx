@@ -312,7 +312,7 @@ export default function BrandApplyPage() {
                             {success ? (
                                 <div className="text-center py-8">
                                     <div className="text-5xl mb-4">🎉</div>
-                                    <h3 className="text-xl font-bold text-green-600 mb-2">Application Submitted!</h3>
+                                    <h3 className="text-xl font-bold text-[#16A34A] mb-2">Application Submitted!</h3>
                                     <p className="text-gray-500">We&apos;ll review your application and get back to you soon.</p>
                                 </div>
                             ) : (
@@ -548,16 +548,16 @@ export default function BrandApplyPage() {
                 {/* Not logged in prompt */}
                 {!loading && !isAuthenticated && (
                     <div className="max-w-xl mx-auto mb-12">
-                        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-2xl p-6 text-center">
-                            <h3 className="text-lg font-bold text-blue-800 dark:text-blue-200 mb-1">
+                        <div className="bg-[#EFF6FF] dark:bg-blue-900/20 border border-[#BFDBFE] dark:border-blue-700 rounded-2xl p-6 text-center">
+                            <h3 className="text-lg font-bold text-[#1E40AF] dark:text-blue-200 mb-1">
                                 Sign in to Apply
                             </h3>
-                            <p className="text-sm text-blue-600 dark:text-blue-300 mb-4">
+                            <p className="text-sm text-[#2563EB] dark:text-blue-300 mb-4">
                                 You need a BarterWave account to apply for brand verification.
                             </p>
                             <Link
                                 href="/login"
-                                className="inline-flex items-center justify-center px-6 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg shadow hover:bg-blue-700 transition-all"
+                                className="inline-flex items-center justify-center px-6 py-2 bg-[#1D4ED8] text-white text-sm font-semibold rounded-lg shadow hover:bg-[#1E40AF] transition-all"
                             >
                                 Sign In
                             </Link>
@@ -578,7 +578,7 @@ export default function BrandApplyPage() {
 
                     {waitlistSuccess ? (
                         <div className="text-center py-2">
-                            <p className="text-green-600 dark:text-green-400 font-medium bg-green-50 dark:bg-green-900/20 inline-block px-4 py-1 rounded-full text-sm">
+                            <p className="text-[#16A34A] dark:text-green-400 font-medium bg-[#F0FDF4] dark:bg-green-900/20 inline-block px-4 py-1 rounded-full text-sm">
                                 ✅ You&apos;re on the waitlist!
                             </p>
                         </div>
@@ -589,7 +589,7 @@ export default function BrandApplyPage() {
                                 value={waitlistName}
                                 onChange={e => setWaitlistName(e.target.value)}
                                 placeholder="Name (Optional)"
-                                className="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500"
+                                className="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-[#2563EB]"
                             />
                             <input
                                 type="email"
@@ -597,7 +597,7 @@ export default function BrandApplyPage() {
                                 onChange={e => setWaitlistEmail(e.target.value)}
                                 placeholder="your@email.com"
                                 required
-                                className="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500"
+                                className="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-[#2563EB]"
                             />
                             <button
                                 type="submit"

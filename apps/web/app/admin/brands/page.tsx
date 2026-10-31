@@ -173,7 +173,7 @@ export default function AdminBrandsPage() {
     const StatusBadge = ({ status }: { status: string }) => {
         const colors: Record<string, string> = {
             PENDING: 'bg-amber-100 text-amber-800 border-amber-200',
-            VERIFIED_BRAND: 'bg-green-100 text-green-800 border-green-200',
+            VERIFIED_BRAND: 'bg-[#DCFCE7] text-[#14532D] border-green-200',
             REJECTED: 'bg-red-100 text-red-800 border-red-200',
         };
         return (
@@ -219,7 +219,7 @@ export default function AdminBrandsPage() {
                             <button
                                 key={s}
                                 onClick={() => setStatusFilter(s)}
-                                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${statusFilter === s ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200'}`}
+                                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${statusFilter === s ? 'bg-[#1D4ED8] text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200'}`}
                             >
                                 {s === 'all' ? 'All' : s.replace('_', ' ')}
                             </button>
@@ -252,7 +252,7 @@ export default function AdminBrandsPage() {
                                             <tr key={app.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/40 dark:to-indigo-900/40 rounded-full flex items-center justify-center text-blue-700 dark:text-blue-300 font-bold text-lg shrink-0">
+                                                        <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/40 dark:to-indigo-900/40 rounded-full flex items-center justify-center text-[#1D4ED8] dark:text-blue-300 font-bold text-lg shrink-0">
                                                             {(app.brandName || app.firstName || '?')[0]?.toUpperCase()}
                                                         </div>
                                                         <div>
@@ -266,7 +266,7 @@ export default function AdminBrandsPage() {
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     {app.brandWebsite ? (
-                                                        <a href={app.brandWebsite} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate max-w-[150px] block">
+                                                        <a href={app.brandWebsite} target="_blank" rel="noopener noreferrer" className="text-[#2563EB] hover:underline truncate max-w-[150px] block">
                                                             {app.brandWebsite.replace(/^https?:\/\//, '')}
                                                         </a>
                                                     ) : (
@@ -279,7 +279,7 @@ export default function AdminBrandsPage() {
                                                 <td className="px-6 py-4 text-right">
                                                     <button
                                                         onClick={() => setSelectedApp(app)}
-                                                        className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors shadow-sm active:scale-95"
+                                                        className="px-4 py-2 bg-[#1D4ED8] text-white rounded-lg text-xs font-bold hover:bg-[#1E40AF] transition-colors shadow-sm active:scale-95"
                                                     >
                                                         Review Application
                                                     </button>
@@ -296,7 +296,7 @@ export default function AdminBrandsPage() {
                                     <div key={app.id} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
                                         <div className="flex justify-between items-start mb-3">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/40 dark:to-indigo-900/40 rounded-full flex items-center justify-center text-blue-700 dark:text-blue-300 font-bold text-lg shrink-0">
+                                                <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/40 dark:to-indigo-900/40 rounded-full flex items-center justify-center text-[#1D4ED8] dark:text-blue-300 font-bold text-lg shrink-0">
                                                     {(app.brandName || app.firstName || '?')[0]?.toUpperCase()}
                                                 </div>
                                                 <div>
@@ -318,7 +318,7 @@ export default function AdminBrandsPage() {
 
                                         <button
                                             onClick={() => setSelectedApp(app)}
-                                            className="w-full py-2.5 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                                            className="w-full py-2.5 bg-[#1D4ED8] text-white rounded-lg text-sm font-bold hover:bg-[#1E40AF] transition-colors flex items-center justify-center gap-2"
                                         >
                                             <span>Review Application</span>
                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
@@ -338,7 +338,7 @@ export default function AdminBrandsPage() {
                         <button
                             onClick={exportWaitlistCSV}
                             disabled={waitlist.length === 0}
-                            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-all flex items-center gap-2"
+                            className="px-4 py-2 bg-[#1D4ED8] text-white text-sm font-medium rounded-lg hover:bg-[#1E40AF] disabled:opacity-50 transition-all flex items-center gap-2"
                         >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -369,7 +369,7 @@ export default function AdminBrandsPage() {
                                     {waitlist.map(w => (
                                         <tr key={w.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
                                             <td className="px-6 py-4 text-gray-900 dark:text-white font-medium">{w.name || 'â€”'}</td>
-                                            <td className="px-6 py-4 text-blue-600 dark:text-blue-400">{w.email}</td>
+                                            <td className="px-6 py-4 text-[#2563EB] dark:text-blue-400">{w.email}</td>
                                             <td className="px-6 py-4 text-gray-500">
                                                 <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">{w.source}</span>
                                             </td>
@@ -424,7 +424,7 @@ export default function AdminBrandsPage() {
                                     <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
                                         <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block">Website</label>
                                         {selectedApp.brandWebsite ? (
-                                            <a href={selectedApp.brandWebsite} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline break-all font-medium">
+                                            <a href={selectedApp.brandWebsite} target="_blank" rel="noopener noreferrer" className="text-sm text-[#2563EB] hover:underline break-all font-medium">
                                                 {selectedApp.brandWebsite}
                                             </a>
                                         ) : <span className="text-sm text-gray-400">Not provided</span>}
@@ -439,7 +439,7 @@ export default function AdminBrandsPage() {
                                         <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block">Phone / WhatsApp</label>
                                         <div className="text-sm text-gray-900 font-medium">{selectedApp.brandPhoneNumber}</div>
                                         {selectedApp.brandWhatsApp && (
-                                            <div className="text-xs text-green-600 mt-1 flex items-center gap-1 font-medium">
+                                            <div className="text-xs text-[#16A34A] mt-1 flex items-center gap-1 font-medium">
                                                 <span>📱</span> {selectedApp.brandWhatsApp}
                                             </div>
                                         )}
@@ -455,7 +455,7 @@ export default function AdminBrandsPage() {
                             {selectedApp.brandApplicationNote && (
                                 <div>
                                     <h3 className="text-xs font-bold text-gray-900 mb-2">Application Note</h3>
-                                    <div className="bg-blue-50 border border-blue-100 p-3 rounded-lg text-sm text-gray-700 italic leading-relaxed">
+                                    <div className="bg-[#EFF6FF] border border-[#DBEAFE] p-3 rounded-lg text-sm text-gray-700 italic leading-relaxed">
                                         &ldquo;{selectedApp.brandApplicationNote}&rdquo;
                                     </div>
                                 </div>
@@ -500,7 +500,7 @@ export default function AdminBrandsPage() {
                                         placeholder="Reject reason..."
                                         value={rejectReason}
                                         onChange={(e) => setRejectReason(e.target.value)}
-                                        className="flex-1 px-3 py-2 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none text-gray-900"
+                                        className="flex-1 px-3 py-2 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none text-[#0F172A]"
                                         autoFocus
                                     />
                                     <button
@@ -537,7 +537,7 @@ export default function AdminBrandsPage() {
                                             <button
                                                 onClick={() => handleApproveClick(selectedApp.id, selectedApp.brandName || selectedApp.email)}
                                                 disabled={actionLoading === selectedApp.id}
-                                                className="px-5 py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition-all active:scale-[0.98] shadow-sm hover:shadow text-sm flex items-center gap-2"
+                                                className="px-5 py-2 bg-[#16A34A] text-white font-bold rounded-lg hover:bg-[#15803D] transition-all active:scale-[0.98] shadow-sm hover:shadow text-sm flex items-center gap-2"
                                             >
                                                 {actionLoading === selectedApp.id ? '...' : (
                                                     <>

@@ -144,7 +144,7 @@ export default function MobileBottomNav() {
                                     onClick={handleSellClick}
                                     className="flex flex-col items-center justify-center -mt-4"
                                 >
-                                    <div className="bg-blue-600 text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/30 hover:bg-blue-700 transition-all hover:scale-105 active:scale-95">
+                                    <div className="bg-[#1D4ED8] text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/30 hover:bg-[#1E40AF] transition-all hover:scale-105 active:scale-95">
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
                                         </svg>
@@ -159,7 +159,7 @@ export default function MobileBottomNav() {
                                 key={item.href}
                                 href={item.href}
                                 className={`relative flex flex-col items-center justify-center flex-1 h-full py-2 transition-all ${isActive
-                                    ? 'text-blue-600'
+                                    ? 'text-[#2563EB]'
                                     : 'text-gray-400 hover:text-gray-600'
                                     }`}
                             >
@@ -170,7 +170,7 @@ export default function MobileBottomNav() {
                                 <div className={`transition-transform ${isActive ? 'scale-110' : ''}`}>
                                     {item.icon}
                                 </div>
-                                <span className={`text-[9px] mt-1 font-bold uppercase tracking-wider ${isActive ? 'text-blue-600' : 'text-gray-400'}`}>
+                                <span className={`text-[9px] mt-1 font-bold uppercase tracking-wider ${isActive ? 'text-[#2563EB]' : 'text-gray-400'}`}>
                                     {item.label}
                                 </span>
                                 {item.badge > 0 && (
@@ -205,15 +205,15 @@ export default function MobileBottomNav() {
                             <div className="px-4 pb-4 space-y-2">
                                 <button
                                     onClick={() => { setShowSellSheet(false); router.push('/listings/create'); }}
-                                    className="w-full flex items-center gap-4 p-4 rounded-2xl bg-blue-50 border border-blue-100 hover:bg-blue-100 transition text-left"
+                                    className="w-full flex items-center gap-4 p-4 rounded-2xl bg-[#EFF6FF] border border-[#DBEAFE] hover:bg-[#DBEAFE] transition text-left"
                                 >
-                                    <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                                        <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <div className="w-12 h-12 bg-[#DBEAFE] rounded-xl flex items-center justify-center">
+                                        <svg className="w-6 h-6 text-[#2563EB]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                                         </svg>
                                     </div>
                                     <div className="flex-1">
-                                        <div className="font-bold text-gray-900">Sell on Market</div>
+                                        <div className="font-bold text-[#0F172A]">Sell on Market</div>
                                         <div className="text-sm text-gray-500">List an item or service for sale/trade</div>
                                     </div>
                                     <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -231,7 +231,7 @@ export default function MobileBottomNav() {
                                         </svg>
                                     </div>
                                     <div className="flex-1">
-                                        <div className="font-bold text-gray-900">Post to Community</div>
+                                        <div className="font-bold text-[#0F172A]">Post to Community</div>
                                         <div className="text-sm text-gray-500">Share with the community feed</div>
                                     </div>
                                     <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

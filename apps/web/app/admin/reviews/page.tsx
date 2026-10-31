@@ -57,7 +57,7 @@ export default function AdminReviewsPage() {
     if (loading) {
         return (
             <div className="flex justify-center items-center h-96">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2563EB]"></div>
             </div>
         );
     }
@@ -65,7 +65,7 @@ export default function AdminReviewsPage() {
     return (
         <div>
             <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900">Review Moderation</h1>
+                <h1 className="text-3xl font-bold text-[#0F172A]">Review Moderation</h1>
                 <p className="text-gray-600 mt-1">Manage flagged reviews</p>
             </div>
 
@@ -84,7 +84,7 @@ export default function AdminReviewsPage() {
                             d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                         />
                     </svg>
-                    <h3 className="mt-2 text-sm font-medium text-gray-900">No flagged reviews</h3>
+                    <h3 className="mt-2 text-sm font-medium text-[#0F172A]">No flagged reviews</h3>
                     <p className="mt-1 text-sm text-gray-500">All reviews have been moderated</p>
                 </div>
             ) : (
@@ -98,11 +98,11 @@ export default function AdminReviewsPage() {
                                 <div className="flex items-start justify-between mb-4">
                                     <div>
                                         <div className="flex items-center gap-3 mb-2">
-                                            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold">
+                                            <div className="w-10 h-10 rounded-full bg-[#1D4ED8] flex items-center justify-center text-white font-bold">
                                                 {review.reviewer?.profile?.displayName?.[0] || review.reviewer?.email?.[0]?.toUpperCase() || '?'}
                                             </div>
                                             <div>
-                                                <p className="font-semibold text-gray-900">
+                                                <p className="font-semibold text-[#0F172A]">
                                                     {review.reviewer?.profile?.displayName || review.reviewer?.email || 'Unknown'}
                                                 </p>
                                                 <p className="text-sm text-gray-500">
@@ -126,7 +126,7 @@ export default function AdminReviewsPage() {
                                 <div className="flex items-center gap-3 pt-4 border-t border-gray-200">
                                     <button
                                         onClick={() => handleApprove(review.id)}
-                                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                                        className="px-4 py-2 bg-[#16A34A] text-white rounded-lg hover:bg-[#15803D] transition"
                                     >
                                         Approve
                                     </button>

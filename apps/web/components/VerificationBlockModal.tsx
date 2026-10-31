@@ -55,7 +55,7 @@ export default function VerificationBlockModal({ isOpen, onClose }: Verification
           className={`w-10 h-10 rounded-lg flex items-center justify-center mx-auto mb-3.5 ${
             isRejected
               ? 'bg-rose-50 border border-rose-200 text-rose-600'
-              : 'bg-blue-50 border border-blue-200/80 text-blue-600'
+              : 'bg-[#EFF6FF] border border-[#BFDBFE]/80 text-[#2563EB]'
           }`}
         >
           {isRejected ? <AlertCircle className="w-5 h-5" /> : <ShieldCheck className="w-5 h-5" />}
@@ -64,7 +64,7 @@ export default function VerificationBlockModal({ isOpen, onClose }: Verification
         {/* Title */}
         <h3
           className={`text-xl font-bold tracking-tight text-center ${
-            isRejected ? 'text-rose-600' : 'text-slate-900'
+            isRejected ? 'text-rose-600' : 'text-[#0F172A]'
           }`}
         >
           {getTitle()}
@@ -126,7 +126,7 @@ export default function VerificationBlockModal({ isOpen, onClose }: Verification
           <div className="space-y-3">
             <Link
               href="/onboarding"
-              className="w-full p-3.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-md font-bold text-xs sm:text-sm text-center shadow-xs transition-colors block"
+              className="w-full p-3.5 bg-[#1D4ED8] hover:bg-[#1E40AF] active:bg-[#1E3A8A] text-white rounded-md font-bold text-xs sm:text-sm text-center shadow-xs transition-colors block"
             >
               {isRejected ? 'Resubmit Verification' : 'Verify Identity Now'}
             </Link>

@@ -47,7 +47,7 @@ export default function CategoryPills() {
         <div className="mb-4">
             <div className="flex items-center justify-between mb-3">
                 <h2 className="text-sm font-bold text-gray-900 uppercase tracking-widest flex items-center gap-2">
-                    <span className="w-1.5 h-6 bg-blue-600 rounded-full"></span>
+                    <span className="w-1.5 h-6 bg-[#1D4ED8] rounded-full"></span>
                     Marketplace Categories
                 </h2>
             </div>
@@ -65,7 +65,7 @@ export default function CategoryPills() {
                             className={`
                                 whitespace-nowrap px-4 py-2 rounded-xl text-xs font-semibold transition-all shrink-0
                                 ${isActive
-                                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
+                                    ? 'bg-[#1D4ED8] text-white shadow-lg shadow-blue-500/30'
                                     : 'bg-white text-gray-600 border border-gray-100 hover:bg-gray-50'
                                 }
                             `}
@@ -87,8 +87,8 @@ export default function CategoryPills() {
                             className={`
                                 px-5 py-2.5 rounded-2xl text-sm font-bold transition-all duration-300
                                 ${isActive
-                                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xl shadow-blue-600/20 scale-105'
-                                    : 'bg-white text-gray-600 border border-gray-100 hover:border-blue-200 hover:text-blue-600 hover:bg-blue-50/30 hover:shadow-md'
+                                    ? 'bg-[#1D4ED8] text-white shadow-xl shadow-blue-600/20 scale-105'
+                                    : 'bg-white text-gray-600 border border-gray-100 hover:border-[#BFDBFE] hover:text-[#2563EB] hover:bg-[#EFF6FF]/30 hover:shadow-md'
                                 }
                             `}
                         >

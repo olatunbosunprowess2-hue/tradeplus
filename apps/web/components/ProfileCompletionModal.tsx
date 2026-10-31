@@ -103,8 +103,8 @@ export default function ProfileCompletionModal() {
                                     className="rounded-full object-cover border-2 border-gray-100"
                                 />
                             ) : (
-                                <div className="w-full h-full rounded-full bg-blue-50 border-2 border-blue-100 flex items-center justify-center">
-                                    <User className="w-6 h-6 text-blue-500" />
+                                <div className="w-full h-full rounded-full bg-[#EFF6FF] border-2 border-[#DBEAFE] flex items-center justify-center">
+                                    <User className="w-6 h-6 text-[#3B82F6]" />
                                 </div>
                             )}
                             <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-amber-400 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-bold text-white shadow-sm">
@@ -121,11 +121,11 @@ export default function ProfileCompletionModal() {
                     <div className="mb-6">
                         <div className="flex justify-between text-xs font-medium text-gray-600 mb-1.5">
                             <span>Profile Strength</span>
-                            <span className="text-blue-600 font-bold">{progress}%</span>
+                            <span className="text-[#2563EB] font-bold">{progress}%</span>
                         </div>
                         <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
                             <div
-                                className="h-full bg-blue-600 transition-all duration-1000 ease-out rounded-full"
+                                className="h-full bg-[#1D4ED8] transition-all duration-1000 ease-out rounded-full"
                                 style={{ width: `${progress}%` }}
                             />
                         </div>
@@ -143,7 +143,7 @@ export default function ProfileCompletionModal() {
                     <div className="flex flex-col gap-2.5">
                         <button
                             onClick={handleCompleteNow}
-                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition flex items-center justify-center shadow-lg shadow-blue-500/25"
+                            className="w-full bg-[#1D4ED8] hover:bg-[#1E40AF] text-white font-semibold py-3 px-6 rounded-xl transition flex items-center justify-center shadow-lg shadow-blue-500/25"
                         >
                             Complete Now
                         </button>
@@ -162,7 +162,7 @@ export default function ProfileCompletionModal() {
 
 function CheckItem({ isCompleted, label }: { isCompleted: boolean; label: string }) {
     return (
-        <div className={`flex items-center gap-3 text-sm p-2 rounded-lg transition-colors ${isCompleted ? 'bg-green-50/50' : 'bg-gray-50'}`}>
+        <div className={`flex items-center gap-3 text-sm p-2 rounded-lg transition-colors ${isCompleted ? 'bg-[#F0FDF4]/50' : 'bg-gray-50'}`}>
             {isCompleted ? (
                 <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
             ) : (

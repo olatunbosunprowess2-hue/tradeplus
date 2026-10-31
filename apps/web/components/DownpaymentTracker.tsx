@@ -68,7 +68,7 @@ export default function DownpaymentTracker({ offer, currentUserId, onUpdate }: D
     };
 
     return (
-        <div className="mt-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4">
+        <div className="mt-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-[#BFDBFE] rounded-xl p-4">
             {/* Header */}
             <div className="flex items-center justify-between mb-3">
                 <h4 className="text-sm font-semibold text-blue-900 flex items-center gap-2">
@@ -78,7 +78,7 @@ export default function DownpaymentTracker({ offer, currentUserId, onUpdate }: D
                     Downpayment: {currency} {downpaymentAmount}
                 </h4>
                 {currentStep === 2 && (
-                    <span className="text-xs font-bold text-green-700 bg-green-100 px-2 py-0.5 rounded-full">
+                    <span className="text-xs font-bold text-[#15803D] bg-[#DCFCE7] px-2 py-0.5 rounded-full">
                         Complete
                     </span>
                 )}
@@ -97,15 +97,15 @@ export default function DownpaymentTracker({ offer, currentUserId, onUpdate }: D
                                 <div className={`
                                     w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all
                                     ${isComplete
-                                        ? 'bg-green-500 text-white shadow-md'
+                                        ? 'bg-[#22C55E] text-white shadow-md'
                                         : isCurrent
-                                            ? 'bg-blue-500 text-white shadow-md ring-2 ring-blue-300 ring-offset-1'
+                                            ? 'bg-[#2563EB] text-white shadow-md ring-2 ring-blue-300 ring-offset-1'
                                             : 'bg-gray-200 text-gray-400'
                                     }
                                 `}>
                                     {isComplete ? '✓' : step.icon}
                                 </div>
-                                <span className={`text-[10px] mt-1 text-center font-medium ${isComplete ? 'text-green-700' : isCurrent ? 'text-blue-700' : 'text-gray-400'
+                                <span className={`text-[10px] mt-1 text-center font-medium ${isComplete ? 'text-[#15803D]' : isCurrent ? 'text-[#1D4ED8]' : 'text-gray-400'
                                     }`}>
                                     {step.label}
                                 </span>
@@ -137,7 +137,7 @@ export default function DownpaymentTracker({ offer, currentUserId, onUpdate }: D
                 <button
                     onClick={handleMarkPaid}
                     disabled={loading}
-                    className="w-full mt-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="w-full mt-2 px-4 py-2.5 bg-[#1D4ED8] text-white text-sm font-semibold rounded-lg hover:bg-[#1E40AF] transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                     {loading ? (
                         <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
@@ -151,7 +151,7 @@ export default function DownpaymentTracker({ offer, currentUserId, onUpdate }: D
                 <button
                     onClick={() => setShowConfirmModal(true)}
                     disabled={loading}
-                    className="w-full mt-2 px-4 py-2.5 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="w-full mt-2 px-4 py-2.5 bg-[#16A34A] text-white text-sm font-semibold rounded-lg hover:bg-[#15803D] transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                     {loading ? (
                         <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
@@ -228,7 +228,7 @@ export default function DownpaymentTracker({ offer, currentUserId, onUpdate }: D
                             </button>
                             <button
                                 onClick={handleConfirmReceipt}
-                                className="flex-1 px-4 py-2.5 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition text-sm"
+                                className="flex-1 px-4 py-2.5 bg-[#16A34A] text-white font-semibold rounded-xl hover:bg-[#15803D] transition text-sm"
                             >
                                 Yes, I Received It
                             </button>

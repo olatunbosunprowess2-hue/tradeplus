@@ -36,9 +36,9 @@ export default function OfferReviewModal({
                 {/* Header */}
                 <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gradient-to-r from-blue-50 to-white">
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-900">Review Offer</h2>
+                        <h2 className="text-2xl font-bold text-[#0F172A]">Review Offer</h2>
                         <p className="text-sm text-gray-500 mt-1">
-                            Received from <span className="font-semibold text-blue-600">{offer.buyer?.profile?.displayName || offer.buyer?.name || offer.buyer?.email || 'Unknown Buyer'}</span>
+                            Received from <span className="font-semibold text-[#2563EB]">{offer.buyer?.profile?.displayName || offer.buyer?.name || offer.buyer?.email || 'Unknown Buyer'}</span>
                         </p>
                     </div>
                     <button
@@ -53,7 +53,7 @@ export default function OfferReviewModal({
 
                 <div className="p-6 overflow-y-auto custom-scrollbar">
                     {/* Offer Summary Card */}
-                    <div className="bg-blue-50/50 rounded-xl border border-blue-100 p-6 mb-8">
+                    <div className="bg-[#EFF6FF]/50 rounded-xl border border-[#DBEAFE] p-6 mb-8">
                         <div className="flex items-center justify-center gap-8">
                             {/* Target Item (Yours) */}
                             <div className="text-center">
@@ -71,7 +71,7 @@ export default function OfferReviewModal({
                             </div>
 
                             {/* Exchange Icon */}
-                            <div className="flex flex-col items-center justify-center text-blue-500">
+                            <div className="flex flex-col items-center justify-center text-[#3B82F6]">
                                 <svg className="w-8 h-8 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                                 </svg>
@@ -80,7 +80,7 @@ export default function OfferReviewModal({
                             {/* Offered Items (Theirs) */}
                             <div className="text-center">
                                 {isCashOnly ? (
-                                    <div className="w-24 h-24 rounded-xl bg-green-100 flex items-center justify-center border-2 border-green-200 shadow-md">
+                                    <div className="w-24 h-24 rounded-xl bg-[#DCFCE7] flex items-center justify-center border-2 border-green-200 shadow-md">
                                         <span className="text-3xl">💵</span>
                                     </div>
                                 ) : (
@@ -91,7 +91,7 @@ export default function OfferReviewModal({
                                             className="w-24 h-24 rounded-xl object-cover shadow-md border-2 border-white"
                                         />
                                         {offer.items.length > 1 && (
-                                            <div className="absolute -top-2 -right-2 bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border-2 border-white">
+                                            <div className="absolute -top-2 -right-2 bg-[#1D4ED8] text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border-2 border-white">
                                                 +{offer.items.length - 1}
                                             </div>
                                         )}
@@ -99,7 +99,7 @@ export default function OfferReviewModal({
                                 )}
                                 <div className="mt-4 font-bold text-gray-900 text-sm">
                                     {isCashOnly ? (
-                                        <span className="text-green-600 text-lg">
+                                        <span className="text-[#16A34A] text-lg">
                                             {offer.currencyCode} {(offer.offeredCashCents / 100).toLocaleString()}
                                         </span>
                                     ) : (
@@ -119,15 +119,15 @@ export default function OfferReviewModal({
 
                         {/* Cash Component */}
                         {(isCashOnly || isMixed) && (
-                            <div className="flex justify-between items-center p-4 bg-green-50 rounded-xl border border-green-100">
+                            <div className="flex justify-between items-center p-4 bg-[#F0FDF4] rounded-xl border border-green-100">
                                 <div className="flex items-center gap-3">
                                     <span className="text-2xl">💰</span>
                                     <div>
                                         <p className="font-bold text-green-900">Cash Offer</p>
-                                        <p className="text-xs text-green-700">Direct payment</p>
+                                        <p className="text-xs text-[#15803D]">Direct payment</p>
                                     </div>
                                 </div>
-                                <span className="font-bold text-xl text-green-700">
+                                <span className="font-bold text-xl text-[#15803D]">
                                     {offer.currencyCode} {(offer.offeredCashCents / 100).toLocaleString()}
                                 </span>
                             </div>
@@ -145,14 +145,14 @@ export default function OfferReviewModal({
                                             className="w-12 h-12 rounded-lg object-cover"
                                         />
                                         <div className="flex-1">
-                                            <p className="font-bold text-gray-900">{item.offeredListing.title}</p>
+                                            <p className="font-bold text-[#0F172A]">{item.offeredListing.title}</p>
                                             <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
                                         </div>
                                         <a
                                             href={`/listings/${item.offeredListingId}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="text-blue-600 hover:text-blue-700 text-sm font-bold hover:underline"
+                                            className="text-[#2563EB] hover:text-[#1D4ED8] text-sm font-bold hover:underline"
                                         >
                                             View Item
                                         </a>
@@ -188,7 +188,7 @@ export default function OfferReviewModal({
                     <button
                         onClick={() => onAccept(offer.id)}
                         disabled={isProcessing}
-                        className="flex-[2] px-6 py-3 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition shadow-lg shadow-green-200 disabled:opacity-50"
+                        className="flex-[2] px-6 py-3 bg-[#16A34A] text-white rounded-xl font-bold hover:bg-[#15803D] transition shadow-lg shadow-green-200 disabled:opacity-50"
                     >
                         {isProcessing ? 'Processing...' : 'Accept Offer'}
                     </button>

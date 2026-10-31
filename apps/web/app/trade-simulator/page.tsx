@@ -15,6 +15,11 @@ import {
   Smartphone,
   ChevronRight,
   Info,
+  CheckCircle2,
+  Clock,
+  KeyRound,
+  ExternalLink,
+  Flame,
 } from 'lucide-react';
 import TradeStepper from '@/components/trade/TradeStepper';
 
@@ -30,9 +35,9 @@ export default function TradeSimulatorPage() {
   // Trade state machine
   const [offerStatus, setOfferStatus] = useState<
     'proposed' | 'accepted' | 'awaiting_fulfillment' | 'completed'
-  >('proposed');
+  >('accepted');
   const [isBuyerLocked, setIsBuyerLocked] = useState(false);
-  const [isSellerLocked, setIsSellerLocked] = useState(false);
+  const [isSellerLocked, setIsSellerLocked] = useState(true); // Default to Amaka locked so user immediately sees the active lock state
   const [isBuyerFulfilled, setIsBuyerFulfilled] = useState(false);
   const [isSellerFulfilled, setIsSellerFulfilled] = useState(false);
 
@@ -44,8 +49,6 @@ export default function TradeSimulatorPage() {
   // Modals & Celebrations
   const [showLockCelebration, setShowLockCelebration] = useState(false);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
-  const [buyerReviewDone, setBuyerReviewDone] = useState(false);
-  const [sellerReviewDone, setSellerReviewDone] = useState(false);
   const [starRating, setStarRating] = useState(5);
 
   // Chat conversation
@@ -68,6 +71,12 @@ export default function TradeSimulatorPage() {
       text: 'I have a clean PS5 Digital Edition + ₦40,000 cash balance. Just made you an offer.',
       time: '10:16 AM',
     },
+    {
+      id: '4',
+      sender: 'seller',
+      text: '🤝 Offer accepted! Let us lock the deal and agree on meetup spot.',
+      time: '10:17 AM',
+    },
   ]);
 
   const [buyerInput, setBuyerInput] = useState('');
@@ -83,6 +92,52 @@ export default function TradeSimulatorPage() {
     buyerChatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     sellerChatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Stage Preset Jumper
+  const jumpToStage = (stage: number) => {
+    switch (stage) {
+      case 1: // Proposed
+        setOfferStatus('proposed');
+        setIsBuyerLocked(false);
+        setIsSellerLocked(false);
+        setIsBuyerFulfilled(false);
+        setIsSellerFulfilled(false);
+        setShowCompleteModal(false);
+        break;
+      case 2: // Accepted - neither locked
+        setOfferStatus('accepted');
+        setIsBuyerLocked(false);
+        setIsSellerLocked(false);
+        setIsBuyerFulfilled(false);
+        setIsSellerFulfilled(false);
+        setShowCompleteModal(false);
+        break;
+      case 3: // Accepted - Amaka locked, waiting for Tunde
+        setOfferStatus('accepted');
+        setIsBuyerLocked(false);
+        setIsSellerLocked(true);
+        setIsBuyerFulfilled(false);
+        setIsSellerFulfilled(false);
+        setShowCompleteModal(false);
+        break;
+      case 4: // Dual Locked - In fulfillment / Exchange mode
+        setOfferStatus('awaiting_fulfillment');
+        setIsBuyerLocked(true);
+        setIsSellerLocked(true);
+        setIsBuyerFulfilled(false);
+        setIsSellerFulfilled(false);
+        setShowCompleteModal(false);
+        break;
+      case 5: // Completed
+        setOfferStatus('completed');
+        setIsBuyerLocked(true);
+        setIsSellerLocked(true);
+        setIsBuyerFulfilled(true);
+        setIsSellerFulfilled(true);
+        setShowCompleteModal(true);
+        break;
+    }
+  };
 
   // Sending chat messages
   const handleSendMessage = (sender: 'buyer' | 'seller', text: string) => {
@@ -179,47 +234,108 @@ export default function TradeSimulatorPage() {
     setSellerInputPin('');
     setPinError('');
     setShowCompleteModal(false);
-    setBuyerReviewDone(false);
-    setSellerReviewDone(false);
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 py-6 px-3 sm:px-6">
-      {/* Top Controller Bar */}
-      <div className="max-w-7xl mx-auto mb-6 bg-slate-900 border border-slate-800 rounded-lg p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-lg">
-        <div>
-          <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <span className="px-2 py-0.5 bg-blue-900/60 text-blue-300 border border-blue-700/60 rounded text-[10px] font-bold uppercase tracking-wider">
-              DUAL-DEVICE LIVE SIMULATOR
-            </span>
-            <span className="px-2 py-0.5 bg-emerald-900/60 text-emerald-300 border border-emerald-700/60 rounded text-[10px] font-bold uppercase tracking-wider">
-              IPHONE 11 PRO MAX (414×896)
-            </span>
+    <div className="min-h-screen bg-[#070B14] text-slate-100 py-6 px-3 sm:px-6 font-sans">
+      {/* ── TOP CONTROLLER DECK ── */}
+      <div className="max-w-7xl mx-auto mb-6 bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-2xl backdrop-blur-xl">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+              <span className="px-2 py-0.5 bg-[#1D4ED8]/20 text-[#60A5FA] border border-[#1D4ED8]/40 rounded text-[10px] font-black uppercase tracking-wider">
+                DUAL-DEVICE LIVE SIMULATOR
+              </span>
+              <span className="px-2 py-0.5 bg-[#16A34A]/20 text-[#4ADE80] border border-[#16A34A]/40 rounded text-[10px] font-black uppercase tracking-wider">
+                IPHONE 11 PRO MAX (414 × 896 PT)
+              </span>
+              <span className="px-2 py-0.5 bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
+                <Flame className="w-3 h-3 text-amber-400" />
+                P2P HANDSHAKE ACTIVE
+              </span>
+            </div>
+            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2">
+              <span>Gamified P2P Trade & Handshake Studio</span>
+            </h1>
+            <p className="text-xs text-slate-400 mt-1">
+              Test buyer and seller live synchronization simultaneously with real micro-interactions, exchange PIN verification, and instant review flows.
+            </p>
           </div>
-          <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2">
-            <span>Gamified P2P Trade & Handshake Studio</span>
-          </h1>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Test the complete buy/sell flow simultaneously without logging into separate devices or accounts.
-          </p>
+
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <button
+              onClick={handleReset}
+              className="px-3.5 py-2 bg-slate-800/90 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 transition-all flex items-center gap-1.5 shadow-sm active:scale-95"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Reset</span>
+            </button>
+
+            <Link
+              href="/preview-payments"
+              className="px-4 py-2 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-bold rounded-xl transition-all shadow-[0_4px_14px_rgba(29,78,216,0.35)] flex items-center gap-1.5 active:scale-95"
+            >
+              <span>Payment Modals Studio</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2.5 flex-wrap">
-          {/* Quick Stage Shortcuts */}
+        {/* Quick Stage Jump Tabs */}
+        <div className="mt-4 pt-3.5 border-t border-slate-800/80 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs">
+          <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 shrink-0 mr-1">
+            Stage Jumpers:
+          </span>
           <button
-            onClick={handleReset}
-            className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded border border-slate-700 transition-colors flex items-center gap-1.5"
+            onClick={() => jumpToStage(1)}
+            className={`px-3 py-1.5 rounded-lg font-bold transition-all shrink-0 ${
+              offerStatus === 'proposed'
+                ? 'bg-[#1D4ED8] text-white shadow-[0_2px_8px_rgba(29,78,216,0.35)]'
+                : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700'
+            }`}
           >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Reset Flow</span>
+            1. Offer Proposed
           </button>
-
-          <Link
-            href="/preview-payments"
-            className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded transition-colors"
+          <button
+            onClick={() => jumpToStage(2)}
+            className={`px-3 py-1.5 rounded-lg font-bold transition-all shrink-0 ${
+              offerStatus === 'accepted' && !isBuyerLocked && !isSellerLocked
+                ? 'bg-[#1D4ED8] text-white shadow-[0_2px_8px_rgba(29,78,216,0.35)]'
+                : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700'
+            }`}
           >
-            Payment Modals Studio →
-          </Link>
+            2. Accepted (Unlocked)
+          </button>
+          <button
+            onClick={() => jumpToStage(3)}
+            className={`px-3 py-1.5 rounded-lg font-bold transition-all shrink-0 ${
+              offerStatus === 'accepted' && isSellerLocked && !isBuyerLocked
+                ? 'bg-amber-500 text-slate-950 font-black shadow-[0_2px_8px_rgba(245,158,11,0.35)]'
+                : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700'
+            }`}
+          >
+            3. Amaka Locked (Waiting Tunde)
+          </button>
+          <button
+            onClick={() => jumpToStage(4)}
+            className={`px-3 py-1.5 rounded-lg font-bold transition-all shrink-0 ${
+              offerStatus === 'awaiting_fulfillment'
+                ? 'bg-[#1D4ED8] text-white shadow-[0_2px_8px_rgba(29,78,216,0.35)]'
+                : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700'
+            }`}
+          >
+            4. Dual Locked (PIN Code Exchange)
+          </button>
+          <button
+            onClick={() => jumpToStage(5)}
+            className={`px-3 py-1.5 rounded-lg font-bold transition-all shrink-0 ${
+              offerStatus === 'completed'
+                ? 'bg-gradient-to-r from-[#22C55E] to-[#16A34A] text-white font-black shadow-[0_2px_8px_rgba(22,163,74,0.35)]'
+                : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700'
+            }`}
+          >
+            5. Trade Verified & Review
+          </button>
         </div>
       </div>
 
@@ -227,9 +343,9 @@ export default function TradeSimulatorPage() {
       <div className="max-w-7xl mx-auto lg:hidden mb-4 flex items-center justify-center gap-2">
         <button
           onClick={() => setMobileActiveDevice('buyer')}
-          className={`flex-1 py-2 rounded text-xs font-bold uppercase tracking-wider border transition-colors ${
+          className={`flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider border transition-all ${
             mobileActiveDevice === 'buyer'
-              ? 'bg-blue-600 text-white border-blue-500'
+              ? 'bg-[#1D4ED8] text-white border-[#1D4ED8] shadow-[0_2px_10px_rgba(29,78,216,0.3)]'
               : 'bg-slate-900 text-slate-400 border-slate-800'
           }`}
         >
@@ -237,9 +353,9 @@ export default function TradeSimulatorPage() {
         </button>
         <button
           onClick={() => setMobileActiveDevice('seller')}
-          className={`flex-1 py-2 rounded text-xs font-bold uppercase tracking-wider border transition-colors ${
+          className={`flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider border transition-all ${
             mobileActiveDevice === 'seller'
-              ? 'bg-emerald-600 text-white border-emerald-500'
+              ? 'bg-gradient-to-r from-[#22C55E] to-[#16A34A] text-white border-[#16A34A] shadow-[0_2px_10px_rgba(22,163,74,0.3)]'
               : 'bg-slate-900 text-slate-400 border-slate-800'
           }`}
         >
@@ -247,9 +363,7 @@ export default function TradeSimulatorPage() {
         </button>
       </div>
 
-      {/* ============================================================ */}
-      {/* DUAL IPHONE 11 PRO MAX SIDE-BY-SIDE FRAME                    */}
-      {/* ============================================================ */}
+      {/* ── DUAL IPHONE 11 PRO MAX SIDE-BY-SIDE FRAME ── */}
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-12 pb-16">
         {/* ========================================================== */}
         {/* PHONE 1: BUYER (TUNDE)                                      */}
@@ -259,58 +373,63 @@ export default function TradeSimulatorPage() {
             mobileActiveDevice !== 'buyer' ? 'hidden lg:flex' : 'flex'
           }`}
         >
-          <div className="flex items-center justify-between w-full mb-2 px-2 text-xs">
-            <span className="font-bold text-blue-400 flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-xs bg-blue-500" />
-              BUYER DEVICE (Tunde)
+          <div className="flex items-center justify-between w-full mb-2 px-3 text-xs">
+            <span className="font-extrabold text-[#60A5FA] flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-sm bg-[#2563EB] shadow-[0_0_8px_rgba(37,99,235,0.8)]" />
+              BUYER DEVICE (Tunde Adeleke)
             </span>
-            <span className="text-[10px] text-slate-500 font-mono">iPhone 11 Pro Max</span>
+            <span className="text-[10px] text-slate-400 font-mono font-semibold">iPhone 11 Pro Max</span>
           </div>
 
           {/* Smartphone Hardware Frame */}
-          <div className="w-[414px] h-[820px] bg-black rounded-[48px] p-3 shadow-2xl border-[6px] border-slate-800 relative flex flex-col overflow-hidden ring-1 ring-slate-700/60">
+          <div className="w-[414px] h-[850px] bg-[#0A0F1D] rounded-[52px] p-3.5 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),0_0_0_1px_rgba(255,255,255,0.08)] border-[5px] border-slate-800/90 relative flex flex-col overflow-hidden ring-1 ring-slate-700/50">
             {/* Notch */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-6 bg-slate-900 rounded-b-2xl z-50 flex items-center justify-center">
-              <div className="w-12 h-1 bg-slate-700 rounded-full mb-1" />
-              <div className="w-3 h-3 rounded-full bg-slate-950 border border-slate-800 ml-2" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-44 h-7 bg-black rounded-b-2xl z-50 flex items-center justify-center">
+              <div className="w-14 h-1 bg-slate-800 rounded-full mb-1" />
+              <div className="w-3.5 h-3.5 rounded-full bg-slate-950 border border-slate-800 ml-2.5 flex items-center justify-center">
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-900/40" />
+              </div>
             </div>
 
             {/* iOS Screen Display Area */}
-            <div className="w-full h-full bg-slate-100 text-slate-900 rounded-[38px] flex flex-col overflow-hidden relative font-sans">
+            <div className="w-full h-full bg-[#F8FAFC] text-[#0F172A] rounded-[40px] flex flex-col overflow-hidden relative font-sans select-none">
               {/* iOS Status Bar */}
-              <div className="h-10 pt-2 px-6 flex items-center justify-between text-xs font-bold text-slate-800 shrink-0 select-none">
+              <div className="h-11 pt-2.5 px-7 flex items-center justify-between text-xs font-black text-slate-900 shrink-0">
                 <span>9:41</span>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[10px]">5G</span>
-                  <div className="w-5 h-2.5 border border-slate-800 rounded-xs p-0.5 flex items-center">
-                    <div className="w-full h-full bg-slate-800 rounded-xs" />
+                  <span className="text-[10px] font-extrabold">5G</span>
+                  <div className="w-5 h-2.5 border border-slate-900 rounded-xs p-0.5 flex items-center">
+                    <div className="w-full h-full bg-slate-900 rounded-xs" />
                   </div>
                 </div>
               </div>
 
               {/* In-App Header */}
-              <div className="bg-white border-b border-slate-200 px-4 py-2 flex items-center justify-between shrink-0 shadow-2xs">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded bg-emerald-100 border border-emerald-200 flex items-center justify-center text-emerald-800 font-bold text-xs">
+              <div className="bg-white border-b border-slate-200/90 px-4 py-2.5 flex items-center justify-between shrink-0 shadow-xs">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-black text-sm shadow-sm ring-1 ring-emerald-400/30">
                     A
                   </div>
                   <div>
-                    <div className="flex items-center gap-1">
-                      <span className="font-bold text-xs text-slate-900">Amaka Store</span>
-                      <span className="px-1 py-0.2 bg-emerald-100 text-emerald-800 rounded text-[8px] font-bold uppercase">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-extrabold text-xs text-[#0F172A]">Amaka Store</span>
+                      <span className="px-1.5 py-0.2 bg-emerald-500/10 text-emerald-800 border border-emerald-500/20 rounded text-[8px] font-black uppercase tracking-wider">
                         VERIFIED
                       </span>
                     </div>
-                    <span className="text-[10px] text-slate-400 block leading-tight">Lekki Phase 1, Lagos</span>
+                    <span className="text-[10px] text-slate-500 block leading-tight font-medium">Lekki Phase 1, Lagos</span>
                   </div>
                 </div>
-                <span className="px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded text-[9px] font-bold uppercase">
-                  ACTIVE
-                </span>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A] animate-pulse" />
+                  <span className="px-2 py-0.5 bg-[#EFF6FF] text-[#1D4ED8] border border-[#BFDBFE] rounded text-[9px] font-black uppercase tracking-wider">
+                    ACTIVE DEAL
+                  </span>
+                </div>
               </div>
 
-              {/* Trade Stepper (Accepted ➔ Locked ➔ Exchange ➔ Done) */}
-              <div className="bg-white border-b border-slate-200 px-3 py-1.5 shrink-0">
+              {/* Trade Stepper */}
+              <div className="bg-white border-b border-slate-200/90 px-3.5 py-2 shrink-0">
                 <TradeStepper
                   status={offerStatus}
                   isBuyerLocked={isBuyerLocked}
@@ -319,17 +438,17 @@ export default function TradeSimulatorPage() {
               </div>
 
               {/* Deal Status Card / Action Panel */}
-              <div className="bg-white border-b border-slate-200 p-3 shrink-0 space-y-2">
+              <div className="bg-white border-b border-slate-200/90 p-3.5 shrink-0 space-y-2.5 shadow-2xs">
                 {/* Proposed State */}
                 {offerStatus === 'proposed' && (
-                  <div className="bg-slate-50 border border-slate-200 rounded p-2 text-center">
-                    <span className="px-1.5 py-0.2 bg-amber-100 text-amber-800 rounded text-[9px] font-bold uppercase">
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
+                    <span className="px-2 py-0.5 bg-amber-500/10 text-amber-800 border border-amber-500/30 rounded text-[9px] font-black uppercase tracking-wider">
                       OFFER PROPOSED
                     </span>
-                    <p className="text-[11px] font-bold text-slate-800 mt-1">
+                    <p className="text-xs font-black text-[#0F172A] mt-1.5">
                       PS5 Digital + ₦40,000 for iPhone 13 Pro Max
                     </p>
-                    <p className="text-[10px] text-slate-400 mt-0.5">Waiting for seller Amaka to review & accept.</p>
+                    <p className="text-[10px] text-slate-500 mt-0.5 font-medium">Waiting for seller Amaka to review & accept.</p>
                   </div>
                 )}
 
@@ -337,37 +456,37 @@ export default function TradeSimulatorPage() {
                 {offerStatus === 'accepted' && (
                   <div className="space-y-2">
                     {isSellerLocked && !isBuyerLocked && (
-                      <div className="bg-orange-50 border border-orange-200 rounded px-2.5 py-1.5 flex items-center gap-2">
-                        <span className="px-1.5 py-0.5 bg-orange-100 text-orange-800 rounded text-[9px] font-bold uppercase">
-                          WAITING
+                      <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl px-3 py-2 flex items-center gap-2 shadow-xs">
+                        <span className="px-1.5 py-0.5 bg-amber-500 text-white rounded text-[9px] font-black uppercase tracking-wider shrink-0 shadow-xs">
+                          ACTION REQUIRED
                         </span>
-                        <p className="text-[10px] text-orange-800 font-bold">Amaka has locked — waiting for you!</p>
+                        <p className="text-[11px] text-amber-950 font-bold leading-tight">Amaka has locked — seal the deal to start safe exchange!</p>
                       </div>
                     )}
                     <button
                       onClick={() => handleLockDeal('buyer')}
                       disabled={isBuyerLocked}
-                      className={`w-full py-2.5 rounded font-bold text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 ${
+                      className={`w-full py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
                         isBuyerLocked
-                          ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 cursor-default'
-                          : 'bg-blue-600 hover:bg-blue-700 text-white shadow-xs'
+                          ? 'bg-emerald-500/10 text-emerald-800 border border-emerald-500/30 cursor-default font-extrabold shadow-xs'
+                          : 'bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] hover:from-[#1D4ED8] hover:to-[#1E40AF] text-white shadow-[0_4px_16px_rgba(37,99,235,0.35)] active:scale-[0.98]'
                       }`}
                     >
                       {isBuyerLocked ? (
                         <>
-                          <Check className="w-3.5 h-3.5" />
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600 stroke-[2.5]" />
                           <span>Deal Locked by You</span>
                         </>
                       ) : (
                         <>
-                          <Lock className="w-3.5 h-3.5" />
+                          <Lock className="w-4 h-4 stroke-[2.5]" />
                           <span>Lock Deal (Commit)</span>
                         </>
                       )}
                     </button>
                     {!isBuyerLocked && (
-                      <p className="text-[10px] text-slate-400 text-center">
-                        Both parties must lock to initiate local meetup.
+                      <p className="text-[10px] text-slate-400 text-center font-medium">
+                        Both parties must lock to initiate local meetup handshake.
                       </p>
                     )}
                   </div>
@@ -376,29 +495,31 @@ export default function TradeSimulatorPage() {
                 {/* Fulfillment State: Show Buyer their secret 6-Digit PIN */}
                 {offerStatus === 'awaiting_fulfillment' && (
                   <div className="space-y-2">
-                    <div className="bg-slate-50 border border-slate-200 rounded p-2.5 text-center">
-                      <span className="px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded text-[9px] font-bold uppercase tracking-wider">
+                    <div className="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 rounded-xl p-3.5 text-center text-white shadow-lg relative overflow-hidden">
+                      <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full blur-xl pointer-events-none" />
+                      <span className="px-2 py-0.5 bg-blue-500/20 text-blue-300 border border-blue-400/30 rounded text-[9px] font-black uppercase tracking-widest inline-block mb-1">
                         YOUR 6-DIGIT EXCHANGE CODE
                       </span>
-                      <p className="text-2xl font-mono font-black tracking-widest text-slate-900 my-1 select-all">
+                      <p className="text-3xl font-mono font-black tracking-[0.25em] text-white my-1 select-all drop-shadow-sm">
                         {pickupPin}
                       </p>
-                      <p className="text-[10px] text-slate-500 leading-tight">
-                        Give this secret PIN to Amaka only after inspecting and testing the iPhone in person!
+                      <p className="text-[10px] text-slate-300 leading-relaxed font-medium">
+                        Present this secret PIN to Amaka <strong className="text-white">ONLY</strong> after inspecting and testing the iPhone in person!
                       </p>
                     </div>
 
                     {isBuyerFulfilled ? (
-                      <div className="bg-emerald-50 border border-emerald-200 rounded py-1.5 text-center text-xs font-bold text-emerald-800 flex items-center justify-center gap-1">
-                        <Check className="w-3.5 h-3.5" />
-                        <span>You confirmed exchange</span>
+                      <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl py-2 text-center text-xs font-black text-emerald-900 flex items-center justify-center gap-1.5 shadow-xs">
+                        <Check className="w-4 h-4 stroke-[3] text-emerald-600" />
+                        <span>Exchange Confirmed by You</span>
                       </div>
                     ) : (
                       <button
                         onClick={() => handleManualConfirm('buyer')}
-                        className="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white rounded font-bold text-xs uppercase tracking-wider"
+                        className="w-full py-2.5 bg-gradient-to-r from-[#22C55E] to-[#16A34A] text-white rounded-xl font-black text-xs uppercase tracking-wider hover:from-[#16A34A] hover:to-[#15803D] active:scale-[0.98] transition shadow-[0_4px_14px_rgba(22,163,74,0.32)] flex items-center justify-center gap-1.5"
                       >
-                        Confirm Exchange (Manual)
+                        <span>Confirm Exchange (Manual)</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
                       </button>
                     )}
                   </div>
@@ -406,27 +527,27 @@ export default function TradeSimulatorPage() {
 
                 {/* Completed State */}
                 {offerStatus === 'completed' && (
-                  <div className="bg-emerald-50 border border-emerald-200 rounded p-2 text-center">
-                    <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded text-[9px] font-bold uppercase">
+                  <div className="bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/30 rounded-xl p-3 text-center shadow-xs">
+                    <span className="px-2 py-0.5 bg-[#16A34A] text-white rounded text-[9px] font-black uppercase tracking-wider shadow-xs">
                       TRADE COMPLETED
                     </span>
-                    <p className="text-xs font-bold text-emerald-900 mt-1">Item successfully exchanged!</p>
+                    <p className="text-xs font-black text-emerald-950 mt-1">Item successfully exchanged & verified!</p>
                   </div>
                 )}
               </div>
 
               {/* Safety Advisory Strip */}
-              <div className="bg-slate-50 border-b border-slate-200 px-3 py-1.5 flex items-center gap-1.5 shrink-0">
-                <span className="px-1.5 py-0.2 bg-blue-100 text-blue-800 rounded text-[8px] font-bold uppercase shrink-0">
+              <div className="bg-slate-100/80 border-b border-slate-200 px-3.5 py-1.5 flex items-center gap-1.5 shrink-0">
+                <span className="px-1.5 py-0.2 bg-[#EFF6FF] text-[#1D4ED8] border border-[#BFDBFE] rounded text-[8px] font-black uppercase tracking-wider shrink-0">
                   SAFETY
                 </span>
-                <p className="text-[10px] text-slate-500 truncate">
+                <p className="text-[10px] text-slate-600 truncate font-medium">
                   Meet in daylight at a public place. Inspect items thoroughly.
                 </p>
               </div>
 
               {/* Scrollable Live Chat Feed */}
-              <div className="flex-1 overflow-y-auto p-3 space-y-2.5">
+              <div className="flex-1 overflow-y-auto p-3.5 space-y-3">
                 {messages.map((m) => {
                   const isMe = m.sender === 'buyer';
                   return (
@@ -435,15 +556,15 @@ export default function TradeSimulatorPage() {
                       className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}
                     >
                       <div
-                        className={`max-w-[78%] px-3 py-2 rounded-lg text-xs shadow-2xs ${
+                        className={`max-w-[82%] px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed shadow-sm ${
                           isMe
-                            ? 'bg-blue-600 text-white rounded-br-none'
-                            : 'bg-white text-slate-800 border border-slate-200 rounded-bl-none'
+                            ? 'bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] text-white rounded-br-xs shadow-[0_2px_8px_rgba(37,99,235,0.25)]'
+                            : 'bg-white text-[#0F172A] border border-slate-200/90 rounded-bl-xs shadow-[0_1px_3px_rgba(15,23,42,0.06)]'
                         }`}
                       >
-                        <p>{m.text}</p>
+                        <p className="font-medium">{m.text}</p>
                       </div>
-                      <span className="text-[9px] text-slate-400 mt-0.5 px-1">{m.time}</span>
+                      <span className="text-[9px] text-slate-400 mt-1 px-1 font-semibold">{m.time}</span>
                     </div>
                   );
                 })}
@@ -451,25 +572,25 @@ export default function TradeSimulatorPage() {
               </div>
 
               {/* Chat Input Bar */}
-              <div className="bg-white border-t border-slate-200 p-2 flex items-center gap-1.5 shrink-0">
+              <div className="bg-white border-t border-slate-200/90 p-2.5 flex items-center gap-2 shrink-0">
                 <input
                   type="text"
                   value={buyerInput}
                   onChange={(e) => setBuyerInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSendMessage('buyer', buyerInput)}
                   placeholder="Message Amaka..."
-                  className="flex-1 bg-slate-50 border border-slate-200 rounded px-3 py-1.5 text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                  className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-[#0F172A] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all font-medium"
                 />
                 <button
                   onClick={() => handleSendMessage('buyer', buyerInput)}
-                  className="p-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                  className="p-2.5 bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] hover:from-[#1D4ED8] hover:to-[#1E40AF] text-white rounded-xl shadow-[0_2px_8px_rgba(37,99,235,0.3)] transition-all active:scale-95"
                 >
                   <Send className="w-3.5 h-3.5" />
                 </button>
               </div>
 
               {/* Home Indicator */}
-              <div className="h-4 pb-1 flex items-center justify-center shrink-0">
+              <div className="h-5 pb-1 flex items-center justify-center shrink-0">
                 <div className="w-32 h-1 bg-slate-300 rounded-full" />
               </div>
             </div>
@@ -484,58 +605,63 @@ export default function TradeSimulatorPage() {
             mobileActiveDevice !== 'seller' ? 'hidden lg:flex' : 'flex'
           }`}
         >
-          <div className="flex items-center justify-between w-full mb-2 px-2 text-xs">
-            <span className="font-bold text-emerald-400 flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-xs bg-emerald-500" />
-              SELLER DEVICE (Amaka)
+          <div className="flex items-center justify-between w-full mb-2 px-3 text-xs">
+            <span className="font-extrabold text-[#4ADE80] flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-sm bg-[#16A34A] shadow-[0_0_8px_rgba(22,163,74,0.8)]" />
+              SELLER DEVICE (Amaka Store)
             </span>
-            <span className="text-[10px] text-slate-500 font-mono">iPhone 11 Pro Max</span>
+            <span className="text-[10px] text-slate-400 font-mono font-semibold">iPhone 11 Pro Max</span>
           </div>
 
           {/* Smartphone Hardware Frame */}
-          <div className="w-[414px] h-[820px] bg-black rounded-[48px] p-3 shadow-2xl border-[6px] border-slate-800 relative flex flex-col overflow-hidden ring-1 ring-slate-700/60">
+          <div className="w-[414px] h-[850px] bg-[#0A0F1D] rounded-[52px] p-3.5 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),0_0_0_1px_rgba(255,255,255,0.08)] border-[5px] border-slate-800/90 relative flex flex-col overflow-hidden ring-1 ring-slate-700/50">
             {/* Notch */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-6 bg-slate-900 rounded-b-2xl z-50 flex items-center justify-center">
-              <div className="w-12 h-1 bg-slate-700 rounded-full mb-1" />
-              <div className="w-3 h-3 rounded-full bg-slate-950 border border-slate-800 ml-2" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-44 h-7 bg-black rounded-b-2xl z-50 flex items-center justify-center">
+              <div className="w-14 h-1 bg-slate-800 rounded-full mb-1" />
+              <div className="w-3.5 h-3.5 rounded-full bg-slate-950 border border-slate-800 ml-2.5 flex items-center justify-center">
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-900/40" />
+              </div>
             </div>
 
             {/* iOS Screen Display Area */}
-            <div className="w-full h-full bg-slate-100 text-slate-900 rounded-[38px] flex flex-col overflow-hidden relative font-sans">
+            <div className="w-full h-full bg-[#F8FAFC] text-[#0F172A] rounded-[40px] flex flex-col overflow-hidden relative font-sans select-none">
               {/* iOS Status Bar */}
-              <div className="h-10 pt-2 px-6 flex items-center justify-between text-xs font-bold text-slate-800 shrink-0 select-none">
+              <div className="h-11 pt-2.5 px-7 flex items-center justify-between text-xs font-black text-slate-900 shrink-0">
                 <span>9:41</span>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[10px]">5G</span>
-                  <div className="w-5 h-2.5 border border-slate-800 rounded-xs p-0.5 flex items-center">
-                    <div className="w-full h-full bg-slate-800 rounded-xs" />
+                  <span className="text-[10px] font-extrabold">5G</span>
+                  <div className="w-5 h-2.5 border border-slate-900 rounded-xs p-0.5 flex items-center">
+                    <div className="w-full h-full bg-slate-900 rounded-xs" />
                   </div>
                 </div>
               </div>
 
               {/* In-App Header */}
-              <div className="bg-white border-b border-slate-200 px-4 py-2 flex items-center justify-between shrink-0 shadow-2xs">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded bg-blue-100 border border-blue-200 flex items-center justify-center text-blue-800 font-bold text-xs">
+              <div className="bg-white border-b border-slate-200/90 px-4 py-2.5 flex items-center justify-between shrink-0 shadow-xs">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white font-black text-sm shadow-sm ring-1 ring-blue-400/30">
                     T
                   </div>
                   <div>
-                    <div className="flex items-center gap-1">
-                      <span className="font-bold text-xs text-slate-900">Tunde Adeleke</span>
-                      <span className="px-1 py-0.2 bg-blue-100 text-blue-800 rounded text-[8px] font-bold uppercase">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-extrabold text-xs text-[#0F172A]">Tunde Adeleke</span>
+                      <span className="px-1.5 py-0.2 bg-[#EFF6FF] text-[#1D4ED8] border border-[#BFDBFE] rounded text-[8px] font-black uppercase tracking-wider">
                         TRADER
                       </span>
                     </div>
-                    <span className="text-[10px] text-slate-400 block leading-tight">Ikeja, Lagos</span>
+                    <span className="text-[10px] text-slate-500 block leading-tight font-medium">Ikeja, Lagos</span>
                   </div>
                 </div>
-                <span className="px-1.5 py-0.5 bg-emerald-50 text-emerald-700 rounded text-[9px] font-bold uppercase">
-                  SELLER VIEW
-                </span>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A] animate-pulse" />
+                  <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-800 border border-emerald-500/20 rounded text-[9px] font-black uppercase tracking-wider">
+                    SELLER VIEW
+                  </span>
+                </div>
               </div>
 
               {/* Trade Stepper */}
-              <div className="bg-white border-b border-slate-200 px-3 py-1.5 shrink-0">
+              <div className="bg-white border-b border-slate-200/90 px-3.5 py-2 shrink-0">
                 <TradeStepper
                   status={offerStatus}
                   isBuyerLocked={isBuyerLocked}
@@ -544,27 +670,26 @@ export default function TradeSimulatorPage() {
               </div>
 
               {/* Deal Status Card / Action Panel */}
-              <div className="bg-white border-b border-slate-200 p-3 shrink-0 space-y-2">
+              <div className="bg-white border-b border-slate-200/90 p-3.5 shrink-0 space-y-2.5 shadow-2xs">
                 {/* Proposed State: Accept button */}
                 {offerStatus === 'proposed' && (
-                  <div className="space-y-2">
-                    <div className="bg-slate-50 border border-slate-200 rounded p-2">
+                  <div className="space-y-2.5">
+                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="px-1.5 py-0.2 bg-amber-100 text-amber-800 rounded text-[9px] font-bold uppercase">
+                        <span className="px-2 py-0.5 bg-amber-500/10 text-amber-800 border border-amber-500/30 rounded text-[9px] font-black uppercase tracking-wider">
                           NEW OFFER RECEIVED
                         </span>
-                        <span className="text-[10px] font-bold text-slate-700">+₦40,000 Cash</span>
+                        <span className="text-xs font-black text-[#16A34A]">+₦40,000 Cash</span>
                       </div>
-                      <p className="text-[11px] font-bold text-slate-800">Tunde offered: PS5 Digital Edition</p>
+                      <p className="text-xs font-black text-[#0F172A] mt-1">Tunde offered: PS5 Digital Edition</p>
                     </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={handleAcceptOffer}
-                        className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded font-bold text-xs uppercase tracking-wider shadow-xs"
-                      >
-                        Accept Offer
-                      </button>
-                    </div>
+                    <button
+                      onClick={handleAcceptOffer}
+                      className="w-full py-3 bg-gradient-to-r from-[#22C55E] to-[#16A34A] hover:from-[#16A34A] hover:to-[#15803D] text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-[0_4px_14px_rgba(22,163,74,0.35)] transition-all active:scale-[0.98] flex items-center justify-center gap-1.5"
+                    >
+                      <span>Accept Offer</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                 )}
 
@@ -572,37 +697,41 @@ export default function TradeSimulatorPage() {
                 {offerStatus === 'accepted' && (
                   <div className="space-y-2">
                     {isBuyerLocked && !isSellerLocked && (
-                      <div className="bg-orange-50 border border-orange-200 rounded px-2.5 py-1.5 flex items-center gap-2">
-                        <span className="px-1.5 py-0.5 bg-orange-100 text-orange-800 rounded text-[9px] font-bold uppercase">
-                          WAITING
+                      <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl px-3 py-2 flex items-center gap-2 shadow-xs">
+                        <span className="px-1.5 py-0.5 bg-amber-500 text-white rounded text-[9px] font-black uppercase tracking-wider shrink-0 shadow-xs">
+                          ACTION REQUIRED
                         </span>
-                        <p className="text-[10px] text-orange-800 font-bold">Tunde has locked — waiting for you!</p>
+                        <p className="text-[11px] text-amber-950 font-bold leading-tight">Tunde has locked — seal the deal to start safe exchange!</p>
                       </div>
                     )}
                     <button
                       onClick={() => handleLockDeal('seller')}
                       disabled={isSellerLocked}
-                      className={`w-full py-2.5 rounded font-bold text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 ${
+                      className={`w-full py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
                         isSellerLocked
-                          ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 cursor-default'
-                          : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs'
+                          ? 'bg-emerald-500/10 text-emerald-800 border border-emerald-500/30 cursor-default font-extrabold shadow-xs'
+                          : 'bg-gradient-to-r from-[#22C55E] to-[#16A34A] hover:from-[#16A34A] hover:to-[#15803D] text-white shadow-[0_4px_16px_rgba(22,163,74,0.35)] active:scale-[0.98]'
                       }`}
                     >
                       {isSellerLocked ? (
                         <>
-                          <Check className="w-3.5 h-3.5" />
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600 stroke-[2.5]" />
                           <span>Deal Locked by You</span>
                         </>
                       ) : (
                         <>
-                          <Lock className="w-3.5 h-3.5" />
+                          <Lock className="w-4 h-4 stroke-[2.5]" />
                           <span>Lock Deal (Commit)</span>
                         </>
                       )}
                     </button>
-                    {!isSellerLocked && (
-                      <p className="text-[10px] text-slate-400 text-center">
-                        Both parties must lock to initiate local meetup.
+                    {!isSellerLocked ? (
+                      <p className="text-[10px] text-slate-400 text-center font-medium">
+                        Both parties must lock to initiate local meetup handshake.
+                      </p>
+                    ) : (
+                      <p className="text-[10px] text-emerald-700 text-center font-semibold">
+                        Waiting for Tunde to commit and seal the deal...
                       </p>
                     )}
                   </div>
@@ -610,13 +739,13 @@ export default function TradeSimulatorPage() {
 
                 {/* Fulfillment State: Input Buyer's PIN */}
                 {offerStatus === 'awaiting_fulfillment' && (
-                  <div className="space-y-2">
-                    <div className="bg-slate-50 border border-slate-200 rounded p-2.5">
-                      <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-[11px] font-bold text-slate-800">
-                          Enter Tunde&apos;s 6-Digit PIN:
+                  <div className="space-y-2.5">
+                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 shadow-xs">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-black text-[#0F172A]">
+                          Enter Tunde&apos;s 6-Digit Exchange PIN:
                         </span>
-                        <span className="px-1.5 py-0.2 bg-blue-100 text-blue-800 rounded text-[8px] font-bold uppercase">
+                        <span className="px-1.5 py-0.5 bg-emerald-500/10 text-emerald-800 border border-emerald-500/20 rounded text-[8px] font-black uppercase">
                           INSTANT
                         </span>
                       </div>
@@ -630,12 +759,12 @@ export default function TradeSimulatorPage() {
                             setPinError('');
                           }}
                           placeholder="e.g. 749103"
-                          className="flex-1 bg-white border border-slate-300 rounded px-2.5 py-1 text-center font-mono font-bold text-sm tracking-widest text-slate-900 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                          className="flex-1 bg-white border border-slate-300 rounded-lg px-3 py-2 text-center font-mono font-black text-sm tracking-[0.2em] text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#22C55E] focus:border-[#16A34A] shadow-inner"
                         />
                         <button
                           onClick={handleVerifySellerPin}
                           disabled={sellerInputPin.length !== 6}
-                          className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 text-white rounded font-bold text-xs uppercase transition-colors"
+                          className="px-4 py-2 bg-gradient-to-r from-[#22C55E] to-[#16A34A] hover:from-[#16A34A] hover:to-[#15803D] disabled:opacity-40 text-white rounded-lg font-black text-xs uppercase tracking-wider transition-all shadow-[0_4px_14px_rgba(22,163,74,0.32)] active:scale-[0.98]"
                         >
                           Verify
                         </button>
@@ -645,21 +774,21 @@ export default function TradeSimulatorPage() {
                       )}
                       <button
                         onClick={() => setSellerInputPin(pickupPin)}
-                        className="text-[10px] text-blue-600 hover:underline mt-1 font-semibold block text-left"
+                        className="text-[10px] text-[#2563EB] hover:text-[#1D4ED8] mt-1.5 font-bold flex items-center gap-1"
                       >
-                        ⚡ Autofill Buyer&apos;s PIN ({pickupPin})
+                        ⚡ Autofill Buyer&apos;s Secret PIN ({pickupPin})
                       </button>
                     </div>
 
                     {isSellerFulfilled ? (
-                      <div className="bg-emerald-50 border border-emerald-200 rounded py-1.5 text-center text-xs font-bold text-emerald-800 flex items-center justify-center gap-1">
-                        <Check className="w-3.5 h-3.5" />
-                        <span>Exchange Verified</span>
+                      <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl py-2 text-center text-xs font-black text-emerald-900 flex items-center justify-center gap-1.5 shadow-xs">
+                        <Check className="w-4 h-4 stroke-[3] text-emerald-600" />
+                        <span>Exchange Verified & Item Sold</span>
                       </div>
                     ) : (
                       <button
                         onClick={() => handleManualConfirm('seller')}
-                        className="w-full py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded font-semibold text-[11px]"
+                        className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs uppercase tracking-wider transition-all"
                       >
                         Manual Confirm Exchange
                       </button>
@@ -669,27 +798,27 @@ export default function TradeSimulatorPage() {
 
                 {/* Completed State */}
                 {offerStatus === 'completed' && (
-                  <div className="bg-emerald-50 border border-emerald-200 rounded p-2 text-center">
-                    <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded text-[9px] font-bold uppercase">
+                  <div className="bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/30 rounded-xl p-3 text-center shadow-xs">
+                    <span className="px-2 py-0.5 bg-[#16A34A] text-white rounded text-[9px] font-black uppercase tracking-wider shadow-xs">
                       SOLD / COMPLETED
                     </span>
-                    <p className="text-xs font-bold text-emerald-900 mt-1">Listing marked as SOLD in database.</p>
+                    <p className="text-xs font-black text-emerald-950 mt-1">Listing marked as SOLD in database.</p>
                   </div>
                 )}
               </div>
 
               {/* Safety Advisory Strip */}
-              <div className="bg-slate-50 border-b border-slate-200 px-3 py-1.5 flex items-center gap-1.5 shrink-0">
-                <span className="px-1.5 py-0.2 bg-blue-100 text-blue-800 rounded text-[8px] font-bold uppercase shrink-0">
+              <div className="bg-slate-100/80 border-b border-slate-200 px-3.5 py-1.5 flex items-center gap-1.5 shrink-0">
+                <span className="px-1.5 py-0.2 bg-[#EFF6FF] text-[#1D4ED8] border border-[#BFDBFE] rounded text-[8px] font-black uppercase tracking-wider shrink-0">
                   SAFETY
                 </span>
-                <p className="text-[10px] text-slate-500 truncate">
+                <p className="text-[10px] text-slate-600 truncate font-medium">
                   Hand over item only after verifying the exchange code.
                 </p>
               </div>
 
               {/* Scrollable Live Chat Feed */}
-              <div className="flex-1 overflow-y-auto p-3 space-y-2.5">
+              <div className="flex-1 overflow-y-auto p-3.5 space-y-3">
                 {messages.map((m) => {
                   const isMe = m.sender === 'seller';
                   return (
@@ -698,15 +827,15 @@ export default function TradeSimulatorPage() {
                       className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}
                     >
                       <div
-                        className={`max-w-[78%] px-3 py-2 rounded-lg text-xs shadow-2xs ${
+                        className={`max-w-[82%] px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed shadow-sm ${
                           isMe
-                            ? 'bg-emerald-600 text-white rounded-br-none'
-                            : 'bg-white text-slate-800 border border-slate-200 rounded-bl-none'
+                            ? 'bg-gradient-to-r from-[#16A34A] to-[#15803D] text-white rounded-br-xs shadow-[0_2px_8px_rgba(22,163,74,0.25)]'
+                            : 'bg-white text-[#0F172A] border border-slate-200/90 rounded-bl-xs shadow-[0_1px_3px_rgba(15,23,42,0.06)]'
                         }`}
                       >
-                        <p>{m.text}</p>
+                        <p className="font-medium">{m.text}</p>
                       </div>
-                      <span className="text-[9px] text-slate-400 mt-0.5 px-1">{m.time}</span>
+                      <span className="text-[9px] text-slate-400 mt-1 px-1 font-semibold">{m.time}</span>
                     </div>
                   );
                 })}
@@ -714,25 +843,25 @@ export default function TradeSimulatorPage() {
               </div>
 
               {/* Chat Input Bar */}
-              <div className="bg-white border-t border-slate-200 p-2 flex items-center gap-1.5 shrink-0">
+              <div className="bg-white border-t border-slate-200/90 p-2.5 flex items-center gap-2 shrink-0">
                 <input
                   type="text"
                   value={sellerInput}
                   onChange={(e) => setSellerInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSendMessage('seller', sellerInput)}
                   placeholder="Message Tunde..."
-                  className="flex-1 bg-slate-50 border border-slate-200 rounded px-3 py-1.5 text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                  className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-[#0F172A] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#22C55E]/20 focus:border-[#16A34A] transition-all font-medium"
                 />
                 <button
                   onClick={() => handleSendMessage('seller', sellerInput)}
-                  className="p-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors"
+                  className="p-2.5 bg-gradient-to-r from-[#22C55E] to-[#16A34A] hover:from-[#16A34A] hover:to-[#15803D] text-white rounded-xl shadow-[0_2px_8px_rgba(22,163,74,0.3)] transition-all active:scale-95"
                 >
                   <Send className="w-3.5 h-3.5" />
                 </button>
               </div>
 
               {/* Home Indicator */}
-              <div className="h-4 pb-1 flex items-center justify-center shrink-0">
+              <div className="h-5 pb-1 flex items-center justify-center shrink-0">
                 <div className="w-32 h-1 bg-slate-300 rounded-full" />
               </div>
             </div>
@@ -740,82 +869,75 @@ export default function TradeSimulatorPage() {
         </div>
       </div>
 
-      {/* ============================================================ */}
-      {/* LOCK CELEBRATION MODAL OVERLAY                               */}
-      {/* ============================================================ */}
+      {/* ── LOCK CELEBRATION MODAL OVERLAY ── */}
       {showLockCelebration && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[10060] flex items-center justify-center p-4 animate-in fade-in">
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 max-w-sm w-full text-center shadow-2xl">
-            <div className="w-16 h-16 bg-blue-600 text-white rounded-xl flex items-center justify-center mx-auto mb-4 animate-bounce">
-              <Lock className="w-8 h-8" />
+        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[10060] flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="w-16 h-16 bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] text-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-[0_4px_20px_rgba(37,99,235,0.4)] animate-bounce">
+              <Lock className="w-8 h-8 stroke-[2.5]" />
             </div>
-            <span className="px-2 py-0.5 bg-blue-900 text-blue-300 rounded text-[9px] font-bold uppercase tracking-wider">
+            <span className="px-2.5 py-0.5 bg-blue-500/20 text-blue-300 border border-blue-400/30 rounded text-[9px] font-black uppercase tracking-wider inline-block">
               DUAL-CONSENT VERIFIED
             </span>
-            <h3 className="text-xl font-black text-white mt-2">Deal Locked!</h3>
-            <p className="text-xs text-slate-400 mt-1">
-              Both Tunde and Amaka have committed. 7-day local meetup window initiated!
+            <h3 className="text-2xl font-black text-white mt-2.5">Deal Locked!</h3>
+            <p className="text-xs text-slate-300 mt-1.5 leading-relaxed font-medium">
+              Both Tunde and Amaka have committed. 7-day safe local meetup window initiated with secret exchange code protection!
             </p>
           </div>
         </div>
       )}
 
-      {/* ============================================================ */}
-      {/* TRADE COMPLETED & REVIEW MODAL                                */}
-      {/* ============================================================ */}
+      {/* ── TRADE COMPLETED & REVIEW MODAL ── */}
       {showCompleteModal && (
-        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[10060] flex items-center justify-center p-4 animate-in fade-in">
-          <div className="bg-white rounded-xl max-w-sm w-full p-6 text-center text-slate-900 shadow-2xl border border-slate-200">
-            <div className="w-14 h-14 bg-emerald-50 border border-emerald-200 text-emerald-600 rounded-xl flex items-center justify-center mx-auto mb-3">
-              <Check className="w-8 h-8 stroke-[3]" />
+        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[10060] flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-6 text-center text-[#0F172A] shadow-2xl border border-slate-200 animate-in zoom-in-95 duration-400">
+            <div className="w-16 h-16 bg-gradient-to-br from-[#22C55E] to-[#16A34A] text-white rounded-2xl flex items-center justify-center mx-auto mb-3.5 shadow-[0_4px_20px_rgba(34,197,94,0.35)]">
+              <Check className="w-9 h-9 stroke-[3]" />
             </div>
 
-            <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded text-[9px] font-bold uppercase tracking-wider">
-              TRADE COMPLETE
+            <span className="px-2.5 py-0.5 bg-emerald-500/10 text-emerald-800 border border-emerald-500/20 rounded text-[9px] font-black uppercase tracking-wider">
+              TRADE COMPLETED
             </span>
 
-            <h3 className="text-xl font-black text-slate-900 mt-2 mb-1">Exchange Successful!</h3>
-            <p className="text-xs text-slate-500 mb-4 leading-relaxed">
-              PIN code <strong>{pickupPin}</strong> was matched. The iPhone 13 Pro Max is now marked as <strong>SOLD</strong>.
+            <h3 className="text-2xl font-black text-[#0F172A] mt-2 mb-1 tracking-tight">Exchange Successful!</h3>
+            <p className="text-xs text-slate-500 mb-4 leading-relaxed font-medium">
+              PIN code <strong className="text-[#0F172A] font-mono">{pickupPin}</strong> was matched. The iPhone 13 Pro Max is now marked as <strong className="text-emerald-700">SOLD</strong>.
             </p>
 
             {/* Star Rating Picker */}
-            <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 mb-4">
-              <p className="text-[11px] font-bold text-slate-700 mb-2">Rate your trade experience:</p>
+            <div className="bg-slate-50 border border-slate-200/90 rounded-xl p-3.5 mb-4">
+              <p className="text-xs font-bold text-slate-700 mb-2">Rate your trade experience:</p>
               <div className="flex justify-center gap-1.5">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
                     key={star}
                     onClick={() => setStarRating(star)}
-                    className="p-1 hover:scale-110 transition-transform"
+                    className="p-1 hover:scale-110 transition-transform active:scale-95"
                   >
                     <Star
-                      className={`w-5 h-5 ${
+                      className={`w-6 h-6 ${
                         star <= starRating
-                          ? 'text-amber-400 fill-amber-400'
+                          ? 'text-amber-400 fill-amber-400 drop-shadow-xs'
                           : 'text-slate-300'
                       }`}
                     />
                   </button>
                 ))}
               </div>
-              <span className="text-[10px] text-slate-500 mt-1 block">5 Stars (Excellent Trade)</span>
+              <span className="text-[11px] text-slate-500 mt-1.5 block font-semibold">5 Stars (Excellent Trade)</span>
             </div>
 
             <div className="space-y-2">
               <button
-                onClick={() => {
-                  setShowCompleteModal(false);
-                  setBuyerReviewDone(true);
-                  setSellerReviewDone(true);
-                }}
-                className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded font-bold text-xs uppercase tracking-wider transition-colors shadow-xs"
+                onClick={() => setShowCompleteModal(false)}
+                className="w-full py-3 bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] hover:from-[#1D4ED8] hover:to-[#1E40AF] text-white rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-[0_4px_16px_rgba(37,99,235,0.35)] active:scale-[0.98]"
               >
                 Submit Review (+10 Trust Rep)
               </button>
               <button
                 onClick={() => setShowCompleteModal(false)}
-                className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded font-semibold text-xs transition-colors"
+                className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs uppercase tracking-wider transition-all"
               >
                 Close Simulator
               </button>

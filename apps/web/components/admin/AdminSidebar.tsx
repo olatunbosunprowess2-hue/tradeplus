@@ -212,7 +212,7 @@ export default function AdminSidebar({ onClose }: AdminSidebarProps = {}) {
         <aside className="w-64 bg-white border-r border-gray-200 h-full flex flex-col relative">
             <div className="p-6 shrink-0">
                 <div className="flex items-center justify-between">
-                    <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                    <h2 className="text-2xl font-bold bg-[#1D4ED8] bg-clip-text text-transparent">
                         Admin Panel
                     </h2>
                     <div className="flex items-center gap-2">
@@ -263,11 +263,11 @@ export default function AdminSidebar({ onClose }: AdminSidebarProps = {}) {
                                 href={item.href}
                                 title={(item as any).tooltip}
                                 className={`flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-all group ${isActive
-                                    ? 'bg-blue-50 text-blue-600 font-medium'
+                                    ? 'bg-[#EFF6FF] text-[#2563EB] font-medium'
                                     : 'text-gray-700 hover:bg-gray-50'
                                     } ${count > 0 && !isActive ? 'bg-red-50/50' : ''}`}
                             >
-                                <span className={isActive ? 'text-blue-600' : (count > 0 ? 'text-red-500' : 'text-gray-400 group-hover:text-gray-600')}>
+                                <span className={isActive ? 'text-[#2563EB]' : (count > 0 ? 'text-red-500' : 'text-gray-400 group-hover:text-gray-600')}>
                                     {item.icon}
                                 </span>
                                 <span className="flex-1">{item.name}</span>
@@ -328,7 +328,7 @@ export default function AdminSidebar({ onClose }: AdminSidebarProps = {}) {
             <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-200 bg-white">
                 <Link
                     href="/listings"
-                    className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition"
+                    className="flex items-center gap-2 text-gray-600 hover:text-[#2563EB] transition"
                 >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />

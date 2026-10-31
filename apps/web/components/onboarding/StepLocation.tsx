@@ -180,7 +180,7 @@ export default function StepLocation({ onNext, onBack }: StepProps) {
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <h2 className="text-xl font-bold tracking-tight text-slate-900">Where are you located?</h2>
+        <h2 className="text-xl font-bold tracking-tight text-[#0F172A]">Where are you located?</h2>
         <p className="text-xs text-slate-500 mt-1">
           This helps buyers and traders nearby find your listings.
         </p>
@@ -198,7 +198,7 @@ export default function StepLocation({ onNext, onBack }: StepProps) {
               const c = countries.find((x) => x.id === Number(e.target.value));
               if (c) setCountry(c);
             }}
-            className="w-full px-3.5 py-2 text-sm rounded-md border border-slate-300 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition bg-white text-slate-900"
+            className="w-full px-3.5 py-2 text-sm rounded-md border border-slate-300 focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] outline-none transition bg-white text-[#0F172A]"
           >
             {countries.map((c) => (
               <option key={c.id} value={c.id}>
@@ -218,7 +218,7 @@ export default function StepLocation({ onNext, onBack }: StepProps) {
               value={city}
               onChange={(e) => setCity(e.target.value)}
               placeholder="e.g. Ikeja / Lagos"
-              className="w-full px-3.5 py-2 text-sm rounded-md border border-slate-300 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition bg-white text-slate-900 placeholder:text-slate-400"
+              className="w-full px-3.5 py-2 text-sm rounded-md border border-slate-300 focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] outline-none transition bg-white text-slate-900 placeholder:text-slate-400"
             />
           </div>
           <div>
@@ -229,7 +229,7 @@ export default function StepLocation({ onNext, onBack }: StepProps) {
               <select
                 value={state}
                 onChange={(e) => setState(e.target.value)}
-                className="w-full px-3.5 py-2 text-sm rounded-md border border-slate-300 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition bg-white text-slate-900"
+                className="w-full px-3.5 py-2 text-sm rounded-md border border-slate-300 focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] outline-none transition bg-white text-[#0F172A]"
               >
                 <option value="">Select State</option>
                 {availableStates.map((s) => (
@@ -244,7 +244,7 @@ export default function StepLocation({ onNext, onBack }: StepProps) {
                 value={state}
                 onChange={(e) => setState(e.target.value)}
                 placeholder="e.g. Lagos State"
-                className="w-full px-3.5 py-2 text-sm rounded-md border border-slate-300 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition bg-white text-slate-900 placeholder:text-slate-400"
+                className="w-full px-3.5 py-2 text-sm rounded-md border border-slate-300 focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] outline-none transition bg-white text-slate-900 placeholder:text-slate-400"
               />
             )}
           </div>
@@ -259,7 +259,7 @@ export default function StepLocation({ onNext, onBack }: StepProps) {
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             placeholder="e.g. 12 Admiralty Way, Lekki Phase 1"
-            className="w-full px-3.5 py-2 text-sm rounded-md border border-slate-300 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition bg-white text-slate-900 placeholder:text-slate-400"
+            className="w-full px-3.5 py-2 text-sm rounded-md border border-slate-300 focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] outline-none transition bg-white text-slate-900 placeholder:text-slate-400"
           />
         </div>
 
@@ -271,12 +271,12 @@ export default function StepLocation({ onNext, onBack }: StepProps) {
         >
           {gpsLoading ? (
             <>
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600" />
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-[#2563EB]" />
               <span>Detecting location...</span>
             </>
           ) : (
             <>
-              <Navigation className="w-3.5 h-3.5 text-blue-600" />
+              <Navigation className="w-3.5 h-3.5 text-[#2563EB]" />
               <span>Use Current GPS Location</span>
             </>
           )}
@@ -298,7 +298,7 @@ export default function StepLocation({ onNext, onBack }: StepProps) {
           className={`flex-1 py-2.5 rounded-md font-bold text-xs transition-colors shadow-xs flex items-center justify-center gap-2 ${
             !city || !state || !address || !country || loading
               ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white'
+              : 'bg-[#1D4ED8] hover:bg-[#1E40AF] active:bg-[#1E3A8A] text-white'
           }`}
         >
           {loading ? (

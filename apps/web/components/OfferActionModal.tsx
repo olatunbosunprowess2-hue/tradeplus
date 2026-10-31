@@ -67,7 +67,7 @@ export default function OfferActionModal({
             >
                 {/* Header — minimal */}
                 <div className="px-6 pt-6 pb-3">
-                    <h3 className="text-lg font-bold text-gray-900">
+                    <h3 className="text-lg font-bold text-[#0F172A]">
                         {isAccept ? 'Accept this offer?' : isReject ? 'Reject this offer?' : 'Offer Details'}
                     </h3>
                 </div>
@@ -78,7 +78,7 @@ export default function OfferActionModal({
                         {isAccept ? (
                             <>
                                 <p>
-                                    By accepting this offer from <strong className="text-gray-900">{buyerName}</strong> for <strong className="text-gray-900">{listingTitle}</strong>, you agree to start a private chat to arrange the exchange.
+                                    By accepting this offer from <strong className="text-[#0F172A]">{buyerName}</strong> for <strong className="text-[#0F172A]">{listingTitle}</strong>, you agree to start a private chat to arrange the exchange.
                                 </p>
                                 <p>
                                     A 60-minute timer will begin once accepted. Both parties should discuss terms, confirm details, and finalize the trade before the timer expires.
@@ -90,7 +90,7 @@ export default function OfferActionModal({
                         ) : isReject ? (
                             <>
                                 <p>
-                                    You are about to reject the offer from <strong className="text-gray-900">{buyerName}</strong> for <strong className="text-gray-900">{listingTitle}</strong>.
+                                    You are about to reject the offer from <strong className="text-[#0F172A]">{buyerName}</strong> for <strong className="text-[#0F172A]">{listingTitle}</strong>.
                                 </p>
                                 <p className="text-gray-500 text-xs">
                                     This action is permanent. The buyer will be notified immediately and will need to submit a new offer if they wish to trade again.
@@ -99,7 +99,7 @@ export default function OfferActionModal({
                         ) : (
                             <>
                                 <p>
-                                    <strong className="text-gray-900">{buyerName}</strong> offered {offerDescription} for <strong className="text-gray-900">{listingTitle}</strong>.
+                                    <strong className="text-[#0F172A]">{buyerName}</strong> offered {offerDescription} for <strong className="text-[#0F172A]">{listingTitle}</strong>.
                                 </p>
                             </>
                         )}
@@ -108,7 +108,7 @@ export default function OfferActionModal({
                         <div className="pt-2 border-t border-gray-200 space-y-1.5">
                             <div className="flex justify-between text-xs">
                                 <span className="text-gray-500">Offering</span>
-                                <span className="font-semibold text-gray-900">{offerDescription}</span>
+                                <span className="font-semibold text-[#0F172A]">{offerDescription}</span>
                             </div>
                             <div className="flex justify-between text-xs">
                                 <span className="text-gray-500">For</span>
@@ -135,7 +135,7 @@ export default function OfferActionModal({
                                     <div className="flex gap-2">
                                         <button
                                             onClick={() => onSetAction?.('accept')}
-                                            className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-sm transition-all shadow-sm active:scale-[0.98] flex items-center justify-center gap-1"
+                                            className="flex-1 py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-lg font-bold text-sm transition-all shadow-sm active:scale-[0.98] flex items-center justify-center gap-1"
                                         >
                                             🤝 Accept Offer
                                         </button>
@@ -180,7 +180,7 @@ export default function OfferActionModal({
                                             onClose();
                                             onMessage?.(offer);
                                         }}
-                                        className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-sm transition-all shadow-sm active:scale-[0.98] flex items-center justify-center gap-1.5"
+                                        className="w-full py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-lg font-bold text-sm transition-all shadow-sm active:scale-[0.98] flex items-center justify-center gap-1.5"
                                     >
                                         💬 Message Seller
                                     </button>
@@ -227,7 +227,7 @@ export default function OfferActionModal({
                                 disabled={isProcessing}
                                 className={`flex-1 py-2.5 rounded-lg font-bold text-white transition-all disabled:opacity-50 text-sm ${
                                     isAccept
-                                        ? 'bg-blue-600 hover:bg-blue-700'
+                                        ? 'bg-[#1D4ED8] hover:bg-[#1E40AF]'
                                         : 'bg-red-600 hover:bg-red-700'
                                 }`}
                             >

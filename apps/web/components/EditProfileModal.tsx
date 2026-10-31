@@ -132,7 +132,7 @@ export default function EditProfileModal({ isOpen, onClose }: EditProfileModalPr
             <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300 text-left flex flex-col max-h-[92vh] sm:max-h-[90vh]">
                 <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center shrink-0 bg-white">
                     <div>
-                        <h2 className="text-xl font-bold text-gray-900">Edit Profile</h2>
+                        <h2 className="text-xl font-bold text-[#0F172A]">Edit Profile</h2>
                         <p className="text-xs text-gray-500 font-medium">Manage your public information</p>
                     </div>
                     <button onClick={onClose} className="p-2 -mr-2 text-gray-400 hover:text-gray-900 transition rounded-xl hover:bg-gray-100 active:scale-95">
@@ -150,7 +150,7 @@ export default function EditProfileModal({ isOpen, onClose }: EditProfileModalPr
                                 {avatarPreview ? (
                                     <img src={avatarPreview.startsWith('blob:') ? avatarPreview : sanitizeUrl(avatarPreview)} alt="Profile" className="w-full h-full object-cover" />
                                 ) : (
-                                    <div className="w-full h-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold">
+                                    <div className="w-full h-full bg-gradient-to-br from-[#1D4ED8] to-[#1E40AF] flex items-center justify-center text-white text-2xl font-bold">
                                         {displayName[0]?.toUpperCase() || user.email[0].toUpperCase()}
                                     </div>
                                 )}
@@ -158,7 +158,7 @@ export default function EditProfileModal({ isOpen, onClose }: EditProfileModalPr
                             <div className="flex-1">
                                 <label className="block text-sm font-semibold text-gray-900 mb-1">
                                     Profile Picture
-                                    <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-bold uppercase rounded-full">Recommended</span>
+                                    <span className="ml-2 px-2 py-0.5 bg-[#DBEAFE] text-[#1D4ED8] text-[10px] font-bold uppercase rounded-full">Recommended</span>
                                 </label>
                                 <p className="text-xs text-gray-500 mb-2 leading-relaxed">
                                     Adding a professional logo or photo significantly increases trust and engagement.
@@ -167,20 +167,20 @@ export default function EditProfileModal({ isOpen, onClose }: EditProfileModalPr
                                     type="file"
                                     accept="image/*"
                                     onChange={handleFileChange}
-                                    className="block w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition"
+                                    className="block w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#1D4ED8] file:text-white hover:file:bg-[#1E40AF] transition"
                                 />
                             </div>
                         </div>
 
                         {/* Read-Only Security Fields */}
-                        <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 shadow-sm">
+                        <div className="bg-[#EFF6FF]/50 p-4 rounded-xl border border-[#DBEAFE] shadow-sm">
                             <div className="flex justify-between items-start">
                                 <div className="space-y-1">
-                                    <label className="block text-[10px] text-blue-800 font-bold uppercase tracking-wider">Email Address</label>
+                                    <label className="block text-[10px] text-[#1E40AF] font-bold uppercase tracking-wider">Email Address</label>
                                     <div className="text-sm font-medium text-gray-900 truncate max-w-[150px]">{user.email}</div>
                                 </div>
                                 <div className="space-y-1 text-right">
-                                    <label className="block text-[10px] text-blue-800 font-bold uppercase tracking-wider">Account Status</label>
+                                    <label className="block text-[10px] text-[#1E40AF] font-bold uppercase tracking-wider">Account Status</label>
                                     <div className="flex items-center gap-1.5 justify-end">
                                         <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">Active</span>
                                     </div>
@@ -195,11 +195,11 @@ export default function EditProfileModal({ isOpen, onClose }: EditProfileModalPr
                                 type="text"
                                 value={displayName}
                                 onChange={(e) => setDisplayName(e.target.value)}
-                                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium text-gray-900 placeholder:text-gray-300"
+                                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-4 focus:ring-[#2563EB]/10 focus:border-[#3B82F6] transition-all font-medium text-gray-900 placeholder:text-gray-300"
                                 placeholder="e.g. Acme Trading Co. or John Doe"
                             />
                             <p className="mt-2 text-[11px] text-gray-500 flex items-start gap-1.5 leading-tight">
-                                <svg className="w-4 h-4 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-4 h-4 text-[#3B82F6] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                                 Using your business name or a professional name helps build trust with buyers.
@@ -212,7 +212,7 @@ export default function EditProfileModal({ isOpen, onClose }: EditProfileModalPr
                                 value={bio}
                                 onChange={(e) => setBio(e.target.value)}
                                 rows={3}
-                                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all resize-none text-gray-900 placeholder:text-gray-300"
+                                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-4 focus:ring-[#2563EB]/10 focus:border-[#3B82F6] transition-all resize-none text-gray-900 placeholder:text-gray-300"
                                 placeholder="Tell others about your services or what you trade..."
                             />
                         </div>
@@ -225,18 +225,18 @@ export default function EditProfileModal({ isOpen, onClose }: EditProfileModalPr
                                     type="text"
                                     value={city}
                                     onChange={(e) => setCity(e.target.value)}
-                                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-gray-900 placeholder:text-gray-300"
+                                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-4 focus:ring-[#2563EB]/10 focus:border-[#3B82F6] transition-all text-gray-900 placeholder:text-gray-300"
                                     placeholder="e.g. Ona Ara"
                                 />
                             </div>
                             <div>
                                 <div className="flex justify-between items-center mb-1.5">
-                                    <label className="block text-sm font-bold text-gray-900">State / Region</label>
+                                    <label className="block text-sm font-bold text-[#0F172A]">State / Region</label>
                                     {regions.length > 0 && (
                                         <button
                                             type="button"
                                             onClick={() => setIsManualState(!isManualState)}
-                                            className="text-[10px] text-blue-600 font-bold hover:underline py-1 px-2 rounded-lg hover:bg-blue-50 transition"
+                                            className="text-[10px] text-[#2563EB] font-bold hover:underline py-1 px-2 rounded-lg hover:bg-[#EFF6FF] transition"
                                         >
                                             {isManualState ? 'Use Select' : 'Enter Manually'}
                                         </button>
@@ -247,7 +247,7 @@ export default function EditProfileModal({ isOpen, onClose }: EditProfileModalPr
                                         type="text"
                                         value={manualState}
                                         onChange={(e) => setManualState(e.target.value)}
-                                        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all text-gray-900 placeholder:text-gray-300"
+                                        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-4 focus:ring-[#2563EB]/10 focus:border-[#3B82F6] transition-all text-gray-900 placeholder:text-gray-300"
                                         placeholder="Enter state"
                                     />
                                 ) : (
@@ -275,7 +275,7 @@ export default function EditProfileModal({ isOpen, onClose }: EditProfileModalPr
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="flex-1 px-4 py-3.5 bg-blue-600 text-white font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-blue-700 transition disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-xl shadow-blue-500/20 active:scale-95"
+                            className="flex-1 px-4 py-3.5 bg-[#1D4ED8] text-white font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-[#1E40AF] transition disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-xl shadow-blue-500/20 active:scale-95"
                         >
                             {isLoading ? (
                                 <>

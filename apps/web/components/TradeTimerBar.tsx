@@ -46,8 +46,8 @@ function getTimerColor(remaining: number, isPaused: boolean, isMeetupPhase: bool
 } {
     if (isPaused) {
         return {
-            bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200',
-            ring: 'ring-blue-400', dotColor: 'bg-blue-500', progressBg: 'bg-blue-400',
+            bg: 'bg-[#EFF6FF]', text: 'text-[#1D4ED8]', border: 'border-[#BFDBFE]',
+            ring: 'ring-blue-400', dotColor: 'bg-[#2563EB]', progressBg: 'bg-blue-400',
         };
     }
     if (isMeetupPhase) {
@@ -155,7 +155,7 @@ export default function TradeTimerBar({ offer, currentUserId, onUpdate, variant 
         const minutes = remaining / 60000;
         let textCol = 'text-emerald-600 bg-emerald-50 border-emerald-100';
         if (isPaused) {
-            textCol = 'text-blue-600 bg-blue-50 border-blue-100';
+            textCol = 'text-[#2563EB] bg-[#EFF6FF] border-[#DBEAFE]';
         } else if (isMeetupPhase) {
             textCol = 'text-indigo-600 bg-indigo-50 border-indigo-100';
         } else if (minutes <= 5) {
@@ -213,8 +213,8 @@ export default function TradeTimerBar({ offer, currentUserId, onUpdate, variant 
                             flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold
                             transition-all duration-200 whitespace-nowrap
                             ${isSeller
-                                ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-sm hover:shadow-md'
-                                : 'bg-white text-blue-700 border border-blue-300 hover:bg-blue-50 shadow-sm'
+                                ? 'bg-[#1D4ED8] text-white hover:bg-[#1E40AF] shadow-sm hover:shadow-md'
+                                : 'bg-white text-[#1D4ED8] border border-blue-300 hover:bg-[#EFF6FF] shadow-sm'
                             }
                             disabled:opacity-50 disabled:cursor-not-allowed
                         `}

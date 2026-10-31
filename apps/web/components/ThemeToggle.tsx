@@ -15,7 +15,7 @@ export default function ThemeToggle({ className = '' }: ThemeToggleProps) {
             onClick={toggleTheme}
             className={`relative p-2 rounded-xl transition-all duration-300 hover:scale-105 ${isDark
                     ? 'bg-slate-700 text-yellow-400 hover:bg-slate-600'
-                    : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
+                    : 'bg-[#DBEAFE] text-[#2563EB] hover:bg-blue-200'
                 } ${className}`}
             aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
             title={`Switch to ${isDark ? 'light' : 'dark'} mode`}

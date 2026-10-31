@@ -255,7 +255,7 @@ export default function ProfilePage() {
     return (
         <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white pb-20">
             {/* Header / Cover */}
-            <div className="h-48 relative bg-blue-600">
+            <div className="h-48 relative bg-[#1D4ED8]">
                 <div className="absolute inset-0 bg-[url('data:image/svg+xml,...')] opacity-10"></div>
                 <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/30 to-transparent"></div>
             </div>
@@ -274,12 +274,12 @@ export default function ProfilePage() {
                                         onError={() => setImageError(true)}
                                     />
                                 ) : (
-                                    <div className="w-full h-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-4xl font-bold">
+                                    <div className="w-full h-full bg-gradient-to-br from-[#1D4ED8] to-[#1E40AF] flex items-center justify-center text-white text-4xl font-bold">
                                         {user.profile?.displayName?.[0]?.toUpperCase() || user.firstName?.[0]?.toUpperCase() || user.email[0].toUpperCase()}
                                     </div>
                                 )}
                             </div>
-                            <div className="absolute bottom-2 right-2 bg-green-500 w-5 h-5 rounded-full border-2 border-white" title="Online"></div>
+                            <div className="absolute bottom-2 right-2 bg-[#22C55E] w-5 h-5 rounded-full border-2 border-white" title="Online"></div>
                         </div>
 
                         {/* Info */}
@@ -289,7 +289,7 @@ export default function ProfilePage() {
                                     <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                                         {user.profile?.displayName || 'User'}
                                         {user.verificationStatus === 'VERIFIED' && (
-                                            <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <svg className="w-5 h-5 text-[#2563EB]" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                             </svg>
                                         )}
@@ -312,15 +312,15 @@ export default function ProfilePage() {
 
                             <div className="flex flex-wrap gap-6 py-4 border-t border-gray-100">
                                 <div>
-                                    <span className="block text-2xl font-bold text-gray-900">{user.profile?.responseRate || 100}%</span>
+                                    <span className="block text-2xl font-bold text-[#0F172A]">{user.profile?.responseRate || 100}%</span>
                                     <span className="text-sm text-gray-500">Response Rate</span>
                                 </div>
                                 <div>
-                                    <span className="block text-2xl font-bold text-gray-900">{user.profile?.rating || 5.0}</span>
+                                    <span className="block text-2xl font-bold text-[#0F172A]">{user.profile?.rating || 5.0}</span>
                                     <span className="text-sm text-gray-500">Rating ({user.profile?.reviewCount || 0} reviews)</span>
                                 </div>
                                 <div>
-                                    <span className="block text-2xl font-bold text-gray-900">
+                                    <span className="block text-2xl font-bold text-[#0F172A]">
                                         {new Date(user.createdAt).getFullYear()}
                                     </span>
                                     <span className="text-sm text-gray-500">Member Since</span>
@@ -335,7 +335,7 @@ export default function ProfilePage() {
                         <button
                             onClick={() => setActiveTab('listings')}
                             className={`px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap ${activeTab === 'listings'
-                                ? 'border-blue-600 text-blue-600'
+                                ? 'border-[#2563EB] text-[#2563EB]'
                                 : 'border-transparent text-gray-500 hover:text-gray-700'
                                 }`}>
                             My Listings ({listings.length})
@@ -343,7 +343,7 @@ export default function ProfilePage() {
                         <button
                             onClick={() => setActiveTab('posts')}
                             className={`px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap ${activeTab === 'posts'
-                                ? 'border-blue-600 text-blue-600'
+                                ? 'border-[#2563EB] text-[#2563EB]'
                                 : 'border-transparent text-gray-500 hover:text-gray-700'
                                 }`}>
                             My Posts
@@ -351,7 +351,7 @@ export default function ProfilePage() {
                         <button
                             onClick={() => setActiveTab('reviews')}
                             className={`px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap ${activeTab === 'reviews'
-                                ? 'border-blue-600 text-blue-600'
+                                ? 'border-[#2563EB] text-[#2563EB]'
                                 : 'border-transparent text-gray-500 hover:text-gray-700'
                                 }`}>
                             Reviews
@@ -365,7 +365,7 @@ export default function ProfilePage() {
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {isListingsLoading ? (
                                 <div className="col-span-full flex justify-center py-12">
-                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2563EB]"></div>
                                 </div>
                             ) : (
                                 <>
@@ -380,7 +380,7 @@ export default function ProfilePage() {
                                                     </div>
                                                 )}
                                                 <div className="absolute top-2 right-2">
-                                                    <span className={`px-2 py-1 rounded text-xs font-bold ${listing.status === 'active' ? 'bg-green-100 text-green-700' : listing.status === 'sold' ? 'bg-blue-100 text-blue-700 line-through' : 'bg-gray-100 text-gray-700'
+                                                    <span className={`px-2 py-1 rounded text-xs font-bold ${listing.status === 'active' ? 'bg-[#DCFCE7] text-[#15803D]' : listing.status === 'sold' ? 'bg-[#DBEAFE] text-[#1D4ED8] line-through' : 'bg-gray-100 text-gray-700'
                                                         }`}>
                                                         {listing.status === 'sold' ? 'SOLD' : listing.status.toUpperCase()}
                                                     </span>
@@ -388,7 +388,7 @@ export default function ProfilePage() {
                                             </div>
                                             <div className="p-4">
                                                 <h3 className={`font-bold text-gray-900 mb-1 ${listing.status === 'sold' ? 'line-through opacity-60' : ''}`}>{listing.title}</h3>
-                                                <p className={`text-blue-600 font-bold text-sm mb-4 ${listing.status === 'sold' ? 'line-through opacity-60' : ''}`}>
+                                                <p className={`text-[#2563EB] font-bold text-sm mb-4 ${listing.status === 'sold' ? 'line-through opacity-60' : ''}`}>
                                                     {formatPrice(listing.priceCents, listing.currencyCode)}
                                                 </p>
                                                 <div className="flex flex-col gap-2">
@@ -429,7 +429,7 @@ export default function ProfilePage() {
                                                         {listing.status === 'active' && (
                                                             <button
                                                                 onClick={() => handleMarkAsSold(listing.id)}
-                                                                className="flex-1 px-3 py-2 bg-blue-50 text-blue-700 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-blue-100 transition active:scale-95">
+                                                                className="flex-1 px-3 py-2 bg-[#EFF6FF] text-[#1D4ED8] rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-[#DBEAFE] transition active:scale-95">
                                                                 Mark as Sold
                                                             </button>
                                                         )}
@@ -467,14 +467,14 @@ export default function ProfilePage() {
                                     )}
 
                                     {/* Add New Card */}
-                                    <Link href="/listings/create" className="bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center p-8 hover:border-blue-600 hover:bg-blue-50 transition group min-h-[200px]">
+                                    <Link href="/listings/create" className="bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center p-8 hover:border-[#2563EB] hover:bg-[#EFF6FF] transition group min-h-[200px]">
 
                                         <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm mb-3 group-hover:scale-110 transition">
-                                            <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg className="w-6 h-6 text-[#2563EB]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                                             </svg>
                                         </div>
-                                        <span className="font-bold text-gray-900">Create New Listing</span>
+                                        <span className="font-bold text-[#0F172A]">Create New Listing</span>
                                     </Link>
                                 </>
                             )}
@@ -485,14 +485,14 @@ export default function ProfilePage() {
                         <div className="flex flex-col gap-6">
                             {isPostsLoading ? (
                                 <div className="flex justify-center py-12">
-                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2563EB]"></div>
                                 </div>
                             ) : (
                                 <>
                                     {posts.length === 0 ? (
                                         <div className="text-center py-12 bg-white rounded-xl shadow-sm border border-gray-200">
-                                            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <div className="w-16 h-16 bg-[#DBEAFE] rounded-full flex items-center justify-center mx-auto mb-4">
+                                                <svg className="w-8 h-8 text-[#2563EB]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
                                                 </svg>
                                             </div>
@@ -500,7 +500,7 @@ export default function ProfilePage() {
                                             <p className="text-gray-500 mb-6 max-w-sm mx-auto">
                                                 Share your thoughts, ask questions, or start a discussion with the community.
                                             </p>
-                                            <Link href="/community" className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition">
+                                            <Link href="/community" className="inline-flex items-center gap-2 px-6 py-3 bg-[#1D4ED8] text-white rounded-xl font-semibold hover:bg-[#1E40AF] transition">
                                                 Create Post
                                             </Link>
                                         </div>
@@ -563,7 +563,7 @@ export default function ProfilePage() {
                                                         </button>
                                                         <button
                                                             onClick={() => setEditingPost(post)}
-                                                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                                                            className="p-2 text-[#2563EB] hover:bg-[#EFF6FF] rounded-lg transition"
                                                             title="Edit Post"
                                                         >
                                                             <Pencil className="w-4 h-4" />
@@ -615,7 +615,7 @@ export default function ProfilePage() {
                     </div>
                     <div className="p-6 flex items-center justify-between">
                         <div>
-                            <h4 className="font-semibold text-gray-900">Delete Account</h4>
+                            <h4 className="font-semibold text-[#0F172A]">Delete Account</h4>
                             <p className="text-sm text-gray-500 mt-0.5">Permanently delete your account and all associated data.</p>
                         </div>
                         <button

@@ -376,13 +376,13 @@ export default function CreateListingPage() {
                 <div className="mb-8">
                     <div className="flex items-center justify-between mb-2">
                         <span className="text-sm font-semibold text-gray-500">Step {step} of 4</span>
-                        <span className="text-sm font-bold text-blue-600">
+                        <span className="text-sm font-bold text-[#2563EB]">
                             {step === 1 ? 'Basics' : step === 2 ? 'Details' : step === 3 ? 'Media' : 'Pricing'}
                         </span>
                     </div>
                     <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                         <div
-                            className="h-full bg-blue-600 transition-all duration-500 ease-out"
+                            className="h-full bg-[#1D4ED8] transition-all duration-500 ease-out"
                             style={{ width: `${(step / 4) * 100}%` }}
                         />
                     </div>
@@ -394,30 +394,30 @@ export default function CreateListingPage() {
                         {/* STEP 1: BASICS */}
                         {step === 1 && (
                             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                                <h1 className="text-2xl font-bold text-gray-900">What are you listing?</h1>
+                                <h1 className="text-2xl font-bold text-[#0F172A]">What are you listing?</h1>
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <button
                                         onClick={() => setFormData({ ...formData, type: 'PHYSICAL' })}
                                         className={`p-6 rounded-xl border-2 text-left transition-all ${formData.type === 'PHYSICAL'
-                                            ? 'border-blue-600 bg-blue-50 ring-1 ring-blue-600'
+                                            ? 'border-[#2563EB] bg-[#EFF6FF] ring-1 ring-[#2563EB]'
                                             : 'border-gray-200 hover:border-blue-400 hover:bg-gray-50'
                                             }`}
                                     >
                                         <span className="text-3xl mb-3 block">📦</span>
-                                        <h3 className="font-bold text-gray-900">Product</h3>
+                                        <h3 className="font-bold text-[#0F172A]">Product</h3>
                                         <p className="text-sm text-gray-500 mt-1">Gadgets, Clothes, Cars...</p>
                                     </button>
 
                                     <button
                                         onClick={() => setFormData({ ...formData, type: 'SERVICE' })}
                                         className={`p-6 rounded-xl border-2 text-left transition-all ${formData.type === 'SERVICE'
-                                            ? 'border-blue-600 bg-blue-50 ring-1 ring-blue-600'
+                                            ? 'border-[#2563EB] bg-[#EFF6FF] ring-1 ring-[#2563EB]'
                                             : 'border-gray-200 hover:border-blue-400 hover:bg-gray-50'
                                             }`}
                                     >
                                         <span className="text-3xl mb-3 block">🛠️</span>
-                                        <h3 className="font-bold text-gray-900">Service</h3>
+                                        <h3 className="font-bold text-[#0F172A]">Service</h3>
                                         <p className="text-sm text-gray-500 mt-1">Plumbing, Design, Lessons...</p>
                                     </button>
                                 </div>
@@ -427,7 +427,7 @@ export default function CreateListingPage() {
                                     <select
                                         value={formData.categoryId}
                                         onChange={(e) => setFormData({ ...formData, categoryId: parseInt(e.target.value) })}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#2563EB] focus:border-transparent bg-white text-[#0F172A]"
                                     >
                                         <option value={0}>Select a category</option>
                                         {categories.map(category => (
@@ -442,7 +442,7 @@ export default function CreateListingPage() {
                         {/* STEP 2: DETAILS */}
                         {step === 2 && (
                             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                                <h1 className="text-2xl font-bold text-gray-900">Describe your item</h1>
+                                <h1 className="text-2xl font-bold text-[#0F172A]">Describe your item</h1>
 
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-2">Title</label>
@@ -451,7 +451,7 @@ export default function CreateListingPage() {
                                         value={formData.title}
                                         onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                                         placeholder="e.g. iPhone 13 Pro Max - 256GB"
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#2563EB]"
                                     />
                                     {validationErrors.title && <p className="text-red-500 text-sm mt-1">{validationErrors.title}</p>}
                                 </div>
@@ -463,7 +463,7 @@ export default function CreateListingPage() {
                                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                         rows={4}
                                         placeholder="Add details about condition, features, specific flaws, etc."
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 resize-none"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#2563EB] resize-none"
                                     />
                                 </div>
 
@@ -474,7 +474,7 @@ export default function CreateListingPage() {
                                             <select
                                                 value={formData.condition}
                                                 onChange={(e) => setFormData({ ...formData, condition: e.target.value })}
-                                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white"
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#2563EB] bg-white"
                                             >
                                                 <option value="used">Used</option>
                                                 <option value="new">New</option>
@@ -505,7 +505,7 @@ export default function CreateListingPage() {
                                                     onBlur={() => {
                                                         if (formData.quantity < 1) setFormData({ ...formData, quantity: 1 });
                                                     }}
-                                                    className="flex-1 text-center py-3 text-lg font-bold text-gray-900 border-x border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset bg-white min-w-0"
+                                                    className="flex-1 text-center py-3 text-lg font-bold text-gray-900 border-x border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:ring-inset bg-white min-w-0"
                                                 />
                                                 <button
                                                     type="button"
@@ -521,15 +521,15 @@ export default function CreateListingPage() {
 
                                 {/* Availability Toggle for Services */}
                                 {formData.type === 'SERVICE' && (
-                                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                                    <div className="p-4 bg-[#EFF6FF] border border-[#BFDBFE] rounded-xl">
                                         <div className="flex justify-between items-center">
                                             <div>
-                                                <h3 className="font-bold text-gray-900">Available for Booking</h3>
+                                                <h3 className="font-bold text-[#0F172A]">Available for Booking</h3>
                                                 <p className="text-xs text-gray-600 mt-1">Toggle off when you're fully booked or unavailable</p>
                                             </div>
                                             <div
                                                 onClick={() => setFormData(p => ({ ...p, isAvailable: !p.isAvailable }))}
-                                                className={`w-12 h-6 rounded-full p-1 cursor-pointer transition-colors ${formData.isAvailable ? 'bg-green-500' : 'bg-gray-300'}`}
+                                                className={`w-12 h-6 rounded-full p-1 cursor-pointer transition-colors ${formData.isAvailable ? 'bg-[#22C55E]' : 'bg-gray-300'}`}
                                             >
                                                 <div className={`bg-white w-4 h-4 rounded-full shadow-sm transition-transform ${formData.isAvailable ? 'translate-x-6' : 'translate-x-0'}`} />
                                             </div>
@@ -542,7 +542,7 @@ export default function CreateListingPage() {
                         {/* STEP 3: MEDIA */}
                         {step === 3 && (
                             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                                <h1 className="text-2xl font-bold text-gray-900">Add Photos & Video</h1>
+                                <h1 className="text-2xl font-bold text-[#0F172A]">Add Photos & Video</h1>
                                 <p className="text-gray-500 text-sm">Clear photos increase your chances of selling.</p>
 
                                 <div>
@@ -560,7 +560,7 @@ export default function CreateListingPage() {
                                         ))}
 
                                         {images.length < 3 && (
-                                            <label className="aspect-square rounded-xl border-2 border-dashed border-gray-300 hover:border-blue-500 hover:bg-blue-50 transition-colors flex flex-col items-center justify-center cursor-pointer">
+                                            <label className="aspect-square rounded-xl border-2 border-dashed border-gray-300 hover:border-[#3B82F6] hover:bg-[#EFF6FF] transition-colors flex flex-col items-center justify-center cursor-pointer">
                                                 <svg className="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
                                                 <span className="text-xs font-semibold text-gray-600">Add Image</span>
                                                 <input type="file" onChange={handleImageChange} accept="image/*" className="hidden" />
@@ -596,13 +596,13 @@ export default function CreateListingPage() {
                         {/* STEP 4: PRICING */}
                         {step === 4 && (
                             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                                <h1 className="text-2xl font-bold text-gray-900">Price & Payment</h1>
+                                <h1 className="text-2xl font-bold text-[#0F172A]">Price & Payment</h1>
 
                                 <div className="p-4 bg-orange-50 border border-orange-200 rounded-xl flex items-start gap-4">
                                     <div className="pt-1"><span className="text-xl">🔥</span></div>
                                     <div className="flex-1">
                                         <div className="flex justify-between items-center">
-                                            <h3 className="font-bold text-gray-900">Distress Sale?</h3>
+                                            <h3 className="font-bold text-[#0F172A]">Distress Sale?</h3>
                                             <div onClick={() => setFormData(p => ({ ...p, isDistressSale: !p.isDistressSale }))} className={`w-12 h-6 rounded-full p-1 cursor-pointer transition-colors ${formData.isDistressSale ? 'bg-orange-500' : 'bg-gray-300'}`}>
                                                 <div className={`bg-white w-4 h-4 rounded-full shadow-sm transition-transform ${formData.isDistressSale ? 'translate-x-6' : 'translate-x-0'}`} />
                                             </div>
@@ -619,7 +619,7 @@ export default function CreateListingPage() {
                                             placeholder="0.00"
                                             value={formData.priceCents}
                                             onChange={(e) => setFormData({ ...formData, priceCents: e.target.value })}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#2563EB]"
                                         />
                                     </div>
                                     <div>
@@ -627,7 +627,7 @@ export default function CreateListingPage() {
                                         <select
                                             value={formData.currency}
                                             onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-white"
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#2563EB] bg-white"
                                         >
                                             {Object.entries(getGroupedCurrencies()).map(([group, currencies]) => (
                                                 <optgroup label={group} key={group}>
@@ -754,7 +754,7 @@ export default function CreateListingPage() {
                         {step > 1 ? (
                             <button
                                 onClick={prevStep}
-                                className="px-6 py-3 text-gray-600 font-bold hover:text-gray-900"
+                                className="px-6 py-3 text-gray-600 font-bold hover:text-[#0F172A]"
                             >
                                 Back
                             </button>
@@ -767,7 +767,7 @@ export default function CreateListingPage() {
                             disabled={loading}
                             className={`px-8 py-3 rounded-xl font-bold text-white shadow-lg transition-transform hover:-translate-y-0.5 ${loading
                                 ? 'bg-gray-400 cursor-not-allowed'
-                                : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-blue-200'
+                                : 'bg-[#1D4ED8] hover:shadow-blue-200'
                                 }`}
                         >
                             {loading ? 'Creating...' : step === 4 ? 'Publish Listing' : 'Next Step'}

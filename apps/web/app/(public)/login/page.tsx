@@ -269,7 +269,7 @@ export default function LoginPage() {
               </span>
             </Link>
 
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Welcome back</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-[#0F172A]">Welcome back</h1>
             <p className="mt-1.5 text-xs text-slate-500">
               Don't have an account?{' '}
               <Link href="/register" className="font-semibold text-[#2563EB] hover:text-[#1D4ED8] hover:underline">
@@ -370,7 +370,7 @@ export default function LoginPage() {
                 <input
                   {...register('rememberMe')}
                   type="checkbox"
-                  className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                  className="h-4 w-4 rounded border-slate-300 text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
                 />
                 <span className="text-xs text-slate-600">Remember me on this device</span>
               </label>

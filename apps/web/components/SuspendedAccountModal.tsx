@@ -69,26 +69,26 @@ export default function SuspendedAccountModal({
                     <div className="mb-5">
                         <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">What you can still do</p>
                         <div className="grid grid-cols-2 gap-2">
-                            <div className="flex items-center gap-2 bg-green-50 text-green-800 text-xs font-medium px-3 py-2 rounded-lg">
-                                <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="flex items-center gap-2 bg-[#F0FDF4] text-[#14532D] text-xs font-medium px-3 py-2 rounded-lg">
+                                <svg className="w-4 h-4 text-[#16A34A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
                                 Browse listings
                             </div>
-                            <div className="flex items-center gap-2 bg-green-50 text-green-800 text-xs font-medium px-3 py-2 rounded-lg">
-                                <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="flex items-center gap-2 bg-[#F0FDF4] text-[#14532D] text-xs font-medium px-3 py-2 rounded-lg">
+                                <svg className="w-4 h-4 text-[#16A34A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
                                 View profiles
                             </div>
-                            <div className="flex items-center gap-2 bg-green-50 text-green-800 text-xs font-medium px-3 py-2 rounded-lg">
-                                <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="flex items-center gap-2 bg-[#F0FDF4] text-[#14532D] text-xs font-medium px-3 py-2 rounded-lg">
+                                <svg className="w-4 h-4 text-[#16A34A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
                                 Notifications
                             </div>
-                            <div className="flex items-center gap-2 bg-blue-50 text-blue-800 text-xs font-medium px-3 py-2 rounded-lg">
-                                <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="flex items-center gap-2 bg-[#EFF6FF] text-[#1E40AF] text-xs font-medium px-3 py-2 rounded-lg">
+                                <svg className="w-4 h-4 text-[#2563EB]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
                                 Submit appeal

@@ -197,7 +197,7 @@ export default function ListingCard({ listing: initialListing }: ListingCardProp
                 allowBarter: listing.allowBarter,
                 quantity: listing.quantity || 1,
               }}
-              className="bg-blue-600 text-white p-1.5 rounded-md hover:bg-blue-700 transition-colors shadow-xs"
+              className="bg-[#1D4ED8] text-white p-1.5 rounded-md hover:bg-[#1E40AF] transition-colors shadow-xs"
               iconOnly
             />
           </div>
@@ -207,7 +207,7 @@ export default function ListingCard({ listing: initialListing }: ListingCardProp
       {/* Content Section */}
       <div className="p-3 sm:p-3.5 flex-1 flex flex-col justify-between">
         <div>
-          <h3 className="font-bold text-xs sm:text-sm text-slate-900 line-clamp-2 leading-snug group-hover:text-blue-600 transition-colors">
+          <h3 className="font-bold text-xs sm:text-sm text-slate-900 line-clamp-2 leading-snug group-hover:text-[#2563EB] transition-colors">
             {listing.title}
           </h3>
 
@@ -261,7 +261,7 @@ export default function ListingCard({ listing: initialListing }: ListingCardProp
             </span>
           )}
           {listing.allowBarter && (
-            <span className="text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200/80 px-2 py-0.5 rounded flex items-center gap-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider bg-[#EFF6FF] text-[#1D4ED8] border border-[#BFDBFE]/80 px-2 py-0.5 rounded flex items-center gap-1">
               <Repeat className="w-2.5 h-2.5" />
               Barter
             </span>

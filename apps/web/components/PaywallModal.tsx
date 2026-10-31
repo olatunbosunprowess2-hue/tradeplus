@@ -405,7 +405,7 @@ export function SpotlightModal({
                     prices: { NGN: 500, USD: 199 },
                     icon: <Star className="w-6 h-6 fill-current" />,
                     badge: 'IMPULSE BUY',
-                    badgeColor: 'bg-green-500',
+                    badgeColor: 'bg-[#22C55E]',
                     quickFeatures: ['Top spot', 'Best for quick sales'],
                     detailedBenefits: [
                         "Category-specific featured banner",
@@ -514,7 +514,7 @@ export function FirstChatModal({
                 </div>
                 <div className="p-6 space-y-4">
                     <div className="flex gap-4 items-start">
-                        <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-[#F0FDF4] flex items-center justify-center shrink-0">
                             <ShieldCheck className="w-5 h-5 text-[#16A34A]" />
                         </div>
                         <div>
@@ -532,7 +532,7 @@ export function FirstChatModal({
                         </div>
                     </div>
                     <div className="flex gap-4 items-start">
-                        <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-[#EFF6FF] flex items-center justify-center shrink-0">
                             <Target className="w-5 h-5 text-[#2563EB]" />
                         </div>
                         <div>

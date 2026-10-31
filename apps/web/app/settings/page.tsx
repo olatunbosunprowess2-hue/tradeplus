@@ -87,7 +87,7 @@ export default function SettingsPage() {
 
                 {/* Header */}
                 <div className="mb-6">
-                    <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
+                    <h1 className="text-2xl font-bold text-[#0F172A]">Settings</h1>
                     <p className="text-gray-600">Manage your app preferences</p>
                 </div>
 
@@ -96,12 +96,12 @@ export default function SettingsPage() {
                     {/* Account Section */}
                     <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
                         <div className="px-6 py-4 border-b border-gray-100">
-                            <h2 className="font-bold text-gray-900">Account</h2>
+                            <h2 className="font-bold text-[#0F172A]">Account</h2>
                         </div>
                         <div className="divide-y divide-gray-100">
                             <Link href="/profile" className="flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition">
                                 <div>
-                                    <p className="font-medium text-gray-900">Edit Profile</p>
+                                    <p className="font-medium text-[#0F172A]">Edit Profile</p>
                                     <p className="text-sm text-gray-500">Update your display name and bio</p>
                                 </div>
                                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -114,13 +114,13 @@ export default function SettingsPage() {
                     {/* Security Section */}
                     <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
                         <div className="px-6 py-4 border-b border-gray-100">
-                            <h2 className="font-bold text-gray-900">Security</h2>
+                            <h2 className="font-bold text-[#0F172A]">Security</h2>
                         </div>
                         <div className="px-6 py-4">
                             {/* Password Message */}
                             {passwordMessage && (
                                 <div className={`mb-4 p-3 rounded-xl text-sm font-medium ${passwordMessage.type === 'success'
-                                    ? 'bg-green-50 text-green-700 border border-green-200'
+                                    ? 'bg-[#F0FDF4] text-[#15803D] border border-green-200'
                                     : 'bg-red-50 text-red-700 border border-red-200'
                                     }`}>
                                     {passwordMessage.type === 'success' ? '✅' : '❌'} {passwordMessage.text}
@@ -133,7 +133,7 @@ export default function SettingsPage() {
                                     className="flex items-center justify-between w-full py-2 hover:opacity-80 transition"
                                 >
                                     <div className="text-left">
-                                        <p className="font-medium text-gray-900">Change Password</p>
+                                        <p className="font-medium text-[#0F172A]">Change Password</p>
                                         <p className="text-sm text-gray-500">Update your account password</p>
                                     </div>
                                     <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -149,7 +149,7 @@ export default function SettingsPage() {
                                             value={currentPassword}
                                             onChange={(e) => setCurrentPassword(e.target.value)}
                                             required
-                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-gray-900"
+                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#2563EB] focus:border-[#3B82F6] outline-none transition text-[#0F172A]"
                                             placeholder="Enter current password"
                                         />
                                     </div>
@@ -161,7 +161,7 @@ export default function SettingsPage() {
                                             onChange={(e) => setNewPassword(e.target.value)}
                                             required
                                             minLength={8}
-                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-gray-900"
+                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#2563EB] focus:border-[#3B82F6] outline-none transition text-[#0F172A]"
                                             placeholder="Min 8 characters"
                                         />
                                     </div>
@@ -173,7 +173,7 @@ export default function SettingsPage() {
                                             onChange={(e) => setConfirmPassword(e.target.value)}
                                             required
                                             minLength={8}
-                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-gray-900"
+                                            className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#2563EB] focus:border-[#3B82F6] outline-none transition text-[#0F172A]"
                                             placeholder="Retype new password"
                                         />
                                         {confirmPassword && newPassword !== confirmPassword && (
@@ -184,7 +184,7 @@ export default function SettingsPage() {
                                         <button
                                             type="submit"
                                             disabled={passwordLoading}
-                                            className="flex-1 px-4 py-2.5 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-50 transition"
+                                            className="flex-1 px-4 py-2.5 bg-[#1D4ED8] text-white font-semibold rounded-xl hover:bg-[#1E40AF] disabled:opacity-50 transition"
                                         >
                                             {passwordLoading ? 'Changing...' : 'Change Password'}
                                         </button>
@@ -210,7 +210,7 @@ export default function SettingsPage() {
                     {/* Brand Verification Section */}
                     <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
                         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-                            <h2 className="font-bold text-gray-900">Brand Verification</h2>
+                            <h2 className="font-bold text-[#0F172A]">Brand Verification</h2>
                             {brandStatus === 'VERIFIED_BRAND' && (
                                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-white text-xs font-bold shadow-sm">
                                     <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1l3.09 6.26L22 8.27l-5 4.87 1.18 6.88L12 16.77l-6.18 3.25L7 13.14 2 8.27l6.91-1.01L12 1z" /></svg>
@@ -241,9 +241,9 @@ export default function SettingsPage() {
                                 </div>
                             )}
                             {brandStatus === 'VERIFIED_BRAND' && (
-                                <div className="bg-green-50 rounded-xl p-4">
-                                    <p className="text-sm text-green-800 font-medium mb-1">✅ Your brand is officially verified!</p>
-                                    <p className="text-xs text-green-700">The Gold Badge is displayed on all your listings. Buyers can see you are a trusted, verified brand.</p>
+                                <div className="bg-[#F0FDF4] rounded-xl p-4">
+                                    <p className="text-sm text-[#14532D] font-medium mb-1">✅ Your brand is officially verified!</p>
+                                    <p className="text-xs text-[#15803D]">The Gold Badge is displayed on all your listings. Buyers can see you are a trusted, verified brand.</p>
                                 </div>
                             )}
                             {brandStatus === 'REJECTED' && (
@@ -273,12 +273,12 @@ export default function SettingsPage() {
                     {/* Support Section */}
                     <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
                         <div className="px-6 py-4 border-b border-gray-100">
-                            <h2 className="font-bold text-gray-900">Support</h2>
+                            <h2 className="font-bold text-[#0F172A]">Support</h2>
                         </div>
                         <div className="divide-y divide-gray-100">
                             <Link href="/help" className="flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition">
                                 <div>
-                                    <p className="font-medium text-gray-900">Help Center</p>
+                                    <p className="font-medium text-[#0F172A]">Help Center</p>
                                     <p className="text-sm text-gray-500">FAQs and guides</p>
                                 </div>
                                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -287,7 +287,7 @@ export default function SettingsPage() {
                             </Link>
                             <Link href="/appeals" className="flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition">
                                 <div>
-                                    <p className="font-medium text-gray-900">Submit Appeal</p>
+                                    <p className="font-medium text-[#0F172A]">Submit Appeal</p>
                                     <p className="text-sm text-gray-500">Report issues or disputes</p>
                                 </div>
                                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

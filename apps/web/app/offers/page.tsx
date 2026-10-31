@@ -238,9 +238,9 @@ export default function OffersPage() {
         const element = document.getElementById(`offer-${offerId}`);
         if (element) {
           element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          element.classList.add('ring-2', 'ring-blue-600', 'ring-offset-2');
+          element.classList.add('ring-2', 'ring-[#2563EB]', 'ring-offset-2');
           setTimeout(() => {
-            element.classList.remove('ring-2', 'ring-blue-600', 'ring-offset-2');
+            element.classList.remove('ring-2', 'ring-[#2563EB]', 'ring-offset-2');
           }, 3000);
         }
       }, 500);
@@ -385,7 +385,7 @@ export default function OffersPage() {
             </p>
             <button
               onClick={() => router.push('/my-listings')}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-bold text-xs transition-colors shadow-xs"
+              className="px-4 py-2 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-md font-bold text-xs transition-colors shadow-xs"
             >
               View My Listings
             </button>
@@ -426,7 +426,7 @@ export default function OffersPage() {
             </p>
             <button
               onClick={() => router.push('/')}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-bold text-xs transition-colors shadow-xs"
+              className="px-4 py-2 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-md font-bold text-xs transition-colors shadow-xs"
             >
               Browse Marketplace
             </button>
@@ -464,7 +464,7 @@ export default function OffersPage() {
             </p>
             <button
               onClick={() => router.push('/?tab=community')}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-bold text-xs transition-colors shadow-xs"
+              className="px-4 py-2 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-md font-bold text-xs transition-colors shadow-xs"
             >
               Browse Trade Requests Board
             </button>
@@ -503,7 +503,7 @@ export default function OffersPage() {
                       className="w-12 h-12 rounded-lg object-cover border border-slate-200 shrink-0"
                     />
                   ) : (
-                    <div className="w-12 h-12 rounded-lg bg-blue-50 border border-blue-200 text-blue-700 font-bold text-sm flex items-center justify-center shrink-0">
+                    <div className="w-12 h-12 rounded-lg bg-[#EFF6FF] border border-[#BFDBFE] text-[#1D4ED8] font-bold text-sm flex items-center justify-center shrink-0">
                       {getTraderInitials(otherName)}
                     </div>
                   )}
@@ -515,7 +515,7 @@ export default function OffersPage() {
                         <span
                           className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${
                             isSent
-                              ? 'bg-blue-50 text-blue-700 border-blue-200'
+                              ? 'bg-[#EFF6FF] text-[#1D4ED8] border-[#BFDBFE]'
                               : 'bg-emerald-50 text-emerald-700 border-emerald-200'
                           }`}
                         >
@@ -527,7 +527,7 @@ export default function OffersPage() {
                         {otherPerson.isVerified && (
                           <span
                             title="Verified Identity"
-                            className="p-0.5 rounded bg-blue-50 border border-blue-200 text-blue-600 flex items-center"
+                            className="p-0.5 rounded bg-[#EFF6FF] border border-[#BFDBFE] text-[#2563EB] flex items-center"
                           >
                             <ShieldCheck className="w-3.5 h-3.5" />
                           </span>
@@ -591,7 +591,7 @@ export default function OffersPage() {
                     <div className="flex flex-wrap items-center gap-2.5 mt-3.5">
                       <button
                         onClick={() => router.push(`/messages/${otherPerson.id}`)}
-                        className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-md font-bold text-xs transition-colors shadow-xs"
+                        className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] active:bg-[#1E3A8A] text-white rounded-md font-bold text-xs transition-colors shadow-xs"
                       >
                         <MessageSquare className="w-3.5 h-3.5" />
                         <span>Open Direct Chat</span>
@@ -658,7 +658,7 @@ export default function OffersPage() {
     <div className="min-h-screen bg-slate-50 pb-20">
       {/* Mobile Header */}
       <div className="md:hidden h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4">
-        <h1 className="text-lg font-bold text-slate-900">Trade Offers</h1>
+        <h1 className="text-lg font-bold text-[#0F172A]">Trade Offers</h1>
         <SideMenu />
       </div>
 
@@ -666,11 +666,11 @@ export default function OffersPage() {
       <div className="hidden md:block container mx-auto px-4 max-w-4xl pt-6 pb-2">
         <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
+            <div className="w-10 h-10 rounded-lg bg-[#EFF6FF] border border-[#BFDBFE] flex items-center justify-center text-[#2563EB]">
               <Repeat className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-900">Trade &amp; Swap Offers</h1>
+              <h1 className="text-xl font-bold text-[#0F172A]">Trade &amp; Swap Offers</h1>
               <p className="text-xs text-slate-500 mt-0.5">
                 Manage incoming barter bids, counter-offers, and trade board proposals.
               </p>
@@ -697,7 +697,7 @@ export default function OffersPage() {
                 onClick={() => handleTabChange(tab.id as Tab)}
                 className={`flex-1 min-w-[100px] py-2 px-3 rounded-md font-bold text-xs transition-colors flex items-center justify-center gap-1.5 shrink-0 ${
                   isActive
-                    ? 'bg-blue-600 text-white shadow-2xs'
+                    ? 'bg-[#1D4ED8] text-white shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`}
               >
@@ -706,7 +706,7 @@ export default function OffersPage() {
                 {tab.count > 0 && (
                   <span
                     className={`px-1.5 py-0.2 rounded text-[10px] font-bold ${
-                      isActive ? 'bg-white text-blue-700' : 'bg-slate-100 text-slate-700'
+                      isActive ? 'bg-white text-[#1D4ED8]' : 'bg-slate-100 text-slate-700'
                     }`}
                   >
                     {tab.count}

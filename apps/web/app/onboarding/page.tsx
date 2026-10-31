@@ -82,8 +82,8 @@ export default function OnboardingPage() {
             alt="BarterWave"
             className="w-8 h-8 object-contain group-hover:scale-105 transition-transform"
           />
-          <span className="text-xl font-bold tracking-tight text-slate-900">
-            Barter<span className="text-blue-600">Wave</span>
+          <span className="text-xl font-bold tracking-tight text-[#0F172A]">
+            Barter<span className="text-[#2563EB]">Wave</span>
           </span>
         </Link>
       </div>
@@ -128,7 +128,7 @@ export default function OnboardingPage() {
 
           <button
             onClick={handleFinish}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-4 rounded-md font-bold text-sm transition-colors shadow-xs"
+            className="w-full bg-[#1D4ED8] hover:bg-[#1E40AF] text-white py-2.5 px-4 rounded-md font-bold text-sm transition-colors shadow-xs"
           >
             Continue to Marketplace
           </button>
@@ -154,7 +154,7 @@ export default function OnboardingPage() {
                         isCompleted
                           ? 'border-emerald-600 text-emerald-700'
                           : isCurrent
-                          ? 'border-blue-600 text-blue-700'
+                          ? 'border-[#2563EB] text-[#1D4ED8]'
                           : 'border-transparent text-slate-400'
                       }`}
                     >
@@ -163,7 +163,7 @@ export default function OnboardingPage() {
                           isCompleted
                             ? 'bg-emerald-100 text-emerald-700'
                             : isCurrent
-                            ? 'bg-blue-600 text-white'
+                            ? 'bg-[#1D4ED8] text-white'
                             : 'bg-slate-200 text-slate-500'
                         }`}
                       >
@@ -183,7 +183,7 @@ export default function OnboardingPage() {
             {/* Step 0: Intro */}
             {step === 0 && (
               <div className="text-center">
-                <div className="w-10 h-10 rounded-lg bg-blue-50 border border-blue-200/80 flex items-center justify-center mx-auto mb-4 text-blue-600">
+                <div className="w-10 h-10 rounded-lg bg-[#EFF6FF] border border-[#BFDBFE]/80 flex items-center justify-center mx-auto mb-4 text-[#2563EB]">
                   <ShieldCheck className="w-5 h-5" />
                 </div>
 
@@ -236,7 +236,7 @@ export default function OnboardingPage() {
 
                 <button
                   onClick={handleNext}
-                  className="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white py-2.5 px-4 rounded-md font-bold text-sm transition-colors shadow-xs"
+                  className="w-full bg-[#1D4ED8] hover:bg-[#1E40AF] active:bg-[#1E3A8A] text-white py-2.5 px-4 rounded-md font-bold text-sm transition-colors shadow-xs"
                 >
                   Start Verification
                 </button>

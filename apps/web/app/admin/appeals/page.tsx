@@ -70,7 +70,7 @@ export default function AdminAppealsPage() {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-gray-900">Appeals Management</h1>
+                <h1 className="text-2xl font-bold text-[#0F172A]">Appeals Management</h1>
             </div>
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -113,12 +113,12 @@ export default function AdminAppealsPage() {
                                                     </div>
                                                 )}
                                                 <div>
-                                                    <p className="text-sm font-medium text-gray-900">
+                                                    <p className="text-sm font-medium text-[#0F172A]">
                                                         {appeal.user?.profile?.displayName || appeal.user?.email || 'Unknown User'}
                                                     </p>
                                                     <span className={`text-xs px-1.5 py-0.5 rounded ${appeal.user?.status === 'suspended' ? 'bg-red-100 text-red-800' :
                                                         appeal.user?.status === 'banned' ? 'bg-gray-800 text-white' :
-                                                            'bg-green-100 text-green-800'
+                                                            'bg-[#DCFCE7] text-[#14532D]'
                                                         }`}>
                                                         {appeal.user?.status || 'unknown'}
                                                     </span>
@@ -133,7 +133,7 @@ export default function AdminAppealsPage() {
                                         </td>
                                         <td className="px-6 py-4 text-sm">
                                             {appeal.evidenceImages && appeal.evidenceImages.length > 0 ? (
-                                                <span className="text-blue-600 font-medium">
+                                                <span className="text-[#2563EB] font-medium">
                                                     {appeal.evidenceImages.length} images
                                                 </span>
                                             ) : (
@@ -141,7 +141,7 @@ export default function AdminAppealsPage() {
                                             )}
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className={`px-2 py-1 rounded-full text-xs font-bold capitalize ${appeal.status === 'approved' ? 'bg-green-100 text-green-800' :
+                                            <span className={`px-2 py-1 rounded-full text-xs font-bold capitalize ${appeal.status === 'approved' ? 'bg-[#DCFCE7] text-[#14532D]' :
                                                 appeal.status === 'rejected' ? 'bg-red-100 text-red-800' :
                                                     'bg-yellow-100 text-yellow-800'
                                                 }`}>
@@ -162,7 +162,7 @@ export default function AdminAppealsPage() {
                                                     </button>
                                                     <button
                                                         onClick={() => openReviewModal(appeal, 'approved')}
-                                                        className="px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded hover:bg-green-700"
+                                                        className="px-3 py-1.5 bg-[#16A34A] text-white text-xs font-medium rounded hover:bg-[#15803D]"
                                                     >
                                                         Approve
                                                     </button>
@@ -218,7 +218,7 @@ export default function AdminAppealsPage() {
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-2xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
                         <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-xl font-bold text-gray-900">
+                            <h3 className="text-xl font-bold text-[#0F172A]">
                                 {reviewAction === 'view' ? 'Appeal Details' : (reviewAction === 'approved' ? 'Approve Appeal' : 'Reject Appeal')}
                             </h3>
                             <button
@@ -268,7 +268,7 @@ export default function AdminAppealsPage() {
                                         value={adminMessage}
                                         onChange={(e) => setAdminMessage(e.target.value)}
                                         placeholder="Enter a personalized response..."
-                                        className="w-full p-3 border border-gray-300 rounded-lg text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        className="w-full p-3 border border-gray-300 rounded-lg text-sm resize-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent"
                                         rows={4}
                                     />
                                 </div>
@@ -290,7 +290,7 @@ export default function AdminAppealsPage() {
                                     onClick={handleReviewSubmit}
                                     disabled={actionLoading}
                                     className={`flex-1 px-4 py-2 text-white rounded-lg font-medium ${reviewAction === 'approved'
-                                        ? 'bg-green-600 hover:bg-green-700'
+                                        ? 'bg-[#16A34A] hover:bg-[#15803D]'
                                         : 'bg-red-600 hover:bg-red-700'
                                         } disabled:opacity-50`}
                                 >

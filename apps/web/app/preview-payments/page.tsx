@@ -61,7 +61,7 @@ export default function PreviewPaymentsPage() {
 
         <Link
           href="/"
-          className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-md border border-slate-700 transition-colors shrink-0 flex items-center gap-1.5 self-start sm:self-auto"
+          className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 transition-colors shrink-0 flex items-center gap-1.5 self-start sm:self-auto"
         >
           <span>← Back to Marketplace</span>
         </Link>
@@ -70,13 +70,13 @@ export default function PreviewPaymentsPage() {
       {/* 1. Modal Trigger Directory Grid */}
       <div className="max-w-6xl mx-auto mb-16">
         <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
-          <Layers className="w-4 h-4 text-blue-400" />
+          <Layers className="w-4 h-4 text-[#60A5FA]" />
           <span>Interactive Modal Triggers (Click to Launch Exact Live Modal)</span>
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {/* Card 1: Listing Spotlight */}
-          <div className="bg-slate-900/80 border border-slate-800 rounded-lg p-5 flex flex-col justify-between hover:border-slate-700 transition-all">
+          <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-5 flex flex-col justify-between hover:border-slate-700 transition-all">
             <div>
               <div className="flex items-center justify-between mb-3">
                 <span className="px-1.5 py-0.5 bg-amber-500/10 text-amber-400 border border-amber-500/30 rounded text-[9px] font-bold uppercase tracking-wider">
@@ -94,7 +94,7 @@ export default function PreviewPaymentsPage() {
             </div>
             <button
               onClick={() => setActiveModal('spotlight')}
-              className="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded transition-colors flex items-center justify-center gap-1.5"
+              className="w-full py-2 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white font-bold text-xs rounded transition-colors flex items-center justify-center gap-1.5"
             >
               <span>Test Spotlight Modal</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -102,7 +102,7 @@ export default function PreviewPaymentsPage() {
           </div>
 
           {/* Card 2: Distress Boost */}
-          <div className="bg-slate-900/80 border border-slate-800 rounded-lg p-5 flex flex-col justify-between hover:border-slate-700 transition-all">
+          <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-5 flex flex-col justify-between hover:border-slate-700 transition-all">
             <div>
               <div className="flex items-center justify-between mb-3">
                 <span className="px-1.5 py-0.5 bg-orange-500/10 text-orange-400 border border-orange-500/30 rounded text-[9px] font-bold uppercase tracking-wider">
@@ -128,7 +128,7 @@ export default function PreviewPaymentsPage() {
           </div>
 
           {/* Card 3: Chat Limit */}
-          <div className="bg-slate-900/80 border border-slate-800 rounded-lg p-5 flex flex-col justify-between hover:border-slate-700 transition-all">
+          <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-5 flex flex-col justify-between hover:border-slate-700 transition-all">
             <div>
               <div className="flex items-center justify-between mb-3">
                 <span className="px-1.5 py-0.5 bg-purple-500/10 text-purple-400 border border-purple-500/30 rounded text-[9px] font-bold uppercase tracking-wider">
@@ -154,7 +154,7 @@ export default function PreviewPaymentsPage() {
           </div>
 
           {/* Card 4: Post Limit */}
-          <div className="bg-slate-900/80 border border-slate-800 rounded-lg p-5 flex flex-col justify-between hover:border-slate-700 transition-all">
+          <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-5 flex flex-col justify-between hover:border-slate-700 transition-all">
             <div>
               <div className="flex items-center justify-between mb-3">
                 <span className="px-1.5 py-0.5 bg-slate-500/10 text-slate-400 border border-slate-500/30 rounded text-[9px] font-bold uppercase tracking-wider">
@@ -163,7 +163,7 @@ export default function PreviewPaymentsPage() {
                 <span className="text-xs font-bold text-slate-300">50 Posts Max</span>
               </div>
               <h3 className="text-base font-bold text-white mb-1 flex items-center gap-1.5">
-                <Package className="w-4 h-4 text-blue-400 shrink-0" />
+                <Package className="w-4 h-4 text-[#60A5FA] shrink-0" />
                 <span>Daily Post Limit Modal</span>
               </h3>
               <p className="text-xs text-slate-400 leading-relaxed mb-4">
@@ -180,7 +180,7 @@ export default function PreviewPaymentsPage() {
           </div>
 
           {/* Card 5: Offer Limit */}
-          <div className="bg-slate-900/80 border border-slate-800 rounded-lg p-5 flex flex-col justify-between hover:border-slate-700 transition-all">
+          <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-5 flex flex-col justify-between hover:border-slate-700 transition-all">
             <div>
               <div className="flex items-center justify-between mb-3">
                 <span className="px-1.5 py-0.5 bg-rose-500/10 text-rose-400 border border-rose-500/30 rounded text-[9px] font-bold uppercase tracking-wider">
@@ -206,16 +206,16 @@ export default function PreviewPaymentsPage() {
           </div>
 
           {/* Card 6: First Chat Safety */}
-          <div className="bg-slate-900/80 border border-slate-800 rounded-lg p-5 flex flex-col justify-between hover:border-slate-700 transition-all">
+          <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-5 flex flex-col justify-between hover:border-slate-700 transition-all">
             <div>
               <div className="flex items-center justify-between mb-3">
-                <span className="px-1.5 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded text-[9px] font-bold uppercase tracking-wider">
+                <span className="px-1.5 py-0.5 bg-emerald-500/10 text-[#4ADE80] border border-emerald-500/30 rounded text-[9px] font-bold uppercase tracking-wider">
                   SAFETY ONBOARDING
                 </span>
-                <span className="text-xs font-bold text-emerald-400">1-Time Popup</span>
+                <span className="text-xs font-bold text-[#4ADE80]">1-Time Popup</span>
               </div>
               <h3 className="text-base font-bold text-white mb-1 flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+                <ShieldCheck className="w-4 h-4 text-[#4ADE80] shrink-0" />
                 <span>First-Chat Safety Modal</span>
               </h3>
               <p className="text-xs text-slate-400 leading-relaxed mb-4">
@@ -224,7 +224,7 @@ export default function PreviewPaymentsPage() {
             </div>
             <button
               onClick={() => setActiveModal('first_chat')}
-              className="w-full py-2 bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs rounded transition-colors flex items-center justify-center gap-1.5"
+              className="w-full py-2 bg-emerald-700 hover:bg-[#16A34A] text-white font-bold text-xs rounded transition-colors flex items-center justify-center gap-1.5"
             >
               <span>Test Safety Modal</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -251,7 +251,7 @@ export default function PreviewPaymentsPage() {
             <button
               onClick={() => setSelectedCurrency('NGN')}
               className={`px-3 py-1 text-xs font-bold rounded transition-colors ${
-                selectedCurrency === 'NGN' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
+                selectedCurrency === 'NGN' ? 'bg-[#1D4ED8] text-white' : 'text-slate-400 hover:text-white'
               }`}
             >
               🇳🇬 NGN (₦)
@@ -259,7 +259,7 @@ export default function PreviewPaymentsPage() {
             <button
               onClick={() => setSelectedCurrency('USD')}
               className={`px-3 py-1 text-xs font-bold rounded transition-colors ${
-                selectedCurrency === 'USD' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
+                selectedCurrency === 'USD' ? 'bg-[#1D4ED8] text-white' : 'text-slate-400 hover:text-white'
               }`}
             >
               🇺🇸 USD ($)
@@ -272,7 +272,7 @@ export default function PreviewPaymentsPage() {
           {/* Tier 1: 3-Day Spotlight */}
           <div
             onClick={() => setSelectedPlan('spotlight_3')}
-            className={`border rounded-lg p-6 flex flex-col justify-between transition-all cursor-pointer ${
+            className={`border rounded-xl p-6 flex flex-col justify-between transition-all cursor-pointer ${
               selectedPlan === 'spotlight_3'
                 ? 'bg-slate-900 border-blue-500 shadow-lg shadow-blue-900/20 ring-1 ring-blue-500'
                 : 'bg-slate-900/50 border-slate-800 hover:border-slate-700'
@@ -280,7 +280,7 @@ export default function PreviewPaymentsPage() {
           >
             <div>
               <div className="flex items-center justify-between mb-3">
-                <span className="px-1.5 py-0.5 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded text-[9px] font-bold uppercase tracking-wider">
+                <span className="px-1.5 py-0.5 bg-emerald-950 text-[#4ADE80] border border-emerald-800 rounded text-[9px] font-bold uppercase tracking-wider">
                   IMPULSE BUY
                 </span>
                 <span className="text-[11px] text-slate-400 font-semibold">3 Days Run</span>
@@ -300,15 +300,15 @@ export default function PreviewPaymentsPage() {
 
               <div className="space-y-2.5 pt-4 border-t border-slate-800 text-xs text-slate-300">
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-blue-400 shrink-0" />
+                  <Check className="w-4 h-4 text-[#60A5FA] shrink-0" />
                   <span>Category-specific featured top slot</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-blue-400 shrink-0" />
+                  <Check className="w-4 h-4 text-[#60A5FA] shrink-0" />
                   <span>3x more clicks than regular ads</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-blue-400 shrink-0" />
+                  <Check className="w-4 h-4 text-[#60A5FA] shrink-0" />
                   <span>Instant Paystack card / transfer pay</span>
                 </div>
               </div>
@@ -325,7 +325,7 @@ export default function PreviewPaymentsPage() {
           {/* Tier 2: 7-Day Spotlight (Recommended / Most Popular) */}
           <div
             onClick={() => setSelectedPlan('spotlight_7')}
-            className={`border rounded-lg p-6 flex flex-col justify-between transition-all cursor-pointer relative ${
+            className={`border rounded-xl p-6 flex flex-col justify-between transition-all cursor-pointer relative ${
               selectedPlan === 'spotlight_7'
                 ? 'bg-slate-900 border-blue-500 shadow-xl shadow-blue-900/30 ring-2 ring-blue-500'
                 : 'bg-slate-900/80 border-slate-700 hover:border-slate-600'
@@ -333,13 +333,13 @@ export default function PreviewPaymentsPage() {
           >
             <div>
               <div className="flex items-center justify-between mb-3">
-                <span className="px-1.5 py-0.5 bg-blue-600 text-white rounded text-[9px] font-bold uppercase tracking-wider">
+                <span className="px-1.5 py-0.5 bg-[#1D4ED8] text-white rounded text-[9px] font-bold uppercase tracking-wider">
                   ★ MOST POPULAR
                 </span>
-                <span className="text-[11px] text-blue-400 font-bold">Best For Cars & Phones</span>
+                <span className="text-[11px] text-[#60A5FA] font-bold">Best For Cars & Phones</span>
               </div>
               <h3 className="text-lg font-bold text-white mb-1 flex items-center gap-1.5">
-                <TrendingUp className="w-4 h-4 text-blue-400" />
+                <TrendingUp className="w-4 h-4 text-[#60A5FA]" />
                 <span>Spotlight (7 Days)</span>
               </h3>
               <p className="text-xs text-slate-400 mb-5">Own the homepage and category carousel for an entire week.</p>
@@ -349,7 +349,7 @@ export default function PreviewPaymentsPage() {
                   <span className="text-sm text-slate-500 line-through font-bold">
                     {formatPrice(4000, 1299)}
                   </span>
-                  <span className="px-1.5 py-0.2 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded text-[9px] font-bold">
+                  <span className="px-1.5 py-0.2 bg-emerald-950 text-[#4ADE80] border border-emerald-800 rounded text-[9px] font-bold">
                     SAVE 70%
                   </span>
                 </div>
@@ -363,19 +363,19 @@ export default function PreviewPaymentsPage() {
 
               <div className="space-y-2.5 pt-4 border-t border-slate-800 text-xs text-slate-300">
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-blue-400 shrink-0" />
+                  <Check className="w-4 h-4 text-[#60A5FA] shrink-0" />
                   <span>Fixed homepage rotating carousel</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-blue-400 shrink-0" />
+                  <Check className="w-4 h-4 text-[#60A5FA] shrink-0" />
                   <span>Verified Featured Listing badge</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-blue-400 shrink-0" />
+                  <Check className="w-4 h-4 text-[#60A5FA] shrink-0" />
                   <span>5x more inquiries & offers</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-blue-400 shrink-0" />
+                  <Check className="w-4 h-4 text-[#60A5FA] shrink-0" />
                   <span>Days stack if renewed</span>
                 </div>
               </div>
@@ -383,7 +383,7 @@ export default function PreviewPaymentsPage() {
 
             <button
               onClick={() => handleSelectOption('spotlight_7', selectedCurrency)}
-              className="mt-6 w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded transition-colors shadow-sm"
+              className="mt-6 w-full py-2.5 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white font-bold text-xs rounded transition-colors shadow-sm"
             >
               Select 7-Day Pass
             </button>
@@ -392,7 +392,7 @@ export default function PreviewPaymentsPage() {
           {/* Tier 3: Empire Status (Monthly Subscription) */}
           <div
             onClick={() => setSelectedPlan('premium')}
-            className={`border rounded-lg p-6 flex flex-col justify-between transition-all cursor-pointer ${
+            className={`border rounded-xl p-6 flex flex-col justify-between transition-all cursor-pointer ${
               selectedPlan === 'premium'
                 ? 'bg-slate-900 border-amber-500 shadow-xl shadow-amber-900/20 ring-1 ring-amber-500'
                 : 'bg-slate-900/50 border-slate-800 hover:border-slate-700'

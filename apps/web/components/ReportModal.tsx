@@ -150,7 +150,7 @@ export default function ReportModal({ isOpen, onClose, listingId, reportedUserId
                         <select
                             value={reason}
                             onChange={(e) => setReason(e.target.value)}
-                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 text-gray-900 font-medium bg-white transition-colors"
+                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] text-gray-900 font-medium bg-white transition-colors"
                         >
                             <option value="Spam">Spam</option>
                             <option value="Fraud">Fraud / Scam</option>
@@ -167,7 +167,7 @@ export default function ReportModal({ isOpen, onClose, listingId, reportedUserId
                             onChange={(e) => setDescription(e.target.value)}
                             required
                             rows={4}
-                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 resize-none text-gray-900 font-medium placeholder:text-gray-400 bg-white transition-colors"
+                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] resize-none text-gray-900 font-medium placeholder:text-gray-400 bg-white transition-colors"
                             placeholder="Please provide more details about the issue..."
                         />
                     </div>
@@ -189,7 +189,7 @@ export default function ReportModal({ isOpen, onClose, listingId, reportedUserId
                             ))}
 
                             {images.length < 3 && (
-                                <label className="aspect-square border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-600 hover:bg-blue-50 transition">
+                                <label className="aspect-square border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#2563EB] hover:bg-[#EFF6FF] transition">
                                     <svg className="w-6 h-6 text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                                     </svg>

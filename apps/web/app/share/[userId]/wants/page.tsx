@@ -45,7 +45,7 @@ export default function PublicWantsPage() {
                 <div className="text-center">
                     <h1 className="text-2xl font-bold text-gray-900 mb-2">Oops!</h1>
                     <p className="text-gray-600 mb-6">{error}</p>
-                    <Link href="/" className="text-blue-600 hover:underline">
+                    <Link href="/" className="text-[#2563EB] hover:underline">
                         Go to Home
                     </Link>
                 </div>
@@ -60,7 +60,7 @@ export default function PublicWantsPage() {
         <div className="min-h-screen bg-gray-50 pb-20">
             <div className="bg-white shadow-sm border-b border-gray-200 mb-8">
                 <div className="container mx-auto px-4 py-4 flex justify-between items-center max-w-7xl">
-                    <Link href="/" className="text-2xl font-extrabold text-blue-600 tracking-tight">
+                    <Link href="/" className="text-2xl font-extrabold text-[#2563EB] tracking-tight">
                         BarterWave
                     </Link>
                     <Link href="/register" className="btn-primary text-sm px-4 py-2">

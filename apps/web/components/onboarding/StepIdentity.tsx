@@ -507,7 +507,7 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
 
       {/* Header */}
       <div className="text-center mb-2">
-        <h2 className="text-xl font-bold tracking-tight text-slate-900">Live Face Verification</h2>
+        <h2 className="text-xl font-bold tracking-tight text-[#0F172A]">Live Face Verification</h2>
         <p className="text-xs text-slate-500 mt-1">
           Look directly into the camera in good lighting. Auto-snaps when aligned.
         </p>
@@ -579,7 +579,7 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
               >
                 Retry
               </button>
-              <label className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-bold text-xs transition-colors cursor-pointer flex items-center gap-1.5">
+              <label className="px-4 py-2 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-md font-bold text-xs transition-colors cursor-pointer flex items-center gap-1.5">
                 <Upload className="w-3.5 h-3.5" />
                 <span>Upload File</span>
                 <input
@@ -598,7 +598,7 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
           <div className="relative w-64 h-64 sm:w-72 sm:h-72 flex items-center justify-center z-10">
             {cameraInitializing && (
               <div className="absolute inset-0 z-30 bg-slate-950/90 rounded-full flex flex-col items-center justify-center space-y-2">
-                <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+                <Loader2 className="w-8 h-8 text-[#3B82F6] animate-spin" />
                 <p className="text-slate-300 text-xs font-semibold">Starting biometric sensor...</p>
               </div>
             )}
@@ -650,7 +650,7 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
             {/* Real-time Guidance Pill */}
             <div className="absolute -bottom-3 inset-x-0 mx-auto w-fit z-30">
               {livenessStatus === 'HOLD_STILL' ? (
-                <div className="bg-emerald-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1.5 ring-2 ring-emerald-400/40 animate-pulse">
+                <div className="bg-[#16A34A] text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1.5 ring-2 ring-emerald-400/40 animate-pulse">
                   <ShieldCheck className="w-3.5 h-3.5" />
                   <span>Hold still ({Math.round(holdProgress)}%)</span>
                 </div>
@@ -700,8 +700,8 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
               !cameraReady
                 ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
                 : isHolding
-                ? 'bg-emerald-600 hover:bg-emerald-700 text-white ring-2 ring-emerald-400/40'
-                : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white'
+                ? 'bg-[#16A34A] hover:bg-[#15803D] text-white ring-2 ring-emerald-400/40'
+                : 'bg-[#1D4ED8] hover:bg-[#1E40AF] active:bg-[#1E3A8A] text-white'
             }`}
           >
             <Camera className="w-4 h-4" />
@@ -716,7 +716,7 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
 
           {/* Upload Fallback */}
           <div className="text-center pt-1">
-            <label className="text-xs text-slate-500 hover:text-blue-600 transition cursor-pointer font-medium hover:underline">
+            <label className="text-xs text-slate-500 hover:text-[#2563EB] transition cursor-pointer font-medium hover:underline">
               Upload a clear photo from gallery instead
               <input
                 type="file"
@@ -747,7 +747,7 @@ export default function StepIdentity({ onComplete, onBack }: StepProps) {
           className={`flex-1 py-2.5 rounded-md font-bold text-xs transition-colors shadow-xs flex items-center justify-center gap-2 ${
             loading || !selfie || !qualityPassed
               ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white'
+              : 'bg-[#1D4ED8] hover:bg-[#1E40AF] active:bg-[#1E3A8A] text-white'
           }`}
         >
           {loading ? (

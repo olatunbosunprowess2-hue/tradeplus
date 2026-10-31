@@ -71,7 +71,7 @@ const shortcutItems: CategoryShortcutItem[] = [
     slug: 'brand-apply',
     image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=160&auto=format&fit=crop&q=80',
     badge: 'OFFICIAL',
-    badgeColor: 'bg-blue-600 text-white',
+    badgeColor: 'bg-[#1D4ED8] text-white',
     isSpecial: 'brand',
   },
   {
@@ -187,7 +187,7 @@ export default function CategoryShortcutBar() {
               <button
                 type="button"
                 onClick={() => setIsModalOpen(true)}
-                className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1 text-xs font-bold text-[#2563EB] hover:text-[#1D4ED8] transition-colors cursor-pointer"
               >
                 <span>View All</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -246,7 +246,7 @@ export default function CategoryShortcutBar() {
                   <div
                     className={`relative w-12 h-12 sm:w-14 sm:h-14 rounded-lg border overflow-hidden flex items-center justify-center transition-all shadow-2xs group-hover:scale-105 ${
                       isSelected
-                        ? 'border-blue-600 ring-2 ring-blue-600/30'
+                        ? 'border-[#2563EB] ring-2 ring-[#2563EB]/30'
                         : 'border-slate-200 group-hover:border-blue-300'
                     }`}
                   >
@@ -271,8 +271,8 @@ export default function CategoryShortcutBar() {
                   <span
                     className={`text-[11px] font-semibold leading-tight line-clamp-2 transition-colors ${
                       isSelected
-                        ? 'text-blue-600 font-bold'
-                        : 'text-slate-700 group-hover:text-blue-600'
+                        ? 'text-[#2563EB] font-bold'
+                        : 'text-slate-700 group-hover:text-[#2563EB]'
                     }`}
                   >
                     {item.name}

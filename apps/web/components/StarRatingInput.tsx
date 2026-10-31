@@ -28,7 +28,7 @@ export default function StarRatingInput({ value, onChange, size = 'lg' }: StarRa
                     onClick={() => onChange(rating)}
                     onMouseEnter={() => setHoverRating(rating)}
                     onMouseLeave={() => setHoverRating(0)}
-                    className="transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+                    className="transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-[#2563EB] rounded"
                 >
                     <svg
                         className={`${sizeClasses[size]} ${rating <= displayRating

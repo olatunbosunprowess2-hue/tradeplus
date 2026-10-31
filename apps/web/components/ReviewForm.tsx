@@ -65,7 +65,7 @@ export default function ReviewForm({ orderId, onSuccess }: ReviewFormProps) {
                     onChange={(e) => setComment(e.target.value)}
                     maxLength={1000}
                     rows={4}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:bg-white focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-all duration-200"
                     placeholder="Share your experience with this seller..."
                 />
                 <p className="mt-1 text-sm text-gray-500">
@@ -76,7 +76,7 @@ export default function ReviewForm({ orderId, onSuccess }: ReviewFormProps) {
             <button
                 type="submit"
                 disabled={isSubmitting || rating === 0}
-                className="w-full px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-500-light transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-6 py-3 bg-[#1D4ED8] text-white font-semibold rounded-lg hover:bg-[#1E40AF] focus:ring-4 focus:ring-[#2563EB]-light transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
                 {isSubmitting ? 'Submitting...' : 'Submit Review'}
             </button>

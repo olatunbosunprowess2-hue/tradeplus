@@ -139,8 +139,8 @@ export default function BusinessAddressModal({ isOpen, onClose, onComplete }: Bu
 
                 {/* Header */}
                 <div className="text-center mb-8">
-                    <div className="w-20 h-20 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-inner">
-                        <svg className="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="w-20 h-20 bg-gradient-to-br from-blue-50 to-indigo-50 border border-[#DBEAFE] rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-inner">
+                        <svg className="w-10 h-10 text-[#2563EB]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
@@ -156,10 +156,10 @@ export default function BusinessAddressModal({ isOpen, onClose, onComplete }: Bu
                     {/* Country Display (Locked) */}
                     {activeCountry && (
                         <div className="mb-4">
-                            <div className="flex items-center gap-3 px-4 py-3 bg-blue-50 border border-blue-100 rounded-2xl">
+                            <div className="flex items-center gap-3 px-4 py-3 bg-[#EFF6FF] border border-[#DBEAFE] rounded-2xl">
                                 <span className="text-2xl">📍</span>
                                 <div>
-                                    <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider mb-0.5">Your Business Country</p>
+                                    <p className="text-[10px] font-bold text-[#2563EB] uppercase tracking-wider mb-0.5">Your Business Country</p>
                                     <p className="text-lg font-bold text-gray-900 leading-none">{activeCountry.name}</p>
                                 </div>
                             </div>
@@ -188,7 +188,7 @@ export default function BusinessAddressModal({ isOpen, onClose, onComplete }: Bu
                     <button
                         onClick={handleSave}
                         disabled={loading || !selectedCountryId}
-                        className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-xl shadow-blue-500/25 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-lg"
+                        className="w-full py-4 px-6 rounded-2xl bg-[#1D4ED8] text-white font-bold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-xl shadow-blue-500/25 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-lg"
                     >
                         {loading ? (
                             <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin" />

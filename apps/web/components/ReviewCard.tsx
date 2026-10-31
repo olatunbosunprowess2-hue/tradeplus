@@ -74,7 +74,7 @@ export default function ReviewCard({ review, onUpdate }: ReviewCardProps) {
             <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
                     {/* Avatar */}
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold">
+                    <div className="w-10 h-10 rounded-full bg-[#1D4ED8] flex items-center justify-center text-white font-bold">
                         {reviewerAvatar ? (
                             <img
                                 src={sanitizeUrl(reviewerAvatar)}
@@ -86,7 +86,7 @@ export default function ReviewCard({ review, onUpdate }: ReviewCardProps) {
                         )}
                     </div>
                     <div>
-                        <p className="font-semibold text-gray-900">{reviewerName}</p>
+                        <p className="font-semibold text-[#0F172A]">{reviewerName}</p>
                         <p className="text-sm text-gray-500">{formatDate(review.createdAt)}</p>
                     </div>
                 </div>

@@ -72,7 +72,7 @@ export default function AccountPage() {
             <div className="space-y-2">
               <Link
                 href="/account/seller/new-listing"
-                className="block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition text-center"
+                className="block bg-[#1D4ED8] text-white px-4 py-2 rounded hover:bg-[#1E40AF] transition text-center"
               >
                 Create Listing
               </Link>
@@ -99,7 +99,7 @@ export default function AccountPage() {
             </p>
             <Link
               href="/account/seller/listings"
-              className="text-blue-600 hover:text-blue-700 font-medium"
+              className="text-[#2563EB] hover:text-[#1D4ED8] font-medium"
             >
               View all
             </Link>

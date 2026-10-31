@@ -69,7 +69,7 @@ export default function CategoriesPage() {
         <div className="mb-4">
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-blue-600 transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-[#2563EB] transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Marketplace</span>
@@ -79,7 +79,7 @@ export default function CategoriesPage() {
         {/* Header Hero */}
         <div className="bg-white border border-slate-200 rounded-xl p-5 sm:p-7 shadow-xs mb-6">
           <div className="flex items-center gap-2 mb-2">
-            <LayoutGrid className="w-5 h-5 text-blue-600" />
+            <LayoutGrid className="w-5 h-5 text-[#2563EB]" />
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
               Directory
             </span>
@@ -98,7 +98,7 @@ export default function CategoriesPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search 20+ departments..."
-              className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 focus:bg-white transition-all shadow-2xs"
+              className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] focus:bg-white transition-all shadow-2xs"
             />
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           </div>
@@ -124,13 +124,13 @@ export default function CategoriesPage() {
 
           <Link
             href="/brand-apply"
-            className="bg-blue-50/80 border border-blue-200 hover:border-blue-300 rounded-xl p-4 flex items-center gap-3.5 transition-all shadow-xs group"
+            className="bg-[#EFF6FF]/80 border border-[#BFDBFE] hover:border-blue-300 rounded-xl p-4 flex items-center gap-3.5 transition-all shadow-xs group"
           >
-            <div className="w-12 h-12 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
+            <div className="w-12 h-12 rounded-lg bg-[#1D4ED8] text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
               <Sparkles className="w-6 h-6" />
             </div>
             <div className="flex-1 min-w-0">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-100 border border-blue-200 px-1.5 py-0.2 rounded">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#1D4ED8] bg-[#DBEAFE] border border-[#BFDBFE] px-1.5 py-0.2 rounded">
                 Official Brands
               </span>
               <h3 className="text-sm font-bold text-slate-900 mt-1">Verified Brand Stores</h3>
@@ -169,7 +169,7 @@ export default function CategoriesPage() {
                   <Link
                     key={cat.id}
                     href={`/?categoryId=${cat.id}`}
-                    className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:border-blue-500 hover:bg-blue-50/40 transition-all group"
+                    className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:border-[#3B82F6] hover:bg-[#EFF6FF]/40 transition-all group"
                   >
                     <div className="relative w-12 h-12 rounded-lg overflow-hidden border border-slate-200 shrink-0 shadow-2xs">
                       <img
@@ -179,12 +179,12 @@ export default function CategoriesPage() {
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-xs font-bold text-slate-900 group-hover:text-blue-600 truncate">
+                      <h3 className="text-xs font-bold text-slate-900 group-hover:text-[#2563EB] truncate">
                         {cat.name}
                       </h3>
                       <p className="text-[10px] text-slate-400 mt-0.5">Explore deals →</p>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-blue-600 shrink-0" />
+                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-[#2563EB] shrink-0" />
                   </Link>
                 );
               })}

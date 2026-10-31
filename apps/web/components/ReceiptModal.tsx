@@ -84,17 +84,17 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ isOpen, onClose, offer }) =
                         {/* Header */}
                         <div className="flex justify-between items-center border-b border-dashed border-gray-200 pb-4">
                             <div className="flex items-center gap-2">
-                                <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                                <div className="w-8 h-8 bg-[#16A34A] rounded-full flex items-center justify-center text-white font-bold text-lg">
                                     B
                                 </div>
-                                <span className="font-bold text-xl text-gray-900">BarterWave</span>
+                                <span className="font-bold text-xl text-[#0F172A]">BarterWave</span>
                             </div>
                             <span className="text-sm font-medium text-gray-500">Transaction Receipt</span>
                         </div>
 
                         {/* Status */}
                         <div className="text-center py-4">
-                            <h2 className="text-3xl font-bold text-green-600 mb-1">Trade Successful</h2>
+                            <h2 className="text-3xl font-bold text-[#16A34A] mb-1">Trade Successful</h2>
                             <p className="text-sm text-gray-500">
                                 {offer.receiptGeneratedAt ? format(new Date(offer.receiptGeneratedAt), 'MMM do, yyyy HH:mm:ss') : 'Date N/A'}
                             </p>
@@ -108,21 +108,21 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ isOpen, onClose, offer }) =
                             <div className="flex justify-between">
                                 <span className="text-gray-500">Recipient (Buyer)</span>
                                 <div className="text-right">
-                                    <p className="font-bold text-gray-900">{offer.buyer?.profile?.displayName || offer.buyer?.email || 'Unknown Buyer'}</p>
+                                    <p className="font-bold text-[#0F172A]">{offer.buyer?.profile?.displayName || offer.buyer?.email || 'Unknown Buyer'}</p>
                                     <p className="text-xs text-gray-500">{offer.buyer?.id?.slice(0, 8) || offer.buyerId?.slice(0, 8) || 'N/A'}...</p>
                                 </div>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-gray-500">Sender (Seller)</span>
                                 <div className="text-right">
-                                    <p className="font-bold text-gray-900">{offer.seller?.profile?.displayName || offer.seller?.email || 'Unknown Seller'}</p>
+                                    <p className="font-bold text-[#0F172A]">{offer.seller?.profile?.displayName || offer.seller?.email || 'Unknown Seller'}</p>
                                     <p className="text-xs text-gray-500">{offer.seller?.id?.slice(0, 8) || offer.sellerId?.slice(0, 8) || 'N/A'}...</p>
                                 </div>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-gray-500">Items Swapped</span>
                                 <div className="text-right max-w-[60%]">
-                                    <p className="font-medium text-gray-900">{offer.listing?.title || 'Unknown Listing'}</p>
+                                    <p className="font-medium text-[#0F172A]">{offer.listing?.title || 'Unknown Listing'}</p>
                                     {(offer.items || []).map(item => (
                                         <p key={item.id} className="text-xs text-gray-600">+ {item.offeredListing?.title || 'Unknown Item'}</p>
                                     ))}
@@ -137,7 +137,7 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ isOpen, onClose, offer }) =
                         <div className="space-y-3 text-sm">
                             <div className="flex justify-between">
                                 <span className="text-gray-500">Receipt No.</span>
-                                <span className="font-mono text-gray-900">{offer.receiptNumber}</span>
+                                <span className="font-mono text-[#0F172A]">{offer.receiptNumber}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-gray-500">Session ID</span>
@@ -185,7 +185,7 @@ const ReceiptModal: React.FC<ReceiptModalProps> = ({ isOpen, onClose, offer }) =
                     </button>
                     <button
                         onClick={handleDownload}
-                        className="flex items-center gap-2 px-6 py-2.5 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors shadow-sm"
+                        className="flex items-center gap-2 px-6 py-2.5 bg-[#16A34A] text-white rounded-lg font-medium hover:bg-[#15803D] transition-colors shadow-sm"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />

@@ -104,13 +104,13 @@ export default function NewDisputePage() {
             <div className="container mx-auto max-w-2xl px-4">
                 {/* Header */}
                 <div className="mb-8">
-                    <Link href="/disputes" className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1 mb-4">
+                    <Link href="/disputes" className="text-[#2563EB] hover:text-[#1D4ED8] text-sm font-medium flex items-center gap-1 mb-4">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                         </svg>
                         Back to Disputes
                     </Link>
-                    <h1 className="text-2xl font-bold text-gray-900">File a Dispute</h1>
+                    <h1 className="text-2xl font-bold text-[#0F172A]">File a Dispute</h1>
                     <p className="text-gray-600">Report an issue with a trade or transaction</p>
                 </div>
 
@@ -136,7 +136,7 @@ export default function NewDisputePage() {
                             <select
                                 value={formData.orderId}
                                 onChange={(e) => setFormData({ ...formData, orderId: e.target.value })}
-                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#2563EB] focus:border-[#3B82F6] text-[#0F172A]"
                             >
                                 <option value="">Choose an order...</option>
                                 {orders.map((order) => (
@@ -158,12 +158,12 @@ export default function NewDisputePage() {
                                     type="button"
                                     onClick={() => setFormData({ ...formData, reason: reason.value })}
                                     className={`p-4 border-2 rounded-xl text-left transition ${formData.reason === reason.value
-                                            ? 'border-blue-500 bg-blue-50'
+                                            ? 'border-[#3B82F6] bg-[#EFF6FF]'
                                             : 'border-gray-200 hover:border-gray-300'
                                         }`}
                                 >
                                     <span className="text-xl mr-2">{reason.icon}</span>
-                                    <span className="font-medium text-gray-900">{reason.label}</span>
+                                    <span className="font-medium text-[#0F172A]">{reason.label}</span>
                                 </button>
                             ))}
                         </div>
@@ -179,7 +179,7 @@ export default function NewDisputePage() {
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                             placeholder="Please provide detailed information about what happened..."
                             rows={5}
-                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder:text-gray-400 resize-none"
+                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#2563EB] focus:border-[#3B82F6] text-gray-900 placeholder:text-gray-400 resize-none"
                         />
                         <p className="text-xs text-gray-500 mt-1">
                             {formData.description.length}/2000 characters (min 20)

@@ -68,7 +68,7 @@ export default function DiscoverClient() {
         {/* Categories Section */}
         <div className="mb-12">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Shop by Category</h2>
+            <h2 className="text-2xl font-bold text-[#0F172A]">Shop by Category</h2>
             <Link href="/listings" className="text-sm font-semibold hover:underline" style={{ color: 'var(--color-primary)' }}>
               See All
             </Link>
@@ -90,7 +90,7 @@ export default function DiscoverClient() {
           <div className="mb-12">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <h2 className="text-2xl font-bold text-gray-900">⚡ Flash Deals</h2>
+                <h2 className="text-2xl font-bold text-[#0F172A]">⚡ Flash Deals</h2>
                 <span className="px-3 py-1 rounded-full text-sm font-bold text-white" style={{ backgroundColor: '#FF6B35' }}>
                   Limited Time!
                 </span>

@@ -11,8 +11,8 @@ interface StatsCardProps {
 
 export default function StatsCard({ title, value, icon, trend, color = 'blue' }: StatsCardProps) {
     const colorClasses = {
-        blue: 'bg-blue-50 text-blue-600',
-        green: 'bg-green-100 text-green-600',
+        blue: 'bg-[#EFF6FF] text-[#2563EB]',
+        green: 'bg-[#DCFCE7] text-[#16A34A]',
         yellow: 'bg-yellow-100 text-yellow-600',
         red: 'bg-red-100 text-red-600',
         purple: 'bg-purple-100 text-purple-600',
@@ -25,7 +25,7 @@ export default function StatsCard({ title, value, icon, trend, color = 'blue' }:
                     {icon}
                 </div>
                 {trend && (
-                    <div className={`flex items-center gap-1 text-sm font-medium ${trend.isPositive ? 'text-green-600' : 'text-red-600'
+                    <div className={`flex items-center gap-1 text-sm font-medium ${trend.isPositive ? 'text-[#16A34A]' : 'text-red-600'
                         }`}>
                         <svg
                             className={`w-4 h-4 ${trend.isPositive ? '' : 'rotate-180'}`}
@@ -43,7 +43,7 @@ export default function StatsCard({ title, value, icon, trend, color = 'blue' }:
                 )}
             </div>
             <h3 className="text-gray-600 text-sm font-medium mb-1">{title}</h3>
-            <p className="text-3xl font-bold text-gray-900">{value}</p>
+            <p className="text-3xl font-bold text-[#0F172A]">{value}</p>
         </div>
     );
 }

@@ -8,7 +8,7 @@ export default function UserStatusBadge({ status }: UserStatusBadgeProps) {
     const getStatusStyles = (status: string) => {
         switch (status.toLowerCase()) {
             case 'active':
-                return 'bg-green-100 text-green-800 border-green-200';
+                return 'bg-[#DCFCE7] text-[#14532D] border-green-200';
             case 'suspended':
                 return 'bg-yellow-100 text-yellow-800 border-yellow-200';
             case 'banned':

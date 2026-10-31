@@ -163,7 +163,7 @@ export default function DistressClient() {
             <div className="flex items-center gap-3 w-full md:w-auto justify-end">
               <Link
                 href="/listings/create"
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-md shadow-xs transition-colors flex items-center gap-1.5 shrink-0"
+                className="px-4 py-2 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white font-bold text-xs rounded-md shadow-xs transition-colors flex items-center gap-1.5 shrink-0"
               >
                 <PlusCircle className="w-3.5 h-3.5" />
                 <span>Post Distress Sale</span>
@@ -186,7 +186,7 @@ export default function DistressClient() {
                 </h3>
                 <button
                   onClick={handleClearSearch}
-                  className="text-[11px] font-semibold text-blue-600 hover:text-blue-700"
+                  className="text-[11px] font-semibold text-[#2563EB] hover:text-[#1D4ED8]"
                 >
                   Clear All
                 </button>
@@ -213,7 +213,7 @@ export default function DistressClient() {
                   placeholder="Search distress deals..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-3 py-2 pl-9 pr-8 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 bg-white text-slate-900 placeholder:text-slate-400 text-xs transition-colors"
+                  className="w-full px-3 py-2 pl-9 pr-8 border border-slate-300 rounded-md focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] bg-white text-slate-900 placeholder:text-slate-400 text-xs transition-colors"
                 />
                 <svg
                   className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"
@@ -291,7 +291,7 @@ export default function DistressClient() {
                 <div className="mt-5 flex items-center justify-center gap-3">
                   <Link
                     href="/"
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-md shadow-xs transition-colors"
+                    className="px-4 py-2 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-semibold rounded-md shadow-xs transition-colors"
                   >
                     Browse Marketplace
                   </Link>

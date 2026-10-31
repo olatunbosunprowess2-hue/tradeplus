@@ -98,7 +98,7 @@ export default function PromoteListingModal({
                                             : 'border-gray-200 hover:border-gray-300'
                                         }`}
                                 >
-                                    <span className="font-medium text-gray-900">{p.label}</span>
+                                    <span className="font-medium text-[#0F172A]">{p.label}</span>
                                     <p className="text-xs text-gray-500 mt-0.5">{p.description}</p>
                                 </button>
                             ))}
@@ -120,7 +120,7 @@ export default function PromoteListingModal({
                                             : 'border-gray-200 hover:border-gray-300'
                                         }`}
                                 >
-                                    <span className="font-bold text-gray-900">{d.label}</span>
+                                    <span className="font-bold text-[#0F172A]">{d.label}</span>
                                     <p className="text-xs text-gray-500">{d.description}</p>
                                 </button>
                             ))}
@@ -133,14 +133,14 @@ export default function PromoteListingModal({
                         {loading ? (
                             <div className="animate-pulse h-8 w-24 bg-gray-200 rounded mx-auto"></div>
                         ) : (
-                            <p className="text-3xl font-bold text-gray-900">
+                            <p className="text-3xl font-bold text-[#0F172A]">
                                 {price ? formatPrice(price) : '—'}
                             </p>
                         )}
                     </div>
 
                     {/* Info Box */}
-                    <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 text-sm text-blue-800">
+                    <div className="bg-[#EFF6FF] border border-[#DBEAFE] rounded-lg p-3 text-sm text-[#1E40AF]">
                         <span className="font-bold">✨ Benefits of Promotion:</span>
                         <ul className="mt-1 ml-4 list-disc space-y-0.5">
                             <li>Featured badge on listing</li>

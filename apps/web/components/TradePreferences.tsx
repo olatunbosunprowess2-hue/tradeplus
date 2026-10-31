@@ -92,10 +92,10 @@ export default function TradePreferences() {
         <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 text-[#2563EB]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <h2 className="font-bold text-gray-900">Trade Preferences</h2>
+                    <h2 className="font-bold text-[#0F172A]">Trade Preferences</h2>
                 </div>
                 {hasChanges && (
                     <span className="text-xs text-amber-600 font-medium bg-amber-50 px-2 py-1 rounded-full">
@@ -121,7 +121,7 @@ export default function TradePreferences() {
                                 className={`
                                     px-3 py-2.5 rounded-xl text-sm font-medium transition-all
                                     ${settings.defaultTimerDuration === preset.value
-                                        ? 'bg-blue-600 text-white shadow-md ring-2 ring-blue-300 ring-offset-1'
+                                        ? 'bg-[#1D4ED8] text-white shadow-md ring-2 ring-blue-300 ring-offset-1'
                                         : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'
                                     }
                                 `}
@@ -136,7 +136,7 @@ export default function TradePreferences() {
                             type="number"
                             value={settings.defaultTimerDuration}
                             onChange={e => updateField('defaultTimerDuration', Math.max(10, Math.min(1440, parseInt(e.target.value) || 10)))}
-                            className="w-20 px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                            className="w-20 px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-[#2563EB] focus:border-[#3B82F6] outline-none"
                             min={10}
                             max={1440}
                         />
@@ -168,7 +168,7 @@ export default function TradePreferences() {
                             onClick={() => updateField('requireDownpayment', !settings.requireDownpayment)}
                             className={`
                                 relative inline-flex h-6 w-11 items-center rounded-full transition-colors
-                                ${settings.requireDownpayment ? 'bg-blue-600' : 'bg-gray-300'}
+                                ${settings.requireDownpayment ? 'bg-[#1D4ED8]' : 'bg-gray-300'}
                             `}
                         >
                             <span className={`
@@ -179,7 +179,7 @@ export default function TradePreferences() {
                     </div>
 
                     {settings.requireDownpayment && (
-                        <div className="pl-4 border-l-2 border-blue-200 space-y-4 mt-4 animate-in slide-in-from-top-2 duration-200">
+                        <div className="pl-4 border-l-2 border-[#BFDBFE] space-y-4 mt-4 animate-in slide-in-from-top-2 duration-200">
                             {/* Type Selection */}
                             <div>
                                 <label className="block text-xs font-medium text-gray-600 mb-2">Type</label>
@@ -189,7 +189,7 @@ export default function TradePreferences() {
                                         className={`
                                             flex-1 px-4 py-2.5 rounded-xl text-sm font-medium transition-all
                                             ${settings.downpaymentType === 'FIXED'
-                                                ? 'bg-blue-600 text-white shadow-md'
+                                                ? 'bg-[#1D4ED8] text-white shadow-md'
                                                 : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'
                                             }
                                         `}
@@ -201,7 +201,7 @@ export default function TradePreferences() {
                                         className={`
                                             flex-1 px-4 py-2.5 rounded-xl text-sm font-medium transition-all
                                             ${settings.downpaymentType === 'PERCENTAGE'
-                                                ? 'bg-blue-600 text-white shadow-md'
+                                                ? 'bg-[#1D4ED8] text-white shadow-md'
                                                 : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'
                                             }
                                         `}
@@ -224,7 +224,7 @@ export default function TradePreferences() {
                                             const max = settings.downpaymentType === 'PERCENTAGE' ? 50 : 100000000;
                                             updateField('downpaymentValue', Math.max(0, Math.min(max, parseInt(e.target.value) || 0)));
                                         }}
-                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm text-gray-900 focus:ring-2 focus:ring-[#2563EB] focus:border-[#3B82F6] outline-none transition"
                                         min={0}
                                         max={settings.downpaymentType === 'PERCENTAGE' ? 50 : undefined}
                                     />
@@ -247,7 +247,7 @@ export default function TradePreferences() {
                     <button
                         onClick={handleSave}
                         disabled={saving}
-                        className="w-full px-4 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 disabled:opacity-50 transition flex items-center justify-center gap-2 shadow-sm"
+                        className="w-full px-4 py-3 bg-[#1D4ED8] text-white font-semibold rounded-xl hover:bg-[#1E40AF] disabled:opacity-50 transition flex items-center justify-center gap-2 shadow-sm"
                     >
                         {saving ? (
                             <>

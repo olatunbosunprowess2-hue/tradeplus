@@ -145,7 +145,7 @@ export default function WantsPage() {
                         {activeTab === 'wants' && (
                             <button
                                 onClick={() => setIsModalOpen(true)}
-                                className="hidden md:flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-2.5 rounded-xl font-medium hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
+                                className="hidden md:flex items-center gap-2 bg-[#1D4ED8] text-white px-5 py-2.5 rounded-xl font-medium hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
                             >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -161,13 +161,13 @@ export default function WantsPage() {
                     <button
                         onClick={() => setActiveTab('wants')}
                         className={`px-6 py-3 font-bold transition-colors whitespace-nowrap relative ${activeTab === 'wants'
-                            ? 'text-blue-600 border-b-2 border-blue-600'
-                            : 'text-gray-600 hover:text-gray-900'
+                            ? 'text-[#2563EB] border-b-2 border-[#2563EB]'
+                            : 'text-gray-600 hover:text-[#0F172A]'
                             }`}
                     >
                         My Wants
                         {activeWants.length > 0 && (
-                            <span className="ml-2 bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full text-xs font-bold">
+                            <span className="ml-2 bg-[#EFF6FF] text-[#2563EB] px-2 py-0.5 rounded-full text-xs font-bold">
                                 {activeWants.length}
                             </span>
                         )}
@@ -175,8 +175,8 @@ export default function WantsPage() {
                     <button
                         onClick={() => setActiveTab('bookmarks')}
                         className={`px-6 py-3 font-bold transition-colors whitespace-nowrap relative ${activeTab === 'bookmarks'
-                            ? 'text-blue-600 border-b-2 border-blue-600'
-                            : 'text-gray-600 hover:text-gray-900'
+                            ? 'text-[#2563EB] border-b-2 border-[#2563EB]'
+                            : 'text-gray-600 hover:text-[#0F172A]'
                             }`}
                     >
                         Saved Listings
@@ -189,8 +189,8 @@ export default function WantsPage() {
                     <button
                         onClick={() => setActiveTab('saved-posts')}
                         className={`px-6 py-3 font-bold transition-colors whitespace-nowrap relative ${activeTab === 'saved-posts'
-                            ? 'text-blue-600 border-b-2 border-blue-600'
-                            : 'text-gray-600 hover:text-gray-900'
+                            ? 'text-[#2563EB] border-b-2 border-[#2563EB]'
+                            : 'text-gray-600 hover:text-[#0F172A]'
                             }`}
                     >
                         Saved Posts
@@ -207,7 +207,7 @@ export default function WantsPage() {
                     <div>
                         {wants.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-20 text-center">
-                                <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mb-6">
+                                <div className="w-24 h-24 bg-[#EFF6FF] rounded-full flex items-center justify-center mb-6">
                                     <span className="text-4xl">📝</span>
                                 </div>
                                 <h2 className="text-xl font-bold text-gray-900 mb-2">Looking for something specific?</h2>
@@ -216,7 +216,7 @@ export default function WantsPage() {
                                 </p>
                                 <button
                                     onClick={() => setIsModalOpen(true)}
-                                    className="bg-blue-600 text-white px-8 py-3 rounded-full font-bold hover:bg-blue-700 transition-colors shadow-lg"
+                                    className="bg-[#1D4ED8] text-white px-8 py-3 rounded-full font-bold hover:bg-[#1E40AF] transition-colors shadow-lg"
                                 >
                                     Add Your First Want
                                 </button>
@@ -303,11 +303,11 @@ export default function WantsPage() {
                                                 </div>
                                             )}
                                             <div className="p-4">
-                                                <h3 className="font-semibold text-lg mb-2 line-clamp-2 text-gray-900">
+                                                <h3 className="font-semibold text-lg mb-2 line-clamp-2 text-[#0F172A]">
                                                     {bookmark.title}
                                                 </h3>
                                                 {bookmark.priceCents !== undefined && (
-                                                    <p className="text-blue-600 font-bold text-xl mb-2">
+                                                    <p className="text-[#2563EB] font-bold text-xl mb-2">
                                                         {bookmark.currencyCode} {(bookmark.priceCents / 100).toLocaleString()}
                                                     </p>
                                                 )}
@@ -377,7 +377,7 @@ export default function WantsPage() {
                                 </p>
                                 <Link
                                     href="/listings?tab=community"
-                                    className="bg-emerald-600 text-white px-8 py-3 rounded-full font-bold hover:bg-emerald-700 transition-colors shadow-lg"
+                                    className="bg-[#16A34A] text-white px-8 py-3 rounded-full font-bold hover:bg-[#15803D] transition-colors shadow-lg"
                                 >
                                     Go to Community Feed
                                 </Link>
@@ -405,7 +405,7 @@ export default function WantsPage() {
                 activeTab === 'wants' && (
                     <button
                         onClick={() => setIsModalOpen(true)}
-                        className="md:hidden fixed bottom-20 right-4 w-14 h-14 bg-blue-600 text-white rounded-full shadow-xl flex items-center justify-center hover:bg-blue-700 transition-transform active:scale-95 z-40"
+                        className="md:hidden fixed bottom-20 right-4 w-14 h-14 bg-[#1D4ED8] text-white rounded-full shadow-xl flex items-center justify-center hover:bg-[#1E40AF] transition-transform active:scale-95 z-40"
                     >
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />

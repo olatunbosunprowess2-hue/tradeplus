@@ -16,7 +16,7 @@ const sizeClasses = {
 };
 
 const colorClasses = {
-    primary: 'border-blue-600 border-t-transparent',
+    primary: 'border-[#2563EB] border-t-transparent',
     white: 'border-white border-t-transparent',
     gray: 'border-gray-400 border-t-transparent',
 };

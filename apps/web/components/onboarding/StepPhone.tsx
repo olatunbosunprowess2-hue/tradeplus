@@ -60,7 +60,7 @@ export default function StepPhone({ onNext, onBack }: StepProps) {
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <h2 className="text-xl font-bold tracking-tight text-slate-900">Phone Number</h2>
+        <h2 className="text-xl font-bold tracking-tight text-[#0F172A]">Phone Number</h2>
         <p className="text-xs text-slate-500 mt-1">
           Used to verify trade notifications and SMS alerts.
         </p>
@@ -80,7 +80,7 @@ export default function StepPhone({ onNext, onBack }: StepProps) {
                   setShowDropdown(!showDropdown);
                   if (!showDropdown) setSearchQuery('');
                 }}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-md border border-slate-300 bg-slate-50 hover:bg-slate-100 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition text-slate-900 font-medium text-sm h-full shadow-2xs"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-md border border-slate-300 bg-slate-50 hover:bg-slate-100 focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] outline-none transition text-slate-900 font-medium text-sm h-full shadow-2xs"
               >
                 <span className="text-base">{selectedCountry.flag}</span>
                 <span className="text-xs font-bold text-slate-700">{selectedCountry.dial_code}</span>
@@ -100,7 +100,7 @@ export default function StepPhone({ onNext, onBack }: StepProps) {
                         type="text"
                         autoFocus
                         placeholder="Search country or code..."
-                        className="w-full pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded text-xs focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 outline-none"
+                        className="w-full pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded text-xs focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] outline-none"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                       />
@@ -119,7 +119,7 @@ export default function StepPhone({ onNext, onBack }: StepProps) {
                           className={`w-full flex items-center gap-2.5 px-3 py-2 hover:bg-slate-50 transition text-left text-xs ${
                             countryCode === country.dial_code &&
                             selectedCountry.code === country.code
-                              ? 'bg-blue-50 text-blue-700 font-bold'
+                              ? 'bg-[#EFF6FF] text-[#1D4ED8] font-bold'
                               : 'text-slate-700'
                           }`}
                         >
@@ -146,7 +146,7 @@ export default function StepPhone({ onNext, onBack }: StepProps) {
                   setPhoneNumber(value);
                 }
               }}
-              className="flex-1 px-3.5 py-2 rounded-md border border-slate-300 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition text-slate-900 bg-white placeholder:text-slate-400 text-sm font-medium"
+              className="flex-1 px-3.5 py-2 rounded-md border border-slate-300 focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] outline-none transition text-slate-900 bg-white placeholder:text-slate-400 text-sm font-medium"
               placeholder="801 234 5678"
               required
             />
@@ -168,7 +168,7 @@ export default function StepPhone({ onNext, onBack }: StepProps) {
             disabled={loading}
             className={`${
               onBack ? 'flex-1' : 'w-full'
-            } bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white py-2.5 rounded-md font-bold text-xs transition-colors shadow-xs flex justify-center items-center gap-2`}
+            } bg-[#1D4ED8] hover:bg-[#1E40AF] active:bg-[#1E3A8A] text-white py-2.5 rounded-md font-bold text-xs transition-colors shadow-xs flex justify-center items-center gap-2`}
           >
             {loading ? (
               <>

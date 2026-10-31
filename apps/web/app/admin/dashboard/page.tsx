@@ -59,8 +59,8 @@ const ACTION_ICONS: Record<string, string> = {
 };
 
 const ACTION_COLORS: Record<string, string> = {
-    AD_CREATED: 'bg-green-100 text-green-700',
-    CHAT_STARTED: 'bg-blue-100 text-blue-700',
+    AD_CREATED: 'bg-[#DCFCE7] text-[#15803D]',
+    CHAT_STARTED: 'bg-[#DBEAFE] text-[#1D4ED8]',
     USER_LOGIN: 'bg-purple-100 text-purple-700',
     REPORT_FILED: 'bg-red-100 text-red-700',
     USER_BANNED: 'bg-red-100 text-red-700',
@@ -98,7 +98,7 @@ const ActivityItem = React.memo(({ item, index, onView, formatTimeAgo, getViewLa
                 {ACTION_ICONS[item.type] || '📌'}
             </span>
             <div className="flex-1 min-w-0">
-                <p className="text-sm text-gray-900">
+                <p className="text-sm text-[#0F172A]">
                     <span className="font-medium">{item.userName || 'System'}</span>
                     <span className="text-gray-500"> {item.description}</span>
                 </p>
@@ -107,7 +107,7 @@ const ActivityItem = React.memo(({ item, index, onView, formatTimeAgo, getViewLa
             {(item.targetId || item.userId) && (
                 <button
                     onClick={() => onView(item)}
-                    className="text-xs text-blue-600 hover:underline whitespace-nowrap"
+                    className="text-xs text-[#2563EB] hover:underline whitespace-nowrap"
                 >
                     {getViewLabel(item)}
                 </button>
@@ -291,7 +291,7 @@ export default function AdminDashboardPage() {
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2563EB]"></div>
             </div>
         );
     }
@@ -301,7 +301,7 @@ export default function AdminDashboardPage() {
             {/* Header with Pending Reviews Badge */}
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+                    <h1 className="text-2xl font-bold text-[#0F172A]">Admin Dashboard</h1>
                     <p className="text-gray-500 text-sm mt-1">Manage platform activity and user verifications</p>
                 </div>
                 <div className="flex items-center gap-4">
@@ -313,13 +313,13 @@ export default function AdminDashboardPage() {
                             className="bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50 transition"
                         >
                             <span className="text-sm text-gray-500">Pending Reviews:</span>
-                            <span className={`ml-2 font-bold text-lg ${pendingUsers.length > 0 ? 'text-orange-600' : 'text-blue-600'}`}>
+                            <span className={`ml-2 font-bold text-lg ${pendingUsers.length > 0 ? 'text-orange-600' : 'text-[#2563EB]'}`}>
                                 {pendingUsers.length}
                             </span>
                         </button>
                     )}
                     <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                        <span className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse"></span>
                         <span className="text-sm text-gray-600">Live</span>
                     </div>
                 </div>
@@ -332,7 +332,7 @@ export default function AdminDashboardPage() {
                         <span>📦</span> Ads Posted
                     </div>
                     <div className="flex items-baseline gap-3">
-                        <span className="text-3xl font-bold text-gray-900">{stats?.ads.today || 0}</span>
+                        <span className="text-3xl font-bold text-[#0F172A]">{stats?.ads.today || 0}</span>
                         <span className="text-sm text-gray-500">today</span>
                     </div>
                     <div className="mt-2 text-xs text-gray-400">
@@ -345,7 +345,7 @@ export default function AdminDashboardPage() {
                         <span>💬</span> Active Chats
                     </div>
                     <div className="flex items-baseline gap-3">
-                        <span className="text-3xl font-bold text-blue-600">{stats?.chats.activeNow || 0}</span>
+                        <span className="text-3xl font-bold text-[#2563EB]">{stats?.chats.activeNow || 0}</span>
                         <span className="text-sm text-gray-500">now</span>
                     </div>
                     <div className="mt-2 text-xs text-gray-400">
@@ -381,7 +381,7 @@ export default function AdminDashboardPage() {
                         <span>🔍</span> Pending
                     </div>
                     <div className="flex items-baseline gap-3">
-                        <span className={`text-3xl font-bold ${pendingUsers.length > 0 ? 'text-orange-600' : 'text-green-600'}`}>
+                        <span className={`text-3xl font-bold ${pendingUsers.length > 0 ? 'text-orange-600' : 'text-[#16A34A]'}`}>
                             {pendingUsers.length}
                         </span>
                         <span className="text-sm text-gray-500">reviews</span>
@@ -396,7 +396,7 @@ export default function AdminDashboardPage() {
                 {/* Top 10 Active Users */}
                 <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
                     <div className="p-4 border-b border-gray-200">
-                        <h2 className="font-bold text-gray-900">🏆 Top 10 Active Users (24h)</h2>
+                        <h2 className="font-bold text-[#0F172A]">🏆 Top 10 Active Users (24h)</h2>
                     </div>
                     <div className="divide-y divide-gray-100">
                         {topUsers.slice(0, 10).map((topUser, idx) => (
@@ -411,7 +411,7 @@ export default function AdminDashboardPage() {
                 {/* Live Activity Feed */}
                 <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
                     <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-                        <h2 className="font-bold text-gray-900">⚡ Live Activity Feed</h2>
+                        <h2 className="font-bold text-[#0F172A]">⚡ Live Activity Feed</h2>
                         <span className="text-xs text-gray-400">{feed.length} activities</span>
                     </div>
                     <div className="max-h-96 overflow-y-auto divide-y divide-gray-100">
@@ -433,7 +433,7 @@ export default function AdminDashboardPage() {
                     <div className="p-3 border-t border-gray-100">
                         <button
                             onClick={() => router.push('/admin/activity')}
-                            className="w-full py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg font-medium transition"
+                            className="w-full py-2 text-sm text-[#2563EB] hover:bg-[#EFF6FF] rounded-lg font-medium transition"
                         >
                             View All Activity
                         </button>
@@ -444,7 +444,7 @@ export default function AdminDashboardPage() {
                 {canViewSecurity(user) && (
                     <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
                         <div className="p-4 border-b border-gray-200">
-                            <h2 className="font-bold text-gray-900">🌐 Recent Login IPs</h2>
+                            <h2 className="font-bold text-[#0F172A]">🌐 Recent Login IPs</h2>
                         </div>
                         <div className="max-h-96 overflow-y-auto divide-y divide-gray-100">
                             {loginIps.slice(0, 15).map((ip, idx) => (
@@ -485,7 +485,7 @@ export default function AdminDashboardPage() {
                         </div>
                         <button
                             onClick={() => router.push('/admin/users?verificationStatus=PENDING')}
-                            className="text-sm text-blue-600 font-medium hover:underline"
+                            className="text-sm text-[#2563EB] font-medium hover:underline"
                         >
                             View All
                         </button>
@@ -519,7 +519,7 @@ export default function AdminDashboardPage() {
                                                         className="w-10 h-10 rounded-full bg-gray-200"
                                                     />
                                                     <div>
-                                                        <p className="font-medium text-gray-900">
+                                                        <p className="font-medium text-[#0F172A]">
                                                             {pendingUser.firstName} {pendingUser.lastName}
                                                         </p>
                                                         <p className="text-sm text-gray-500">{pendingUser.email}</p>
@@ -540,7 +540,7 @@ export default function AdminDashboardPage() {
                                             <td className="px-6 py-4">
                                                 <button
                                                     onClick={() => handleReview(pendingUser)}
-                                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition shadow-sm"
+                                                    className="px-4 py-2 bg-[#1D4ED8] text-white rounded-lg text-sm font-medium hover:bg-[#1E40AF] transition shadow-sm"
                                                 >
                                                     Review
                                                 </button>

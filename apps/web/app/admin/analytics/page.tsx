@@ -103,7 +103,7 @@ export default function AnalyticsDashboardPage() {
     };
 
     const getDeltaColor = (delta: number) => {
-        if (delta > 0) return 'text-green-600 bg-green-50';
+        if (delta > 0) return 'text-[#16A34A] bg-[#F0FDF4]';
         if (delta < 0) return 'text-red-600 bg-red-50';
         return 'text-gray-600 bg-gray-50';
     };
@@ -117,7 +117,7 @@ export default function AnalyticsDashboardPage() {
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2563EB]"></div>
             </div>
         );
     }
@@ -127,12 +127,12 @@ export default function AnalyticsDashboardPage() {
             {/* Header */}
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Analytics Dashboard</h1>
+                    <h1 className="text-2xl font-bold text-[#0F172A]">Analytics Dashboard</h1>
                     <p className="text-gray-500 text-sm mt-1">Business intelligence and insights</p>
                 </div>
                 <button
                     onClick={() => handleExport('kpis')}
-                    className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition"
+                    className="px-4 py-2 bg-[#1D4ED8] text-white text-sm font-medium rounded-lg hover:bg-[#1E40AF] transition"
                 >
                     📊 Export All
                 </button>
@@ -175,10 +175,10 @@ export default function AnalyticsDashboardPage() {
                 {/* Top Categories */}
                 <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
                     <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-                        <h2 className="font-bold text-gray-900">📊 Top Categories</h2>
+                        <h2 className="font-bold text-[#0F172A]">📊 Top Categories</h2>
                         <button
                             onClick={() => handleExport('categories')}
-                            className="text-xs text-blue-600 hover:underline"
+                            className="text-xs text-[#2563EB] hover:underline"
                         >
                             Export CSV
                         </button>
@@ -188,15 +188,15 @@ export default function AnalyticsDashboardPage() {
                             <div key={idx} className="p-4 flex items-center justify-between hover:bg-gray-50">
                                 <div className="flex items-center gap-3">
                                     <span className="text-lg font-bold text-gray-300 w-6">#{idx + 1}</span>
-                                    <span className="font-medium text-gray-900">{cat.category}</span>
+                                    <span className="font-medium text-[#0F172A]">{cat.category}</span>
                                 </div>
                                 <div className="flex items-center gap-6 text-sm">
                                     <div className="text-right">
-                                        <span className="font-bold text-gray-900">{cat.ads}</span>
+                                        <span className="font-bold text-[#0F172A]">{cat.ads}</span>
                                         <span className="text-gray-500 ml-1">ads</span>
                                     </div>
                                     <div className="text-right">
-                                        <span className="font-bold text-blue-600">{cat.views}</span>
+                                        <span className="font-bold text-[#2563EB]">{cat.views}</span>
                                         <span className="text-gray-500 ml-1">views</span>
                                     </div>
                                 </div>
@@ -211,10 +211,10 @@ export default function AnalyticsDashboardPage() {
                 {/* Hot Listings */}
                 <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
                     <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-                        <h2 className="font-bold text-gray-900">🔥 Hot Listings (48h)</h2>
+                        <h2 className="font-bold text-[#0F172A]">🔥 Hot Listings (48h)</h2>
                         <button
                             onClick={() => handleExport('hot')}
-                            className="text-xs text-blue-600 hover:underline"
+                            className="text-xs text-[#2563EB] hover:underline"
                         >
                             Export CSV
                         </button>
@@ -251,7 +251,7 @@ export default function AnalyticsDashboardPage() {
             {/* Spam & Abuse Panel */}
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
                 <div className="p-4 border-b border-gray-200">
-                    <h2 className="font-bold text-gray-900">🛡️ Spam & Abuse Trends</h2>
+                    <h2 className="font-bold text-[#0F172A]">🛡️ Spam & Abuse Trends</h2>
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
                     {/* Hourly Deleted Ads Chart */}
@@ -336,7 +336,7 @@ function KPICard({
     isDanger?: boolean;
 }) {
     const getDeltaColor = (delta: number) => {
-        if (delta > 0) return 'text-green-600 bg-green-50';
+        if (delta > 0) return 'text-[#16A34A] bg-[#F0FDF4]';
         if (delta < 0) return 'text-red-600 bg-red-50';
         return 'text-gray-600 bg-gray-50';
     };
@@ -350,7 +350,7 @@ function KPICard({
                 </span>
             </div>
             <p className="text-sm text-gray-500 mb-1">{title}</p>
-            <p className={`text-3xl font-bold ${isDanger && value > 0 ? 'text-red-600' : 'text-gray-900'}`}>
+            <p className={`text-3xl font-bold ${isDanger && value > 0 ? 'text-red-600' : 'text-[#0F172A]'}`}>
                 {value.toLocaleString()}
             </p>
         </div>

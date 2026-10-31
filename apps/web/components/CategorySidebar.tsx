@@ -97,7 +97,7 @@ export default function CategorySidebar() {
     return (
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex flex-col h-full max-h-[calc(100vh-120px)]">
             <div className="p-4 border-b border-gray-50 flex items-center gap-2">
-                <LayoutGrid className="w-5 h-5 text-blue-600" />
+                <LayoutGrid className="w-5 h-5 text-[#2563EB]" />
                 <h2 className="font-bold text-gray-900 text-sm uppercase tracking-wider">Categories</h2>
             </div>
 
@@ -106,12 +106,12 @@ export default function CategorySidebar() {
                 <button
                     onClick={() => handleCategoryClick('')}
                     className={`w-full flex items-center justify-between px-4 py-2.5 transition-all text-left group ${currentCategoryId === ''
-                            ? 'bg-blue-50 text-blue-600 font-bold'
+                            ? 'bg-[#EFF6FF] text-[#2563EB] font-bold'
                             : 'text-gray-600 hover:bg-gray-50'
                         }`}
                 >
                     <div className="flex items-center gap-3">
-                        <Package className={`w-4 h-4 ${currentCategoryId === '' ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-500'}`} />
+                        <Package className={`w-4 h-4 ${currentCategoryId === '' ? 'text-[#2563EB]' : 'text-gray-400 group-hover:text-[#3B82F6]'}`} />
                         <span className="text-xs">All Categories</span>
                     </div>
                     {currentCategoryId === '' && <ChevronRight className="w-3 h-3" />}
@@ -126,12 +126,12 @@ export default function CategorySidebar() {
                             key={category.id}
                             onClick={() => handleCategoryClick(category.id.toString())}
                             className={`w-full flex items-center justify-between px-4 py-2.5 transition-all text-left group ${isActive
-                                    ? 'bg-blue-50 text-blue-600 font-bold'
+                                    ? 'bg-[#EFF6FF] text-[#2563EB] font-bold'
                                     : 'text-gray-600 hover:bg-gray-50'
                                 }`}
                         >
                             <div className="flex items-center gap-3">
-                                <IconComp className={`w-4 h-4 ${isActive ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-500'}`} />
+                                <IconComp className={`w-4 h-4 ${isActive ? 'text-[#2563EB]' : 'text-gray-400 group-hover:text-[#3B82F6]'}`} />
                                 <span className="text-xs truncate max-w-[140px]">{category.name}</span>
                             </div>
                             {isActive && <ChevronRight className="w-3 h-3 transition-transform" />}

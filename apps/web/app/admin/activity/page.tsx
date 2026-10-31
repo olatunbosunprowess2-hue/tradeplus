@@ -36,18 +36,18 @@ const ACTION_ICONS: Record<string, string> = {
 };
 
 const ACTION_COLORS: Record<string, string> = {
-    AD_CREATED: 'bg-green-100 text-green-700',
-    CHAT_STARTED: 'bg-blue-100 text-blue-700',
+    AD_CREATED: 'bg-[#DCFCE7] text-[#15803D]',
+    CHAT_STARTED: 'bg-[#DBEAFE] text-[#1D4ED8]',
     USER_LOGIN: 'bg-purple-100 text-purple-700',
     REPORT_FILED: 'bg-red-100 text-red-700',
     USER_BANNED: 'bg-red-100 text-red-700',
     AD_DELETED: 'bg-gray-100 text-gray-700',
     ROLE_ASSIGNED: 'bg-amber-100 text-amber-700',
     ROLE_REMOVED: 'bg-gray-100 text-gray-700',
-    VERIFICATION_APPROVED: 'bg-green-100 text-green-700',
+    VERIFICATION_APPROVED: 'bg-[#DCFCE7] text-[#15803D]',
     VERIFICATION_REJECTED: 'bg-red-100 text-red-700',
     ORDER_CREATED: 'bg-indigo-100 text-indigo-700',
-    ESCROW_INITIATED: 'bg-blue-100 text-blue-700',
+    ESCROW_INITIATED: 'bg-[#DBEAFE] text-[#1D4ED8]',
     UPDATE_USER_STATUS: 'bg-orange-100 text-orange-700',
     UPDATE_LISTING_STATUS: 'bg-yellow-100 text-yellow-700',
 };
@@ -62,7 +62,7 @@ function ActivityDetailsModal({ activity, onClose }: { activity: ActivityFeedIte
                             {ACTION_ICONS[activity.type] || '📌'}
                         </span>
                         <div>
-                            <h3 className="font-bold text-gray-900">Activity Details</h3>
+                            <h3 className="font-bold text-[#0F172A]">Activity Details</h3>
                             <p className="text-sm text-gray-500">{new Date(activity.timestamp).toLocaleString()}</p>
                         </div>
                     </div>
@@ -77,7 +77,7 @@ function ActivityDetailsModal({ activity, onClose }: { activity: ActivityFeedIte
                     <div className="grid grid-cols-2 gap-6">
                         <div>
                             <label className="text-xs font-bold text-gray-500 uppercase">Actor</label>
-                            <div className="mt-1 font-medium text-gray-900">{activity.userName || 'System'}</div>
+                            <div className="mt-1 font-medium text-[#0F172A]">{activity.userName || 'System'}</div>
                             {activity.userId && <div className="text-xs text-gray-400 font-mono">{activity.userId}</div>}
                         </div>
                         <div>
@@ -94,7 +94,7 @@ function ActivityDetailsModal({ activity, onClose }: { activity: ActivityFeedIte
                         </div>
                         <div>
                             <label className="text-xs font-bold text-gray-500 uppercase">Target</label>
-                            <div className="mt-1 font-medium text-gray-900">{activity.targetName || 'N/A'}</div>
+                            <div className="mt-1 font-medium text-[#0F172A]">{activity.targetName || 'N/A'}</div>
                             {activity.targetId && <div className="text-xs text-gray-400 font-mono">{activity.targetId}</div>}
                         </div>
                     </div>
@@ -177,12 +177,12 @@ export default function AdminActivityPage() {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Activity History</h1>
+                    <h1 className="text-2xl font-bold text-[#0F172A]">Activity History</h1>
                     <p className="text-gray-500 text-sm mt-1">Security audit log and platform events</p>
                 </div>
                 <button
                     onClick={() => router.push('/admin/dashboard')}
-                    className="text-sm text-blue-600 hover:underline"
+                    className="text-sm text-[#2563EB] hover:underline"
                 >
                     ← Back to Dashboard
                 </button>
@@ -205,7 +205,7 @@ export default function AdminActivityPage() {
                                 <tr key={idx} className="hover:bg-gray-50 transition group">
                                     <td className="px-6 py-4 text-sm text-gray-600 whitespace-nowrap">
                                         <div className="flex flex-col">
-                                            <span className="font-medium text-gray-900">
+                                            <span className="font-medium text-[#0F172A]">
                                                 {new Date(item.timestamp).toLocaleDateString()}
                                             </span>
                                             <span className="text-xs text-gray-500">
@@ -215,10 +215,10 @@ export default function AdminActivityPage() {
                                     </td>
                                     <td className="px-6 py-4 text-sm">
                                         <div className="flex items-center gap-2">
-                                            <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-xs font-bold text-blue-700">
+                                            <div className="w-6 h-6 rounded-full bg-[#DBEAFE] flex items-center justify-center text-xs font-bold text-[#1D4ED8]">
                                                 {(item.userName || 'S').charAt(0)}
                                             </div>
-                                            <span className="font-medium text-gray-900">{item.userName || 'System'}</span>
+                                            <span className="font-medium text-[#0F172A]">{item.userName || 'System'}</span>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
@@ -238,7 +238,7 @@ export default function AdminActivityPage() {
                                     <td className="px-6 py-4 text-right">
                                         <button
                                             onClick={() => setSelectedActivity(item)}
-                                            className="px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition"
+                                            className="px-3 py-1.5 text-xs font-medium text-[#2563EB] bg-[#EFF6FF] hover:bg-[#DBEAFE] rounded-lg transition"
                                         >
                                             View Log
                                         </button>
@@ -258,7 +258,7 @@ export default function AdminActivityPage() {
 
                 {loading && (
                     <div className="p-12 text-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2563EB] mx-auto"></div>
                         <p className="text-sm text-gray-400 mt-2">Loading activity logs...</p>
                     </div>
                 )}

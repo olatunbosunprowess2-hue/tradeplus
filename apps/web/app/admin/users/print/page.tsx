@@ -131,7 +131,7 @@ export default function UserPrintParamsPage() {
                         <div className="text-right">
                             <div className="inline-block bg-slate-100 px-4 py-2 rounded-lg border border-slate-200">
                                 <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Report ID</p>
-                                <p className="font-mono font-bold text-slate-900">{reportId}</p>
+                                <p className="font-mono font-bold text-[#0F172A]">{reportId}</p>
                             </div>
                             <p className="text-xs text-slate-500 mt-3">{reportDate} at {reportTime}</p>
                         </div>
@@ -142,14 +142,14 @@ export default function UserPrintParamsPage() {
                 <section className="mb-10">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="w-2 h-6 bg-indigo-600 rounded-full"></div>
-                        <h2 className="text-lg font-bold text-slate-900">Subject Information</h2>
+                        <h2 className="text-lg font-bold text-[#0F172A]">Subject Information</h2>
                     </div>
                     <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-4">
                                 <div>
                                     <label className="text-xs text-slate-500 uppercase tracking-wider block mb-1">Full Name</label>
-                                    <p className="text-lg font-semibold text-slate-900">{user.firstName} {user.lastName}</p>
+                                    <p className="text-lg font-semibold text-[#0F172A]">{user.firstName} {user.lastName}</p>
                                 </div>
                                 <div>
                                     <label className="text-xs text-slate-500 uppercase tracking-wider block mb-1">Display Name</label>
@@ -175,7 +175,7 @@ export default function UserPrintParamsPage() {
                                         <span className={`px-3 py-1 rounded-full text-sm font-medium ${user.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
                                             {user.status}
                                         </span>
-                                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${user.verificationStatus === 'VERIFIED' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}`}>
+                                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${user.verificationStatus === 'VERIFIED' ? 'bg-[#DBEAFE] text-[#1D4ED8]' : 'bg-amber-100 text-amber-700'}`}>
                                             {user.verificationStatus}
                                         </span>
                                     </div>
@@ -196,14 +196,14 @@ export default function UserPrintParamsPage() {
                 {/* Verification Location Section */}
                 <section className="mb-10">
                     <div className="flex items-center gap-3 mb-6">
-                        <div className="w-2 h-6 bg-emerald-600 rounded-full"></div>
-                        <h2 className="text-lg font-bold text-slate-900">Verification Location</h2>
+                        <div className="w-2 h-6 bg-[#16A34A] rounded-full"></div>
+                        <h2 className="text-lg font-bold text-[#0F172A]">Verification Location</h2>
                     </div>
                     <div className="bg-emerald-50 rounded-2xl p-6 border border-emerald-200">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label className="text-xs text-emerald-700 uppercase tracking-wider block mb-2">Registered Address</label>
-                                <p className="text-lg font-semibold text-slate-900">{user.locationAddress || 'No address provided'}</p>
+                                <p className="text-lg font-semibold text-[#0F172A]">{user.locationAddress || 'No address provided'}</p>
                             </div>
                             <div>
                                 <label className="text-xs text-emerald-700 uppercase tracking-wider block mb-2">GPS Coordinates</label>
@@ -211,12 +211,12 @@ export default function UserPrintParamsPage() {
                                     <div className="flex items-center gap-4">
                                         <div>
                                             <span className="text-xs text-slate-500 block">Latitude</span>
-                                            <span className="font-mono font-semibold text-slate-900">{user.locationLat || 'N/A'}</span>
+                                            <span className="font-mono font-semibold text-[#0F172A]">{user.locationLat || 'N/A'}</span>
                                         </div>
                                         <div className="w-px h-8 bg-emerald-200"></div>
                                         <div>
                                             <span className="text-xs text-slate-500 block">Longitude</span>
-                                            <span className="font-mono font-semibold text-slate-900">{user.locationLng || 'N/A'}</span>
+                                            <span className="font-mono font-semibold text-[#0F172A]">{user.locationLng || 'N/A'}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -241,7 +241,7 @@ export default function UserPrintParamsPage() {
                 <section className="mb-10">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="w-2 h-6 bg-indigo-600 rounded-full"></div>
-                        <h2 className="text-lg font-bold text-slate-900">Selfie Verification</h2>
+                        <h2 className="text-lg font-bold text-[#0F172A]">Selfie Verification</h2>
                     </div>
 
                     <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 flex items-start gap-3 print:bg-transparent print:border-slate-300">

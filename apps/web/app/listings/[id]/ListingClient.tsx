@@ -325,7 +325,7 @@ export default function ListingClient({ listing: initialListing }: ListingClient
                                 {listing.type !== 'SERVICE' && (
                                     <span
                                         className={`inline-block px-3 py-1 rounded-md text-xs font-bold ${listing.condition === 'new'
-                                            ? 'bg-green-100 text-green-800'
+                                            ? 'bg-[#DCFCE7] text-[#14532D]'
                                             : 'bg-slate-100 text-slate-700'
                                             }`}
                                     >
@@ -344,7 +344,7 @@ export default function ListingClient({ listing: initialListing }: ListingClient
                                     {listing.allowBarter && (
                                         <span className="text-xs text-gray-500 block mb-0.5">Seller valued at</span>
                                     )}
-                                    <span className="text-2xl font-bold text-gray-900">
+                                    <span className="text-2xl font-bold text-[#0F172A]">
                                         {formatPrice(listing.priceCents)}
                                     </span>
                                 </div>
@@ -360,7 +360,7 @@ export default function ListingClient({ listing: initialListing }: ListingClient
                                 <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
                                     <span className="text-2xl">💰</span>
                                     <div>
-                                        <p className="text-sm font-bold text-gray-900">
+                                        <p className="text-sm font-bold text-[#0F172A]">
                                             Downpayment Required: {listing.downpaymentCurrency || listing.currencyCode} {((listing as any).downpaymentCents / 100).toLocaleString()}
                                         </p>
                                         <p className="text-xs text-amber-800">
@@ -551,7 +551,7 @@ export default function ListingClient({ listing: initialListing }: ListingClient
                                             <div className="grid grid-cols-2 gap-3">
                                                 <a
                                                     href={`tel:${(listing.seller as any).brandWhatsApp.replace(/[^0-9+]/g, '')}`}
-                                                    className="px-6 py-3 bg-white border-2 border-green-600 text-green-700 rounded-lg font-bold hover:bg-green-50 transition flex items-center justify-center gap-2"
+                                                    className="px-6 py-3 bg-white border-2 border-[#16A34A] text-[#15803D] rounded-lg font-bold hover:bg-[#F0FDF4] transition flex items-center justify-center gap-2"
                                                 >
                                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                                                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -601,7 +601,7 @@ export default function ListingClient({ listing: initialListing }: ListingClient
                             <div className="flex items-start gap-4 mb-4">
                                 <button
                                     onClick={() => router.push(`/listings?sellerId=${listing.sellerId}&countryId=${listing.countryId || 1}`)}
-                                    className="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center text-gray-600 font-bold text-xl hover:ring-2 hover:ring-blue-500 transition cursor-pointer"
+                                    className="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center text-gray-600 font-bold text-xl hover:ring-2 hover:ring-[#2563EB] transition cursor-pointer"
                                 >
                                     {(listing.seller?.profile?.displayName || listing.seller?.email || 'S').charAt(0).toUpperCase()}
                                 </button>
@@ -620,7 +620,7 @@ export default function ListingClient({ listing: initialListing }: ListingClient
                                         )}
                                     </button>
                                     <div className="flex items-center gap-1 mt-0.5" title="Verified ID">
-                                        <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <svg className="w-4 h-4 text-[#3B82F6]" fill="currentColor" viewBox="0 0 20 20">
                                             <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                         </svg>
                                     </div>
@@ -658,15 +658,15 @@ export default function ListingClient({ listing: initialListing }: ListingClient
                             {/* Seller Metrics */}
                             <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-100">
                                 <div className="text-center">
-                                    <p className="text-lg font-bold text-gray-900">{(listing.seller?.profile as any)?.rating || 4.8}</p>
+                                    <p className="text-lg font-bold text-[#0F172A]">{(listing.seller?.profile as any)?.rating || 4.8}</p>
                                     <p className="text-[10px] text-gray-500 uppercase tracking-wide">Rating</p>
                                 </div>
                                 <div className="text-center border-l border-r border-gray-100">
-                                    <p className="text-lg font-bold text-gray-900">{(listing.seller?.profile as any)?.reviewCount || 12}</p>
+                                    <p className="text-lg font-bold text-[#0F172A]">{(listing.seller?.profile as any)?.reviewCount || 12}</p>
                                     <p className="text-[10px] text-gray-500 uppercase tracking-wide">Reviews</p>
                                 </div>
                                 <div className="text-center">
-                                    <p className="text-lg font-bold text-gray-900">{(listing.seller?.profile as any)?.responseRate || 95}%</p>
+                                    <p className="text-lg font-bold text-[#0F172A]">{(listing.seller?.profile as any)?.responseRate || 95}%</p>
                                     <p className="text-[10px] text-gray-500 uppercase tracking-wide">Response</p>
                                 </div>
                             </div>
@@ -728,13 +728,13 @@ export default function ListingClient({ listing: initialListing }: ListingClient
                             <div className="space-y-3 text-sm">
                                 <div className="flex justify-between py-2 border-b border-gray-50">
                                     <span className="text-gray-500">Type</span>
-                                    <span className="font-bold text-gray-900">
+                                    <span className="font-bold text-[#0F172A]">
                                         {listing.type === 'SERVICE' ? '🛠️ Service' : '📦 Product'}
                                     </span>
                                 </div>
                                 <div className="flex justify-between py-2 border-b border-gray-50">
                                     <span className="text-gray-500">Category</span>
-                                    <span className="font-bold text-gray-900">{listing.category.name}</span>
+                                    <span className="font-bold text-[#0F172A]">{listing.category.name}</span>
                                 </div>
                                 {listing.type !== 'SERVICE' && (
                                     <div className="flex justify-between py-2 border-b border-gray-50">
@@ -745,7 +745,7 @@ export default function ListingClient({ listing: initialListing }: ListingClient
                                 {listing.type === 'PHYSICAL' && (
                                     <div className="flex justify-between py-2 border-b border-gray-50">
                                         <span className="text-gray-500">Quantity Available</span>
-                                        <span className="font-bold text-gray-900">{listing.quantity}</span>
+                                        <span className="font-bold text-[#0F172A]">{listing.quantity}</span>
                                     </div>
                                 )}
                                 {listing.type === 'SERVICE' && (
@@ -772,7 +772,7 @@ export default function ListingClient({ listing: initialListing }: ListingClient
                                 </div>
                                 <div className="flex justify-between py-2">
                                     <span className="text-gray-500">Shipping</span>
-                                    <span className="font-bold text-gray-900">
+                                    <span className="font-bold text-[#0F172A]">
                                         {listing.shippingMeetInPerson && listing.shippingShipItem
                                             ? 'Meet-up or Shipping'
                                             : listing.shippingMeetInPerson
@@ -797,7 +797,7 @@ export default function ListingClient({ listing: initialListing }: ListingClient
                         {/* Post Ad Like This Button */}
                         <button
                             onClick={() => router.push('/create')}
-                            className="w-full py-3.5 bg-white border-2 border-blue-500 text-[#2563EB] font-bold rounded-xl hover:bg-blue-50 transition shadow-sm uppercase text-sm tracking-wide"
+                            className="w-full py-3.5 bg-white border-2 border-[#3B82F6] text-[#2563EB] font-bold rounded-xl hover:bg-[#EFF6FF] transition shadow-sm uppercase text-sm tracking-wide"
                         >
                             Post Ad Like This
                         </button>

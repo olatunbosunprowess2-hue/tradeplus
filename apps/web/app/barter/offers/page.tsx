@@ -121,7 +121,7 @@ export default function BarterOffersPage() {
                     <button
                         onClick={() => setFilter('all')}
                         className={`px-6 py-2 rounded-lg font-semibold transition ${filter === 'all'
-                            ? 'bg-blue-600 text-white'
+                            ? 'bg-[#1D4ED8] text-white'
                             : 'bg-white text-gray-700 hover:bg-gray-50'
                             }`}
                     >
@@ -130,7 +130,7 @@ export default function BarterOffersPage() {
                     <button
                         onClick={() => setFilter('sent')}
                         className={`px-6 py-2 rounded-lg font-semibold transition ${filter === 'sent'
-                            ? 'bg-blue-600 text-white'
+                            ? 'bg-[#1D4ED8] text-white'
                             : 'bg-white text-gray-700 hover:bg-gray-50'
                             }`}
                     >
@@ -139,7 +139,7 @@ export default function BarterOffersPage() {
                     <button
                         onClick={() => setFilter('received')}
                         className={`px-6 py-2 rounded-lg font-semibold transition ${filter === 'received'
-                            ? 'bg-blue-600 text-white'
+                            ? 'bg-[#1D4ED8] text-white'
                             : 'bg-white text-gray-700 hover:bg-gray-50'
                             }`}
                     >
@@ -150,7 +150,7 @@ export default function BarterOffersPage() {
                 {/* Loading State */}
                 {isLoading && (
                     <div className="text-center py-12">
-                        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#2563EB]"></div>
                     </div>
                 )}
 
@@ -160,7 +160,7 @@ export default function BarterOffersPage() {
                         <p className="text-xl text-gray-600 mb-4">No offers found</p>
                         <button
                             onClick={() => router.push('/listings')}
-                            className="text-blue-600 hover:text-blue-700 font-semibold"
+                            className="text-[#2563EB] hover:text-[#1D4ED8] font-semibold"
                         >
                             Browse listings to make an offer
                         </button>

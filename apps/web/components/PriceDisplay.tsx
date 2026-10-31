@@ -42,7 +42,7 @@ export default function PriceDisplay({
     if (priceCents === 0) {
         return (
             <div className={`font-bold ${className}`}>
-                <span className={`${sizeClasses[size]} text-gray-900`}>
+                <span className={`${sizeClasses[size]} text-[#0F172A]`}>
                     Free
                 </span>
             </div>
@@ -53,7 +53,7 @@ export default function PriceDisplay({
         <div className={`${className}`}>
             <span className="text-xs text-gray-500 block mb-0.5">Seller valued at</span>
             <div className="flex items-center gap-2">
-                <span className={`font-bold ${sizeClasses[size]} text-gray-900`}>
+                <span className={`font-bold ${sizeClasses[size]} text-[#0F172A]`}>
                     {price}
                 </span>
                 {originalPrice && (

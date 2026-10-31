@@ -50,7 +50,7 @@ export default function SecurityPage() {
         <div className="p-8 bg-gray-50 min-h-screen">
             <div className="flex justify-between items-center mb-8">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Security Command Center</h1>
+                    <h1 className="text-2xl font-bold text-[#0F172A]">Security Command Center</h1>
                     <p className="text-gray-500 text-sm">Bot Detection & IP Management</p>
                 </div>
                 <div className="bg-red-50 text-red-700 px-4 py-2 rounded-lg border border-red-100 text-sm font-medium flex items-center gap-2">
@@ -61,7 +61,7 @@ export default function SecurityPage() {
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                 <div className="p-6 border-b border-gray-200">
-                    <h2 className="text-lg font-bold text-gray-900">Suspicious Activity (Last 24h)</h2>
+                    <h2 className="text-lg font-bold text-[#0F172A]">Suspicious Activity (Last 24h)</h2>
                     <p className="text-sm text-gray-500 mt-1">High-risk IPs identified by multi-account behavior.</p>
                 </div>
 
@@ -89,7 +89,7 @@ export default function SecurityPage() {
                                     return (
                                         <tr key={record.ip} className="hover:bg-red-50/10 transition">
                                             <td className="px-6 py-4 font-mono text-sm text-gray-800">{record.ip}</td>
-                                            <td className="px-6 py-4 font-bold text-gray-900">{record.total_accounts}</td>
+                                            <td className="px-6 py-4 font-bold text-[#0F172A]">{record.total_accounts}</td>
                                             <td className="px-6 py-4 text-sm text-gray-500">
                                                 {new Date(record.last_seen).toLocaleString()}
                                             </td>

@@ -97,12 +97,12 @@ export default function AdminListingsPage() {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-gray-900">Listing Moderation</h1>
+                <h1 className="text-2xl font-bold text-[#0F172A]">Listing Moderation</h1>
                 <div className="flex gap-3">
                     <select
                         value={status}
                         onChange={(e) => setStatus(e.target.value)}
-                        className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm"
+                        className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#2563EB] text-sm"
                     >
                         <option value="">All Statuses</option>
                         <option value="active">Active</option>
@@ -114,7 +114,7 @@ export default function AdminListingsPage() {
                     <select
                         value={isDistressSale}
                         onChange={(e) => setIsDistressSale(e.target.value)}
-                        className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm"
+                        className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#2563EB] text-sm"
                     >
                         <option value="">All Sales</option>
                         <option value="true">Distress Sales</option>
@@ -127,7 +127,7 @@ export default function AdminListingsPage() {
                             placeholder="Search listings..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="pl-10 pr-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
+                            className="pl-10 pr-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#2563EB] focus:border-transparent w-64"
                         />
                         <svg
                             className="w-5 h-5 text-gray-400 absolute left-3 top-2.5"
@@ -194,7 +194,7 @@ export default function AdminListingsPage() {
                                                 <div>
                                                     <Link
                                                         href={`/listings/${listing.id}`}
-                                                        className="font-medium text-gray-900 hover:text-blue-600 block truncate max-w-[200px]"
+                                                        className="font-medium text-gray-900 hover:text-[#2563EB] block truncate max-w-[200px]"
                                                         target="_blank"
                                                     >
                                                         {listing.title}
@@ -206,7 +206,7 @@ export default function AdminListingsPage() {
                                         <td className="px-6 py-4 text-gray-600 text-sm">
                                             {listing.seller?.profile?.displayName || listing.seller?.email}
                                         </td>
-                                        <td className="px-6 py-4 font-medium text-gray-900">
+                                        <td className="px-6 py-4 font-medium text-[#0F172A]">
                                             {listing.priceCents ? `₦${(listing.priceCents / 100).toLocaleString()}` : 'Free'}
                                         </td>
                                         <td className="px-6 py-4">
@@ -227,7 +227,7 @@ export default function AdminListingsPage() {
                                                 ) : (
                                                     <button
                                                         onClick={() => initiateStatusChange(listing.id, listing.title, 'active')}
-                                                        className="text-green-600 hover:text-green-700 text-sm font-medium hover:bg-green-50 px-3 py-1 rounded-md transition"
+                                                        className="text-[#16A34A] hover:text-[#15803D] text-sm font-medium hover:bg-[#F0FDF4] px-3 py-1 rounded-md transition"
                                                     >
                                                         Activate
                                                     </button>

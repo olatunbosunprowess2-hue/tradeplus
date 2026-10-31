@@ -138,7 +138,7 @@ export default function CounterOfferModal({ isOpen, onClose, offer, onSubmit }: 
         <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center z-[10050] p-4 animate-in fade-in duration-200">
             <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200">
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-bold text-gray-900">Make a Counter Offer</h2>
+                    <h2 className="text-xl font-bold text-[#0F172A]">Make a Counter Offer</h2>
                     <button
                         onClick={onClose}
                         className="text-gray-400 hover:text-gray-600 transition"
@@ -152,7 +152,7 @@ export default function CounterOfferModal({ isOpen, onClose, offer, onSubmit }: 
                 {/* Original Offer */}
                 <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
                     <p className="text-sm font-semibold text-gray-700 mb-1">Original Offer</p>
-                    <p className="text-lg font-bold text-gray-900">
+                    <p className="text-lg font-bold text-[#0F172A]">
                         {getOriginalOfferDetails()}
                     </p>
                 </div>
@@ -170,8 +170,8 @@ export default function CounterOfferModal({ isOpen, onClose, offer, onSubmit }: 
                                     type="button"
                                     onClick={() => setOfferType(type)}
                                     className={`flex-1 py-2.5 px-3 rounded-lg font-semibold text-sm transition-all border-2 ${offerType === type
-                                        ? 'bg-blue-600 text-white border-blue-600'
-                                        : 'bg-white text-gray-700 border-gray-300 hover:border-blue-600'
+                                        ? 'bg-[#1D4ED8] text-white border-[#2563EB]'
+                                        : 'bg-white text-gray-700 border-gray-300 hover:border-[#2563EB]'
                                         }`}
                                 >
                                     {type === 'cash' ? 'Cash' : type === 'barter' ? 'Barter' : 'Both'}
@@ -205,7 +205,7 @@ export default function CounterOfferModal({ isOpen, onClose, offer, onSubmit }: 
                                     step="0.01"
                                     value={cashAmount}
                                     onChange={(e) => setCashAmount(e.target.value)}
-                                    className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 text-gray-900 font-medium transition-colors"
+                                    className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] text-gray-900 font-medium transition-colors"
                                     placeholder="Enter amount"
                                 />
                             </div>
@@ -232,11 +232,11 @@ export default function CounterOfferModal({ isOpen, onClose, offer, onSubmit }: 
                                             key={item.id}
                                             onClick={() => toggleListingSelection(item.id)}
                                             className={`flex items-center p-2 rounded-lg cursor-pointer border transition-all ${selectedListingIds.has(item.id)
-                                                ? 'bg-blue-50 border-blue-600'
+                                                ? 'bg-[#EFF6FF] border-[#2563EB]'
                                                 : 'hover:bg-gray-50 border-transparent'
                                                 }`}
                                         >
-                                            <div className={`w-5 h-5 rounded border flex items-center justify-center mr-3 ${selectedListingIds.has(item.id) ? 'bg-blue-600 border-blue-600' : 'border-gray-300'
+                                            <div className={`w-5 h-5 rounded border flex items-center justify-center mr-3 ${selectedListingIds.has(item.id) ? 'bg-[#1D4ED8] border-[#2563EB]' : 'border-gray-300'
                                                 }`}>
                                                 {selectedListingIds.has(item.id) && (
                                                     <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -274,7 +274,7 @@ export default function CounterOfferModal({ isOpen, onClose, offer, onSubmit }: 
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                             rows={3}
-                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 text-gray-900 placeholder:text-gray-500 font-medium resize-none transition-colors"
+                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] text-gray-900 placeholder:text-gray-500 font-medium resize-none transition-colors"
                             placeholder="Explain your counter offer..."
                         />
                     </div>
@@ -291,7 +291,7 @@ export default function CounterOfferModal({ isOpen, onClose, offer, onSubmit }: 
                         <button
                             type="submit"
                             disabled={(offerType !== 'cash' && selectedListingIds.size === 0)}
-                            className="flex-1 px-6 py-2 md:py-2.5 bg-blue-600 text-white rounded-full font-bold hover:bg-blue-700 transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                            className="flex-1 px-6 py-2 md:py-2.5 bg-[#1D4ED8] text-white rounded-full font-bold hover:bg-[#1E40AF] transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                         >
                             Send Counter Offer
                         </button>

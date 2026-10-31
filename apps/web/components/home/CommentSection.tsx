@@ -219,12 +219,12 @@ export default function CommentSection({ postId }: { postId: string }) {
             <div className="flex items-center gap-1.5 flex-wrap">
               <Link
                 href={`/profile/${c.authorId}`}
-                className="text-xs font-bold text-slate-900 hover:text-blue-600 transition-colors"
+                className="text-xs font-bold text-slate-900 hover:text-[#2563EB] transition-colors"
               >
                 {getDisplayName(c.author)}
               </Link>
               {isVerified(c.author) && (
-                <span className="p-0.5 rounded bg-blue-50 border border-blue-200 text-blue-600">
+                <span className="p-0.5 rounded bg-[#EFF6FF] border border-[#BFDBFE] text-[#2563EB]">
                   <ShieldCheck className="w-2.5 h-2.5" />
                 </span>
               )}
@@ -269,7 +269,7 @@ export default function CommentSection({ postId }: { postId: string }) {
             {user && !isReply && (
               <button
                 onClick={() => setReplyTo({ id: c.id, name: getDisplayName(c.author) })}
-                className="text-[11px] font-bold text-slate-400 hover:text-blue-600 transition-colors flex items-center gap-1"
+                className="text-[11px] font-bold text-slate-400 hover:text-[#2563EB] transition-colors flex items-center gap-1"
               >
                 <CornerDownRight className="w-3 h-3" />
                 <span>Reply</span>
@@ -294,7 +294,7 @@ export default function CommentSection({ postId }: { postId: string }) {
     <div className="border-t border-slate-200 bg-slate-50/40">
       {loading ? (
         <div className="p-4 flex justify-center">
-          <Loader2 className="w-4 h-4 text-blue-600 animate-spin" />
+          <Loader2 className="w-4 h-4 text-[#2563EB] animate-spin" />
         </div>
       ) : (
         <>
@@ -317,13 +317,13 @@ export default function CommentSection({ postId }: { postId: string }) {
             <div className="p-3 sm:p-3.5 border-t border-slate-200 bg-white">
               {/* Reply Indicator Target */}
               {replyTo && (
-                <div className="flex items-center justify-between bg-blue-50 px-2.5 py-1 rounded-t-md border border-blue-200 border-b-0 mb-1">
-                  <span className="text-[11px] font-medium text-blue-700">
+                <div className="flex items-center justify-between bg-[#EFF6FF] px-2.5 py-1 rounded-t-md border border-[#BFDBFE] border-b-0 mb-1">
+                  <span className="text-[11px] font-medium text-[#1D4ED8]">
                     Replying to <span className="font-bold">@{replyTo.name}</span>
                   </span>
                   <button
                     onClick={() => setReplyTo(null)}
-                    className="text-blue-500 hover:text-blue-700 p-0.5"
+                    className="text-[#3B82F6] hover:text-[#1D4ED8] p-0.5"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -349,7 +349,7 @@ export default function CommentSection({ postId }: { postId: string }) {
                           ? 'Write your reply...'
                           : 'Write a response or counter-offer...'
                       }
-                      className="w-full bg-slate-50 border border-slate-300 resize-none p-2.5 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 focus:bg-white rounded-md min-h-[56px] transition-all shadow-2xs leading-relaxed"
+                      className="w-full bg-slate-50 border border-slate-300 resize-none p-2.5 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] focus:bg-white rounded-md min-h-[56px] transition-all shadow-2xs leading-relaxed"
                       autoFocus={!!replyTo}
                     />
 
@@ -397,7 +397,7 @@ export default function CommentSection({ postId }: { postId: string }) {
                           className="inline-flex items-center gap-1.5 px-2 py-1 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 rounded text-[11px] font-semibold transition-colors disabled:opacity-50"
                         >
                           {uploading ? (
-                            <Loader2 className="w-3 h-3 animate-spin text-blue-600" />
+                            <Loader2 className="w-3 h-3 animate-spin text-[#2563EB]" />
                           ) : (
                             <ImageIcon className="w-3 h-3 text-slate-500" />
                           )}
@@ -414,7 +414,7 @@ export default function CommentSection({ postId }: { postId: string }) {
                       <button
                         type="submit"
                         disabled={(!newComment.trim() && images.length === 0) || submitting || uploading}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 transition-colors shadow-xs"
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-[#1D4ED8] text-white text-xs font-bold hover:bg-[#1E40AF] active:bg-[#1E3A8A] disabled:opacity-50 transition-colors shadow-xs"
                       >
                         {submitting ? (
                           <Loader2 className="w-3 h-3 animate-spin" />

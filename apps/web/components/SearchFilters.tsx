@@ -207,7 +207,7 @@ export default function SearchFilters({ onApply }: { onApply?: () => void }) {
           ].map((item) => (
             <label
               key={item.value}
-              className="flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-700 hover:text-slate-900"
+              className="flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-700 hover:text-[#0F172A]"
             >
               <input
                 type="radio"
@@ -215,7 +215,7 @@ export default function SearchFilters({ onApply }: { onApply?: () => void }) {
                 value={item.value}
                 checked={type === item.value}
                 onChange={(e) => setType(e.target.value)}
-                className="text-blue-600 focus:ring-blue-600/20 h-3.5 w-3.5 border-slate-300"
+                className="text-[#2563EB] focus:ring-[#2563EB]/20 h-3.5 w-3.5 border-slate-300"
               />
               <span>{item.label}</span>
             </label>
@@ -237,7 +237,7 @@ export default function SearchFilters({ onApply }: { onApply?: () => void }) {
             ].map((item) => (
               <label
                 key={item.value}
-                className="flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-700 hover:text-slate-900"
+                className="flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-700 hover:text-[#0F172A]"
               >
                 <input
                   type="radio"
@@ -245,7 +245,7 @@ export default function SearchFilters({ onApply }: { onApply?: () => void }) {
                   value={item.value}
                   checked={condition === item.value}
                   onChange={(e) => setCondition(e.target.value)}
-                  className="text-blue-600 focus:ring-blue-600/20 h-3.5 w-3.5 border-slate-300"
+                  className="text-[#2563EB] focus:ring-[#2563EB]/20 h-3.5 w-3.5 border-slate-300"
                 />
                 <span>{item.label}</span>
               </label>
@@ -262,7 +262,7 @@ export default function SearchFilters({ onApply }: { onApply?: () => void }) {
         <select
           value={tradeType}
           onChange={(e) => setTradeType(e.target.value)}
-          className="w-full px-3 py-2 border border-slate-300 rounded-md text-xs text-slate-900 bg-white focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition-colors"
+          className="w-full px-3 py-2 border border-slate-300 rounded-md text-xs text-slate-900 bg-white focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] outline-none transition-colors"
         >
           <option value="">Any</option>
           <option value="cash">Cash Only</option>
@@ -274,7 +274,7 @@ export default function SearchFilters({ onApply }: { onApply?: () => void }) {
       {/* Country Display (Locked) */}
       {activeCountry && (
         <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-md flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600 flex-shrink-0">
+          <div className="w-7 h-7 rounded bg-[#EFF6FF] border border-[#BFDBFE] flex items-center justify-center text-[#2563EB] flex-shrink-0">
             <MapPin className="w-3.5 h-3.5" />
           </div>
           <div className="min-w-0">
@@ -308,7 +308,7 @@ export default function SearchFilters({ onApply }: { onApply?: () => void }) {
             placeholder="Min"
             value={minPrice}
             onChange={(e) => setMinPrice(e.target.value)}
-            className="w-full px-3 py-2 border border-slate-300 rounded-md text-xs text-slate-900 bg-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition-colors"
+            className="w-full px-3 py-2 border border-slate-300 rounded-md text-xs text-slate-900 bg-white placeholder:text-slate-400 focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] outline-none transition-colors"
           />
           <span className="text-slate-400 text-xs">-</span>
           <input
@@ -316,7 +316,7 @@ export default function SearchFilters({ onApply }: { onApply?: () => void }) {
             placeholder="Max"
             value={maxPrice}
             onChange={(e) => setMaxPrice(e.target.value)}
-            className="w-full px-3 py-2 border border-slate-300 rounded-md text-xs text-slate-900 bg-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition-colors"
+            className="w-full px-3 py-2 border border-slate-300 rounded-md text-xs text-slate-900 bg-white placeholder:text-slate-400 focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] outline-none transition-colors"
           />
         </div>
       </div>
@@ -324,7 +324,7 @@ export default function SearchFilters({ onApply }: { onApply?: () => void }) {
       {/* Apply Filters Button */}
       <button
         onClick={applyFilters}
-        className="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white py-2.5 rounded-md font-bold text-xs transition-colors shadow-xs"
+        className="w-full bg-[#1D4ED8] hover:bg-[#1E40AF] active:bg-[#1E3A8A] text-white py-2.5 rounded-md font-bold text-xs transition-colors shadow-xs"
       >
         Apply Filters
       </button>

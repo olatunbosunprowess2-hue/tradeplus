@@ -67,7 +67,7 @@ export default function AddWantModal({ isOpen, onClose }: AddWantModalProps) {
                                 required
                                 type="text"
                                 placeholder="e.g. iPhone 14 Pro"
-                                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 text-gray-900 placeholder:text-gray-500 font-medium transition-colors"
+                                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] text-gray-900 placeholder:text-gray-500 font-medium transition-colors"
                                 value={formData.title}
                                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                             />
@@ -78,7 +78,7 @@ export default function AddWantModal({ isOpen, onClose }: AddWantModalProps) {
                                 <label className="block text-sm font-semibold text-gray-800 mb-1.5">Category</label>
                                 <select
                                     required
-                                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 text-base text-gray-900 font-medium bg-white transition-colors cursor-pointer"
+                                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] text-base text-gray-900 font-medium bg-white transition-colors cursor-pointer"
                                     value={formData.category}
                                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                                 >
@@ -102,7 +102,7 @@ export default function AddWantModal({ isOpen, onClose }: AddWantModalProps) {
                             <div>
                                 <label className="block text-sm font-semibold text-gray-800 mb-1.5">Condition</label>
                                 <select
-                                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 text-base text-gray-900 font-medium bg-white transition-colors cursor-pointer"
+                                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] text-base text-gray-900 font-medium bg-white transition-colors cursor-pointer"
                                     value={formData.condition}
                                     onChange={(e) => setFormData({ ...formData, condition: e.target.value as Condition })}
                                 >
@@ -118,7 +118,7 @@ export default function AddWantModal({ isOpen, onClose }: AddWantModalProps) {
                                 <label className="block text-sm font-semibold text-gray-800 mb-1.5">Country</label>
                                 <select
                                     required
-                                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 text-base text-gray-900 font-medium bg-white transition-colors cursor-pointer"
+                                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] text-base text-gray-900 font-medium bg-white transition-colors cursor-pointer"
                                     value={formData.country}
                                     onChange={(e) => setFormData({ ...formData, country: e.target.value })}
                                 >
@@ -149,7 +149,7 @@ export default function AddWantModal({ isOpen, onClose }: AddWantModalProps) {
                                     required
                                     type="text"
                                     placeholder="e.g. Lagos"
-                                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 text-gray-900 placeholder:text-gray-500 font-medium transition-colors"
+                                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] text-gray-900 placeholder:text-gray-500 font-medium transition-colors"
                                     value={formData.state}
                                     onChange={(e) => setFormData({ ...formData, state: e.target.value })}
                                 />
@@ -165,7 +165,7 @@ export default function AddWantModal({ isOpen, onClose }: AddWantModalProps) {
                                         type="button"
                                         onClick={() => setFormData({ ...formData, tradeMethod: method })}
                                         className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium border transition-colors ${formData.tradeMethod === method
-                                            ? 'bg-blue-50 border-blue-600 text-blue-800'
+                                            ? 'bg-[#EFF6FF] border-[#2563EB] text-[#1E40AF]'
                                             : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
                                             }`}
                                     >
@@ -180,7 +180,7 @@ export default function AddWantModal({ isOpen, onClose }: AddWantModalProps) {
                             <textarea
                                 placeholder="Specific color, storage size, max price..."
                                 rows={3}
-                                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 text-gray-900 placeholder:text-gray-500 font-medium resize-none transition-colors"
+                                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] text-gray-900 placeholder:text-gray-500 font-medium resize-none transition-colors"
                                 value={formData.notes}
                                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                             />
@@ -188,7 +188,7 @@ export default function AddWantModal({ isOpen, onClose }: AddWantModalProps) {
 
                         <button
                             type="submit"
-                            className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition-colors shadow-sm"
+                            className="w-full bg-[#1D4ED8] text-white py-3 rounded-lg font-bold hover:bg-[#1E40AF] transition-colors shadow-sm"
                         >
                             Add to Wants List
                         </button>

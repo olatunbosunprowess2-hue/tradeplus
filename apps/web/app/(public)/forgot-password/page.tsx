@@ -74,12 +74,12 @@ export default function ForgotPasswordPage() {
                 alt="BarterWave"
                 className="w-9 h-9 object-contain group-hover:scale-105 transition-transform"
               />
-              <span className="text-xl font-bold tracking-tight text-slate-900">
-                Barter<span className="text-blue-600">Wave</span>
+              <span className="text-xl font-bold tracking-tight text-[#0F172A]">
+                Barter<span className="text-[#2563EB]">Wave</span>
               </span>
             </Link>
 
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+            <h1 className="text-2xl font-bold tracking-tight text-[#0F172A]">
               {submitted ? 'Check your email' : 'Reset your password'}
             </h1>
             <p className="mt-1.5 text-xs text-slate-500">
@@ -118,7 +118,7 @@ export default function ForgotPasswordPage() {
                 </button>
                 <Link
                   href="/login"
-                  className="block w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold text-center rounded-md shadow-sm transition-colors"
+                  className="block w-full py-2.5 px-4 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-sm font-semibold text-center rounded-md shadow-sm transition-colors"
                 >
                   Back to Sign in
                 </Link>
@@ -143,7 +143,7 @@ export default function ForgotPasswordPage() {
                     className={`block w-full pl-10 pr-3.5 py-2.5 text-sm bg-white border rounded-md text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 transition-colors ${
                       errors.email
                         ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/20'
-                        : 'border-slate-300 focus:border-blue-600 focus:ring-blue-600/20'
+                        : 'border-slate-300 focus:border-[#2563EB] focus:ring-[#2563EB]/20'
                     }`}
                   />
                 </div>
@@ -158,7 +158,7 @@ export default function ForgotPasswordPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full mt-2 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 text-white text-sm font-semibold rounded-md shadow-sm transition-all flex items-center justify-center gap-2"
+                className="w-full mt-2 py-2.5 px-4 bg-[#1D4ED8] hover:bg-[#1E40AF] active:bg-[#1E3A8A] disabled:opacity-50 text-white text-sm font-semibold rounded-md shadow-sm transition-all flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>

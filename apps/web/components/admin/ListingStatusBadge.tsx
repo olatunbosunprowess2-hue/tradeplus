@@ -8,9 +8,9 @@ export default function ListingStatusBadge({ status }: ListingStatusBadgeProps) 
     const getStatusStyles = (status: string) => {
         switch (status.toLowerCase()) {
             case 'active':
-                return 'bg-green-100 text-green-800 border-green-200';
+                return 'bg-[#DCFCE7] text-[#14532D] border-green-200';
             case 'sold':
-                return 'bg-blue-100 text-blue-800 border-blue-200';
+                return 'bg-[#DBEAFE] text-[#1E40AF] border-[#BFDBFE]';
             case 'suspended':
             case 'flagged':
                 return 'bg-red-100 text-red-800 border-red-200';

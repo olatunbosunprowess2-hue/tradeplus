@@ -74,7 +74,7 @@ export function getPasswordStrength(password: string): {
         { label: 'Weak', color: 'bg-orange-500' },
         { label: 'Fair', color: 'bg-yellow-500' },
         { label: 'Good', color: 'bg-lime-500' },
-        { label: 'Strong', color: 'bg-green-500' },
+        { label: 'Strong', color: 'bg-[#22C55E]' },
     ];
 
     return {

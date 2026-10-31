@@ -24,9 +24,9 @@ const DOWNPAYMENT_OPTIONS = [
 function StatusBadge({ status }: { status: string }) {
     const colors: Record<string, string> = {
         pending: 'bg-yellow-100 text-yellow-800',
-        accepted: 'bg-green-100 text-green-800',
+        accepted: 'bg-[#DCFCE7] text-[#14532D]',
         rejected: 'bg-red-100 text-red-800',
-        countered: 'bg-blue-100 text-blue-800',
+        countered: 'bg-[#DBEAFE] text-[#1E40AF]',
         cancelled: 'bg-gray-100 text-gray-600',
     };
 
@@ -41,8 +41,8 @@ function DownpaymentBadge({ status }: { status: string }) {
     const config: Record<string, { color: string; icon: string }> = {
         none: { color: 'bg-gray-100 text-gray-500', icon: '—' },
         awaiting_payment: { color: 'bg-orange-100 text-orange-700', icon: '⏳' },
-        paid: { color: 'bg-blue-100 text-blue-700', icon: '💰' },
-        confirmed: { color: 'bg-green-100 text-green-700', icon: '✅' },
+        paid: { color: 'bg-[#DBEAFE] text-[#1D4ED8]', icon: '💰' },
+        confirmed: { color: 'bg-[#DCFCE7] text-[#15803D]', icon: '✅' },
     };
 
     const c = config[status] || config.none;
@@ -98,7 +98,7 @@ export default function AdminTradesPage() {
         <div className="space-y-6">
             {/* Header */}
             <div>
-                <h1 className="text-2xl font-bold text-gray-900">Trade Monitor</h1>
+                <h1 className="text-2xl font-bold text-[#0F172A]">Trade Monitor</h1>
                 <p className="text-sm text-gray-600 mt-1">
                     Monitor all barter offers and downpayment statuses · {total} total trades
                 </p>
@@ -109,7 +109,7 @@ export default function AdminTradesPage() {
                 <select
                     value={status}
                     onChange={(e) => { setStatus(e.target.value); setPage(1); }}
-                    className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm"
+                    className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#2563EB] text-sm"
                 >
                     {STATUS_OPTIONS.map(o => (
                         <option key={o.value} value={o.value}>{o.label}</option>
@@ -119,7 +119,7 @@ export default function AdminTradesPage() {
                 <select
                     value={downpaymentStatus}
                     onChange={(e) => { setDownpaymentStatus(e.target.value); setPage(1); }}
-                    className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm"
+                    className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#2563EB] text-sm"
                 >
                     {DOWNPAYMENT_OPTIONS.map(o => (
                         <option key={o.value} value={o.value}>{o.label}</option>
@@ -132,7 +132,7 @@ export default function AdminTradesPage() {
                         placeholder="Search by listing, buyer, or seller..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#2563EB] focus:border-transparent text-sm"
                     />
                     <svg className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -160,7 +160,7 @@ export default function AdminTradesPage() {
                                 <tr>
                                     <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
                                         <div className="flex items-center justify-center gap-2">
-                                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600" />
+                                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#2563EB]" />
                                             Loading trades...
                                         </div>
                                     </td>
@@ -195,7 +195,7 @@ export default function AdminTradesPage() {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="text-sm">
-                                                <div className="font-medium text-gray-900">
+                                                <div className="font-medium text-[#0F172A]">
                                                     {trade.buyer?.profile?.displayName || 'Unknown'}
                                                 </div>
                                                 <div className="text-xs text-gray-500 truncate max-w-[140px]">
@@ -205,7 +205,7 @@ export default function AdminTradesPage() {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="text-sm">
-                                                <div className="font-medium text-gray-900">
+                                                <div className="font-medium text-[#0F172A]">
                                                     {trade.seller?.profile?.displayName || 'Unknown'}
                                                 </div>
                                                 <div className="text-xs text-gray-500 truncate max-w-[140px]">

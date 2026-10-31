@@ -62,7 +62,7 @@ export default function OfferCard({
     pending: 'bg-amber-50 text-amber-700 border-amber-200',
     accepted: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     rejected: 'bg-rose-50 text-rose-700 border-rose-200',
-    countered: 'bg-blue-50 text-blue-700 border-blue-200',
+    countered: 'bg-[#EFF6FF] text-[#1D4ED8] border-[#BFDBFE]',
     withdrawn: 'bg-slate-100 text-slate-500 border-slate-200',
     cancelled: 'bg-slate-100 text-slate-500 border-slate-200',
   };
@@ -125,8 +125,8 @@ export default function OfferCard({
           <p className="text-xs font-semibold text-slate-800 mt-1.5 truncate">
             {hasCash && <span className="text-emerald-700">{cashText}</span>}
             {hasCash && hasItems && <span className="text-slate-400 mx-1">+</span>}
-            {hasItems && <span className="text-blue-700">{barterItemsText}</span>}
-            {!hasCash && !hasItems && <span className="text-blue-600 font-medium">Barter trade</span>}
+            {hasItems && <span className="text-[#1D4ED8]">{barterItemsText}</span>}
+            {!hasCash && !hasItems && <span className="text-[#2563EB] font-medium">Barter trade</span>}
           </p>
         </div>
       </div>
@@ -145,7 +145,7 @@ export default function OfferCard({
         <div className="px-4 pb-4 flex gap-2">
           <button
             onClick={() => onViewDetails?.(offer)}
-            className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-bold text-xs transition-colors shadow-xs flex items-center justify-center gap-1.5"
+            className="flex-1 py-2 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-md font-bold text-xs transition-colors shadow-xs flex items-center justify-center gap-1.5"
           >
             <Eye className="w-3.5 h-3.5" />
             <span>Review Offer</span>
@@ -171,7 +171,7 @@ export default function OfferCard({
           {offer.status === 'rejected' && isBuyer && (
             <button
               onClick={() => router.push(`/listings/${offer.listingId}`)}
-              className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-bold text-xs transition-colors shadow-xs flex items-center justify-center gap-1.5"
+              className="flex-1 py-2 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white rounded-md font-bold text-xs transition-colors shadow-xs flex items-center justify-center gap-1.5"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               <span>Make New Offer</span>

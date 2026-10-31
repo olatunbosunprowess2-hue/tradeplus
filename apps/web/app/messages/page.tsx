@@ -92,7 +92,7 @@ export default function MessagesPage() {
         <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white pb-20">
             {/* Mobile Header */}
             <div className="md:hidden h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 shadow-sm">
-                <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                <h1 className="text-xl font-bold bg-[#1D4ED8] bg-clip-text text-transparent">
                     Messages
                 </h1>
                 <div className="flex items-center gap-2">
@@ -107,7 +107,7 @@ export default function MessagesPage() {
 
             {/* Desktop Header */}
             <div className="hidden md:block container mx-auto px-4 max-w-4xl pt-5 pb-3 border-b border-gray-200">
-                <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                <h1 className="text-xl font-bold bg-[#1D4ED8] bg-clip-text text-transparent">
                     Messages
                 </h1>
             </div>
@@ -119,7 +119,7 @@ export default function MessagesPage() {
                     <LoadingSkeleton />
                 ) : conversations.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-16 text-center">
-                        <div className="w-20 h-20 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-full flex items-center justify-center mb-4 border-2 border-blue-100">
+                        <div className="w-20 h-20 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-full flex items-center justify-center mb-4 border-2 border-[#DBEAFE]">
                             <span className="text-4xl">💬</span>
                         </div>
                         <h3 className="text-xl font-bold text-gray-900 mb-2">No messages yet</h3>
@@ -128,7 +128,7 @@ export default function MessagesPage() {
                         </p>
                         <Link
                             href="/listings"
-                            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl"
+                            className="px-6 py-3 bg-[#1D4ED8] text-white rounded-xl font-bold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl"
                         >
                             Browse Listings
                         </Link>
@@ -144,12 +144,12 @@ export default function MessagesPage() {
                                 <div className="flex items-center gap-3">
                                     {/* Initial avatar */}
                                     <div className="relative flex-shrink-0">
-                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm ${conversation.unreadCount > 0 ? 'bg-gradient-to-br from-blue-600 to-indigo-600' : 'bg-gray-400'}`}>
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm ${conversation.unreadCount > 0 ? 'bg-gradient-to-br from-[#1D4ED8] to-[#1E40AF]' : 'bg-gray-400'}`}>
                                             {conversation.participantName.charAt(0)}
                                         </div>
                                         {/* Online status dot */}
                                         <span className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${conversation.participantLastActiveAt && (Date.now() - new Date(conversation.participantLastActiveAt).getTime() < 2 * 60 * 1000)
-                                                ? 'bg-green-500'
+                                                ? 'bg-[#22C55E]'
                                                 : 'bg-gray-300'
                                             }`} />
                                         {conversation.unreadCount > 0 && (
@@ -162,7 +162,7 @@ export default function MessagesPage() {
                                     {/* Content */}
                                     <div className="flex-1 min-w-0">
                                         <div className="flex justify-between items-center">
-                                            <h3 className={`font-semibold text-sm truncate ${conversation.unreadCount > 0 ? 'text-gray-900' : 'text-gray-700'}`}>
+                                            <h3 className={`font-semibold text-sm truncate ${conversation.unreadCount > 0 ? 'text-[#0F172A]' : 'text-gray-700'}`}>
                                                 {conversation.participantName}
                                             </h3>
                                             {conversation.lastMessage && (
@@ -174,7 +174,7 @@ export default function MessagesPage() {
 
                                         {/* Listing Context — text only */}
                                         {conversation.listingContext && (
-                                            <p className="text-xs text-blue-600 truncate mt-0.5">
+                                            <p className="text-xs text-[#2563EB] truncate mt-0.5">
                                                 Re: {conversation.listingContext.title}
                                             </p>
                                         )}

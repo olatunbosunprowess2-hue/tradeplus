@@ -119,32 +119,38 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
 
             {/* ── 1. Commitment Phase ── */}
             {offer.status === 'accepted' && (
-                <div className="px-3 pb-3">
+                <div className="px-3 pb-3 space-y-2.5">
                     {otherHasLocked && !hasLocked && (
-                        <div className="flex items-center gap-2 bg-orange-50 border border-orange-100 rounded-lg px-3 py-2 mb-2">
-                            <span className="px-1.5 py-0.5 bg-orange-100 text-orange-800 rounded text-[9px] font-bold uppercase tracking-wider">WAITING</span>
-                            <p className="text-[11px] text-orange-700 font-bold">{otherPartyName} has locked — waiting for you!</p>
+                        <div className="flex items-center gap-2.5 bg-amber-500/10 border border-amber-500/30 rounded-xl px-3.5 py-2.5 shadow-sm">
+                            <span className="px-2 py-0.5 bg-amber-500 text-white rounded text-[9px] font-black uppercase tracking-wider shadow-xs">WAITING FOR YOU</span>
+                            <p className="text-xs text-amber-900 font-bold">{otherPartyName} has locked — seal the deal to start safe exchange!</p>
                         </div>
                     )}
                     <button
                         onClick={handleLockDeal}
                         disabled={isLoading || hasLocked}
-                        className={`w-full py-2.5 rounded-lg font-bold text-xs transition-all flex items-center justify-center gap-1.5 ${
+                        className={`w-full py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
                             hasLocked
-                                ? 'bg-green-50 text-green-700 border border-green-200 cursor-default'
-                                : 'bg-[#1D4ED8] text-white hover:bg-[#1E40AF] active:scale-[0.98] shadow-[0_2px_8px_rgba(29,78,216,0.30)]'
+                                ? 'bg-emerald-500/10 text-emerald-800 border border-emerald-500/30 cursor-default font-extrabold shadow-xs'
+                                : 'bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] hover:from-[#1D4ED8] hover:to-[#1E40AF] text-white shadow-[0_4px_16px_rgba(37,99,235,0.35)] active:scale-[0.98]'
                         }`}
                     >
                         {isLoading ? (
                             <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                         ) : hasLocked ? (
-                            <>Locked</>
+                            <span className="flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded bg-emerald-600 inline-block" />
+                                Deal Locked by You
+                            </span>
                         ) : (
-                            <>Lock Deal</>
+                            <span className="flex items-center gap-1.5">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                                Lock Deal (Commit)
+                            </span>
                         )}
                     </button>
                     {!hasLocked && (
-                        <p className="text-[10px] text-gray-400 text-center mt-1.5">Both parties must lock to start the exchange phase</p>
+                        <p className="text-[10px] text-slate-400 text-center font-medium">Both parties must lock to initiate the local meetup handshake</p>
                     )}
                 </div>
             )}
@@ -154,19 +160,26 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
                 <div className="px-3 pb-3 space-y-2.5">
                     {/* Buyer PIN display card */}
                     {isBuyer && offer.pickupPin && (
-                        <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-center">
-                            <span className="px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded text-[9px] font-bold uppercase tracking-wider">YOUR EXCHANGE CODE</span>
-                            <p className="text-2xl font-mono font-black tracking-widest text-slate-900 select-all my-1">{offer.pickupPin}</p>
-                            <p className="text-[10px] text-slate-500 font-medium">Share this code with {otherPartyName} at the meetup only after inspecting and receiving your item.</p>
+                        <div className="bg-gradient-to-br from-slate-900 to-slate-950 text-white border border-slate-800 rounded-xl p-4 text-center shadow-lg relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl pointer-events-none" />
+                            <span className="px-2 py-0.5 bg-blue-500/20 text-blue-300 border border-blue-400/30 rounded text-[9px] font-black uppercase tracking-widest inline-block mb-1">
+                                YOUR 6-DIGIT EXCHANGE CODE
+                            </span>
+                            <p className="text-3xl font-mono font-black tracking-[0.25em] text-white select-all my-1.5 drop-shadow-sm">
+                                {offer.pickupPin}
+                            </p>
+                            <p className="text-[11px] text-slate-300 font-medium max-w-xs mx-auto leading-relaxed">
+                                Share this secret code with <strong className="text-white">{otherPartyName}</strong> in person only after inspecting and testing the item thoroughly.
+                            </p>
                         </div>
                     )}
 
                     {/* Seller PIN verification input */}
                     {isSeller && !hasFulfilled && (
-                        <div className="bg-slate-50 border border-slate-200 rounded-lg p-3">
-                            <div className="flex items-center justify-between mb-1.5">
-                                <span className="text-[11px] font-bold text-slate-800">Enter Buyer's Exchange PIN:</span>
-                                <span className="px-1.5 py-0.2 bg-blue-50 text-blue-700 rounded text-[9px] font-bold uppercase">INSTANT</span>
+                        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 shadow-xs">
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-xs font-bold text-slate-900">Enter Buyer's Exchange PIN:</span>
+                                <span className="px-1.5 py-0.5 bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 rounded text-[9px] font-black uppercase">INSTANT VERIFY</span>
                             </div>
                             <div className="flex gap-2">
                                 <input
@@ -175,12 +188,12 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
                                     value={pinInput}
                                     onChange={(e) => setPinInput(e.target.value.replace(/\D/g, ''))}
                                     placeholder="6-digit PIN"
-                                    className="flex-1 px-3 py-1.5 bg-white border border-slate-300 rounded text-center font-mono font-bold text-sm tracking-widest focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                                    className="flex-1 px-3.5 py-2.5 bg-white border border-slate-300 rounded-lg text-center font-mono font-black text-base tracking-[0.2em] text-[#0F172A] focus:ring-2 focus:ring-[#22C55E] focus:border-[#16A34A] focus:outline-none shadow-inner"
                                 />
                                 <button
                                     onClick={() => handleVerifyPickup(pinInput)}
                                     disabled={isLoading || pinInput.length !== 6}
-                                    className="px-3.5 py-1.5 bg-[#16A34A] hover:bg-[#15803D] disabled:opacity-40 text-white font-bold text-xs rounded transition-colors shadow-[0_2px_6px_rgba(22,163,74,0.25)]"
+                                    className="px-5 py-2.5 bg-gradient-to-r from-[#22C55E] to-[#16A34A] hover:from-[#16A34A] hover:to-[#15803D] disabled:opacity-40 text-white font-black text-xs uppercase tracking-wider rounded-lg transition-all shadow-[0_4px_14px_rgba(22,163,74,0.35)] active:scale-[0.98]"
                                 >
                                     Verify
                                 </button>
@@ -189,58 +202,59 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
                     )}
 
                     {otherHasFulfilled && (
-                        <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-2">
-                            <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded text-[9px] font-bold uppercase tracking-wider">CONFIRMED</span>
-                            <p className="text-[11px] text-emerald-800 font-bold">
-                                {otherPartyName} confirmed — your turn!
+                        <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-3.5 py-2.5">
+                            <span className="px-1.5 py-0.5 bg-[#16A34A] text-white rounded text-[9px] font-black uppercase tracking-wider shadow-xs">CONFIRMED</span>
+                            <p className="text-xs text-emerald-950 font-bold">
+                                {otherPartyName} confirmed exchange — please verify on your end!
                             </p>
                         </div>
                     )}
 
                     {hasFulfilled ? (
-                        <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg px-3 py-2.5">
+                        <div className="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-3.5 py-3">
                             <div className="flex items-center gap-2">
-                                <span className="text-green-600 text-sm font-bold">✓</span>
-                                <span className="text-xs font-bold text-green-700">You confirmed exchange</span>
+                                <span className="w-5 h-5 rounded-full bg-[#16A34A] text-white flex items-center justify-center text-xs font-black shadow-xs">✓</span>
+                                <span className="text-xs font-bold text-emerald-900">Exchange confirmed on your side</span>
                             </div>
                             {!otherHasFulfilled && (
-                                <span className="text-[10px] text-gray-400 font-medium italic">Waiting for {otherPartyName}...</span>
+                                <span className="text-[10px] text-slate-500 font-semibold italic">Waiting for {otherPartyName}...</span>
                             )}
                         </div>
                     ) : showConfirmExchange ? (
-                        <div className="bg-amber-50 border border-amber-100 rounded-lg p-3">
-                            <p className="text-[11px] text-amber-800 font-bold mb-2">Are you sure? This confirms the exchange in person.</p>
+                        <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3.5">
+                            <p className="text-xs text-amber-950 font-bold mb-2.5">Confirming will mark this trade as fulfilled and release any obligations. Proceed?</p>
                             <div className="flex gap-2">
                                 <button
                                     onClick={() => setShowConfirmExchange(false)}
-                                    className="flex-1 py-2 bg-white text-gray-600 rounded-lg text-xs font-bold border border-gray-200 hover:bg-gray-50 transition"
+                                    className="flex-1 py-2 bg-white text-slate-700 rounded-lg text-xs font-bold border border-slate-200 hover:bg-slate-50 transition"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     onClick={() => handleVerifyPickup()}
                                     disabled={isLoading}
-                                    className="flex-1 py-2 bg-[#16A34A] text-white rounded-lg text-xs font-bold hover:bg-[#15803D] active:scale-[0.98] transition shadow-[0_2px_8px_rgba(22,163,74,0.30)]"
+                                    className="flex-1 py-2 bg-gradient-to-r from-[#22C55E] to-[#16A34A] text-white rounded-lg text-xs font-black uppercase tracking-wider hover:from-[#16A34A] hover:to-[#15803D] active:scale-[0.98] transition shadow-[0_4px_14px_rgba(22,163,74,0.35)]"
                                 >
-                                    {isLoading ? 'Confirming...' : 'Yes, Confirm'}
+                                    {isLoading ? 'Confirming...' : 'Yes, Confirm Exchange'}
                                 </button>
                             </div>
                         </div>
                     ) : (
                         <button
                             onClick={() => setShowConfirmExchange(true)}
-                            className="w-full py-2.5 bg-[#1D4ED8] text-white rounded-lg font-bold text-xs hover:bg-[#1E40AF] active:scale-[0.98] transition shadow-[0_2px_8px_rgba(29,78,216,0.30)] flex items-center justify-center gap-1.5"
+                            className="w-full py-3 bg-gradient-to-r from-[#22C55E] to-[#16A34A] text-white rounded-xl font-black text-xs uppercase tracking-wider hover:from-[#16A34A] hover:to-[#15803D] active:scale-[0.98] transition shadow-[0_4px_16px_rgba(22,163,74,0.35)] flex items-center justify-center gap-1.5"
                         >
-                            Confirm Exchange
+                            <span>Confirm Exchange</span>
+                            <span className="text-sm">→</span>
                         </button>
                     )}
 
                     {/* Dispute link */}
                     <button
                         onClick={() => setShowDisputeModal(true)}
-                        className="w-full text-[10px] font-semibold text-gray-400 hover:text-red-500 py-1 transition flex items-center justify-center gap-1"
+                        className="w-full text-[10px] font-bold uppercase tracking-wider text-slate-400 hover:text-rose-600 py-1 transition flex items-center justify-center gap-1"
                     >
-                        Report Issue
+                        Report Issue / Dispute Trade
                     </button>
                 </div>
             )}
@@ -248,9 +262,9 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
             {/* ── 3. Completed ── */}
             {offer.status === 'completed' && (
                 <div className="text-center px-3 pb-3">
-                    <div className="bg-green-50 rounded-lg py-3 flex items-center justify-center gap-2">
-                        <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
-                        <span className="text-sm font-bold text-green-800">Trade Complete</span>
+                    <div className="bg-[#F0FDF4] rounded-lg py-3 flex items-center justify-center gap-2">
+                        <svg className="w-5 h-5 text-[#16A34A]" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+                        <span className="text-sm font-bold text-[#14532D]">Trade Complete</span>
                     </div>
                 </div>
             )}

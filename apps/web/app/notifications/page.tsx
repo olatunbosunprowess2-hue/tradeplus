@@ -130,7 +130,7 @@ export default function NotificationsPage() {
     switch (type) {
       case 'message':
       case 'NEW_MESSAGE':
-        return <MessageSquare className="w-4 h-4 text-blue-600" />;
+        return <MessageSquare className="w-4 h-4 text-[#2563EB]" />;
       case 'NEW_OFFER':
       case 'offer':
       case 'OFFER_COUNTERED':
@@ -146,7 +146,7 @@ export default function NotificationsPage() {
         return <Ban className="w-4 h-4 text-rose-600" />;
       case 'order':
       case 'ORDER_CONFIRMED':
-        return <Package className="w-4 h-4 text-blue-600" />;
+        return <Package className="w-4 h-4 text-[#2563EB]" />;
       case 'ESCROW_HELD':
       case 'ESCROW_CODE':
       case 'ESCROW_RELEASED':
@@ -154,7 +154,7 @@ export default function NotificationsPage() {
       case 'VERIFICATION_REJECTED':
         return <AlertCircle className="w-4 h-4 text-amber-600" />;
       case 'VERIFICATION_REQUEST':
-        return <UserCheck className="w-4 h-4 text-blue-600" />;
+        return <UserCheck className="w-4 h-4 text-[#2563EB]" />;
       case 'LISTING_SOLD':
       case 'LISTING_EXPIRED':
         return <Tag className="w-4 h-4 text-slate-700" />;
@@ -181,16 +181,16 @@ export default function NotificationsPage() {
         <div className="bg-white border border-slate-200 rounded-xl p-5 sm:p-6 shadow-xs mb-5">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3.5">
-              <div className="w-10 h-10 rounded-lg bg-blue-50 border border-blue-200/80 flex items-center justify-center text-blue-600 shrink-0">
+              <div className="w-10 h-10 rounded-lg bg-[#EFF6FF] border border-[#BFDBFE]/80 flex items-center justify-center text-[#2563EB] shrink-0">
                 <Bell className="w-5 h-5" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+                  <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#0F172A]">
                     Notifications
                   </h1>
                   {unreadCount > 0 && (
-                    <span className="text-[10px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
+                    <span className="text-[10px] font-bold bg-[#DBEAFE] text-[#1D4ED8] px-2 py-0.5 rounded">
                       {unreadCount} Unread
                     </span>
                   )}
@@ -206,7 +206,7 @@ export default function NotificationsPage() {
                 onClick={() => markAllAsRead()}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 active:bg-slate-200 text-slate-700 text-xs font-semibold rounded-md border border-slate-200 transition-colors shadow-2xs shrink-0"
               >
-                <CheckCheck className="w-3.5 h-3.5 text-blue-600" />
+                <CheckCheck className="w-3.5 h-3.5 text-[#2563EB]" />
                 <span>Mark all as read</span>
               </button>
             )}
@@ -225,7 +225,7 @@ export default function NotificationsPage() {
                 onClick={() => setActiveFilter(tab.id as NotificationFilter)}
                 className={`px-3 py-1.5 text-xs font-bold rounded-md transition-colors shrink-0 ${
                   activeFilter === tab.id
-                    ? 'bg-blue-600 text-white shadow-2xs'
+                    ? 'bg-[#1D4ED8] text-white shadow-2xs'
                     : 'text-slate-600 hover:bg-slate-100'
                 }`}
               >
@@ -255,7 +255,7 @@ export default function NotificationsPage() {
             </p>
             <Link
               href="/"
-              className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-md shadow-xs transition-colors"
+              className="inline-flex items-center px-4 py-2 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-xs font-semibold rounded-md shadow-xs transition-colors"
             >
               Explore Marketplace
             </Link>
@@ -271,7 +271,7 @@ export default function NotificationsPage() {
                   onClick={(e) => handleNotificationClick(e, notification)}
                   className={`group block bg-white rounded-lg border transition-all p-3.5 sm:p-4 cursor-pointer shadow-2xs hover:shadow-xs hover:border-slate-300 ${
                     isUnread
-                      ? 'border-l-4 border-l-blue-600 border-slate-200 bg-blue-50/20'
+                      ? 'border-l-4 border-l-blue-600 border-slate-200 bg-[#EFF6FF]/20'
                       : 'border-slate-200'
                   }`}
                 >
@@ -287,14 +287,14 @@ export default function NotificationsPage() {
                         <p
                           className={`text-xs sm:text-sm leading-snug ${
                             isUnread
-                              ? 'font-bold text-slate-900'
+                              ? 'font-bold text-[#0F172A]'
                               : 'font-medium text-slate-700'
                           }`}
                         >
                           {notification.data?.message || 'New notification update'}
                         </p>
                         {isUnread && (
-                          <span className="w-2 h-2 rounded-full bg-blue-600 shrink-0 mt-1" />
+                          <span className="w-2 h-2 rounded-full bg-[#1D4ED8] shrink-0 mt-1" />
                         )}
                       </div>
 
@@ -306,7 +306,7 @@ export default function NotificationsPage() {
                           })}
                         </span>
                         <span className="text-slate-300">&bull;</span>
-                        <span className="text-blue-600 group-hover:underline font-semibold">
+                        <span className="text-[#2563EB] group-hover:underline font-semibold">
                           View details
                         </span>
                       </div>
