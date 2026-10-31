@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { KeyRound, CheckCircle2, Lock } from 'lucide-react';
 import TradeStepper from './TradeStepper';
 import TradeCompleteModal from './TradeCompleteModal';
 import apiClient from '@/lib/api-client';
@@ -171,36 +172,37 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
             {/* ── 2. Fulfillment Phase (Compact & Secure) ── */}
             {offer.status === 'awaiting_fulfillment' && (
                 <div className="px-3 pb-3 space-y-2">
-                    {/* Buyer PIN display card — Ultra-Compact Bar */}
-                    {isBuyer && offer.pickupPin && (
-                        <div className="bg-slate-900 border border-slate-800 text-white rounded-xl px-3 py-2 flex items-center justify-between shadow-sm">
-                            <div className="flex items-center gap-2.5 min-w-0">
-                                <div className="flex items-center gap-1.5 bg-white/10 border border-white/15 px-2.5 py-1 rounded-lg shrink-0">
-                                    <span className="font-mono font-black text-base tracking-[0.2em] text-white">
-                                        {offer.pickupPin}
+                    {/* Buyer PIN display (Balanced Micro-Card) */}
+                    {isBuyer && !hasFulfilled && (
+                        <div className="bg-[#0B1120] border border-slate-800 text-white rounded-2xl p-3 shadow-md space-y-2">
+                            {/* Top Header: 6-Digit PIN & Live Status */}
+                            <div className="flex items-center justify-between gap-2">
+                                <div className="flex items-center gap-2 bg-white/10 border border-white/20 px-3 py-1.5 rounded-xl shadow-inner">
+                                    <KeyRound className="w-4 h-4 text-emerald-400 shrink-0" />
+                                    <span className="font-mono font-black text-lg tracking-[0.25em] text-white select-all">
+                                        {(offer.pickupPin || offer.pickup_pin)}
                                     </span>
                                 </div>
-                                <div className="min-w-0">
-                                    <p className="text-[11px] font-extrabold text-white leading-tight truncate">
-                                        Exchange PIN
-                                    </p>
-                                    <p className="text-[9px] text-slate-400 leading-tight truncate font-medium">
-                                        Show code to {otherPartyName} after inspecting item
-                                    </p>
+                                <div className="flex items-center gap-1.5 shrink-0 bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-1 rounded-lg">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                                    <span className="text-[10px] text-emerald-300 font-extrabold uppercase tracking-wider whitespace-nowrap">
+                                        Awaiting Scan
+                                    </span>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-1.5 shrink-0 bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 rounded-md">
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                                <span className="text-[9px] text-emerald-300 font-black uppercase tracking-wider">
-                                    Awaiting Scan
-                                </span>
+
+                            {/* Bottom: Full Untruncated Instructions */}
+                            <div className="pt-1.5 border-t border-slate-800/80">
+                                <p className="text-[11.5px] text-slate-300 font-medium leading-relaxed">
+                                    Show this 6-digit code to <strong className="text-white font-bold">{otherPartyName}</strong> in person <span className="text-emerald-400 font-bold">only after</span> inspecting and testing your item.
+                                </p>
                             </div>
                         </div>
                     )}
 
-                    {/* Seller PIN verification input (Compact Bar) */}
+                    {/* Seller PIN verification input (Balanced Micro-Card) */}
                     {isSeller && !hasFulfilled && (
-                        <div className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 shadow-xs space-y-1.5">
+                        <div className="bg-slate-50 border border-slate-200/90 rounded-2xl p-3 shadow-xs space-y-2">
                             <div className="flex items-center gap-2">
                                 <input
                                     type="text"
@@ -208,19 +210,21 @@ export default function TradeActionPanel({ offer, currentUserId, onUpdate }: Tra
                                     value={pinInput}
                                     onChange={(e) => setPinInput(e.target.value.replace(/\D/g, ''))}
                                     placeholder="Enter 6-digit PIN"
-                                    className="flex-1 px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-center font-mono font-black text-sm tracking-[0.2em] text-[#0F172A] focus:ring-2 focus:ring-[#22C55E] focus:border-[#16A34A] focus:outline-none shadow-inner"
+                                    className="flex-1 px-3 py-2 bg-white border border-slate-300 rounded-xl text-center font-mono font-black text-base tracking-[0.25em] text-[#0F172A] focus:ring-2 focus:ring-[#22C55E] focus:border-[#16A34A] focus:outline-none shadow-inner placeholder:font-normal placeholder:tracking-normal placeholder:text-slate-400"
                                 />
                                 <button
                                     onClick={() => handleVerifyPickup(pinInput)}
                                     disabled={isLoading || pinInput.length !== 6}
-                                    className="px-4 py-1.5 bg-gradient-to-r from-[#22C55E] to-[#16A34A] hover:from-[#16A34A] hover:to-[#15803D] disabled:opacity-40 text-white font-black text-xs uppercase tracking-wider rounded-lg transition-all shadow-sm active:scale-95 shrink-0"
+                                    className="px-4 py-2.5 bg-gradient-to-r from-[#22C55E] to-[#16A34A] hover:from-[#16A34A] hover:to-[#15803D] disabled:opacity-40 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-sm active:scale-95 shrink-0"
                                 >
-                                    Verify
+                                    Verify Code
                                 </button>
                             </div>
-                            <p className="text-[9px] text-slate-500 font-medium text-center">
-                                Verify {otherPartyName}&apos;s code at the meetup after handing over the item
-                            </p>
+                            <div className="pt-1.5 border-t border-slate-200/80">
+                                <p className="text-[11.5px] text-slate-600 font-medium leading-snug">
+                                    Ask <strong className="text-slate-900 font-bold">{otherPartyName}</strong> for their 6-digit code after handing over the item.
+                                </p>
+                            </div>
                         </div>
                     )}
 
